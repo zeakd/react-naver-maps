@@ -1,10 +1,9 @@
 import React from 'react'
 import ResizeDetector from 'react-resize-detector'
 import invariant from 'invariant'
-
-// 이거들 부터.
 import debug from 'debug'
 import { pick, isEmpty, debounce } from 'lodash'
+import uuid from 'uuid/v4'
 
 import createLogger from '../utils/createLogger'
 import compose from '../utils/compose'
@@ -43,15 +42,6 @@ const pickMapOptions = obj => pick(obj, [
   'zoomControlOptions',
   'zoomOrigin',
 ])
-
-/**
- * 1. props로 listener를 받아 instance에 addListener
- * 2. mount시 map인스턴스를 생성
- * 3. unmount시 map인스턴스를 파괴
- * 4. props를 받아 map인스턴스를 업데이트
- * 5. updating중에는 event를 발생시키지 않고, 업데이트도 패스.
- * 6. overscrolling중에는 updating block.
- */
 
  /**
   * mount
@@ -95,11 +85,7 @@ class MapDOM extends React.Component  {
       <div id={id} className={className}>
         <div id={mapDivId} style={{ width: "100%", height: "100%" }}/>
         <ResizeDetector handleWidth handleHeight onResize={this.handleResize}/>
-
-        {/* render empty Children(Overlay, Control, etc) */}
-        {/* {instance && React.Children.map(children, (child) => {
-          return React.cloneElement(child, { naver: window.naver, map: this.map, key: child.key || uuid() });
-        })} */}
+        {children}
       </div>
     )
   }
@@ -200,7 +186,6 @@ const withNaverMapInstance = WrappedComponent => {
       if (mapTypeId) { mapOptions.mapTypeId = mapTypeId }
       if (size) { mapOptions.size = size }
       if (bounds) { mapOptions.bounds = bounds }
-      log('map options', mapDivId, mapOptions)
   
       this.map = new navermaps.Map(mapDivId, mapOptions);
       invariant(this.map, 'naver.maps.Map instance creation failure') 
@@ -249,13 +234,14 @@ const withNaverMapInstance = WrappedComponent => {
     }
   
     updateMapInstance () {
-      log ("updateInstance");
-      // do not use destructing for size, bounds, center, zoom, mapTypeId
-      // they can be asyncly changed during updateInstance.
+      // log ("updateInstance");
   
       const { 
         zoomEffect, 
-        transitionOptions
+        transitionOptions,
+
+        zoom,
+        center,
       } = this.props;
   
       // panning issue
@@ -272,11 +258,11 @@ const withNaverMapInstance = WrappedComponent => {
         (this.props.zoom === 14 && this.scrolling)
   
         // // is updating
-        // || this.updating
+        || this.updating
       ) {
   
         // blocking update
-        log('updateInstance RETRY');
+        // log('updateInstance RETRY');
 
         // retry after timeout 
         this.reupdateTimeout = setTimeout(() => {
@@ -287,7 +273,7 @@ const withNaverMapInstance = WrappedComponent => {
       } 
   
       // update
-      log('updateInstance UPDATE!')
+      // log('updateInstance UPDATE!')
 
       // setting properties issue
       //
@@ -299,19 +285,19 @@ const withNaverMapInstance = WrappedComponent => {
       // zoom first to avoid issue 1
   
       // set zoom if need
-      if (this.props.zoom !== this.map.getZoom()) {
+      if (zoom !== this.map.getZoom()) {
   
-        log('UPDATE ZOOM', this.map.getZoom(), this.props.zoom)
+        // log('UPDATE ZOOM', this.map.getZoom(), zoom)
         this.updating = true;
-        this.map.setZoom(this.props.zoom, zoomEffect);
+        this.map.setZoom(zoom, zoomEffect);
       }
         
       // set center
-      if (this.props.center && !this.props.center.equals(this.map.getCenter())) {
+      if (center && !center.equals(this.map.getCenter())) {
   
-        log('updateInstance UPDATE %cCENTER', 'background: #222; color: red', this.map.getCenter(), this.props.center)
+        // log('updateInstance UPDATE %cCENTER', 'background: #222; color: red', this.map.getCenter(), center)
         this.updating = true;
-        this.map.panTo(this.props.center, transitionOptions);
+        this.map.panTo(center, transitionOptions);
       }
   
       // // set else this.map options
@@ -332,16 +318,16 @@ const withNaverMapInstance = WrappedComponent => {
     // proxy onCenterChanged. for blocking when update.
     handleCenterChanged (...args) {
       const center = args[0];
-      const {
-        navermaps
-      } = this.props;
-  
-      log('handleCenterChagned');
-      new navermaps.Marker({
-        position: center.clone(),
-        map: this.map
-      })
 
+      // const {
+      //   navermaps
+      // } = this.props;
+  
+      // log('handleCenterChagned');
+      // new navermaps.Marker({
+      //   position: center.clone(),
+      //   map: this.map
+      // })
       
       if (!this.updating) this.props.onCenterChanged(...args)
     }
@@ -353,26 +339,40 @@ const withNaverMapInstance = WrappedComponent => {
     }
 
     render () {
+      const {
+        children
+      } = this.props;
+
       return (
         <WrappedComponent 
           {...this.props} 
           instance={this.map}
           onCenterChanged={this.props.onCenterChanged && this.handleCenterChanged}
           onBoundsChanged={this.props.onBoundsChanged && this.handleBoundsChanged}
-        />
+        >
+          {/* render empty Children(Overlay, Control, etc) */}
+          {this.map && React.Children.map(children, (child) => {
+            return React.cloneElement(child, { map: this.map, key: child.key || uuid() });
+          })}
+        </WrappedComponent>
       )
     }
 
     componentDidMount () {
+  
       this.createMapInstance();
+
+      // update after create instance for mount children.
       this.forceUpdate();
     }
 
     componentDidUpdate () {
+
       this.updateMapInstance();
     }
 
     componentWillUnmount () {
+      
       if (this.map) this.destroyMapInstance();
     }
   }
