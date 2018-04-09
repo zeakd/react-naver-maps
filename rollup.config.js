@@ -23,7 +23,7 @@ export default [
 	// },
 	{
 		input: 'src/index.js',
-    external: peerDependencies.concat(dependencies),
+    external: peerDependencies.concat(dependencies).concat(['uuid/v4', 'react-dom/server']),
     plugins: [
       babel({
         exclude: 'node_modules/**'

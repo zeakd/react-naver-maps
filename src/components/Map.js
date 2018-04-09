@@ -4,11 +4,13 @@ import invariant from 'invariant'
 import debug from 'debug'
 import { pick, isEmpty, debounce } from 'lodash'
 import uuid from 'uuid/v4'
+import { compose, wrapDisplayName } from 'recompose'
 
+import namedWrapper from '../utils/namedWrapper'
 import createLogger from '../utils/createLogger'
-import compose from '../utils/compose'
 import withNavermaps from '../withNavermaps'
 import withNaverEvents from '../withNaverEvents'
+import withNaverInstanceRef from '../withNaverInstanceRef'
 
 const pickMapOptions = obj => pick(obj, [
   'background',
@@ -60,7 +62,7 @@ const pickMapOptions = obj => pick(obj, [
  
 const log = createLogger('Map');
 
-class MapDOM extends React.Component  {
+class NaverMapDom extends React.Component  {
   constructor (props) {
     super(props);
 
@@ -91,50 +93,8 @@ class MapDOM extends React.Component  {
   }
 };
 
-const defaultProps = {
-  mapDivId: 'naver-map',
-  zoomEffect: false,
-
-  // size,
-  // bounds,
-  // center,
-  // zoom,
-  // mapTypeId,
-
-  // background,
-  // baseTileOpacity,
-  // disableDoubleClickZoom,
-  // disableDoubleTapZoom,
-  // disableKineticPan,
-  // disableTwoFingerTapZoom,
-  // draggable,
-  // keyboardShortcuts,
-  // logoControl,
-  // logoControlOptions,
-  // mapDataControl,
-  // mapDataControlOptions,
-  // mapTypeControl,
-  // mapTypeControlOptions,
-  // mapTypes,
-  // maxBounds,
-  // maxZoom,
-  // minZoom,
-  // padding,
-  // pinchZoom,
-  // resizeOrigin,
-  // scaleControl,
-  // scaleControlOptions,
-  // scrollWheel,
-  // overlayZoomEffect,
-  // tileSpare,
-  // tileTransition,
-  // zoomControl,
-  // zoomControlOptions,
-  // zoomOrigin,
-}
-
 const withNaverMapInstance = WrappedComponent => {
-  class MapInstance extends React.PureComponent {
+  class NaverMapInstance extends React.PureComponent {
     constructor (props) {
       super(props);
 
@@ -236,7 +196,7 @@ const withNaverMapInstance = WrappedComponent => {
     updateMapInstance () {
       // log ("updateInstance");
   
-      const { 
+      const {
         zoomEffect, 
         transitionOptions,
 
@@ -300,14 +260,14 @@ const withNaverMapInstance = WrappedComponent => {
         this.map.panTo(center, transitionOptions);
       }
   
-      // // set else this.map options
-      // const mapOptions = pickMapOptions(this.props);
+      // set else this.map options
+      const mapOptions = pickMapOptions(this.props);
   
-      // // TODO: deep check mapOptions 
-      // if (!isEmpty(mapOptions)) {
+      // TODO: deep check mapOptions 
+      if (!isEmpty(mapOptions)) {
   
-      //   this.map.setOptions(mapOptions);
-      // }
+        this.map.setOptions(mapOptions);
+      }
     }
   
     destroyMapInstance () {
@@ -340,7 +300,8 @@ const withNaverMapInstance = WrappedComponent => {
 
     render () {
       const {
-        children
+        children,
+        naverInstanceRef,
       } = this.props;
 
       return (
@@ -377,8 +338,8 @@ const withNaverMapInstance = WrappedComponent => {
     }
   }
 
-  // MapInstance component default props
-  MapInstance.defaultProps = {
+  // NaverMapInstance component default props
+  NaverMapInstance.defaultProps = {
     naverEventNames: [
       'addLayer',
       'click',
@@ -422,18 +383,60 @@ const withNaverMapInstance = WrappedComponent => {
     zoomEffect: false,
   }
 
-  const name = WrappedComponent.displayName || WrappedComponent.name;
-  MapInstance.displayName = `withNaverMapInstance(${name})`;
+  NaverMapInstance.displayName = wrapDisplayName(WrappedComponent, 'withNaverMapInstance');
 
-  return MapInstance;
+  return NaverMapInstance;
 }
 
-const Composed = compose(
+// compose naver Map Component
+const NaverMap = compose(
+  namedWrapper('NaverMap'),
   withNavermaps(),
+  withNaverInstanceRef,
   withNaverMapInstance,
   withNaverEvents,
-)(MapDOM)
+)(NaverMapDom)
 
-Composed.defaultProps = defaultProps;
+NaverMap.defaultProps = {
+  mapDivId: 'naver-map',
+  zoomEffect: false,
 
-export default Composed;
+  // size,
+  // bounds,
+  // center,
+  // zoom,
+  // mapTypeId,
+
+  // background,
+  // baseTileOpacity,
+  // disableDoubleClickZoom,
+  // disableDoubleTapZoom,
+  // disableKineticPan,
+  // disableTwoFingerTapZoom,
+  // draggable,
+  // keyboardShortcuts,
+  // logoControl,
+  // logoControlOptions,
+  // mapDataControl,
+  // mapDataControlOptions,
+  // mapTypeControl,
+  // mapTypeControlOptions,
+  // mapTypes,
+  // maxBounds,
+  // maxZoom,
+  // minZoom,
+  // padding,
+  // pinchZoom,
+  // resizeOrigin,
+  // scaleControl,
+  // scaleControlOptions,
+  // scrollWheel,
+  // overlayZoomEffect,
+  // tileSpare,
+  // tileTransition,
+  // zoomControl,
+  // zoomControlOptions,
+  // zoomOrigin,
+};
+
+export default NaverMap;

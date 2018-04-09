@@ -1,3 +1,8 @@
-export { default as Map } from './components/Map.js'
-export { default as withNavermaps } from './withNavermaps.js'
-export { default as withNaverEvents } from './withNaverEvents.js'
+// components
+export { default as Map } from './components/Map'
+export { default as Marker } from './components/Marker'
+export { default as Panorama } from './components/Panorama'
+
+// hocs
+export { default as withNavermaps } from './withNavermaps'
+export { default as withNaverEvents } from './withNaverEvents'

@@ -2,15 +2,17 @@ import React from 'react'
 import ResizeDetector from 'react-resize-detector'
 import invariant from 'invariant'
 import debug from 'debug'
+import { compose, wrapDisplayName } from 'recompose'
 
-import withNavermaps from '../withNaverEvents'
+import createLogger from '../utils/createLogger'
+import namedWrapper from '../utils/namedWrapper'
+import withNavermaps from '../withNavermaps'
 import withNaverEvents from '../withNaverEvents'
+import withNaverInstanceRef from '../withNaverInstanceRef'
 
-import compose from '../util/compose'
+const log = createLogger('Panorama');
 
-const log = debug('ReactNaverMaps:Panorama');
-
-class PanoramaDOM extends React.PureComponent {
+class NaverPanoramaDOM extends React.PureComponent {
   constructor (props) {
     super(props);
     
@@ -43,12 +45,17 @@ class PanoramaDOM extends React.PureComponent {
   }
 }
 
-PanoramaDOM.defaultProps = {
-  panoDivId: 'naver-pano',
-}
-
 const withNaverPanoramaInstance = WrappedComponent => {
-  class MapInstance extends React.PureComponent {
+  class NaverPanoramaInstance extends React.PureComponent {
+    render () {
+      return (
+        <WrappedComponent 
+          {...this.props} 
+          instance={this.pano}
+          ref={this.props.naverInstanceRef}
+        />
+      )
+    }
 
     // create panorama instance
     createPanoramaInstance () {
@@ -107,7 +114,7 @@ const withNaverPanoramaInstance = WrappedComponent => {
     }
   }
 
-  MapInstance.defaultProps = {
+  NaverPanoramaInstance.defaultProps = {
     naverEventNames: [
       'init',
       'pano_changed',
@@ -116,15 +123,25 @@ const withNaverPanoramaInstance = WrappedComponent => {
     ],
   }
 
-  return MapInstance;
+  NaverPanoramaInstance.displayName = wrapDisplayName(WrappedComponent, 'withNaverPanoramaInstance');
+
+  return NaverPanoramaInstance;
 }
 
-export default compose(
+// compose Panorama component
+const Panorama = compose(
+  namedWrapper('NaverPanorama'),
   withNavermaps({ submodules: ['Panorama'] }),
+  withNaverInstanceRef,
   withNaverPanoramaInstance,
   withNaverEvents,
-)(PanoramaDOM)
+)(NaverPanoramaDOM)
 
+Panorama.defaultProps = {
+  panoDivId: 'naver-pano',
+}
+
+export default Panorama;
 
 // class Panorama extends Base {
 //   shouldComponentUpdate(nextProps) {

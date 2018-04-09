@@ -2,13 +2,13 @@ import React from 'react'
 import invariant from 'invariant'
 import debug from 'debug'
 import { camelCase, difference } from 'lodash'
-
+import { wrapDisplayName } from 'recompose'
 import createLogger from './utils/createLogger'
 
 const log = createLogger('withNaverEvents');
 
 const withNaverEvents = WrappedComponent => {
-  class WithNaverEvents extends React.PureComponent {
+  class NaverEvents extends React.PureComponent {
     constructor (props) {
       super(props);
 
@@ -96,10 +96,9 @@ const withNaverEvents = WrappedComponent => {
     }
   }
 
-  const name = WrappedComponent.displayName || WrappedComponent.name;
-  WithNaverEvents.displayName = `withNaverEvents(${name})`;
+  NaverEvents.displayName = wrapDisplayName(WrappedComponent, 'withNaverEvents');
 
-  return WithNaverEvents
+  return NaverEvents;
 }
   
 

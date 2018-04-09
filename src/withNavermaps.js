@@ -1,8 +1,9 @@
 import React from 'react'
 import invariant from 'invariant'
+import { wrapDisplayName } from 'recompose'
 
 const withNavermaps = ({ submodules = []} = {}) => WrappedComponent => {
-  class WithNavermaps extends React.Component {
+  class Navermaps extends React.Component {
     constructor (props) {
       super(props);
       
@@ -14,8 +15,6 @@ const withNavermaps = ({ submodules = []} = {}) => WrappedComponent => {
           invariant(navermaps[submodule], `navermaps.${submodule} is required`)
         })
       }
-
-      this.hi = 'hihi'
     }
     
     getNavermapsModule () {
@@ -24,16 +23,14 @@ const withNavermaps = ({ submodules = []} = {}) => WrappedComponent => {
     
     render () {
       const navermaps = this.getNavermapsModule();
-      const { ...restProps } = this.props;
       
-      return <WrappedComponent {...restProps} navermaps={navermaps} />
+      return <WrappedComponent {...this.props} navermaps={navermaps} />
     }
   }
 
-  const name = WrappedComponent.displayName || WrappedComponent.name;
-  WithNavermaps.displayName = `withNavermaps(${name})`;
+  Navermaps.displayName = wrapDisplayName(WrappedComponent, 'withNavermaps');
   
-  return WithNavermaps;
+  return Navermaps;
 }
   
 export default withNavermaps;
