@@ -9,13 +9,13 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "start": "rollup -c -w"
+    "start": "rollup -c -w",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "debug": "^3.1.0",
     "invariant": "^2.2.4",
     "lodash": "^4.17.5",
-    "lodash.pick": "^4.4.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-resize-detector": "^2.2.0",

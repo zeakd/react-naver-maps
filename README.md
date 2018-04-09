@@ -60,19 +60,34 @@ const NaverMapLoadable = Loadable({
 
 ### Map
 
-** props **
+**props**
 - `zoom`
 - `center`
 
-#### Marker
+### Marker
 
-** props **
+**props**
 
 ### Panorama
 
-## TODO
+**props**
 
+## TODO
+- [ ] Map의 kvo
+- [ ] Panorama의 kvo 
+- [ ] hocs 사용법
+- [ ] example
+- [ ] docs
+ 
 ## Contribute
 이 슈 환 영
+
 피 알 환 영
 
+## FAQ
+
+####  왜 Readme를 한국어로 작성하였나요?
+
+naver.maps 문서가 한국어 문서만 지원하기 때문입니다. 영어를 잘 못하기도 하고요.
+  
+  
