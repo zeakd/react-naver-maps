@@ -20,7 +20,6 @@
     "react-dom": "^16.3.1",
     "react-resize-detector": "^2.2.0",
     "recompose": "^0.26.0",
-    "shallow-equal": "^1.0.0",
     "uuid": "^3.2.1"
   },
   "peerDependencies": {

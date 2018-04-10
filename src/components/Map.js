@@ -12,6 +12,47 @@ import withNavermaps from '../withNavermaps'
 import withNaverEvents from '../withNaverEvents'
 import withNaverInstanceRef from '../withNaverInstanceRef'
 
+const naverEventNames = [
+  'addLayer',
+  'click',
+  'dblclick',
+  'doubletap',
+  'drag',
+  'dragend',
+  'dragstart',
+  'idle',
+  'keydown',
+  'keyup',
+  'longtap',
+  'mousedown',
+  'mousemove',
+  'mouseout',
+  'mouseover',
+  'mouseup',
+  'panning',
+  'pinch',
+  'pinchend',
+  'pinchstart',
+  'removeLayer',
+  'resize',
+  'rightclick',
+  'tap',
+  'tilesloaded',
+  'touchend',
+  'touchmove',
+  'touchstart',
+  'twofingertap',
+  'zooming',
+  'mapType_changed',
+  'mapTypeId_changed',
+  'size_changed',
+  'bounds_changed',
+  'center_changed',
+  'centerPoint_changed',
+  'projection_changed',
+  'zoom_changed',
+];
+
 const pickMapOptions = obj => pick(obj, [
   'background',
   'baseTileOpacity',
@@ -110,6 +151,8 @@ const withNaverMapInstance = WrappedComponent => {
       this.handleCenterChanged = this.handleCenterChanged.bind(this);
       this.handleBoundsChanged = this.handleBoundsChanged.bind(this);
 
+      // zoom, center, bounds, etc are changed same time
+      // so update instance occur multiple times
       this.updateMapInstance = debounce(this.updateMapInstance, 0)
     }
 
@@ -128,7 +171,6 @@ const withNaverMapInstance = WrappedComponent => {
       const {
         navermaps, 
 
-        // TODO: change to lodash.pick
         center,
         zoom,
         mapTypeId,
@@ -150,7 +192,7 @@ const withNaverMapInstance = WrappedComponent => {
       this.map = new navermaps.Map(mapDivId, mapOptions);
       invariant(this.map, 'naver.maps.Map instance creation failure') 
   
-      // there is a macos inertial scroll bug. 
+      // there is a macOS inertial scroll bug. 
       // check user scrolling
       // scroll event occur on mavdivId > div > div
       const scrollDiv = document.querySelector(`#${mapDivId} > div > div`)
@@ -197,11 +239,14 @@ const withNaverMapInstance = WrappedComponent => {
       // log ("updateInstance");
   
       const {
+        navermaps, 
+
         zoomEffect, 
         transitionOptions,
 
         zoom,
         center,
+        bounds,
       } = this.props;
   
       // panning issue
@@ -231,35 +276,52 @@ const withNaverMapInstance = WrappedComponent => {
   
         return;
       } 
-  
+
       // update
       // log('updateInstance UPDATE!')
 
-      // setting properties issue
-      //
-      // issue 1: setZoom and panTo can not be executed in parallel. 
-      // issue 2: morph clear view before move. 
-      // issue 3: zooming bug with morph 
-      // (repeat zoom in and out with debounce. morph always take times because of animation)
-      //
-      // zoom first to avoid issue 1
-  
-      // set zoom if need
-      if (zoom !== this.map.getZoom()) {
-  
-        // log('UPDATE ZOOM', this.map.getZoom(), zoom)
-        this.updating = true;
-        this.map.setZoom(zoom, zoomEffect);
+      // bounds is exclusive with center, zoom
+      // if there is props.bounds, ignore props.center and props.zoom      
+
+      if (bounds && bounds.length > 0) {
+
+        // update if need to change
+        if (!this.map.getBounds().equals(bounds)) {
+
+          this.updating = true;
+
+          this.map.fitBounds(bounds, 
+            { top: 10, right: 10, bottom: 10, left: 10 });
+        }
+      } else {
+                
+        // setting properties issue
+        //
+        // issue 1: setZoom and panTo can not be executed in parallel. 
+        // issue 2: morph method clear view before move. 
+        // issue 3: zooming bug with morph 
+        // (repeat zoom in and out with debounce. morph always take times because of animation)
+        //
+        // zoom first to avoid issue 1
+        //
+        
+        // set zoom if need
+        if (zoom !== this.map.getZoom()) {
+          
+          // log('UPDATE ZOOM', this.map.getZoom(), zoom)
+          this.updating = true;
+          this.map.setZoom(zoom, zoomEffect);
+        }
+        
+        // set center
+        if (center && !center.equals(this.map.getCenter())) {
+          
+          // log('updateInstance UPDATE %cCENTER', 'background: #222; color: red', this.map.getCenter(), center)
+          this.updating = true;
+          this.map.panTo(center, transitionOptions);
+        }
       }
         
-      // set center
-      if (center && !center.equals(this.map.getCenter())) {
-  
-        // log('updateInstance UPDATE %cCENTER', 'background: #222; color: red', this.map.getCenter(), center)
-        this.updating = true;
-        this.map.panTo(center, transitionOptions);
-      }
-  
       // set else this.map options
       const mapOptions = pickMapOptions(this.props);
   
@@ -312,7 +374,7 @@ const withNaverMapInstance = WrappedComponent => {
           onBoundsChanged={this.props.onBoundsChanged && this.handleBoundsChanged}
         >
           {/* render empty Children(Overlay, Control, etc) */}
-          {this.map && React.Children.map(children, (child) => {
+          {this.map && children && React.Children.map(children, (child) => {
             return React.cloneElement(child, { map: this.map, key: child.key || uuid() });
           })}
         </WrappedComponent>
@@ -340,46 +402,7 @@ const withNaverMapInstance = WrappedComponent => {
 
   // NaverMapInstance component default props
   NaverMapInstance.defaultProps = {
-    naverEventNames: [
-      'addLayer',
-      'click',
-      'dblclick',
-      'doubletap',
-      'drag',
-      'dragend',
-      'dragstart',
-      'idle',
-      'keydown',
-      'keyup',
-      'longtap',
-      'mousedown',
-      'mousemove',
-      'mouseout',
-      'mouseover',
-      'mouseup',
-      'panning',
-      'pinch',
-      'pinchend',
-      'pinchstart',
-      'removeLayer',
-      'resize',
-      'rightclick',
-      'tap',
-      'tilesloaded',
-      'touchend',
-      'touchmove',
-      'touchstart',
-      'twofingertap',
-      'zooming',
-      'mapType_changed',
-      'mapTypeId_changed',
-      'size_changed',
-      'bounds_changed',
-      'center_changed',
-      'centerPoint_changed',
-      'projection_changed',
-      'zoom_changed',
-    ],
+    naverEventNames,
     zoomEffect: false,
   }
 
