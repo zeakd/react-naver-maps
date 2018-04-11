@@ -1,9 +1,9 @@
-> 현재 이 라이브러리는 작업중입니다. Map의 zoom, center, Marker가 간략히 구현되어 있습니다.
+> 이 라이브러리는 지속적으로 작업이 진행중입니다. 
 
 # react-naver-maps
 Controlled React Component for Naver Maps to handle zoom, center, etc.
 
-# Idea
+## Idea
 Naver maps를 사용할 때 center, zoom 등 Map의 KVO key들을 자주 다루는 react 프로젝트의 경우 Map 객체가 uncontrolled component이기 때문에 render된 Map의 화면을 예측하기 어렵고 naver고유의 이벤트들과 혼재되어 개발이 복잡해집니다. 이를 해결하기 위해 react-naver-maps는 naver의 모듈을 controlled component처럼 구현하여 props로 전달된 KVO key들과 이벤트 핸들러로 maps객체들의 동작을 예측 가능하게 만듭니다.
 
 
@@ -66,11 +66,45 @@ const NaverMapLoadable = Loadable({
 
 ### Marker
 
-**props**
+[naver.maps.Marker](https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html)의 React Component입니다. Map Component의 Chilren으로 사용할 수 있습니다. 
 
-### Panorama
+#### props
 
-**props**
+- [MarkerOptions](https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#~MarkerOptions)의 모든 properties
+
+- [KVO 이벤트 핸들러](.)
+
+- children
+
+편의를 위해 props.children으로 htmlIcon을 생성하는 방식을 제공합니다. 
+
+```js
+import { Marker } from 'react-naver-maps'
+
+function MarkerContent({ color }) {
+  return (
+    <div style={{ color }}>
+      x
+    </div>
+  )
+}
+
+...
+<Marker>
+  <MarkerContent
+    color='red'
+    size={new navermaps.Size(80, 30)}
+  />
+</Marker>
+```
+
+Marker의 children은 유일해야하며, [ReactDOMServer.renderToStaticMarkup](https://reactjs.org/docs/react-dom-server.html#rendertostaticmarkup)으로 render되어 [htmlIcon](https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#~HtmlIcon)의 content가 됩니다.
+
+또한 size와 anchor는 props로 전달 할 수 있습니다.
+
+#### Panorama
+
+#####props
 
 ## TODO
 - [ ] Map의 kvo
