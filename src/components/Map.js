@@ -6,11 +6,14 @@ import { pick, isEmpty, debounce } from 'lodash'
 import uuid from 'uuid/v4'
 import { compose, wrapDisplayName } from 'recompose'
 
+import { MapContext } from '../contexts'
 import namedWrapper from '../utils/namedWrapper'
 import createLogger from '../utils/createLogger'
 import withNavermaps from '../withNavermaps'
 import withNaverEvents from '../withNaverEvents'
 import withNaverInstanceRef from '../withNaverInstanceRef'
+
+const MapContextProvider = MapContext.Provider;
 
 const naverEventNames = [
   'addLayer',
@@ -102,6 +105,8 @@ const pickMapOptions = obj => pick(obj, [
   */
  
 const log = createLogger('Map');
+
+
 
 class NaverMapDom extends React.Component  {
   constructor (props) {
@@ -323,13 +328,13 @@ const withNaverMapInstance = WrappedComponent => {
       }
         
       // set else this.map options
-      const mapOptions = pickMapOptions(this.props);
+      // const mapOptions = pickMapOptions(this.props);
   
-      // TODO: deep check mapOptions 
-      if (!isEmpty(mapOptions)) {
+      // // TODO: deep check mapOptions 
+      // if (!isEmpty(mapOptions)) {
   
-        this.map.setOptions(mapOptions);
-      }
+      //   this.map.setOptions(mapOptions);
+      // }
     }
   
     destroyMapInstance () {
@@ -373,10 +378,10 @@ const withNaverMapInstance = WrappedComponent => {
           onCenterChanged={this.props.onCenterChanged && this.handleCenterChanged}
           onBoundsChanged={this.props.onBoundsChanged && this.handleBoundsChanged}
         >
-          {/* render empty Children(Overlay, Control, etc) */}
-          {this.map && children && React.Children.map(children, (child) => {
-            return React.cloneElement(child, { map: this.map, key: child.key || uuid() });
-          })}
+          <MapContextProvider value={this.map}>
+            {/* render empty Children(Overlay, Control, etc) */}
+            {this.map && children}
+          </MapContextProvider>
         </WrappedComponent>
       )
     }

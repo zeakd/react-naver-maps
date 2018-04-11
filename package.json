@@ -13,6 +13,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "create-react-context": "^0.2.1",
     "debug": "^3.1.0",
     "invariant": "^2.2.4",
     "lodash": "^4.17.5",

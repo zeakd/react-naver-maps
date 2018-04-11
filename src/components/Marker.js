@@ -1,12 +1,14 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { compose, wrapDisplayName } from 'recompose'
+import { compose, wrapDisplayName, shallowEqual } from 'recompose'
 
 import namedWrapper from '../utils/namedWrapper'
 import withNaverEvents from '../withNaverEvents'
 import withNavermaps from '../withNavermaps'
 
 import createLogger from '../utils/createLogger'
+import { MapContext } from '../contexts'
+import { coordEquals, iconEquals } from '../equals'
 
 const log = createLogger('Marker');
 
@@ -45,7 +47,7 @@ const naverEventNames = [
 ]
 
 const withMarkerInstance = WrappedComponent =>  {
-  class MarkerInstance extends React.PureComponent {    
+  class MarkerInstance extends React.Component {    
     createMarkerInstance () {
       const {
         navermaps,
@@ -70,27 +72,10 @@ const withMarkerInstance = WrappedComponent =>  {
         draggable,
         visible,
         zIndex,
-  
-        // children is for icon.
-        children,
       } = this.props;
   
       // get icon
-      let icon = this.props.icon;
-  
-      // if there is no props.icon, use child component.
-      if (!icon && children && React.Children.only(children) && children.props) {
-        const {
-          size,
-          anchor,
-        } = children.props;
-  
-        icon = {
-          content: renderToStaticMarkup(children),
-          size,
-          anchor,
-        };
-      }
+      let icon = this.normalizeIcon();
   
       // set options to update marker
       this.marker.setOptions({
@@ -109,7 +94,45 @@ const withMarkerInstance = WrappedComponent =>  {
     }
 
     render () {
-      return <WrappedComponent {...this.props} instance={this.marker} />
+      return (
+        <WrappedComponent {...this.props} instance={this.marker} />
+      )
+    }
+
+    normalizeIcon (_props) {
+      const props = _props || this.props;
+      
+      const { children, icon } = props;
+
+      if (icon) {
+        return icon;
+      }
+
+      if (!children) {
+        return null;
+      }
+
+      React.Children.only(children);
+
+      const {
+        size,
+        anchor, 
+      } = children.props;
+
+      return {
+        content: renderToStaticMarkup(children),
+        size,
+        anchor,
+      }
+    }
+
+    componentWillReceiveProps(nextProps) {
+
+      // this.cachedStaticMarkup = renderToStaticMarkup();
+      // console.log('willReceiveProps')
+      // Object.keys(this.props).forEach(key => {
+      //   console.log(this.props[key], nextProps[key], this.props[key] === nextProps[key])
+      // })
     }
 
     componentDidMount () {
@@ -122,6 +145,7 @@ const withMarkerInstance = WrappedComponent =>  {
 
     componentDidUpdate () {
 
+      log('componentDidUpdate')
       this.updateMarkerInstance();
     }
 
@@ -129,6 +153,45 @@ const withMarkerInstance = WrappedComponent =>  {
   
       // remove marker from map before unmount
       this.marker && this.marker.setMap(null);
+    }
+
+    shouldComponentUpdate (nextProps) {
+
+      // log('shouldComponentUpdate');
+      const {
+        position: currentPosition,
+        children: _currentChildren,
+        icon: _currentIcon,
+        ...restCurrentProps
+      } = this.props;
+
+      const {
+        position: nextPosition,
+        children: _nextChildren,
+        icon: _nextIcon,
+        ...restNextProps
+      } = nextProps;
+
+      const currentIcon = this.normalizeIcon(this.props);
+      const nextIcon = this.normalizeIcon(nextProps);
+      
+      // log('icons', currentIcon, nextIcon);
+      // log('position', currentPosition, nextPosition)
+      // log('rest', restCurrentProps, restNextProps)
+
+      const equality = 
+        shallowEqual(restCurrentProps, restNextProps) 
+        && coordEquals(currentPosition, nextPosition)
+        && iconEquals(currentIcon, nextIcon);
+      
+      // log(
+      //   equality, 
+      //   shallowEqual(restCurrentProps, restNextProps), 
+      //   coordEquals(currentPosition, nextPosition),
+      //   iconEquals(currentIcon, nextIcon)
+      // );
+
+      return !equality;
     }
   }
 
@@ -159,5 +222,12 @@ Marker.defaultProps = {
   visible: true,
 };
 
+const MarkerWithContext = props => {
+  return (
+    <MapContext.Consumer>
+      {map => <Marker {...props} map={map} />}
+    </MapContext.Consumer>
+  )
+}
 
-export default Marker;
+export default MarkerWithContext;
