@@ -26,7 +26,8 @@ export default [
     external: peerDependencies.concat(dependencies).concat(['uuid/v4', 'react-dom/server']),
     plugins: [
       babel({
-        exclude: 'node_modules/**'
+				exclude: 'node_modules/**',
+				plugins: ['external-helpers'],
       }),
     ],
 		output: [

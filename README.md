@@ -3,23 +3,40 @@
 # react-naver-maps
 Controlled React Component for Naver Maps to handle zoom, center, etc.
 
-## Idea
-Naver maps를 사용할 때 center, zoom 등 Map의 KVO key들을 자주 다루는 react 프로젝트의 경우 Map 객체가 uncontrolled component이기 때문에 render된 Map의 화면을 예측하기 어렵고 naver고유의 이벤트들과 혼재되어 개발이 복잡해집니다. 이를 해결하기 위해 react-naver-maps는 naver의 모듈을 controlled component처럼 구현하여 props로 전달된 KVO key들과 이벤트 핸들러로 maps객체들의 동작을 예측 가능하게 만듭니다.
-
+## examples
 
 ``` js
+import React from 'react'
+import ReactDOM from 'react-dom'
 import {
   Map as NaverMap
 } from 'react-naver-maps'
 
-...
-<NaverMap
-  zoom={this.state.zoom}
-  onZoomChanged={(zoom) => { this.setState({ zoom })}}
-/>
-...
+class App extends React.Component {
+  state = {
+    zoom: 12,
+    center: new navermaps.LatLng()
+  }
+
+  render () {
+    return (
+      <NaverMap
+        zoom={this.state.zoom}
+        onZoomChanged={(zoom) => { this.setState({ zoom })}}
+
+        center={this.state.center}
+        onCenterChanged={(center) => {this.setState({ center })}}
+      />
+    )
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))
 
 ```
+
+## Idea
+Naver maps를 사용할 때 center, zoom 등 Map의 KVO key들을 자주 다루는 react 프로젝트의 경우 Map 객체가 uncontrolled component이기 때문에 render된 Map의 화면을 예측하기 어렵고 naver고유의 이벤트들과 혼재되어 개발이 복잡해집니다. 이를 해결하기 위해 react-naver-maps는 naver의 모듈을 controlled component처럼 구현하여 props로 전달된 KVO key들과 이벤트 핸들러로 maps객체들의 동작을 예측 가능하게 만듭니다.
 
 ## Goal
 - Naver maps 모듈을 controlled component처럼 사용할 수 있도록 합니다. 즉, props와 event handler (ex. onZoomChanged)를 통한 center, zoom 등의 kvo key의 단방향 흐름 제어를 목적으로 합니다. 
@@ -58,9 +75,21 @@ const NaverMapLoadable = Loadable({
 
 ## API
 
-### Map
+### \<Map />
+
+``` js
+<Map 
+  zoom={14}
+  center={new navermaps.Center}
+  
+>
+
+```
 
 **props**
+
+- [MapOptions](https://navermaps.github.io/maps.js/docs/naver.maps.html#.MapOptions) 
+
 - `zoom`
 - `center`
 

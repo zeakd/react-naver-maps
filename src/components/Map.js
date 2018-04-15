@@ -127,10 +127,10 @@ class NaverMapDom extends React.Component  {
   }
 
   render () {
-    const { id, className, mapDivId, children, instance } = this.props;
+    const { id, className, style, mapDivId, children, instance } = this.props;
 
     return (
-      <div id={id} className={className}>
+      <div id={id} className={className} style={style}>
         <div id={mapDivId} style={{ width: "100%", height: "100%" }}/>
         <ResizeDetector handleWidth handleHeight onResize={this.handleResize}/>
         {children}
@@ -153,6 +153,7 @@ const withNaverMapInstance = WrappedComponent => {
       this.scrolling = false;
       this.scrollingEndTimeout = 0;
 
+      // bind proxyed handlers
       this.handleCenterChanged = this.handleCenterChanged.bind(this);
       this.handleBoundsChanged = this.handleBoundsChanged.bind(this);
 

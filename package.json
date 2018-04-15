@@ -10,7 +10,8 @@
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "examples": "parcel examples/index.html"
   },
   "dependencies": {
     "create-react-context": "^0.2.1",
@@ -28,14 +29,13 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.44",
-    "@babel/plugin-external-helpers": "^7.0.0-beta.44",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.44",
-    "@babel/preset-env": "^7.0.0-beta.44",
-    "@babel/preset-react": "^7.0.0-beta.44",
-    "@babel/preset-stage-3": "^7.0.0-beta.44",
+    "babel-core": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
     "rollup": "^0.57.1",
-    "rollup-plugin-babel": "^4.0.0-beta.3",
+    "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0"
   },
