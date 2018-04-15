@@ -53,7 +53,7 @@ const withMarkerInstance = WrappedComponent =>  {
         navermaps,
       } = this.props;
   
-      this.marker = new navermaps.Marker();
+      this.instance = this.marker = new navermaps.Marker();
       return this.marker;
     }
   

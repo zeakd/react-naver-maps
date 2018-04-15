@@ -71,7 +71,7 @@ const withNaverPanoramaInstance = WrappedComponent => {
         size,
       }
 
-      this.pano = new navermaps.Panorama(panoDivId, panoOptions);
+      this.instance = this.pano = new navermaps.Panorama(panoDivId, panoOptions);
     }
 
     // update panorama instance

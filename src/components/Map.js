@@ -195,7 +195,7 @@ const withNaverMapInstance = WrappedComponent => {
       if (size) { mapOptions.size = size }
       if (bounds) { mapOptions.bounds = bounds }
   
-      this.map = new navermaps.Map(mapDivId, mapOptions);
+      this.instance = this.map = new navermaps.Map(mapDivId, mapOptions);
       invariant(this.map, 'naver.maps.Map instance creation failure') 
   
       // there is a macOS inertial scroll bug. 
@@ -369,7 +369,6 @@ const withNaverMapInstance = WrappedComponent => {
     render () {
       const {
         children,
-        naverInstanceRef,
       } = this.props;
 
       return (
