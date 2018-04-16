@@ -4,7 +4,7 @@ import invariant from 'invariant'
 import debug from 'debug'
 import { pick, isEmpty, debounce } from 'lodash'
 import uuid from 'uuid/v4'
-import { compose, wrapDisplayName, compose } from 'recompose'
+import { compose, wrapDisplayName } from 'recompose'
 
 import { MapContext } from '../contexts'
 import namedWrapper from '../utils/namedWrapper'
