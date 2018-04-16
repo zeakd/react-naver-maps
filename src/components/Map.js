@@ -4,7 +4,7 @@ import invariant from 'invariant'
 import debug from 'debug'
 import { pick, isEmpty, debounce } from 'lodash'
 import uuid from 'uuid/v4'
-import { compose, wrapDisplayName } from 'recompose'
+import { compose, wrapDisplayName, compose } from 'recompose'
 
 import { MapContext } from '../contexts'
 import namedWrapper from '../utils/namedWrapper'
@@ -329,13 +329,13 @@ const withNaverMapInstance = WrappedComponent => {
       }
         
       // set else this.map options
-      // const mapOptions = pickMapOptions(this.props);
+      const mapOptions = pickMapOptions(this.props);
   
-      // // TODO: deep check mapOptions 
-      // if (!isEmpty(mapOptions)) {
+      // TODO: deep check mapOptions 
+      if (!isEmpty(mapOptions)) {
   
-      //   this.map.setOptions(mapOptions);
-      // }
+        this.map.setOptions(mapOptions);
+      }
     }
   
     destroyMapInstance () {
