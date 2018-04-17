@@ -6,8 +6,11 @@ import { BrowserRouter as Router, withRouter, Route } from 'react-router-dom'
 import { compose } from 'recompose'
 import qs from 'query-string'
 
-import { Map as NaverMap, withNavermaps } from '../../dist/react-naver-maps.es'
-import { pseudoRandomBytes } from 'crypto';
+import { 
+  Map as NaverMap, 
+  withNavermaps,
+  loadNavermapsScript,
+} from '../../dist/react-naver-maps.es'
 
 /**
  * make location.search
@@ -107,15 +110,15 @@ const AppMap = compose(
  */
 const CLIENT_ID = process.env.CLIENT_ID;
 
-const NaverMapLoadable = Loadable({
-  loader: () => loadJs(
-    `https://openapi.map.naver.com/openapi/v3/maps.js?clientId=${CLIENT_ID}`
-  ).then(() => window.naver.maps),
-
-  render(navermaps, props) {
-    return <AppMap {...props} />
+const NavermapsLoadableComponent = Loadable({
+  loader() {
+    return loadNavermapsScript({ clientId: CLIENT_ID })
   },
   
+  render (navermaps, props) {
+    return <AppMap navermaps={navermaps} {...props} />
+  },
+
   loading(props) {
     if (props.error) {
       return <div>Error!</div>;
@@ -126,7 +129,6 @@ const NaverMapLoadable = Loadable({
     }
   }
 })
-
 
 /**
  * App
@@ -145,7 +147,7 @@ class App extends React.Component {
         <p>
           so, user can copy and paste url for remenber the map state, and send to others. 
         </p>
-        <Route path='/' component={NaverMapLoadable} /> 
+        <Route path='/' component={NavermapsLoadableComponent} /> 
       </div>
     );
   }

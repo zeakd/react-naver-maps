@@ -2,7 +2,11 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import loadJs from 'load-js'
 import Loadable from 'react-loadable'
-import { Map as NaverMap, withNavermaps } from '../../dist/react-naver-maps.es'
+import { 
+  Map as NaverMap, 
+  withNavermaps,
+  loadNavermapsScript,
+} from '../../dist/react-naver-maps.es'
 
 const App = 
   withNavermaps()(
@@ -54,15 +58,16 @@ const App =
 
 const CLIENT_ID = process.env.CLIENT_ID;
 
-const NaverMapLoadable = Loadable({
-  loader: () => loadJs(
-    `https://openapi.map.naver.com/openapi/v3/maps.js?clientId=${CLIENT_ID}`
-  ).then(() => window.naver.maps),
-
-  render(navermaps, props) {
-    return <App {...props} />
+// use react-loadable component 
+const NavermapsLoadableComponent = Loadable({
+  loader() {
+    return loadNavermapsScript({ clientId: CLIENT_ID })
   },
   
+  render (navermaps, props) {
+    return <App navermaps={navermaps} {...props} />
+  },
+
   loading(props) {
     if (props.error) {
       return <div>Error!</div>;
@@ -74,4 +79,4 @@ const NaverMapLoadable = Loadable({
   }
 })
 
-ReactDOM.render(<NaverMapLoadable />, document.getElementById('root'))
+ReactDOM.render(<NavermapsLoadableComponent />, document.getElementById('root'))

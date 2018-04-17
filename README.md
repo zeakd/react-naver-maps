@@ -8,7 +8,7 @@ Controlled React Component for Naver Maps to handle zoom, center, etc.
 ## Getting Started
 
 ``` bash
-npm install --save react-naver-maps react-loadable load-js
+npm install --save react-naver-maps react-loadable
 ```
 
 ``` js
@@ -18,9 +18,9 @@ import ReactDOM from 'react-dom'
 import {
   Map as NaverMap,
   withNavermaps, 
+  loadNavermapsScript,
 } from 'react-naver-maps'
 import Loadable from 'react-loadable'
-import loadJs from 'load-js'
 
 const CLIENT_ID = YOUR_CLIENT_ID
 
@@ -52,15 +52,15 @@ class App extends React.Component {
 }
 
 // use react-loadable component 
-const NaverMapsLoadable = Loadable({
-  loader: () => loadJs(
-    `https://openapi.map.naver.com/openapi/v3/maps.js?clientId=${CLIENT_ID}`
-  ).then(() => window.naver.maps),
-
-  render(navermaps, props) {
-    return <App {...props} />
+const NavermapsLoadableComponent = Loadable({
+  loader() {
+    return loadNavermapsScript({ clientId: CLIENT_ID })
   },
   
+  render (navermaps, props) {
+    return <App navermaps={navermaps} {...props} />
+  },
+
   loading(props) {
     if (props.error) {
       return <div>Error!</div>;
@@ -72,8 +72,7 @@ const NaverMapsLoadable = Loadable({
   }
 })
 
-
-ReactDOM.render(<NaverMapsLoadable />, document.getElementById('root'))
+ReactDOM.render(<NavermapsLoadableComponent />, document.getElementById('root'))
 
 ```
 
@@ -141,60 +140,20 @@ window.naver.maps.Event.removeListener(zoomListener)
   />
 </Map>
 ```
+- 최대한 navermaps와 동일한 사용법
+
+set을 위해 전달되는 center, zoom등의 타입, 값들과 이벤트 핸들러의 사용법은 변조없이 navermaps 고유의 방식을 그대로 사용합니다. 
+
 
 ## Caveat
-`react-naver-maps`는 naver maps module을 불러오는 코드를 포함 하지 않으며, 모든 컴포넌트들은 window.naver.maps 모듈이 없이 mount될 경우 에러가 발생합니다. [react-loadable](https://github.com/jamiebuilds/react-loadable) 등을 활용할 수 있습니다. 
 
-``` js
-import loadJs from 'load-js'
+`react-naver-maps`의 모든 컴포넌트들은 `window.naver.maps`가 이미 불러와져 있다는 전제하에 마운트 됩니다. `react-naver-maps`는 스크립트를 비동기로 불러와 렌더하기위한 onLoaded등을 제공하지 않지만 편의를 위해 스크립트를 비동기로 불러오는 promise인 [loadNavermapsScript](#loadNavermapsScript)를 제공합니다. 이것은 꼭 써야하는 것은 아니며 window.naver.maps 모듈을 비동기로 요청하는 코드는 자유롭게 작성해도 좋습니다. 
 
-const MyApp = () => {
-  ...
-}
+비동기 스크립트 로드 참고 라이브러리
 
-const NaverMapLoadable = Loadable({
-  loader: () => loadJs(
-    `https://openapi.map.naver.com/openapi/v3/maps.js?clientId=${YOUR_NAVER_APP_CLIENT_ID}`
-  ).then(() => window.naver.maps),
-
-  render(navermaps, props) {
-    return <MyApp {...props} />
-  },
-  
-  loading(props) {
-    if (props.error) {
-      return <div>Error!</div>;
-    } else if (props.pastDelay) {
-      return <div>Loading...</div>;
-    } else {
-      return null;
-    }
-  }
-})
-```
-
-## Currently Available Feature
-
-- Component 공통
-  - naverEventNames로 전달된 event들의 eventHandlers(camelCased. 각 Component의 default naverEventNames 참고)
-  - naverInstanceRef를 통한 instance 접근
-  
-- \<Map />
-  - center
-  - zoom
-  - size
-  - children 
-  - naverEventNames
-
-- \<Panorama />
-  - position
-  - size
-  - naverEventNames
-  
-- \<Marker />
-  - [marker의 모든 options](https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#~MarkerOptions)
-  - naverEventNames
-  - children을 통한 htmlIcon render
+- [react-load-script](https://github.com/blueberryapps/react-load-script)
+- [react-loadable](https://github.com/jamiebuilds/react-loadable)
+- [react-helmet](https://github.com/nfl/react-helmet)
 
 ## API
 
@@ -286,6 +245,7 @@ naver고유의 event를 `onCamelCasedEvent` Props로 사용하기 위해 어떤 
   ]}
   naverInstanceRef={(ref) => { 
     this.map = ref && ref.map 
+    // this.map = ref && ref.instance
   }}
 />
 
@@ -345,6 +305,7 @@ naver고유의 event를 `onCamelCasedEvent` Props로 사용하기 위해 어떤 
   ]} // default
   naverInstanceRef={(ref) => { 
     this.marker = ref && ref.marker 
+    // this.marker = ref && ref.instance
   }}
 />
 ```
@@ -398,6 +359,7 @@ Marker의 children은 유일해야하며, [ReactDOMServer.renderToStaticMarkup](
   ]}
   naverInstanceRef={(ref) => { 
     this.pano = ref && ref.pano
+    // this.pano = ref && ref.instance 
   }}
 />
 ```
@@ -415,13 +377,111 @@ const App = (props) => {
   ... 
 }
 
-const AppWithNavermaps = withNavermaps()(App);
+const AppWithNavermaps = withNavermaps({
+  submodules: ['geocoder', 'panorama'] // default: []
+})(App);
 
 ...
 
 ```
 
-inject 
+mount시점에 navermaps 모듈이 있다는 것을 보증합니다. 상위 컴포넌트로부터 전달받은 props.navermaps 혹은 window.naver.maps 를 WrappedComponent의 props로 전달하며, 둘다 없을 경우 mount시점에서 invariant를 발생시킵니다.
+
+options로 submodules를 지정할 경우 mount시점에 submodule 객체가 있는지 추가로 확인합니다.
+
+### loadNavermapsScript
+
+``` js 
+loadNavermapsScript({ 
+  clientId: YOUR_CLIENT_ID // required
+  submodules: ['panorama', 'geocoder'] // default: []
+}).then(navermaps => {
+  return navermaps === window.naver.maps // true
+})
+```
+
+비동기로 naver.maps 모듈을 가져올 수 있는 유틸리티를 제공합니다. loadNavermapsScript를 이용해 여러가지 방식으로 비동기 스크립트 로드를 컨트롤 할 수 있습니다.
+
+#### with [react-loadable](https://github.com/jamiebuilds/react-loadable)
+
+``` js
+import Loadable from 'react-loadable'
+import { loadNavermapsScript } from 'react-naver-maps'
+
+// with react-loadable
+const NavermapsLoadableComponent = Loadable({
+  loader() {
+    return loadNavermapsScript({ clientId: YOUR_CLIENT_ID })
+  },
+  
+  render (navermaps, props) {
+    // react-naver-maps의 컴포넌트가 포함된 App
+    return <App navermaps={navermaps} {...props} />
+  },
+
+  loading(props) {
+    if (props.error) {
+      return <div>Error!</div>;
+    } else if (props.pastDelay) {
+      return <div>Loading...</div>;
+    } else {
+      return null;
+    }
+  }
+})
+
+...
+<NavermapsLoadableComponent />
+```
+
+#### custom RenderOnLoaded component
+
+``` js 
+import React from 'react'
+import { loadNavermapsScript, Map as NaverMap } from 'react-naver-maps'
+
+... 
+
+class RenderOnLoaded extends React.Component {
+  constructor (props) {
+    super(props);
+
+    // 초기엔 로드되지 않은 상태로 마운트
+    this.state = {
+      loaded: false,
+    }
+  }
+  
+
+  componentDidMount () {
+    // script가 로드되면 loaded state 로 변경
+    loadNavermapsScript({ clientId: YOUR_CLIENT_ID, submodules: ['geocoder'] })
+      .then((navermaps) => {
+        this.navermaps = navermaps;
+        this.setState({ loaded: true })
+      })
+  }
+
+  render () {
+    const { loaded } = this.state;
+
+    if (!loaded) {
+      return <div>Loading</div>
+    }
+
+    // react-naver-maps의 컴포넌트가 포함된 App을 렌더 
+    return (
+      <App
+        ...
+      />
+    );
+  }
+}
+
+...
+<RenderOnLoaded />
+
+```
 
 ## TODO
 - [ ] Panorama의 kvo 

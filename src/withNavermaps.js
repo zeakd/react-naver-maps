@@ -3,10 +3,7 @@ import invariant from 'invariant'
 import { wrapDisplayName } from 'recompose'
 import { capitalize } from 'lodash'
 
-const submoduleChecker = {
-  panorama: 'Panorama',
-  geocoder: 'Service'
-};
+import hasSubmodule from './hasSubmodule'
 
 const withNavermaps = ({ submodules = []} = {}) => WrappedComponent => {
   class Navermaps extends React.Component {
@@ -18,8 +15,7 @@ const withNavermaps = ({ submodules = []} = {}) => WrappedComponent => {
 
       if (submodules && submodules.length > 0) {
         submodules.forEach(submodule => {
-          const checkerObj = submoduleChecker[submodule];
-          invariant(navermaps[checkerObj], `${submodule} is required`)
+          invariant(hasSubmodule(navermaps, submodule), `${submodule} is required`)
         })
       }
     }
