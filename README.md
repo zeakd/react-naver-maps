@@ -175,7 +175,7 @@ react-naver-maps는 모듈들을 컴포넌트화 하여 props로 관리하는 �
 
 #### onCamelCasedEvent
 
-react-naver-maps는 naver event들을 camelCased 된 이벤트핸들러로 관리합니다 (ex. zoom_changed -> props.onZoomChanged, rightclick -> props.onRightClick)
+react-naver-maps는 naver event들을 camelCased 된 이벤트핸들러로 관리합니다 (ex. zoom_changed -> props.onZoomChanged, rightclick -> props.onRightclick)
 
 #### naverEventNames
 
