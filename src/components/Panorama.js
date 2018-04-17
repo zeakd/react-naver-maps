@@ -131,7 +131,7 @@ const withNaverPanoramaInstance = WrappedComponent => {
 // compose Panorama component
 const Panorama = compose(
   namedWrapper('NaverPanorama'),
-  withNavermaps({ submodules: ['Panorama'] }),
+  withNavermaps({ submodules: ['panorama'] }),
   withNaverInstanceRef,
   withNaverPanoramaInstance,
   withNaverEvents,
