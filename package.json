@@ -19,6 +19,7 @@
     "invariant": "^2.2.4",
     "load-js": "^3.0.2",
     "lodash": "^4.17.5",
+    "react-dom": "^16.4.2",
     "react-resize-detector": "^2.2.0",
     "recompose": "^0.26.0",
     "uuid": "^3.2.1"
@@ -33,6 +34,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
+    "react": "^16.4.2",
     "rollup": "^0.57.1",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^9.1.0",

@@ -1,4 +1,5 @@
 > 이 라이브러리는 지속적으로 작업이 진행중입니다. Readme 내용이 아직 부족하니 [examples](./examples)를 참고해주세요.
+> 또한 0.1.0 을 올리기 전까지 api는 변경될 수 있습니다. 
 
 # react-naver-maps
 Controlled React Component for Naver Maps to handle zoom, center, etc.
