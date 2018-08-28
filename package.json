@@ -11,7 +11,8 @@
     "build": "rollup -c",
     "start": "rollup -c -w",
     "prepublishOnly": "npm run build",
-    "examples": "parcel examples/index.html"
+    "examples": "parcel examples/index.html",
+    "test": "echo finish"
   },
   "dependencies": {
     "create-react-context": "^0.2.1",
