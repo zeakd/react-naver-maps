@@ -4,49 +4,76 @@ import withNavermaps from '../withNavermaps'
 import withNaverEvents from '../withNaverEvents';
 import withMap from '../withMap'
 
-const defaultProps = {
-  eventNames: []
-}
-
 function withPolygonKVO(WrappedComponent) {
   class PolygonKVO extends React.PureComponent{
     render () {
-      return <WrappedComponent />
+      return (
+        <WrappedComponent 
+          {...this.props}
+          instance={this.polygon} 
+        />
+      )
     }
 
     updatePolygon() {
+      const {
+        map,
+        paths,
+        strokeWeight,
+        strokeOpacity,
+        strokeColor,
+        strokeStyle,
+        strokeLineCap,
+        strokeLineJoin,
+        fillColor,
+        fillOpacity,
+        clickable,
+        visible,
+        zIndex,
+      } = this.props;
 
+      this.polygon.setOptions({
+        map,
+        paths,
+        strokeWeight,
+        strokeOpacity,
+        strokeColor,
+        strokeStyle,
+        strokeLineCap,
+        strokeLineJoin,
+        fillColor,
+        fillOpacity,
+        clickable,
+        visible,
+        zIndex,
+      })
     }
 
     createPolygon() {
-      
-      const { navermaps, map, paths } = this.props;
 
-      this.polygon = new navermaps.Polygon({
-        map,
-        paths,
-        fillColor: "#ff0000",
-        fillOpacity: 0.3,
-        strokeColor: "#ff0000",
-        strokeOpacity: 0.6,
-        strokeWeight: 3
-      });
+      const { navermaps } = this.props;
+      this.polygon = new navermaps.Polygon();
     }
 
     destroyPolygon() {
+
       this.polygon.setMap(null) 
       this.polygon = null
     }
 
     componentDidUpdate() {
+
       this.updatePolygon();
     }
 
     componentDidMount() {
+
       this.createPolygon();
+      this.forceUpdate()
     }
 
     componentWillUnmount() {
+      
       this.destroyPolygon()
     }
   }
@@ -56,13 +83,34 @@ function withPolygonKVO(WrappedComponent) {
   return PolygonKVO
 }
 
+// composite hocs to make Polygon Component
 const Polygon = compose(
   withNavermaps(),
   withMap,
   withPolygonKVO,
   withNaverEvents,
-)(function Polygon() {
+)(function PolygonDOM() {
+
+  // component show nothing. 
+  // but, named function would be used in debuging
   return null
 });
+
+Polygon.defaultProps = {
+
+  // use default events in navermaps docs
+  // https://navermaps.github.io/maps.js/docs/naver.maps.Polygon.html#toc28__anchor
+  naverEventNames: [
+    'click',
+    'clickable_changed',
+    'dblclick',
+    'mousedown',
+    'mouseout',
+    'mouseover',
+    'mouseup',
+    'visible_changed',
+    'zIndex_changed',
+  ]
+}
 
 export default Polygon

@@ -21,8 +21,11 @@ const withNaverEvents = WrappedComponent => {
 
     componentDidUpdate () {
       // log('componentDidUpdate')
-      invariant(this.props.instance, 'naver KVO instance is required on props.instance.')
       this.updateListeners();
+    }
+
+    componentDidMount() {
+      // this.updateListeners();
     }
   
     generateListenerNames () {
@@ -49,6 +52,8 @@ const withNaverEvents = WrappedComponent => {
     }
   
     updateListeners () {
+      invariant(this.props.instance, 'naver KVO instance is required on props.instance.')
+      invariant(this.props.naverEventNames, 'props.naverEventNames is required')
 
       const {
         navermaps 
@@ -68,7 +73,7 @@ const withNaverEvents = WrappedComponent => {
   
             // add naver kvo event listener
             this.listeners[naverListenerName] = navermaps.Event.addListener(this.props.instance, naverEventName, (...args) => {
-  
+              // console.log(this.props.instance, naverEventName, this.props[propsListenerName])
               // run listener
               if (this.props[propsListenerName]) {
                 this.props[propsListenerName](...args);
