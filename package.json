@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "React Component for naver maps v3 module.",
   "main": "dist/react-naver-maps.js",
   "module": "dist/react-naver-maps.es.js",
