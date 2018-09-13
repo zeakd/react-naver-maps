@@ -60,6 +60,13 @@ const withNaverMapInstance = WrappedComponent => {
       this.lazyUpdateKVO = debounce(this.lazyUpdateKVO, 0);
     }
 
+    componentWillUnmount() {
+
+      if (this.instance) {
+        this.instance.destroy();
+      }
+    }
+
     componentDidMount() {
       this.createMap();
       this.forceUpdate();
@@ -92,19 +99,22 @@ const withNaverMapInstance = WrappedComponent => {
       const shouldUpdateBounds = bounds && !this.map.getBounds().equals(bounds);
       const shouldUpdateSize = size && !this.map.getSize().equals(size);
 
+      const { transitionOptions }= this.props;
+      console.log(transitionOptions)
+
       if (shouldUpdateZoom && shouldUpdateCenter) {
         // console.log('zoom, center updated');
         // onUpdateStart();
 
         this.updating = true;
-        this.map.morph(center, zoom);
+        this.map.morph(center, zoom, transitionOptions);
       } else {
         if (shouldUpdateCenter) {
           // console.log('center updated');
           // onUpdateStart();
 
           this.updating = true;
-          this.map.panTo(center);
+          this.map.panTo(center, transitionOptions);
         }
 
         if (shouldUpdateZoom) {
@@ -124,13 +134,20 @@ const withNaverMapInstance = WrappedComponent => {
     }
 
     updateMap() {
+      const { zoom, center, bounds, size } = this.props;
+
+      // cancel updating state when do force update.
+      if ((center && center.force) || (bounds && bounds.force)) {
+        this.updating = false;
+      }
+
       if (this.updating) {
         // console.log('--- drop update --- ');
         return;
       }
 
       // console.log('--- updating ---');
-      const { zoom, center, bounds, size } = this.props;
+      
       this.lazyUpdateKVO({ zoom, center, bounds, size });
 
       const mapOptions = pickMapOptions(this.props);
