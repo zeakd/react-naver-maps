@@ -38,6 +38,7 @@
     "rollup-plugin-node-resolve": "^3.4.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "hocs"
   ]
 }
