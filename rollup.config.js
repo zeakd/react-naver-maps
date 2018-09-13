@@ -1,5 +1,5 @@
-// import resolve from 'rollup-plugin-node-resolve';
-// import commonjs from 'rollup-plugin-commonjs';
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel'
 import pkg from './package.json';
 
@@ -7,32 +7,35 @@ const peerDependencies = Object.keys(pkg.peerDependencies);
 const dependencies = Object.keys(pkg.dependencies);
 
 export default [
-	// // browser-friendly UMD build
-	// {
-  //   input: 'src/index.js',
-  //   external,
-	// 	output: {
-	// 		name: '',
-	// 		file: pkg.browser,
-	// 		format: 'umd'
-	// 	},
-	// 	plugins: [
-	// 		resolve(), // so Rollup can find `ms`
-	// 		commonjs() // so Rollup can convert `ms` to an ES module
-	// 	]
-	// },
 	{
-		input: 'src/index.js',
-    external: peerDependencies.concat(dependencies).concat(['uuid/v4', 'react-dom/server']),
+		input: {
+			'react-naver-maps': 'src/index.js',
+			hocs: 'src/hocs/index.js',
+		},
+		experimentalCodeSplitting: true,
+    external: peerDependencies.concat(dependencies),
     plugins: [
-      babel({
+			babel({
 				exclude: 'node_modules/**',
-				plugins: ['external-helpers'],
-      }),
+				runtimeHelpers: true,
+			}),
+			resolve(),	
     ],
+		// output: [
+		// 	{ file: pkg.main, format: 'cjs' },
+		// 	{ file: pkg.module, format: 'es' }
+		// ]
 		output: [
-			{ file: pkg.main, format: 'cjs' },
-			{ file: pkg.module, format: 'es' }
+			{
+				dir: 'dist',
+				format: 'cjs',
+				entryFileNames: '[name].[format].js',
+			},
+			{
+				dir: 'dist',
+				format: 'esm',
+				entryFileNames: '[name].[format].js',
+			},
 		]
 	}
 ]

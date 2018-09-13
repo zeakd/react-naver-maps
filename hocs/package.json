@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "react-naver-maps/hocs",
+  "main": "../dist/hocs.cjs.js",
+  "module": "../dist/hocs.esm.js"
+}
