@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 import { wrapDisplayName } from 'recompose';
 import invariant from 'invariant';
 
@@ -100,7 +100,6 @@ const withNaverMapInstance = WrappedComponent => {
       const shouldUpdateSize = size && !this.map.getSize().equals(size);
 
       const { transitionOptions }= this.props;
-      console.log(transitionOptions)
 
       if (shouldUpdateZoom && shouldUpdateCenter) {
         // console.log('zoom, center updated');

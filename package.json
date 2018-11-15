@@ -18,7 +18,9 @@
     "debug": "^3.1.0",
     "invariant": "^2.2.4",
     "load-js": "^3.0.2",
-    "lodash": "^4.17.5",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.debounce": "^4.0.8",
+    "lodash.difference": "^4.5.0",
     "react-resize-detector": "^2.2.0",
     "recompose": "^0.26.0",
     "warning": "^4.0.2"

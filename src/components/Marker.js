@@ -54,7 +54,7 @@ const pickMarkerOptions = pick([
 
 class MarkerBase extends React.Component {
   componentWillUnmount() {
-    console.log('unmount');
+    // console.log('unmount');
     if (this.marker) this.marker.setMap(null);
   }
 

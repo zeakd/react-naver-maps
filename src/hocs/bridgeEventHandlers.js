@@ -1,6 +1,7 @@
 import React from 'react';
 import { wrapDisplayName } from 'recompose';
-import { camelCase, difference } from 'lodash';
+import camelCase from 'lodash.camelcase';
+import difference from 'lodash.difference';
 import warning from 'warning';
 import invariant from 'invariant';
 import pick from '../utils/pick';
