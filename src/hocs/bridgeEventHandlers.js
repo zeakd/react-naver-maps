@@ -17,6 +17,11 @@ function generageEventLookup(naverEventNames) {
   }, {});
 }
 
+/**
+ * Managing Naver Event Handlers. KVO instance must be registered 
+ * in the child component by props.registerEventInstance
+ * @param {*} WrappedComponent 
+ */
 const bridgeEventHandlers = WrappedComponent => {
   class Wrapper extends React.Component {
     constructor(props) {
@@ -26,7 +31,7 @@ const bridgeEventHandlers = WrappedComponent => {
       this.naverEventLookup = {};
       this.handlingPropNames = [];
 
-      this.registerInstance = this.registerInstance.bind(this);
+      this.registerEventInstance = this.registerEventInstance.bind(this);
     }
 
     componentDidMount() {
@@ -47,7 +52,7 @@ const bridgeEventHandlers = WrappedComponent => {
       return this.naverEventLookup[handlerName];
     }
 
-    registerInstance(instance) {
+    registerEventInstance(instance) {
       warning(
         !this.instance,
         'react-naver-maps: bridgeEventHandlers - Tried to Change instance.',
@@ -58,7 +63,7 @@ const bridgeEventHandlers = WrappedComponent => {
       );
       this.instance = instance;
 
-      if (this.props.registerInstance) this.props.registerInstance(instance);
+      if (this.props.registerEventInstance) this.props.registerEventInstance(instance);
     }
 
     updateListeners(props = this.props) {
@@ -128,7 +133,7 @@ const bridgeEventHandlers = WrappedComponent => {
       const { navermaps } = this.props;
 
       invariant(navermaps, 'props.navermaps required');
-      invariant(this.instance, 'may be forgot to call registerInstance');
+      invariant(this.instance, 'may be forgot to call registerEventInstance');
 
       return navermaps.Event.addListener(this.instance, eventName, listener);
     }
@@ -143,7 +148,7 @@ const bridgeEventHandlers = WrappedComponent => {
       return (
         <WrappedComponent
           {...this.props}
-          registerInstance={this.registerInstance}
+          registerEventInstance={this.registerEventInstance}
         />
       );
     }

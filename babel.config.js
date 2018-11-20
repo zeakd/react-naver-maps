@@ -2,6 +2,7 @@ module.exports = {
   presets: [
     ['@babel/preset-env', {
       exclude: ['transform-regenerator'],
+      // useBuiltIns: 'usage',
     },],
     '@babel/preset-react',
   ],

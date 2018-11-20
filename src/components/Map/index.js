@@ -1,5 +1,6 @@
+import React from 'react'
+import PropTypes from 'prop-types'
 import { compose } from 'recompose';
-import NaverMapDom from './NaverMapDom';
 import withNaverMapInstance from './withNaverMapInstance';
 
 import {
@@ -9,15 +10,39 @@ import {
   injectNaverRef,
 } from '../../hocs';
 
-const NaverMap = compose(
-  // withForwardedRef,
-  namedWrapper('NaverMap'),
+function NaverMapDom({ mapDivId, style, className, children }) {
+  return (
+    <div id={mapDivId} className={className} style={style}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ *  @visibleName NaverMap
+ */
+const ComposedMap = compose(
   withNavermaps,
   // updateFixer,
   bridgeEventHandlers,
   injectNaverRef,
   withNaverMapInstance,
 )(NaverMapDom);
+
+
+/**
+ * Facade for Map
+ * @param {*} props 
+ */
+function NaverMap(props) {
+  return <ComposedMap {...props} />
+}
+
+NaverMap.propTypes = {
+  mapDivId: PropTypes.string,
+  events:  PropTypes.arrayOf(PropTypes.string),
+  style: PropTypes.object,
+}
 
 NaverMap.defaultProps = {
   events: [

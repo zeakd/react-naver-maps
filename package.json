@@ -12,6 +12,9 @@
     "start": "rollup -c -w",
     "prepublishOnly": "npm run build",
     "examples": "parcel examples/index.html",
+    "styleguidist": "styleguidist server",
+    "styleguidist:build": "styleguidist build",
+    "website": "npm run styleguidist:buiid",
     "test": "echo finish"
   },
   "dependencies": {
@@ -21,6 +24,7 @@
     "lodash.camelcase": "^4.3.0",
     "lodash.debounce": "^4.0.8",
     "lodash.difference": "^4.5.0",
+    "prop-types": "^15.6.2",
     "react-resize-detector": "^2.2.0",
     "recompose": "^0.26.0",
     "warning": "^4.0.2"
@@ -34,10 +38,15 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-styleguidist": "^8.0.5",
     "rollup": "^0.65.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0"
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "webpack": "^4.25.1"
   },
   "files": [
     "dist",
