@@ -60,5 +60,6 @@ typings/
 # dist
 dist/
 
-# parcel
-.cache/
+# styleguidist
+styleguide/build/
+styleguide/index.html

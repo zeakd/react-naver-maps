@@ -13,8 +13,9 @@
     "prepublishOnly": "npm run build",
     "examples": "parcel examples/index.html",
     "styleguidist": "styleguidist server",
+    "prestyleguidist:build": "npm run build",
     "styleguidist:build": "styleguidist build",
-    "website": "npm run styleguidist:buiid",
+    "website": "npm run styleguidist:build",
     "test": "echo finish"
   },
   "dependencies": {
