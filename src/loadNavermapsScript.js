@@ -1,9 +1,19 @@
 import loadJs from 'load-js';
 import invariant from 'invariant';
 
-const _loadNavermapsScript = (clientId, submodules) => {
+const _loadNavermapsScript = ({ clientId, submodules, ncpClientId }) => {
+  invariant(clientId || ncpClientId, "clientId or ncpClientId is required");
+
   // build naver maps v3 api url
-  let requestUrl = `https://openapi.map.naver.com/openapi/v3/maps.js?clientId=${clientId}`
+  let requestUrl = `https://openapi.map.naver.com/openapi/v3/maps.js`
+
+
+  if (clientId) {
+    requestUrl += `?clientId=${clientId}`
+  } else if (ncpClientId) {
+    requestUrl += `?ncpClientId=${ncpClientId}`
+  }
+
   if (submodules) {
     requestUrl += `&submodules=${submodules.join(',')}`
   }
@@ -29,14 +39,14 @@ const _loadNavermapsScript = (clientId, submodules) => {
 
 let loadScriptPromise = null;
 
-const loadNavermapsScript = ({ clientId, submodules }) => {
+const loadNavermapsScript = ({ clientId, submodules, ncpClientId }) => {
   invariant(clientId, 'loadNavermapsScript: clientId is required');
 
   if (loadScriptPromise) {
     return loadScriptPromise;
   }
 
-  loadScriptPromise = _loadNavermapsScript(clientId, submodules)
+  loadScriptPromise = _loadNavermapsScript({ clientId, ncpClientId, submodules })
 
   return loadScriptPromise
 }

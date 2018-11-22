@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import invariant from 'invariant'
 import loadNavermapsScript from './loadNavermapsScript'
 
 class RenderAfterNavermapsLoaded extends React.Component {
@@ -46,12 +47,21 @@ class RenderAfterNavermapsLoaded extends React.Component {
   }
 }
 
+const cliendIdRequired = (props, propName, componentName) => {
+  invariant(
+    props.clientId || props.ncpClientId, 
+    `react-naver-maps: One of props 'clientId' or 'ncpClientId' should be specified in '${componentName}'.`
+  )
+}
+
 RenderAfterNavermapsLoaded.propTypes = {
   loading: PropTypes.node,
   error: PropTypes.node,
-  clientId: PropTypes.string.isRequired,
+  clientId: cliendIdRequired,
+  ncpClientId: cliendIdRequired,
   submodules: PropTypes.arrayOf(PropTypes.string),
 }
+
 
 RenderAfterNavermapsLoaded.defaultProps = {
   loading: null,
