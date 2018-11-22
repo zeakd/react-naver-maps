@@ -8,9 +8,9 @@ Controlled React Component for Naver Maps to handle zoom, center, etc.
 ## Install
 
 ``` bash
-npm install react-naver-maps@next
+npm install react-naver-maps
 # or
-yarn add react-naver-maps@next
+yarn add react-naver-maps
 ```
 
 ## Documentation
