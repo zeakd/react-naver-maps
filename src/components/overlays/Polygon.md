@@ -9,7 +9,7 @@ const {
 function App({ navermaps }) {
   return (
     <NaverMap 
-      mapDivId='maps-examples-polygon'
+      id='maps-examples-polygon'
       style={{
         width: '100%',
         height: '400px',

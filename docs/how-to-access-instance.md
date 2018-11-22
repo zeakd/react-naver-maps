@@ -31,7 +31,7 @@ class App extends React.Component {
           {this.state.initBounds._ne.x}
         </p>}
         <NaverMap 
-          mapDivId={'maps-access-instance'}
+          id="maps-access-instance"
           style={{
             width: '100%',
             height: '400px',

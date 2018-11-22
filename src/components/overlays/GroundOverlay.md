@@ -9,7 +9,7 @@ const {
 function App({ navermaps }) {
   return (
     <NaverMap 
-      mapDivId='maps-examples-ground-overlay'
+      id='maps-examples-ground-overlay'
       style={{
         width: '100%',
         height: '400px',

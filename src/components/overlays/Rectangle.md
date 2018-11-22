@@ -18,7 +18,7 @@ const bounds = {
 function App() {
   return (
     <NaverMap 
-      mapDivId='maps-examples-rectangle'
+      id='maps-examples-rectangle'
       style={{
         width: '100%',
         height: '400px',

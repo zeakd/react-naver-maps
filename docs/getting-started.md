@@ -82,7 +82,7 @@ class App extends React.Component {
         <p>lat: {this.state.center.y || this.state.center.lat}</p>
         <p>lng: {this.state.center.x || this.state.center.lng}</p>
         <NaverMap 
-          mapDivId='maps-getting-started-controlled' 
+          id='maps-getting-started-controlled' 
           style={{width: '100%', height: '400px'}}
           
           // uncontrolled zoom

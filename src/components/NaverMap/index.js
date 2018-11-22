@@ -10,9 +10,9 @@ import {
   injectNaverRef,
 } from '../../hocs';
 
-function NaverMapDom({ mapDivId, style, className, children }) {
+function NaverMapDom({ id, style, className, children }) {
   return (
-    <div id={mapDivId} className={className} style={style}>
+    <div id={id} className={className} style={style}>
       {children}
     </div>
   );
@@ -39,7 +39,7 @@ function NaverMap(props) {
 }
 
 NaverMap.propTypes = {
-  mapDivId: PropTypes.string,
+  id: PropTypes.string,
   events:  PropTypes.arrayOf(PropTypes.string),
   style: PropTypes.object,
 }
@@ -85,7 +85,7 @@ NaverMap.defaultProps = {
     'projection_changed',
     'zoom_changed',
   ],
-  mapDivId: 'react-naver-map',
+  id: 'react-naver-map',
   style: {
     width: '100%',
     height: '100%',

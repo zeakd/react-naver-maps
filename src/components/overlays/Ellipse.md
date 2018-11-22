@@ -18,7 +18,7 @@ const bounds = {
 function App() {
   return (
     <NaverMap 
-      mapDivId='maps-examples-ellipse'
+      id='maps-examples-ellipse'
       style={{
         width: '100%',
         height: '400px',

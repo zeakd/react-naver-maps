@@ -9,7 +9,7 @@ const {
 function App() {
   return (
     <NaverMap 
-      mapDivId='maps-examples-circle'
+      id='maps-examples-circle'
       style={{
         width: '100%',
         height: '400px',

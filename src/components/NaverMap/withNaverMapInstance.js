@@ -184,11 +184,11 @@ const withNaverMapInstance = WrappedComponent => {
     }
 
     createMap() {
-      const { navermaps, mapDivId } = this.props;
+      const { navermaps, id } = this.props;
 
       invariant(
-        mapDivId,
-        'react-naver-maps: <Map /> - props.mapDivId is required',
+        id,
+        'react-naver-maps: <Map /> - props.id is required',
       );
 
       const mapOptions = pickMapOptions(this.props);
@@ -206,11 +206,11 @@ const withNaverMapInstance = WrappedComponent => {
       })
       
       try {
-        this.instance = new navermaps.Map(mapDivId, allMapOptions);
+        this.instance = new navermaps.Map(id, allMapOptions);
       } catch (e) {
         invariant(
           false,
-          `react-naver-maps: <Map /> - please check <div id=#${mapDivId}> is correctly mounted`,
+          `react-naver-maps: <Map /> - please check <div id=#${id}> is correctly mounted`,
         );
       }
 

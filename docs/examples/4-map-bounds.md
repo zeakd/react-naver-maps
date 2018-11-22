@@ -62,17 +62,18 @@ class App extends React.Component {
 
     return (
       <NaverMap 
+        naverRef={ref => { this.mapRef = ref }}
+        id='maps-examples-map-bounds'
+        style={{
+          width: '100%',
+          height: '600px',
+        }}
+        
         defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
         defaultZoom={5}
         bounds={this.state.bounds}
         onBoundsChanged={this.handleBoundsChanged}
         
-        naverRef={ref => { this.mapRef = ref }}
-        mapDivId='maps-examples-map-bounds'
-        style={{
-          width: '100%',
-          height: '600px',
-        }}
       >
         <Buttons>
           <ControlBtn onClick={this.goToDokdo}>독도로 이동하기</ControlBtn>

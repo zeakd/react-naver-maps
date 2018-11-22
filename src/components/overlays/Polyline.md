@@ -9,7 +9,7 @@ const {
 function App({ navermaps }) {
   return (
     <NaverMap 
-      mapDivId='maps-examples-polyline'
+      id='maps-examples-polyline'
       style={{
         width: '100%',
         height: '400px',

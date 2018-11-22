@@ -9,7 +9,7 @@ const {
 function App() {
   return (
     <NaverMap 
-      mapDivId='maps-examples-map-simple'
+      id='maps-examples-map-simple'
       style={{
         width: '100%',
         height: '600px',

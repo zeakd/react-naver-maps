@@ -11,7 +11,7 @@ function App() {
 
   return (
     <NaverMap 
-      mapDivId='maps-examples-marker'
+      id='maps-examples-marker'
       style={{
         width: '100%',
         height: '400px',

@@ -76,10 +76,11 @@ class App extends React.Component {
         <p>lat: {this.state.center.y || this.state.center.lat}</p>
         <p>lng: {this.state.center.x || this.state.center.lng}</p>
         <NaverMap 
+          id="react-naver-maps-introduction"
+          style={{width: '100%', height: '400px'}}
+
           center={this.state.center}
           onCenterChanged={center => this.setState({ center })}
-          mapDivid='react-naver-maps-introduction' 
-          style={{width: '100%', height: '400px'}}
         />
       </div>
     )

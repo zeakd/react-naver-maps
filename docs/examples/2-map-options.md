@@ -128,7 +128,7 @@ class App extends React.Component {
 
     return (
       <NaverMap 
-        mapDivId='maps-examples-map-options'
+        id='maps-examples-map-options'
         style={{
           width: '100%',
           height: '600px',
