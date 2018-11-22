@@ -96,7 +96,7 @@ class App extends React.Component {
 ## Install
 
 ``` bash
-npm install react-naver-maps 
+npm install react-naver-maps@next
 # or 
-yarn add react-naver-maps
+yarn add react-naver-maps@next
 ```
