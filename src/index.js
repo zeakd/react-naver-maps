@@ -1,4 +1,4 @@
-export { default as Map } from './components/Map';
+export { default as NaverMap } from './components/NaverMap';
 
 export { default as Overlay } from './components/Overlay'
 export { default as Circle } from './components/overlays/Circle';

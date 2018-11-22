@@ -3,23 +3,22 @@
 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
 } = require('react-naver-maps')
 
-class App extends React.Component {
-  render () {
-    return (
-      <NaverMap 
-        mapDivId='maps-examples-map-simple'
-        style={{
-          width: '100%',
-          height: '600px',
-        }}
-      />
-    )
-  }
+function App() {
+  return (
+    <NaverMap 
+      mapDivId='maps-examples-map-simple'
+      style={{
+        width: '100%',
+        height: '600px',
+      }}
+    />
+  )
 }
 
+// render
 <RenderAfterNavermapsLoaded
   clientId={YOUR_CLIENT_ID}
 >

@@ -5,7 +5,7 @@ https://navermaps.github.io/maps.js/docs/tutorial-3-map-types.example.html
 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
 } = require('react-naver-maps')
 const { withNavermaps } = require('react-naver-maps/hocs')
 

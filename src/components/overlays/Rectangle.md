@@ -2,7 +2,7 @@
 ``` js 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
   Rectagle,
 } = require('react-naver-maps')
 

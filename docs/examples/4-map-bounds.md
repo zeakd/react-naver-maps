@@ -5,7 +5,7 @@ https://navermaps.github.io/maps.js/docs/tutorial-4-map-bounds.example.html
 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
   Rectangle,
 } = require('react-naver-maps')
 const { 

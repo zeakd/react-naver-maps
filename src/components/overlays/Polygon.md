@@ -2,7 +2,7 @@
 ``` js 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
   Polygon,
 } = require('react-naver-maps')
 

@@ -3,7 +3,7 @@
 
 const { 
   RenderAfterNavermapsLoaded, 
-  Map: NaverMap,
+  NaverMap,
 } = require('react-naver-maps')
 
 class App extends React.Component {

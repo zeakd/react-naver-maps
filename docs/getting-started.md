@@ -25,9 +25,6 @@ React Naver Maps를 사용하기전 먼저 Naver Maps 스크립트를 불러와�
 두번째로 navermaps를 비동기적으로 불러와 map을 사용하는 곳에서만 요청하는 방법이 있습니다. React Naver Maps는 간단한 유틸 컴포넌트를 제공합니다. [\<RenderAfterNavermapsLoaded /\>](http://localhost:6060/#/Utils?id=renderafternavermapsloaded)는 마운트될 때 `naver maps`모듈을 비동기적으로 요청합니다.
 
 ``` js
-const { RenderAfterNavermapsLoaded } = require('react-naver-maps');
-
-// Render()
 <RenderAfterNavermapsLoaded
   clientId={YOUR_CLIENT_ID} // required
   error={<p>Maps Load Error</p>}
@@ -44,8 +41,6 @@ const { RenderAfterNavermapsLoaded } = require('react-naver-maps');
 **defaultCenter**, **defaultZoom** 등 **defaultKVOKEY** props를 이용해 uncontrolled component로 사용할 수 있습니다.
 
 ``` js
-const { RenderAfterNavermapsLoaded, Map: NaverMap } = require('react-naver-maps');
-
 <RenderAfterNavermapsLoaded
   clientId={YOUR_CLIENT_ID}
 >
@@ -65,8 +60,6 @@ panning등을 fully controlled component처럼 사용할 수 있습니다. 이�
 
 
 ``` js
-const { RenderAfterNavermapsLoaded, Map: NaverMap} = require('react-naver-maps');
-
 class App extends React.Component {
   constructor(props) {
     super(props);

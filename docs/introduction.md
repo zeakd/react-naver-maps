@@ -23,12 +23,12 @@ window.naver.maps.Event.removeListener(zoomListener)
 // 
 
 // camelCased된 props로 전달됩니다.
-<Map 
+<NaverMap 
   onZoomChanged={zoomListener}
 />
 
 // 간단히 props에서 제거합니다.
-<Map 
+<NaverMap 
   // onZoomChanged={zoomListener}
 />
 
@@ -39,11 +39,11 @@ window.naver.maps.Event.removeListener(zoomListener)
 Marker, Polygon 등의 UI Component를 children으로 전달합니다.
 
 ``` jsx static
-<Map>
+<NaverMap>
   <Marker
     position={{ lat: 37.3595704, lng: 127.105399 }}
   />
-</Map>
+</NaverMap>
 ```
  
 ### Controlled Component
@@ -51,8 +51,6 @@ Marker, Polygon 등의 UI Component를 children으로 전달합니다.
 KVO Key를 이용한 단방향 흐름제어
 
 ``` js static
-const { RenderAfterNavermapsLoaded, Map: NaverMap } = require('react-naver-maps');
-
 class App extends React.Component {
   constructor(props) {
     super(props);

@@ -13,7 +13,7 @@
 map의 getBounds에 직접 접근하는 예시입니다.
 
 ``` js
-const { Map: NaverMap } = require('react-naver-maps');
+const { NaverMap } = require('react-naver-maps');
 
 class App extends React.Component {
   constructor(props) {

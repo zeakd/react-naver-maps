@@ -78,7 +78,7 @@ module.exports = {
     {
       name: 'UI Components',
       components: [
-        'src/components/Map/index.js',
+        'src/components/NaverMap/index.js',
       ]
     },
     {
