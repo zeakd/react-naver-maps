@@ -103,7 +103,7 @@ const withNaverMapInstance = WrappedComponent => {
     //   console.log('map instance unmount');
     // }
 
-    async lazyUpdateKVO({ zoom, center, bounds, size, mapTypeId }) {
+    async lazyUpdateKVO({ zoom, center, bounds, size }) {
       // console.log('--- lazy update ---');
       if (this.break) {
         this.break = false;
@@ -114,7 +114,6 @@ const withNaverMapInstance = WrappedComponent => {
       const shouldUpdateCenter = center && !this.map.getCenter().equals(center);
       const shouldUpdateBounds = bounds && !this.map.getBounds().equals(bounds);
       const shouldUpdateSize = size && !this.map.getSize().equals(size);
-      const shouldUpdateMapTypeId = mapTypeId && this.map.getMapTypeId() !== mapTypeId;
 
       const { transitionOptions }= this.props;
 
@@ -125,18 +124,13 @@ const withNaverMapInstance = WrappedComponent => {
         this.updating = true;
         this.map.morph(center, zoom, transitionOptions);
       } else {
+        
         if (shouldUpdateCenter) {
-          // console.log('center updated');
-          // onUpdateStart();
-
           this.updating = true;
           this.map.panTo(center, transitionOptions);
         }
 
         if (shouldUpdateZoom) {
-          // console.log('zoom updated');
-          // onUpdateStart();
-
           this.updating = true;
           this.map.setZoom(zoom);
         }
@@ -146,15 +140,11 @@ const withNaverMapInstance = WrappedComponent => {
         this.map.setSize(size);
       }
 
-      if (shouldUpdateMapTypeId) {
-        this.map.setMapTypeId(mapTypeId);
-      }
-
-      // bounds, size, mapType, MapTypeId, centerPoint, projection changed
     }
-
+    
     updateMap() {
-      const { zoom, center, bounds, size, mapTypeId } = this.props;
+      const { zoom, center, bounds, size, mapTypeId, projection } = this.props;
+      // bounds, size, mapType, MapTypeId, centerPoint, projection changed
 
       // cancel updating state when do force update.
       if ((center && center.force) || (bounds && bounds.force)) {
@@ -162,25 +152,26 @@ const withNaverMapInstance = WrappedComponent => {
       }
 
       if (this.updating) {
-        // console.log('--- drop update --- ');
         return;
       }
 
-      // console.log('--- updating ---');
-      this.lazyUpdateKVO({ zoom, center, bounds, size, mapTypeId });
+      this.lazyUpdateKVO({ zoom, center, bounds, size });
 
-      
+      // update kvos which is not lazy
+      const shouldUpdateMapTypeId = mapTypeId && this.map.getMapTypeId() !== mapTypeId;
+      if (shouldUpdateMapTypeId) {
+        this.map.setMapTypeId(mapTypeId);
+      }
 
-      // console.log('mapTypeId', mapTypeId)
+      const shouldUpdateProjection = projection && this.map.getProjection() !== projection;
+      if (shouldUpdateProjection) {
+        this.map.setProjection(projection);
+      }
+
       const mapOptions = pickMapOptions(this.props);
       this.map.setOptions({
         ...mapOptions,
       });
-
-      
-
-      // this.map.setMapTypeId(mapTypeId)
-      
     }
 
     createMap() {
@@ -227,17 +218,14 @@ const withNaverMapInstance = WrappedComponent => {
         this.break = true;
       });
       this.map.addListener('mousedown', () => {
-        // console.log('mousedown');
         this.updating = false;
         this.break = true;
       });
       this.map.addListener('dragstart', () => {
-        // console.log('dragstart');
         this.updating = false;
         this.break = true;
       });
       this.map.addListener('pinchstart', () => {
-        // console.log('pinchstart');
         this.updating = false;
         this.break = true;
       });
@@ -252,11 +240,9 @@ const withNaverMapInstance = WrappedComponent => {
         <WrappedComponent {...restProps}>
           {this.map &&
             React.Children.map(children, child => {
-              // console.log(child);
               if (child) {
                 return <child.type {...child.props} map={this.map} />;
               }
-
               return child;
             })}
         </WrappedComponent>

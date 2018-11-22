@@ -86,10 +86,6 @@ NaverMap.defaultProps = {
     'zoom_changed',
   ],
   id: 'react-naver-map',
-  style: {
-    width: '100%',
-    height: '100%',
-  },
 };
 
 export default NaverMap;

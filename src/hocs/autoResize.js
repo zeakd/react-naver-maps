@@ -43,6 +43,7 @@ const autoResize = WrappedComponent => {
         <div id={id} className={className} style={style}>
           <WrappedComponent
             {...restProps}
+            id={`wrapped-${id}`}
             style={this.state.style}
             size={this.state.size}
           />
