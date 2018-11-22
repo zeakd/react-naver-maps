@@ -19,17 +19,30 @@ module.exports = {
 			],
     },
   },
-  context: {
-    // YOUR_CLIENT_ID: JSON.stringify(MAP_CLIENT_ID),
-  },
   pagePerSection: true,
   sections: [
     {
-      name: 'Introduction',
-      content: 'docs/introduction.md'
+      name: 'React Naver Maps',
+      sections: [
+        {
+          name: 'Introduction',
+          content: 'docs/introduction.md',
+        },
+        {
+          name: 'Getting Started',
+          content: 'docs/getting-started.md',
+          exampleMode: 'expand',
+        },
+        // {
+        //   content: 'docs/introduction.md'
+        // },
+        // {
+        //   content: 'docs/introduction.md'
+        // },
+      ],
     },
     {
-      name: 'Examples',
+      name: 'Naver Maps Examples',
       content: 'docs/examples/example-intro.md',
       sections: [
         {
@@ -50,33 +63,39 @@ module.exports = {
           name: '지도 좌표 경계 확인하기',
           content: 'docs/examples/4-map-bounds.md',
         },
-      ]
+      ],
+      sectionDepth: 1,
     },
-    // {
-    //   name: 'Documentation',
-    //   sections: [
-    //     {
-    //       name: 'Installation',
-    //       content: 'docs/installation.md',
-    //       description: 'The description for the installation section'
-    //     },
-    //   ]
-    // },
     {
-      name: 'Components',
-      pagePerSection: true,
+      name: 'Advanced Guide',
       sections: [
         {
-          name: 'Overlay Views',
-          components: [
-            'src/components/overlays/Overlay.js',
-            'src/components/overlays/**/[A-Z]*{.js,/index.js}',
-          ]
-        } 
+          name: 'Maps 인스턴스에 접근하기',
+          content: 'docs/how-to-access-instance.md',
+        }
+      ]      
+    },
+    {
+      name: 'UI Components',
+      components: [
+        'src/components/Map/index.js',
       ]
-      // components: 'src/components/**/[A-Z]*{.js,/index.js}',
-      // exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
-      // usageMode: 'expand' // 'hide' | 'collapse' | 'expand'
+    },
+    {
+      name: 'Overlay Views',
+      components: [
+        'src/components/Overlay.js',
+        'src/components/overlays/**/[A-Z]*{.js,/index.js}',
+      ],
+      exampleMode: 'expand',
+      usageMode: 'expand',
+      sectionDepth: 1,
+    },
+    {
+      name: 'Utils',
+      components: [
+        'src/RenderAfterNavermapsLoaded.js',
+      ],
     }
   ]
 }
