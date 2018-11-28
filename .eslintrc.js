@@ -6,6 +6,11 @@ module.exports = {
         "prettier/react"
     ],
     "plugins": ["react", "prettier"],
+    "settings": {
+        "react": {
+            "version": "15.0",
+        }
+    },
     "env": {
         "browser": true,
         "es6": true
