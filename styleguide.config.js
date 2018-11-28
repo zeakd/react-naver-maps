@@ -78,7 +78,7 @@ module.exports = {
     },
     {
       name: 'UI Components',
-      components: ['src/components/NaverMap/index.js'],
+      components: ['src/components/NaverMap.js'],
     },
     {
       name: 'Overlay Views',

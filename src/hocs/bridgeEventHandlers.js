@@ -1,13 +1,24 @@
 import React from 'react';
 import { wrapDisplayName } from 'recompose';
 import camelCase from 'lodash.camelcase';
+import shallowequal from 'shallowequal';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 import warning from 'warning';
 import invariant from 'invariant';
 
-function generageEventLookup(naverEventNames) {
+import pick from '../utils/pick';
+
+const propsListenerNameCache = {};
+
+function generateEventLookup(naverEventNames) {
   return naverEventNames.reduce((ret, eventName) => {
+    // first find cached propsListerName
+    if (!propsListenerNameCache[eventName]) {
+      propsListenerNameCache[eventName] = camelCase(`on_${eventName}`);
+    }
+
     // propsListener is event listener defined on props. (user input)
-    const propsListenerName = camelCase(`on_${eventName}`);
+    const propsListenerName = propsListenerNameCache[eventName];
     return {
       ...ret,
       [propsListenerName]: eventName,
@@ -33,16 +44,89 @@ const bridgeEventHandlers = WrappedComponent => {
     }
 
     componentDidMount() {
+      this.updateLookup();
       this.updateListeners();
     }
 
-    componentDidUpdate() {
-      this.updateListeners();
+    componentDidUpdate(prevProps) {
+      const shouldUpdateLookup = this.shouldLookupUpdate(prevProps);
+      if (shouldUpdateLookup) {
+        this.updateLookup();
+      }
+
+      if (shouldUpdateLookup || this.shouldListenersUpdate(prevProps)) {
+        this.updateListeners();
+      }
     }
 
     componentWillUnmount() {
       Object.values(this.naverListeners).forEach(listener => {
         this.unlisten(listener);
+      });
+    }
+
+    shouldLookupUpdate(prevProps) {
+      return (
+        prevProps.events !== this.props.events &&
+        !shallowequal(prevProps.events, this.props.events)
+      );
+    }
+
+    updateLookup() {
+      this.naverEventLookup = generateEventLookup(this.props.events);
+      this.handlingPropNames = Object.keys(this.naverEventLookup);
+      this.pickHandlers = pick(this.handlingPropNames);
+    }
+
+    shouldListenersUpdate(prevProps) {
+      return !shallowequal(
+        this.pickHandlers(prevProps),
+        this.pickHandlers(this.props),
+      );
+    }
+
+    updateListeners(props = this.props) {
+      // prepare new naver listeners
+      const prevNaverListeners = this.naverListeners;
+      this.naverListeners = {};
+      const orphans = {};
+      const updateds = {};
+
+      this.handlingPropNames.forEach(propName => {
+        const handler = props[propName];
+
+        if (prevNaverListeners[propName]) {
+          const prevNaverListener = prevNaverListeners[propName];
+          const prevHandler = prevNaverListener.listener;
+
+          // handler unchanged
+          if (prevHandler === handler) {
+            this.naverListeners[propName] = prevNaverListeners[propName];
+
+            // handler changed
+          } else {
+            orphans[propName] = prevNaverListener;
+            updateds[propName] = handler;
+          }
+
+          // new handler
+        } else if (handler) {
+          updateds[propName] = handler;
+        }
+      });
+
+      // listen updated handlers
+      Object.keys(updateds).forEach(updatedPropName => {
+        const evt = this.getEventByHandlerName(updatedPropName);
+        this.naverListeners[updatedPropName] = this.listen(
+          evt,
+          updateds[updatedPropName],
+        );
+      });
+
+      // unlisten orphan handlers
+      Object.values(orphans).forEach(orphan => {
+        this.unlisten(orphan);
       });
     }
 
@@ -63,69 +147,6 @@ const bridgeEventHandlers = WrappedComponent => {
 
       if (this.props.registerEventInstance)
         this.props.registerEventInstance(instance);
-    }
-
-    updateListeners(props = this.props) {
-      if (this.eventsCache !== props.events) {
-        this.eventsCache = props.events;
-        this.naverEventLookup = generageEventLookup(props.events);
-        this.handlingPropNames = Object.keys(this.naverEventLookup);
-      }
-
-      // prepare new naver listeners
-      const prevNaverListeners = this.naverListeners;
-      this.naverListeners = {};
-      const orphans = {};
-      const updateds = {};
-
-      this.handlingPropNames.forEach(propName => {
-        // console.log(`for ${propName}`);
-        const handler = props[propName];
-
-        if (prevNaverListeners[propName]) {
-          const prevNaverListener = prevNaverListeners[propName];
-          const prevHandler = prevNaverListener.listener;
-          // handler unchanged
-
-          // console.log(
-          //   prevNaverListener,
-          //   // prevHandler,
-          //   // handler,
-          //   prevHandler === handler,
-          // );
-          if (prevHandler === handler) {
-            // console.log('unchanged', propName);
-            this.naverListeners[propName] = prevNaverListeners[propName];
-
-            // handler changed
-          } else {
-            orphans[propName] = prevNaverListener;
-            updateds[propName] = handler;
-          }
-
-          // new handler
-        } else if (handler) {
-          updateds[propName] = handler;
-        }
-      });
-
-      // console.log('updateds', updateds);
-      // console.log('orphans', orphans);
-
-      // listen updated handlers
-      Object.keys(updateds).forEach(updatedPropName => {
-        const evt = this.getEventByHandlerName(updatedPropName);
-        this.naverListeners[updatedPropName] = this.listen(
-          evt,
-          updateds[updatedPropName],
-        );
-      });
-      // console.log('listeners', this.naverListeners);
-
-      // unlisten orphan handlers
-      Object.values(orphans).forEach(orphan => {
-        this.unlisten(orphan);
-      });
     }
 
     listen(eventName, listener) {
@@ -157,6 +178,11 @@ const bridgeEventHandlers = WrappedComponent => {
     WrappedComponent,
     'bridgeEventHandlers',
   );
+
+  hoistNonReactStatics(Wrapper, WrappedComponent);
+  Wrapper.defaultProps = {
+    ...WrappedComponent.defaultProps,
+  };
 
   return Wrapper;
 };

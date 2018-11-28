@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import bridgeEventHandler from '../hocs/bridgeEventHandlers';
+import { compose } from 'recompose';
+import { bridgeEventHandlers, withMap } from '../hocs';
 
 class Overlay extends React.Component {
   componentWillUnmount() {
@@ -42,4 +43,7 @@ Overlay.propTypes = {
   pickOverlayOptions: PropTypes.func,
 };
 
-export default bridgeEventHandler(Overlay);
+export default compose(
+  withMap,
+  bridgeEventHandlers,
+)(Overlay);

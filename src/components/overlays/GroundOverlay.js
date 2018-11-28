@@ -8,7 +8,7 @@ import { compose } from 'recompose';
 /**
  * local moduleds
  */
-import { withNavermaps, bridgeEventHandlers } from '../../hocs';
+import { withNavermaps, bridgeEventHandlers, withMap } from '../../hocs';
 
 /**
  *
@@ -72,5 +72,6 @@ GroundOverlay.propTypes = {
 
 export default compose(
   withNavermaps,
+  withMap,
   bridgeEventHandlers,
 )(GroundOverlay);

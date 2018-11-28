@@ -1,5 +1,6 @@
 import React from 'react';
 import { wrapDisplayName } from 'recompose';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 const injectNaverRef = WrappedComponent => {
   function Wrapper({ naverRef, ...restProps }) {
@@ -7,6 +8,10 @@ const injectNaverRef = WrappedComponent => {
   }
 
   Wrapper.displayName = wrapDisplayName(WrappedComponent, 'injectNaverRef');
+  Wrapper.defaultProps = {
+    ...WrappedComponent.defaultProps,
+  };
+  hoistNonReactStatics(Wrapper, WrappedComponent);
   return Wrapper;
 };
 

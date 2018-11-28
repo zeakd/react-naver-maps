@@ -1,6 +1,7 @@
 import React from 'react';
 import { wrapDisplayName } from 'recompose';
 import ResizeDetector from 'react-resize-detector';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 const autoResize = WrappedComponent => {
   class Wrapper extends React.Component {
@@ -51,8 +52,8 @@ const autoResize = WrappedComponent => {
             handleWidth
             handleHeight
             onResize={this.handleResize}
-            refreshMode="throttle"
-            refreshRate={10}
+            refreshMode="debounce"
+            refreshRate={100}
           />
         </div>
       );
@@ -60,6 +61,8 @@ const autoResize = WrappedComponent => {
   }
 
   Wrapper.displayName = wrapDisplayName(WrappedComponent, 'autoResize');
+
+  hoistNonReactStatics(Wrapper, WrappedComponent);
   return Wrapper;
 };
 

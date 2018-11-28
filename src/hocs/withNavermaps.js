@@ -1,6 +1,7 @@
 import React from 'react';
 import invariant from 'invariant';
 import { wrapDisplayName } from 'recompose';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 /**
  * inject navermaps to WrappedComponent.
@@ -29,6 +30,7 @@ const withNavermaps = WrappedComponent => {
   }
 
   Navermaps.displayName = wrapDisplayName(WrappedComponent, 'withNavermaps');
+  hoistNonReactStatics(Navermaps, WrappedComponent);
 
   return Navermaps;
 };
