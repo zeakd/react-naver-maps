@@ -9,10 +9,6 @@ cache:
 branches:
   only:
   - master
-  - develop
-
-script:
-  - npm run lint
 
 before_deploy:
   - npm run website

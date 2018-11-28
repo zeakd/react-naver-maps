@@ -10,13 +10,18 @@
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "trash dist && npm run build",
     "examples": "parcel examples/index.html",
     "styleguidist": "styleguidist server",
     "prestyleguidist:build": "npm run build",
     "styleguidist:build": "styleguidist build",
     "website": "npm run styleguidist:build",
     "lint": "eslint src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   },
   "dependencies": {
     "debug": "^3.1.0",
@@ -44,6 +49,7 @@
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-react": "^7.11.1",
+    "husky": "^1.2.0",
     "prettier": "^1.15.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
@@ -52,6 +58,7 @@
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
+    "trash-cli": "^1.4.0",
     "webpack": "^4.25.1"
   },
   "files": [
