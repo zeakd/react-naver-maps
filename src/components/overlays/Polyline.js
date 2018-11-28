@@ -2,14 +2,12 @@
  * npm modules
  */
 import React from 'react';
-import PropTypes from 'prop-types'
-import { compose } from 'recompose';
-import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 /**
  * local moduleds
  */
-import Overlay from '../Overlay'
+import Overlay from '../Overlay';
 import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
@@ -28,20 +26,20 @@ const pickPolylineOptions = pick([
   'startIconSize',
   'endIcon',
   'endIconSize',
-])
+]);
 
 /**
- * 
- * @param {*} props 
+ *
+ * @param {*} props
  */
 function Polyline(props) {
   return (
-    <Overlay 
+    <Overlay
       {...props}
       OverlayView={props.navermaps.Polyline}
       pickOverlayOptions={pickPolylineOptions}
     />
-  )
+  );
 }
 
 Polyline.defaultProps = {
@@ -65,7 +63,7 @@ Polyline.defaultProps = {
   clickable: false,
   visible: true,
   zIndex: 0,
-}
+};
 
 Polyline.propTypes = {
   events: PropTypes.arrayOf(PropTypes.string),
@@ -83,6 +81,6 @@ Polyline.propTypes = {
   startIconSize: PropTypes.number,
   endIcon: PropTypes.number,
   endIconSize: PropTypes.number,
-}
+};
 
-export default withNavermaps(Polyline)
+export default withNavermaps(Polyline);

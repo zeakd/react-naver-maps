@@ -1,10 +1,8 @@
 import React from 'react';
 import { wrapDisplayName } from 'recompose';
 import camelCase from 'lodash.camelcase';
-import difference from 'lodash.difference';
 import warning from 'warning';
 import invariant from 'invariant';
-import pick from '../utils/pick';
 
 function generageEventLookup(naverEventNames) {
   return naverEventNames.reduce((ret, eventName) => {
@@ -18,9 +16,9 @@ function generageEventLookup(naverEventNames) {
 }
 
 /**
- * Managing Naver Event Handlers. KVO instance must be registered 
+ * Managing Naver Event Handlers. KVO instance must be registered
  * in the child component by props.registerEventInstance
- * @param {*} WrappedComponent 
+ * @param {*} WrappedComponent
  */
 const bridgeEventHandlers = WrappedComponent => {
   class Wrapper extends React.Component {
@@ -63,7 +61,8 @@ const bridgeEventHandlers = WrappedComponent => {
       );
       this.instance = instance;
 
-      if (this.props.registerEventInstance) this.props.registerEventInstance(instance);
+      if (this.props.registerEventInstance)
+        this.props.registerEventInstance(instance);
     }
 
     updateListeners(props = this.props) {

@@ -16,7 +16,7 @@
     "prestyleguidist:build": "npm run build",
     "styleguidist:build": "styleguidist build",
     "website": "npm run styleguidist:build",
-    "test": "echo finish"
+    "lint": "eslint src"
   },
   "dependencies": {
     "debug": "^3.1.0",
@@ -40,6 +40,11 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
+    "eslint": "^5.9.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-react": "^7.11.1",
+    "prettier": "^1.15.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-styleguidist": "^8.0.5",

@@ -2,14 +2,12 @@
  * npm modules
  */
 import React from 'react';
-import PropTypes from 'prop-types'
-import { compose } from 'recompose';
-import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 /**
  * local moduleds
  */
-import Overlay from '../Overlay'
+import Overlay from '../Overlay';
 import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
@@ -25,21 +23,21 @@ const pickRectangleOptions = pick([
   'fillOpacity',
   'clickable',
   'visible',
-  'zIndex',	
-])
+  'zIndex',
+]);
 
 /**
- * 
- * @param {*} props 
+ *
+ * @param {*} props
  */
 function Rectangle(props) {
   return (
-    <Overlay 
+    <Overlay
       {...props}
       OverlayView={props.navermaps.Rectangle}
       pickOverlayOptions={pickRectangleOptions}
     />
-  )
+  );
 }
 
 Rectangle.defaultProps = {
@@ -66,7 +64,7 @@ Rectangle.defaultProps = {
   clickable: false,
   visible: true,
   zIndex: 0,
-}
+};
 
 Rectangle.propTypes = {
   events: PropTypes.arrayOf(PropTypes.string),
@@ -82,6 +80,6 @@ Rectangle.propTypes = {
   clickable: PropTypes.bool,
   visible: PropTypes.bool,
   zIndex: PropTypes.number,
-}
+};
 
-export default withNavermaps(Rectangle)
+export default withNavermaps(Rectangle);

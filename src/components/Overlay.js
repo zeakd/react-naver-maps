@@ -1,19 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'recompose';
-import bridgeEventHandler from '../hocs/bridgeEventHandlers'
+import bridgeEventHandler from '../hocs/bridgeEventHandlers';
 
 class Overlay extends React.Component {
   componentWillUnmount() {
-    if (this.overlay) this.overlay.setMap(null)
+    if (this.overlay) this.overlay.setMap(null);
   }
 
   createOverlay() {
-    const { 
-      OverlayView,
-      map,
-      registerEventInstance,
-    } = this.props;
+    const { OverlayView, map, registerEventInstance } = this.props;
 
     const overlay = new OverlayView({
       map,
@@ -40,4 +35,11 @@ class Overlay extends React.Component {
   }
 }
 
-export default bridgeEventHandler(Overlay)
+Overlay.propTypes = {
+  OverlayView: PropTypes.func,
+  map: PropTypes.object,
+  registerEventInstance: PropTypes.func,
+  pickOverlayOptions: PropTypes.func,
+};
+
+export default bridgeEventHandler(Overlay);

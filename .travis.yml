@@ -6,7 +6,15 @@ cache:
   directories:
   - node_modules
 
+branches:
+  only:
+  - master
+  - develop
+
 script:
+  - npm run lint
+
+before_deploy:
   - npm run website
 
 deploy:

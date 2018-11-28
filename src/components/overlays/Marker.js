@@ -2,14 +2,12 @@
  * npm modules
  */
 import React from 'react';
-import PropTypes from 'prop-types'
-import { compose } from 'recompose';
-import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 /**
  * local moduleds
  */
-import Overlay from '../Overlay'
+import Overlay from '../Overlay';
 import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
@@ -24,20 +22,20 @@ const pickMarkerOptions = pick([
   'draggable',
   'visible',
   'zIndex',
-])
+]);
 
 /**
- * 
- * @param {*} props 
+ *
+ * @param {*} props
  */
 function Marker(props) {
   return (
-    <Overlay 
+    <Overlay
       {...props}
       OverlayView={props.navermaps.Marker}
       pickOverlayOptions={pickMarkerOptions}
     />
-  )
+  );
 }
 
 Marker.defaultProps = {
@@ -63,7 +61,7 @@ Marker.defaultProps = {
   clickable: true,
   draggable: false,
   visible: true,
-}
+};
 
 Marker.propTypes = {
   events: PropTypes.arrayOf(PropTypes.string),
@@ -77,6 +75,6 @@ Marker.propTypes = {
   clickable: PropTypes.bool,
   visible: PropTypes.bool,
   zIndex: PropTypes.number,
-}
+};
 
-export default withNavermaps(Marker)
+export default withNavermaps(Marker);

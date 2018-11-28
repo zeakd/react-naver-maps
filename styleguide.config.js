@@ -1,5 +1,4 @@
-const path = require('path')
-
+const path = require('path');
 
 module.exports = {
   require: [path.resolve(__dirname, 'styleguide/setup.js')],
@@ -14,9 +13,9 @@ module.exports = {
         {
           test: /\.jsx?$/,
           exclude: /node_modules/,
-          loader: 'babel-loader'
+          loader: 'babel-loader',
         },
-			],
+      ],
     },
   },
   pagePerSection: true,
@@ -48,12 +47,14 @@ module.exports = {
         {
           name: '지도 기본 예제',
           content: 'docs/examples/1-map-simple.md',
-          description: 'https://navermaps.github.io/maps.js/docs/tutorial-1-map-simple.example.html',
+          description:
+            'https://navermaps.github.io/maps.js/docs/tutorial-1-map-simple.example.html',
         },
         {
           name: '지도 옵션 조정하기',
           content: 'docs/examples/2-map-options.md',
-          description: 'https://navermaps.github.io/maps.js/docs/tutorial-2-map-options.example.html',
+          description:
+            'https://navermaps.github.io/maps.js/docs/tutorial-2-map-options.example.html',
         },
         {
           name: '지도 유형 설정하기',
@@ -72,14 +73,12 @@ module.exports = {
         {
           name: 'Maps 인스턴스에 접근하기',
           content: 'docs/how-to-access-instance.md',
-        }
-      ]      
+        },
+      ],
     },
     {
       name: 'UI Components',
-      components: [
-        'src/components/NaverMap/index.js',
-      ]
+      components: ['src/components/NaverMap/index.js'],
     },
     {
       name: 'Overlay Views',
@@ -93,9 +92,7 @@ module.exports = {
     },
     {
       name: 'Utils',
-      components: [
-        'src/RenderAfterNavermapsLoaded.js',
-      ],
-    }
-  ]
-}
+      components: ['src/RenderAfterNavermapsLoaded.js'],
+    },
+  ],
+};

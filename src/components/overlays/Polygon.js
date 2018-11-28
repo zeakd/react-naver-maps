@@ -2,14 +2,12 @@
  * npm modules
  */
 import React from 'react';
-import PropTypes from 'prop-types'
-import { compose } from 'recompose';
-import invariant from 'invariant';
+import PropTypes from 'prop-types';
 
 /**
  * local moduleds
  */
-import Overlay from '../Overlay'
+import Overlay from '../Overlay';
 import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
@@ -26,20 +24,20 @@ const pickPolygonOptions = pick([
   'clickable',
   'visible',
   'zIndex',
-])
+]);
 
 /**
- * 
- * @param {*} props 
+ *
+ * @param {*} props
  */
 function Polygon(props) {
   return (
-    <Overlay 
+    <Overlay
       {...props}
       OverlayView={props.navermaps.Polygon}
       pickOverlayOptions={pickPolygonOptions}
     />
-  )
+  );
 }
 
 Polygon.defaultProps = {
@@ -65,7 +63,7 @@ Polygon.defaultProps = {
   clickable: false,
   visible: true,
   zIndex: 0,
-}
+};
 
 Polygon.propTypes = {
   events: PropTypes.arrayOf(PropTypes.string),
@@ -81,6 +79,6 @@ Polygon.propTypes = {
   clickable: PropTypes.bool,
   visible: PropTypes.bool,
   zIndex: PropTypes.number,
-}
+};
 
-export default withNavermaps(Polygon)
+export default withNavermaps(Polygon);

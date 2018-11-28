@@ -58,11 +58,11 @@ const defaultKVOKeyMap = {
   defaultCenterPoint: 'centerPoint',
   defaultProjection: 'projection',
   defaultZoom: 'zoom',
-}
+};
 
 const defaultKVOKeys = kvoKeys.map(key => {
   return 'default' + key[0].toUpperCase() + key.substring(1, key.length);
-})
+});
 
 const pickMapOptions = pick(mapOptionKeys);
 const pickKVOOptions = pick(kvoKeys);
@@ -77,7 +77,6 @@ const withNaverMapInstance = WrappedComponent => {
     }
 
     componentWillUnmount() {
-
       if (this.instance) {
         this.instance.destroy();
       }
@@ -103,7 +102,12 @@ const withNaverMapInstance = WrappedComponent => {
     //   console.log('map instance unmount');
     // }
 
-    async lazyUpdateKVO({ zoom, center, bounds, size }) {
+    async lazyUpdateKVO({
+      zoom,
+      center,
+      size,
+      // bounds,
+    }) {
       // console.log('--- lazy update ---');
       if (this.break) {
         this.break = false;
@@ -112,10 +116,10 @@ const withNaverMapInstance = WrappedComponent => {
 
       const shouldUpdateZoom = zoom && this.map.getZoom() !== zoom;
       const shouldUpdateCenter = center && !this.map.getCenter().equals(center);
-      const shouldUpdateBounds = bounds && !this.map.getBounds().equals(bounds);
+      // const shouldUpdateBounds = bounds && !this.map.getBounds().equals(bounds);
       const shouldUpdateSize = size && !this.map.getSize().equals(size);
 
-      const { transitionOptions }= this.props;
+      const { transitionOptions } = this.props;
 
       if (shouldUpdateZoom && shouldUpdateCenter) {
         // console.log('zoom, center updated');
@@ -124,7 +128,6 @@ const withNaverMapInstance = WrappedComponent => {
         this.updating = true;
         this.map.morph(center, zoom, transitionOptions);
       } else {
-        
         if (shouldUpdateCenter) {
           this.updating = true;
           this.map.panTo(center, transitionOptions);
@@ -139,9 +142,8 @@ const withNaverMapInstance = WrappedComponent => {
       if (shouldUpdateSize) {
         this.map.setSize(size);
       }
-
     }
-    
+
     updateMap() {
       const { zoom, center, bounds, size, mapTypeId, projection } = this.props;
       // bounds, size, mapType, MapTypeId, centerPoint, projection changed
@@ -158,12 +160,14 @@ const withNaverMapInstance = WrappedComponent => {
       this.lazyUpdateKVO({ zoom, center, bounds, size });
 
       // update kvos which is not lazy
-      const shouldUpdateMapTypeId = mapTypeId && this.map.getMapTypeId() !== mapTypeId;
+      const shouldUpdateMapTypeId =
+        mapTypeId && this.map.getMapTypeId() !== mapTypeId;
       if (shouldUpdateMapTypeId) {
         this.map.setMapTypeId(mapTypeId);
       }
 
-      const shouldUpdateProjection = projection && this.map.getProjection() !== projection;
+      const shouldUpdateProjection =
+        projection && this.map.getProjection() !== projection;
       if (shouldUpdateProjection) {
         this.map.setProjection(projection);
       }
@@ -177,25 +181,23 @@ const withNaverMapInstance = WrappedComponent => {
     createMap() {
       const { navermaps, id } = this.props;
 
-      invariant(
-        id,
-        'react-naver-maps: <Map /> - props.id is required',
-      );
+      invariant(id, 'react-naver-maps: <Map /> - props.id is required');
 
       const mapOptions = pickMapOptions(this.props);
       const kvoOptions = pickKVOOptions(this.props);
       const defaultKVOOptions = pickDefaultKVOKeys(this.props);
-      
+
       const allMapOptions = {
         ...mapOptions,
         ...kvoOptions,
-      }
+      };
 
       Object.keys(defaultKVOOptions).forEach(defaultKey => {
         // console.log(defaultKey, defaultKVOKeyMap[defaultKey], defaultKVOOptions[defaultKey])
-        allMapOptions[defaultKVOKeyMap[defaultKey]] = defaultKVOOptions[defaultKey];
-      })
-      
+        allMapOptions[defaultKVOKeyMap[defaultKey]] =
+          defaultKVOOptions[defaultKey];
+      });
+
       try {
         this.instance = new navermaps.Map(id, allMapOptions);
       } catch (e) {

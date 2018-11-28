@@ -2,28 +2,25 @@
  * npm modules
  */
 import React from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { compose } from 'recompose';
-import invariant from 'invariant';
 
 /**
  * local moduleds
  */
-import Overlay from '../Overlay'
-import pick from '../../utils/pick';
 import { withNavermaps, bridgeEventHandlers } from '../../hocs';
 
 /**
- * 
- * @param {*} props 
+ *
+ * @param {*} props
  */
 class GroundOverlay extends React.Component {
   componentWillUnmount() {
-    if (this.overlay) this.overlay.setMap(null)
+    if (this.overlay) this.overlay.setMap(null);
   }
 
   createGroundOverlay() {
-    const { 
+    const {
       navermaps,
       map,
       bounds,
@@ -59,11 +56,8 @@ class GroundOverlay extends React.Component {
 }
 
 GroundOverlay.defaultProps = {
-  events: [
-    'click',
-    'dblclick',
-  ],
-}
+  events: ['click', 'dblclick'],
+};
 
 GroundOverlay.propTypes = {
   events: PropTypes.arrayOf(PropTypes.string),
@@ -71,9 +65,12 @@ GroundOverlay.propTypes = {
   url: PropTypes.string.isRequired,
   clickable: PropTypes.bool,
   opacity: PropTypes.number,
-}
+  map: PropTypes.object,
+  navermaps: PropTypes.object,
+  registerEventInstance: PropTypes.func,
+};
 
 export default compose(
   withNavermaps,
   bridgeEventHandlers,
-)(GroundOverlay)
+)(GroundOverlay);
