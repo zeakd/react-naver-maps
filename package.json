@@ -16,7 +16,8 @@
     "prestyleguidist:build": "npm run build",
     "styleguidist:build": "styleguidist build",
     "website": "npm run styleguidist:build",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "echo skip test"
   },
   "husky": {
     "hooks": {
