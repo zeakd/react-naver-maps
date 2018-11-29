@@ -71,7 +71,11 @@ module.exports = {
       name: 'Advanced Guide',
       sections: [
         {
-          name: 'Maps 인스턴스에 접근하기',
+          name: 'Class Method 사용하기',
+          content: 'docs/using-class-methods.md',
+        },
+        {
+          name: '컴포넌트 인스턴스에 접근하기',
           content: 'docs/how-to-access-instance.md',
         },
       ],

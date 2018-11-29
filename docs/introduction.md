@@ -17,7 +17,9 @@ window.naver.maps.Event.addListener(map, 'zoom_changed', zoomListener)
 // listener를 제거할 때
 map.removeListener(zoomListener); // 또는
 window.naver.maps.Event.removeListener(zoomListener)
+```
 
+``` js static
 //
 // React Naver Maps 방식
 // 

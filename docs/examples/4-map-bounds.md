@@ -1,6 +1,9 @@
 
 https://navermaps.github.io/maps.js/docs/tutorial-4-map-bounds.example.html
 
+아래 예시는 좌표경계가 변경될 때마다 딜레이 후 좌표경계만큼 사각형을 그리는 예시입니다. 
+**props.bounds**와 **onBoundsChanged**를 이용해 구현 할 수 있지만 NaverMap이 Mount될 때에는 **bounds_changed** event가 발생하지 않기 때문에 최초 사각형를 초기화 하기 위해서는 NaverMap이 생성되었을 때의 좌표경계를 알아낼 필요가 있습니다. 이 경우에 ref를 활용하여 **NaverMap**의 class method인 getBounds를 사용합니다.
+
 ``` js 
 
 const { 
@@ -31,7 +34,6 @@ class App extends React.Component {
       rect: null,
     }
     this.handleBoundsChanged = this.handleBoundsChanged.bind(this);
-    // this.changeBounds = this.changeBounds.bind(this);
     this.goToDokdo = this.goToDokdo.bind(this);
 
     this.dokdo = new navermaps.LatLngBounds(
@@ -84,8 +86,8 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    // map이 생성될 때의 bounds를 알기 위해 map객체에 직접 접근해야합니다.
-    this.changeBounds(this.mapRef.map.getBounds())
+    // map이 생성될 때의 bounds를 알기 위해 method를 이용합니다.
+    this.changeBounds(this.mapRef.getBounds())
   }
 }
 
