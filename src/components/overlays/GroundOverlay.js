@@ -14,7 +14,7 @@ import { withNavermaps, bridgeEventHandlers, withMap } from '../../hocs';
  *
  * @param {*} props
  */
-class GroundOverlay extends React.Component {
+class GroundOverlay extends React.PureComponent {
   componentWillUnmount() {
     if (this.overlay) this.overlay.setMap(null);
   }
@@ -39,9 +39,10 @@ class GroundOverlay extends React.Component {
   }
 
   updateGroundOverlay(groundOverlay) {
-    const { opacity } = this.props;
+    const { opacity, map } = this.props;
 
     groundOverlay.setOpacity(opacity);
+    groundOverlay.setMap(map);
   }
 
   render() {

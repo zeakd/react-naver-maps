@@ -12,6 +12,7 @@ import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
 const pickPolylineOptions = pick([
+  'map',
   'path',
   'strokeWeight',
   'strokeOpacity',
