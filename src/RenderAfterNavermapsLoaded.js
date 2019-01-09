@@ -27,10 +27,11 @@ class RenderAfterNavermapsLoaded extends React.Component {
   }
 
   componentDidMount() {
-    const { clientId, submodules } = this.props;
+    const { clientId, ncpClientId, submodules } = this.props;
     
     loadNavermapsScript({
       clientId,
+      ncpClientId,
       submodules,
     }).then(() => {
       

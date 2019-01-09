@@ -40,7 +40,7 @@ const _loadNavermapsScript = ({ clientId, submodules, ncpClientId }) => {
 let loadScriptPromise = null;
 
 const loadNavermapsScript = ({ clientId, submodules, ncpClientId }) => {
-  invariant(clientId, 'loadNavermapsScript: clientId is required');
+  invariant(clientId || ncpClientId, 'loadNavermapsScript: clientId or ncpClientId is required');
 
   if (loadScriptPromise) {
     return loadScriptPromise;
