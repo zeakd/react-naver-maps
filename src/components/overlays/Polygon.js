@@ -12,7 +12,6 @@ import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
 const pickPolygonOptions = pick([
-  'map',
   'paths',
   'strokeWeight',
   'strokeOpacity',

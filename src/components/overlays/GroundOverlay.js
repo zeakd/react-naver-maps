@@ -39,10 +39,9 @@ class GroundOverlay extends React.PureComponent {
   }
 
   updateGroundOverlay(groundOverlay) {
-    const { opacity, map } = this.props;
+    const { opacity } = this.props;
 
     groundOverlay.setOpacity(opacity);
-    groundOverlay.setMap(map);
   }
 
   render() {

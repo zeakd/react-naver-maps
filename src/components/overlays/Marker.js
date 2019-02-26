@@ -12,7 +12,6 @@ import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
 const pickMarkerOptions = pick([
-  'map',
   'position',
   'animation',
   'icon',

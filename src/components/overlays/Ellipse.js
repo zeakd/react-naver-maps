@@ -12,7 +12,6 @@ import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
 const pickEllipseOptions = pick([
-  'map',
   'bounds',
   'strokeWeight',
   'strokeOpacity',

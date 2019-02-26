@@ -12,7 +12,6 @@ import pick from '../../utils/pick';
 import { withNavermaps } from '../../hocs';
 
 const pickCircleOptions = pick([
-  'map',
   'center',
   'radius',
   'strokeWeight',
