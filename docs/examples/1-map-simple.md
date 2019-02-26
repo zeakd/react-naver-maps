@@ -1,10 +1,7 @@
 
 ``` js 
 
-const { 
-  RenderAfterNavermapsLoaded, 
-  NaverMap,
-} = require('react-naver-maps')
+import { RenderAfterNavermapsLoaded, NaverMap } from 'react-naver-maps'
 
 function App() {
   return (

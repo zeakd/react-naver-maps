@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { wrapDisplayName } from 'recompose';
 import ResizeDetector from 'react-resize-detector';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -60,6 +61,11 @@ const autoResize = WrappedComponent => {
     }
   }
 
+  Wrapper.propTypes = {
+    id: PropTypes.string,
+    className: PropTypes.string,
+    style: PropTypes.object,
+  };
   Wrapper.displayName = wrapDisplayName(WrappedComponent, 'autoResize');
 
   hoistNonReactStatics(Wrapper, WrappedComponent);

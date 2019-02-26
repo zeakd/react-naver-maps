@@ -6,14 +6,8 @@ https://navermaps.github.io/maps.js/docs/tutorial-4-map-bounds.example.html
 
 ``` js 
 
-const { 
-  RenderAfterNavermapsLoaded, 
-  NaverMap,
-  Rectangle,
-} = require('react-naver-maps')
-const { 
-  withNavermaps,
-} = require('react-naver-maps/hocs')
+import { RenderAfterNavermapsLoaded, NaverMap, Rectangle } from 'react-naver-maps'
+import { withNavermaps } from 'react-naver-maps/hocs'
 
 const Rect = (props) => (
   <Rectangle 

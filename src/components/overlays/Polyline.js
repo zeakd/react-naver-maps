@@ -66,6 +66,7 @@ Polyline.defaultProps = {
 };
 
 Polyline.propTypes = {
+  navermaps: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.string),
   path: PropTypes.any.isRequired,
   strokeWeight: PropTypes.number,

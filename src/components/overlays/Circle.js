@@ -70,6 +70,7 @@ Circle.defaultProps = {
 };
 
 Circle.propTypes = {
+  navermaps: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.string),
   center: PropTypes.object.isRequired,
   radius: PropTypes.number,

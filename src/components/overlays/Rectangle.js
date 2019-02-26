@@ -67,6 +67,7 @@ Rectangle.defaultProps = {
 };
 
 Rectangle.propTypes = {
+  navermaps: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.string),
   bounds: PropTypes.object.isRequired,
   strokeWeight: PropTypes.number,

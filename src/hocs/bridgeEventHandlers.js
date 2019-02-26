@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { wrapDisplayName } from 'recompose';
 import camelCase from 'lodash.camelcase';
 import shallowequal from 'shallowequal';
@@ -182,6 +183,11 @@ const bridgeEventHandlers = WrappedComponent => {
   hoistNonReactStatics(Wrapper, WrappedComponent);
   Wrapper.defaultProps = {
     ...WrappedComponent.defaultProps,
+  };
+  Wrapper.propTypes = {
+    events: PropTypes.arrayOf(PropTypes.string),
+    registerEventInstance: PropTypes.func,
+    navermaps: PropTypes.object,
   };
 
   return Wrapper;

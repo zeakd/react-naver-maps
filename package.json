@@ -57,7 +57,7 @@
     "prettier": "^1.15.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
-    "react-styleguidist": "^8.0.5",
+    "react-styleguidist": "^9.0.1",
     "rollup": "^0.65.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.0",

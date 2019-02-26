@@ -66,6 +66,7 @@ Polygon.defaultProps = {
 };
 
 Polygon.propTypes = {
+  navermaps: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.string),
   paths: PropTypes.any.isRequired,
   strokeWeight: PropTypes.number,

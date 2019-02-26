@@ -25,8 +25,11 @@ React Naver Maps를 사용하기전 먼저 Naver Maps 스크립트를 불러와�
 두번째로 navermaps를 비동기적으로 불러와 map을 사용하는 곳에서만 요청하는 방법이 있습니다. React Naver Maps는 간단한 유틸 컴포넌트를 제공합니다. [<RenderAfterNavermapsLoaded /\>](http://localhost:6060/#/Utils?id=renderafternavermapsloaded)는 마운트될 때 `naver maps`모듈을 비동기적으로 요청합니다.
 
 ``` js
-<RenderAfterNavermapsLoaded
-  clientId={YOUR_CLIENT_ID} // required
+import { RenderAfterNavermapsLoaded } from 'react-naver-maps'
+;<RenderAfterNavermapsLoaded
+  clientId={YOUR_CLIENT_ID}
+  // Naver Cloud Platform 유저의 경우 props.clientId 대신 props.ncpClientId를 사용합니다. 
+  // ncpClientId={YOUR_NCP_CLIENT_ID} 
   error={<p>Maps Load Error</p>}
   loading={<p>Maps Loading...</p>}
 >
@@ -41,7 +44,9 @@ React Naver Maps를 사용하기전 먼저 Naver Maps 스크립트를 불러와�
 **defaultCenter**, **defaultZoom** 등 **defaultKVOKEY** props를 이용해 uncontrolled component로 사용할 수 있습니다.
 
 ``` js
-<RenderAfterNavermapsLoaded
+import { RenderAfterNavermapsLoaded, NaverMap } from 'react-naver-maps'
+
+;<RenderAfterNavermapsLoaded
   clientId={YOUR_CLIENT_ID}
 >
   <NaverMap 
@@ -60,6 +65,8 @@ panning등을 fully controlled component처럼 사용할 수 있습니다. 이�
 
 
 ``` js
+import { RenderAfterNavermapsLoaded, NaverMap } from 'react-naver-maps'
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -98,7 +105,7 @@ class App extends React.Component {
   }
 }
 
-<RenderAfterNavermapsLoaded clientId={YOUR_CLIENT_ID}>
+;<RenderAfterNavermapsLoaded clientId={YOUR_CLIENT_ID}>
   <App />
 </RenderAfterNavermapsLoaded>
 ```

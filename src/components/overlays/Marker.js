@@ -64,6 +64,7 @@ Marker.defaultProps = {
 };
 
 Marker.propTypes = {
+  navermaps: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.string),
   position: PropTypes.any.isRequired,
   animation: PropTypes.number,

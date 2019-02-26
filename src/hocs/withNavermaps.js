@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { wrapDisplayName } from 'recompose';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -30,6 +31,9 @@ const withNavermaps = WrappedComponent => {
   }
 
   Navermaps.displayName = wrapDisplayName(WrappedComponent, 'withNavermaps');
+  Navermaps.propTypes = {
+    navermaps: PropTypes.object,
+  };
   hoistNonReactStatics(Navermaps, WrappedComponent);
 
   return Navermaps;

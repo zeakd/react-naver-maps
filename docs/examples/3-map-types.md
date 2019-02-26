@@ -3,11 +3,8 @@ https://navermaps.github.io/maps.js/docs/tutorial-3-map-types.example.html
 
 ``` js 
 
-const { 
-  RenderAfterNavermapsLoaded, 
-  NaverMap,
-} = require('react-naver-maps')
-const { withNavermaps } = require('react-naver-maps/hocs')
+import { RenderAfterNavermapsLoaded, NaverMap } from 'react-naver-maps'
+import { withNavermaps } from 'react-naver-maps/hocs'
 
 class App extends React.Component {
   constructor(props) {
