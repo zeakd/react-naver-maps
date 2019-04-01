@@ -22,6 +22,10 @@ class Overlay extends React.Component {
   updateOverlay(overlay) {
     const overlayOptions = this.props.pickOverlayOptions(this.props);
 
+    if (this.props.map !== this.overlay.getMap()) {
+      overlayOptions.map = this.props.map;
+    }
+
     overlay.setOptions(overlayOptions);
   }
 
