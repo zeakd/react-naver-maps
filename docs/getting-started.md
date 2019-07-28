@@ -2,7 +2,7 @@
 ### 0.
 
 시작에 앞서 어플리케이션 등록이 필요합니다. 이미 `클라이언트 아이디`가 있다면 이 부분은 넘어가셔도 됩니다.
-2018년 11월 13일 부로 네이버 신규 어플리케이션 등록은 [네이버 클라우드 플랫폼](https://www.ncloud.com/)에서 가능합니다. 자세한 내용은 [네이버 클라우드 플랫폼 Maps API](https://navermaps.github.io/maps.js.ncp/index.html)를 참고하세요. 기존 [네이버 개발자 센터](https://developers.naver.com/) 클라이언트 아이디는 2019년 4월 19일 까지 사용가능합니다.
+2018년 11월 13일 부로 네이버 신규 어플리케이션 등록은 [네이버 클라우드 플랫폼](https://www.ncloud.com/)에서 가능합니다. 자세한 내용은 [네이버 클라우드 플랫폼 Maps API](https://navermaps.github.io/maps.js.ncp/index.html)를 참고하세요. **기존 [네이버 개발자 센터](https://developers.naver.com/) 클라이언트 아이디는 2019년 4월 19일 까지 사용가능합니다.**
 
 - [Naver Maps Enterprise API 공지사항](https://developers.naver.com/notice/article/10000000000030663434)
 - [Naver Cloud Platform 클라이언트 아이디 발급](https://navermaps.github.io/maps.js.ncp/tutorial-1-Getting-Client-ID.html)
@@ -15,7 +15,7 @@ React Naver Maps를 사용하기전 먼저 Naver Maps 스크립트를 불러와�
 ...
 <script 
   type="text/javascript" 
-  src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=YOUR_CLIENT_ID">
+  src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID">
 </script>
 <script ...>
 ```

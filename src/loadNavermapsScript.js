@@ -6,12 +6,7 @@ const _loadNavermapsScript = ({ clientId, submodules, ncpClientId }) => {
 
   // build naver maps v3 api url
   let requestUrl = `https://openapi.map.naver.com/openapi/v3/maps.js`;
-
-  if (clientId) {
-    requestUrl += `?clientId=${clientId}`;
-  } else if (ncpClientId) {
-    requestUrl += `?ncpClientId=${ncpClientId}`;
-  }
+  requestUrl += `?ncpClientId=${clientId || ncpClientId}`;
 
   if (submodules) {
     requestUrl += `&submodules=${submodules.join(',')}`;
