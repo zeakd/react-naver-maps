@@ -482,17 +482,6 @@ class NaverMap extends React.PureComponent {
         </div>
       </MapContext.Provider>
     );
-    // return (
-    //   <div id={id} className={className} style={style}>
-    //     {this.map &&
-    //       React.Children.map(children, child => {
-    //         if (child) {
-    //           return <child.type {...child.props} map={this.map} />;
-    //         }
-    //         return child;
-    //       })}
-    //   </div>
-    // );
   }
 }
 
