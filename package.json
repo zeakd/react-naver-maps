@@ -1,72 +1,68 @@
 {
   "name": "react-naver-maps",
-  "version": "0.0.13",
-  "description": "React Component for naver maps v3 module.",
-  "main": "dist/react-naver-maps.cjs.js",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/react-naver-maps.cjs",
   "module": "dist/react-naver-maps.esm.js",
-  "repository": "https://github.com/zeakd/react-naver-maps",
+  "types": "dist/types",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "prebuild": "npm run clean",
+    "clean": "trash dist/**",
+    "lint": "eslint --ext ts,tsx src",
+    "docz:dev": "docz dev",
+    "docz:build": "docz build",
+    "docz:clean": "trash .docz",
+    "_postinstall": "husky install",
+    "prepublish": "pinst --disable",
+    "postpublish": "pinst --enable"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeakd/react-naver-maps.git"
+  },
+  "keywords": [],
   "author": "zeakd <artydeveloperduck@gmail.com>",
   "license": "MIT",
-  "scripts": {
-    "build": "rollup -c",
-    "start": "rollup -c -w",
-    "prepublishOnly": "trash dist && npm run build",
-    "examples": "parcel examples/index.html",
-    "styleguidist": "styleguidist server",
-    "prestyleguidist:build": "npm run build",
-    "styleguidist:build": "styleguidist build",
-    "website": "npm run styleguidist:build",
-    "lint": "eslint src",
-    "test": "echo skip test"
+  "bugs": {
+    "url": "https://github.com/zeakd/react-naver-maps/issues"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint"
-    }
-  },
+  "homepage": "https://github.com/zeakd/react-naver-maps#readme",
   "dependencies": {
-    "create-react-context": "^0.2.3",
-    "debug": "^3.1.0",
-    "hoist-non-react-statics": "^3.2.0",
-    "invariant": "^2.2.4",
-    "load-js": "^3.0.2",
-    "lodash.camelcase": "^4.3.0",
-    "lodash.debounce": "^4.0.8",
-    "lodash.difference": "^4.5.0",
-    "prop-types": "^15.6.2",
-    "react-resize-detector": "^2.2.0",
-    "recompose": "^0.26.0",
-    "shallowequal": "^1.1.0",
-    "warning": "^4.0.2"
+    "camelcase": "^5.3.1",
+    "lodash.isempty": "^4.4.0",
+    "lodash.pick": "^4.4.0",
+    "prop-types": "^15.7.2",
+    "react-use": "^17.2.4"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0"
+    "react": "^16.6.3 || ^17.0.0",
+    "react-dom": "^16.6.3 || ^17.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.1",
-    "@babel/plugin-external-helpers": "^7.0.0",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.4",
-    "eslint": "^5.9.0",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "eslint-plugin-react": "^7.11.1",
-    "husky": "^1.2.0",
-    "prettier": "^1.15.2",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-styleguidist": "^9.0.1",
-    "rollup": "^0.65.2",
-    "rollup-plugin-babel": "^4.0.3",
-    "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
-    "trash-cli": "^1.4.0",
-    "webpack": "^4.25.1"
-  },
-  "files": [
-    "dist",
-    "hocs"
-  ]
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.1",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@types/lodash.isempty": "^4.4.6",
+    "@types/lodash.pick": "^4.4.6",
+    "@types/navermaps": "^3.0.4",
+    "@types/react": "^16.14.0",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "babel-plugin-typescript-to-proptypes": "^1.4.2",
+    "docz": "^2.3.1",
+    "eslint": "^7.14.0",
+    "eslint-plugin-react": "^7.21.5",
+    "husky": "^6.0.0",
+    "pinst": "^2.1.6",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "rollup": "^2.47.0",
+    "trash-cli": "^4.0.0",
+    "typescript": "^4.2.4"
+  }
 }

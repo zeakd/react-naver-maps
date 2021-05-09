@@ -1,34 +1,50 @@
 module.exports = {
-    "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended",
-        "plugin:prettier/recommended", 
-        "prettier/react"
+  parser: '@typescript-eslint/parser',
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+  ],
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
+  },
+  env: {
+    es6: true,
+    node: true,
+  },
+  rules: {
+    'quotes': ['error', 'single'],
+    'comma-dangle': ['error', 'always-multiline'],
+    'eol-last': ['error', 'always'],
+    'prefer-template': 'error',
+    'object-curly-spacing': ['error', 'always'],
+    'comma-spacing': ['error'],
+    'no-multi-spaces': ['error'],
+    'no-unexpected-multiline': ['error'],
+    'object-curly-newline': ['error', { multiline: true }],
+    'array-bracket-newline': ['error', { multiline: true }],
+    'function-paren-newline': ['error', 'multiline'],
+    'no-trailing-spaces': 'error',
+    'react/prop-types': ['off'],
+    'react/function-component-definition': [
+      'error', {
+        'namedComponents': 'arrow-function',
+        'unnamedComponents': 'arrow-function',
+      },
     ],
-    "plugins": ["react", "prettier"],
-    "settings": {
-        "react": {
-            "version": "15.0",
-        }
-    },
-    "env": {
-        "browser": true,
-        "es6": true
-    },
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 2018,
-        "sourceType": "module"
-    },
-    "rules": {
-        "prettier/prettier": ["error", {
-            singleQuote: true,
-            trailingComma: 'all',
-            // "bracketSpacing": false,
-            // "jsxBracketSameLine": true,
-        }],
-        "no-unused-vars": "warn",
-    }
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/member-delimiter-style': ['error'],
+    '@typescript-eslint/type-annotation-spacing': ['error'],
+
+    'indent': 'off',
+    '@typescript-eslint/indent': ['error', 2],
+    'semi': 'off',
+    '@typescript-eslint/semi': ['error'],
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-empty-function': ['off'],
+    '@typescript-eslint/no-explicit-any': ['off'],
+  },
+  settings: { react: { 'version': 'latest' } },
 };
