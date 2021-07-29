@@ -1,0 +1,36 @@
+---
+name: 기본 예제
+menu: Examples
+---
+
+import { useState, useEffect, useCallback } from 'react'
+import { Playground, Props } from 'docz';
+import { LoadNavermaps, NaverMap, MapDiv } from '../../'
+
+# Basic
+
+# test
+
+<Playground>
+  {() => {
+    return (
+      <LoadNavermaps
+        ncpClientId={'6tdrlcyvpt'}
+        render={
+          () => {
+            return (
+              <MapDiv
+                style={{
+                  width: '100%',
+                  height: '800px',
+                }}
+              >
+                <NaverMap />
+              </MapDiv>  
+            )
+          }
+        }
+      />
+    )
+  }}
+</Playground>

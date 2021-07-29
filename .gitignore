@@ -66,4 +66,5 @@ styleguide/index.html
 
 # editor
 .vscode
-.docz
+
+.DS_Store
