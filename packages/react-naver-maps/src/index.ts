@@ -1,14 +1,7 @@
-import MapDiv from './components/MapDiv';
-import NaverMap from './components/NaverMap';
-// import Marker from './overlays/marker';
-// import Circle from './overlays/circle';
-import LoadNavermaps from './load-navermaps';
 
 
-export {
-  NaverMap,
-  MapDiv,
-  // Marker,
-  // Circle,
-  LoadNavermaps,
-};
+export { Provider as NavermapsProvider } from './provider';
+export { NaverMap } from './basic/naver-map';
+
+// utils
+export { loadNavermaps } from './load-navermaps';

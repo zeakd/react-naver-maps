@@ -1,5 +1,5 @@
 type NaverMapsType = typeof naver.maps;
-export default function getNavermaps(): NaverMapsType {
+export function getNavermaps(): NaverMapsType {
   const navermaps = window.naver?.maps;
 
   if (!navermaps) {

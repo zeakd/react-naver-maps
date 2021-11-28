@@ -26,6 +26,7 @@
   "homepage": "https://github.com/zeakd/react-naver-maps#readme",
   "dependencies": {
     "camelcase": "^5.3.1",
+    "load-script": "^2.0.0",
     "lodash.isempty": "^4.4.0",
     "lodash.pick": "^4.4.0",
     "prop-types": "^15.7.2",

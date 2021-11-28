@@ -31,6 +31,7 @@ importers:
       '@types/react': ^16.14.21
       camelcase: ^5.3.1
       jest: ^26.6.3
+      load-script: ^2.0.0
       lodash.isempty: ^4.4.0
       lodash.pick: ^4.4.0
       prop-types: ^15.7.2
@@ -44,6 +45,7 @@ importers:
       typescript: ^4.5.2
     dependencies:
       camelcase: 5.3.1
+      load-script: 2.0.0
       lodash.isempty: 4.4.0
       lodash.pick: 4.4.0
       prop-types: 15.7.2
@@ -78,6 +80,7 @@ importers:
       next: 12.0.4
       react: 17.0.2
       react-dom: 17.0.2
+      react-naver-maps: workspace:^0.1.0
       typescript: 4.5.2
     dependencies:
       '@mdx-js/loader': 1.6.22_react@17.0.2
@@ -85,6 +88,7 @@ importers:
       next: 12.0.4_react-dom@17.0.2+react@17.0.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-naver-maps: link:../packages/react-naver-maps
     devDependencies:
       '@types/node': 16.11.10
       '@types/react': 17.0.37
@@ -5311,6 +5315,10 @@ packages:
   /lines-and-columns/1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
+
+  /load-script/2.0.0:
+    resolution: {integrity: sha512-km6cyoPW4rM22JMGb+SHUKPMZVDpUaMpMAKrv8UHWllIxc/qjgMGHD91nY+5hM+/NFs310OZ2pqQeJKs7HqWPA==}
+    dev: false
 
   /loader-utils/1.2.3:
     resolution: {integrity: sha512-fkpz8ejdnEMG3s37wGL07iSBDg99O9D5yflE9RGNH3hRdx9SOwYfnGYdZOUIZitN8E+E2vkq3MUMYMvPYl5ZZA==}
