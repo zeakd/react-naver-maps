@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Overlay } from '../helpers/overlay';
+import { HandleEvents } from '../helpers/event';
+import { UIEventHandlers } from '../types/event';
 import pick from 'lodash.pick';
-import isEmpty from 'lodash.isempty';
-import OverlayView from './overlay-view';
-import { UIEventListeners } from '../utils/types';
 
-const optionKeys = [
+const kvoKeys = [
   'animation',
   'position',
   'icon',
@@ -16,7 +16,8 @@ const optionKeys = [
   'visible',
   'zIndex',
 ] as const;
-const kvoEvents = optionKeys.map(key => `${key}_changed`);
+
+const kvoEvents = kvoKeys.map(key => `${key}_changed`);
 const uiEvents = [
   'mousedown',
   'mouseup',
@@ -42,15 +43,25 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type UIEvents = typeof uiEvents[number];
-type KVOType = naver.maps.Marker;
-type KVOOptionsType = naver.maps.MarkerOptions;
+type MarkerKVO = {
+  animation: naver.maps.Animation;
+  position: naver.maps.Coord | naver.maps.CoordLiteral;
+  icon: string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon;
+  shape: naver.maps.MarkerShape;
+  title: string;
+  cursor: string;
+  clickable: boolean;
+  draggable: boolean;
+  visible: boolean;
+  zIndex: number;
+};
 
-type Props = KVOOptionsType & UIEventListeners<UIEvents> & {
-  marker?: KVOType;
+// TODO: Fix DefinitelyTyped
+type MarkerOptions = Partial<MarkerKVO>;
 
+type Props = MarkerOptions & {
   onAnimationChanged?: (value: naver.maps.Animation) => void;
-  onPositionChanged?: (value: naver.maps.LatLng) => void;
+  onPositionChanged?: (value: naver.maps.Coord) => void;
   onIconChanged?: (value: string | naver.maps.ImageIcon | naver.maps.HtmlIcon | naver.maps.SymbolIcon) => void;
   onShapeChanged?: (event: naver.maps.MarkerShape) => void;
   onTitleChanged?: (event: string) => void;
@@ -59,61 +70,22 @@ type Props = KVOOptionsType & UIEventListeners<UIEvents> & {
   onDraggableChanged?: (event: boolean) => void;
   onVisibleChanged?: (event: boolean) => void;
   onZIndexChanged?: (event: number) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
-export const useMarker = (marker?: naver.maps.Marker): [naver.maps.Marker] => {
-  const markerRef = useRef<naver.maps.Marker>(marker || new window.naver.maps.Marker({}));
-
-  // TODO: Wrapper
-  return [markerRef.current];
-};
-
-const Marker: React.FC<Props> = (props) => {
-  const { marker: _marker } = props;
-  const [marker] = useMarker(_marker);
+export function Marker(props: Props) {
+  const { position } = props;
+  const kvoOptions = pick(props, kvoKeys);
+  const [marker] = useState(() => new naver.maps.Marker(kvoOptions));
 
   useEffect(() => {
-    const pickChanged = (
-      kvo: KVOType,
-      options: Partial<KVOOptionsType>,
-    ): Partial<KVOOptionsType> => {
-      const { position, ...restOptions } = options;
-      const changed: Partial<KVOOptionsType> = {};
-
-      if (position) {
-        if (!kvo.getPosition() || (kvo.getPosition() && !kvo.getPosition().equals(position))) {
-          changed.position = position;
-        }
-      }
-
-      const keys = Object.keys(restOptions) as Array<keyof KVOOptionsType>;
-      keys.forEach(key => {
-        if (options[key] !== kvo.get(key)) {
-          changed[key] = options[key];
-        }
-      });
-
-      return changed;
-    };
-
-    const update = (kvo: KVOType, options: Partial<KVOOptionsType>) => {
-      kvo.setOptions(options as KVOOptionsType);
-    };
-
-    const options: KVOOptionsType = pick(props, optionKeys);
-    const diff = pickChanged(marker, options);
-    if (!isEmpty(diff)) {
-      update(marker, diff);
+    if (position) {
+      marker.setPosition(position);
     }
-  }, optionKeys.map(key => props[key]));
+  }, [position]);
 
   return (
-    <OverlayView<Props>
-      overlay={marker}
-      overlayProps={props}
-      events={events}
-    />
+    <Overlay element={marker}>
+      <HandleEvents events={events} listeners={props as any} />
+    </Overlay>
   );
-};
-
-export default Marker;
+}

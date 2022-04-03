@@ -1,13 +1,12 @@
 import type { NextPage } from 'next';
-import Intro from '../docs/intro.mdx';
+import { NaverMap, MapDiv } from 'react-naver-maps';
 
 const Home: NextPage = () => {
   return (
-    <div>
-      <Intro />
-    </div>
+    <MapDiv style={{ width: 400, height: 400 }}>
+      <NaverMap />
+    </MapDiv>
   );
 };
-
 
 export default Home;

@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import { loadScript } from './utils/load-script';
-import { getNavermaps } from './utils/get-navermaps';
 
 type NcpOptions = {
   submodules?: string[];
@@ -18,13 +18,13 @@ type finOptions = {
 
 export type Options = NcpOptions | GovOptions | finOptions;
 
-export function loadNavermaps(options: Options) {
+export function loadNavermapsScript(options: Options) {
   const url = makeUrl(options);
 
   // TODO: Caching Promise
 
   const promise = loadScript(url).then(() => {
-    const navermaps = getNavermaps();
+    const navermaps = window.naver.maps;
 
     if (navermaps.jsContentLoaded) {
       return navermaps;
@@ -62,4 +62,25 @@ function makeUrl(options: Options) {
   }
 
   return url;
+}
+
+type Props = Options & {
+  children: () => React.ReactElement;
+};
+
+export function LoadNavermapsScript({
+  children: Children,
+  ...options
+}: Props) {
+  const [navermaps, setNavermaps] = useState<typeof naver.maps>();
+
+  useEffect(() => {
+    loadNavermapsScript(options).then((maps) => {
+      setNavermaps(maps);
+    });
+  }, []);
+
+  return (
+    (navermaps && Children) ? <Children /> : null
+  );
 }

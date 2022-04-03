@@ -1,4 +1,3 @@
-import babel from '@rollup/plugin-babel';
 import typescript from '@rollup/plugin-typescript';
 import pkg from './package.json';
 
@@ -6,7 +5,7 @@ const peerDependencies = Object.keys(pkg.peerDependencies || {});
 const dependencies = Object.keys(pkg.dependencies || {});
 const external = peerDependencies.concat(dependencies);
 
-const extensions = ['.ts', '.tsx'];
+// const extensions = ['.ts', '.tsx'];
 
 export default [
   {
@@ -22,13 +21,6 @@ export default [
       },
     ],
     external,
-    plugins: [
-      typescript({ tsconfig: './tsconfig.json' }),
-      babel({
-        babelHelpers: 'bundled',
-        extensions,
-        presets: ['@babel/preset-env'],
-      }),
-    ],
+    plugins: [typescript({ tsconfig: './tsconfig.json' })],
   },
 ];
