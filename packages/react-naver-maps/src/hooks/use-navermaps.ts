@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAsset } from 'use-asset';
 import { loadNavermapsScript, Options } from '../load-navermaps-script';
 

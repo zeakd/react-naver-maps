@@ -2,7 +2,7 @@
   "name": "website",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cd ../packages/react-naver-maps && pnpm link ../../website/node_modules/react; cd - && next dev",
     "build": "next build && next export",
     "start": "next start"
   },

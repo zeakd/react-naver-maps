@@ -12,6 +12,10 @@ const targets = [
     name: 'tutorial-2-map-options',
     filepath: 'examples/tutorial-2-map-options.mdx',
   },
+  {
+    name: 'tutorial-3-map-types',
+    filepath: 'examples/tutorial-3-map-types.mdx',
+  },
 ];
 
 const pages = targets.reduce<Record<string, ComponentType>>(

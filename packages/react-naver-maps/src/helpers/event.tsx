@@ -22,7 +22,6 @@ export function HandleEvents(props: Props) {
         const eventName = eventMap[key];
         const listener = listeners[key];
 
-        console.log(eventName, listener);
         return listener ? <AddListener
           key={key}
           type={eventName}
