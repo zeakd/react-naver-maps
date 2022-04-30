@@ -14,8 +14,8 @@ export function MapDiv({ children, ...restProps }: Props) {
   }, []);
 
   return (
-    <>
-      <div key='mapdiv' ref={ref} style={{ width: '100%', height: '100%' }} {...restProps}/>
+    <div {...restProps}>
+      <div key='mapdiv' ref={ref} style={{ width: '100%', height: '100%' }} />
       {isMounted && ref.current && (
         <MapDivContext.Provider value={ref.current}>
           <Suspense fallback={null}>
@@ -23,6 +23,6 @@ export function MapDiv({ children, ...restProps }: Props) {
           </Suspense>
         </MapDivContext.Provider>
       )}
-    </>
+    </div>
   );
 }

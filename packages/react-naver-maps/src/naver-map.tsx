@@ -5,6 +5,8 @@ import { NaverMapContext } from './contexts/naver-map';
 import { useNavermaps } from './hooks/use-navermaps';
 import upperfirst from 'lodash.upperfirst';
 import { usePrevious } from './hooks/use-previous';
+import { EventTargetContext } from './contexts/event-target';
+import { HandleEvents } from './helpers/event';
 
 type MapPaddingOptions = {
   top?: number;
@@ -100,10 +102,48 @@ const kvoKeys = [
   'zoom',
 ] as const;
 
+const kvoEvents = [
+  ...kvoKeys.map(key => `${key}_changed`),
+  'mapType_changed', // special. https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Map.html#event:mapType_changed__anchor
+];
+const uiEvents = [
+  'mousedown',
+  'mouseup',
+  'click',
+  'dblclick',
+  'rightclick',
+  'mouseover',
+  'mouseout',
+  'mousemove',
+  'dragstart',
+  'drag',
+  'dragend',
+  'touchstart',
+  'touchmove',
+  'touchend',
+  'pinchstart',
+  'pinch',
+  'pinchend',
+  'tap',
+  'longtap',
+  'twofingertap',
+  'doubletap',
+] as const;
+const events = [...uiEvents, ...kvoEvents];
+type MapEventCallbacks = {
+  onMapTypeIdChanged?: (value: string) => void;
+  onMapTypeChanged?: (value: naver.maps.MapType) => void;
+  onSizeChanged?: (value: naver.maps.Size) => void;
+  onBoundsChanged?: (value: naver.maps.Bounds) => void;
+  onCenterChanged?: (value: naver.maps.Coord) => void;
+  onCenterPointChanged?: (value: naver.maps.Point) => void;
+  onZoomChanged?: (value: number) => void;
+};
+
 type Props = {
   children?: React.ReactNode;
   centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
-} & MapOptions;
+} & MapOptions & MapEventCallbacks;
 
 export function NaverMap(props: Props) {
   const navermaps = useNavermaps();
@@ -141,8 +181,8 @@ export function NaverMap(props: Props) {
   );
 }
 
-function NaverMapCore({ nmap, children, ...mapOptionProps }: Props & { nmap: naver.maps.Map }) {
-  const basicMapOptions = pick(mapOptionProps, basicMapOptionKeys);
+function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.maps.Map }) {
+  const basicMapOptions = pick(mapProps, basicMapOptionKeys);
   const {
     mapTypeId,
     size,
@@ -150,7 +190,7 @@ function NaverMapCore({ nmap, children, ...mapOptionProps }: Props & { nmap: nav
     center,
     centerPoint,
     zoom,
-  } = mapOptionProps;
+  } = mapProps;
 
   const prevKVOs = usePrevious({
     mapTypeId,
@@ -171,7 +211,7 @@ function NaverMapCore({ nmap, children, ...mapOptionProps }: Props & { nmap: nav
   function getDirtyKVOs(keys: Array<typeof kvoKeys[number]>): Pick<Props, typeof kvoKeys[number]> {
     return keys.reduce((acc, key) => {
       const currentValue = nmap[`get${upperfirst(key)}` as keyof naver.maps.Map]();
-      const propValue = mapOptionProps[key];
+      const propValue = mapProps[key];
 
       if (!propValue || prevKVOs && prevKVOs[key] === propValue) {
         return acc;
@@ -243,7 +283,13 @@ function NaverMapCore({ nmap, children, ...mapOptionProps }: Props & { nmap: nav
 
   return (
     <NaverMapContext.Provider value={nmap}>
-      {children}
+      <EventTargetContext.Provider value={nmap}>
+        <HandleEvents
+          events={events}
+          listeners={mapProps as any}
+        />
+        {children}
+      </EventTargetContext.Provider>
     </NaverMapContext.Provider>
   );
 }
