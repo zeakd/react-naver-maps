@@ -34,12 +34,12 @@ const events = [...uiEvents, ...kvoEvents];
 
 type RectangleOptions = Omit<naver.maps.RectangleOptions, 'map'>;
 
-type Props = RectangleOptions & {
+type Props = RectangleOptions & UIEventHandlers<typeof uiEvents> & {
   onBoundsChanged?: (value: naver.maps.Bounds) => void;
   onClickableChanged?: (value: boolean) => void;
   onVisibleChanged?: (value: boolean) => void;
   onZIndexChanged?: (value: number) => void;
-} & UIEventHandlers<typeof uiEvents>;
+};
 
 export function Rectangle(props: Props) {
   const options = pick(props, [...optionKeys, ...kvoKeys]);

@@ -3,10 +3,10 @@ import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
 import { UIEventHandlers } from '../types/event';
 import pick from 'lodash.pick';
+import { omitUndefined } from '../utils/omit-undefined';
 
-const kvoKeys = [
+const primitiveKvoKeys = [
   'animation',
-  'position',
   'icon',
   'shape',
   'title',
@@ -15,6 +15,10 @@ const kvoKeys = [
   'draggable',
   'visible',
   'zIndex',
+] as const;
+const kvoKeys = [
+  ...primitiveKvoKeys,
+  'position',
 ] as const;
 
 const kvoEvents = kvoKeys.map(key => `${key}_changed`);
@@ -26,20 +30,9 @@ const uiEvents = [
   'rightclick',
   'mouseover',
   'mouseout',
-  // 'mousemove',
   'dragstart',
   'drag',
   'dragend',
-  // 'touchstart',
-  // 'touchmove',
-  // 'touchend',
-  // 'pinchstart',
-  // 'pinch',
-  // 'pinchend',
-  // 'tap',
-  // 'longtap',
-  // 'twofingertap',
-  // 'doubletap',
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
@@ -59,7 +52,7 @@ type MarkerKVO = {
 // TODO: Fix DefinitelyTyped
 type MarkerOptions = Partial<MarkerKVO>;
 
-type Props = MarkerOptions & {
+type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
   onAnimationChanged?: (value: naver.maps.Animation) => void;
   onPositionChanged?: (value: naver.maps.Coord) => void;
   onIconChanged?: (value: string | naver.maps.ImageIcon | naver.maps.HtmlIcon | naver.maps.SymbolIcon) => void;
@@ -70,18 +63,21 @@ type Props = MarkerOptions & {
   onDraggableChanged?: (event: boolean) => void;
   onVisibleChanged?: (event: boolean) => void;
   onZIndexChanged?: (event: number) => void;
-} & UIEventHandlers<typeof uiEvents>;
+};
 
 export function Marker(props: Props) {
   const { position } = props;
-  const kvoOptions = pick(props, kvoKeys);
-  const [marker] = useState(() => new naver.maps.Marker(kvoOptions));
+  const [marker] = useState(() => new naver.maps.Marker(omitUndefined(pick(props, kvoKeys))));
 
   useEffect(() => {
-    if (position) {
+    if (position && !marker.getPosition().equals(position as naver.maps.Point)) {
       marker.setPosition(position);
     }
   }, [position]);
+
+  useEffect(() => {
+    marker.setOptions(pick(props, primitiveKvoKeys));
+  }, primitiveKvoKeys.map(key => props[key]));
 
   return (
     <Overlay element={marker}>
