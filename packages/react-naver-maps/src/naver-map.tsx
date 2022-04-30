@@ -1,5 +1,5 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useImperativeHandle, useLayoutEffect, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { useMapDiv } from './contexts/map-div';
 import { NaverMapContext } from './contexts/naver-map';
 import { useNavermaps } from './hooks/use-navermaps';
@@ -132,7 +132,20 @@ const uiEvents = [
   'twofingertap',
   'doubletap',
 ] as const;
-const events = [...uiEvents, ...kvoEvents];
+const mapOnlyEvents = [
+  'addLayer',
+  'idle',
+  'init',
+  'keydown',
+  'keyup',
+  'panning',
+  'projection_changed',
+  'removeLayer',
+  'resize',
+  'tilesloaded',
+  'zooming',
+] as const;
+const events = [...uiEvents, ...kvoEvents, ...mapOnlyEvents];
 type MapEventCallbacks = {
   onMapTypeIdChanged?: (value: string) => void;
   onMapTypeChanged?: (value: naver.maps.MapType) => void;
@@ -161,10 +174,11 @@ type Props = {
   children?: React.ReactNode | FunctionTypeChildren;
 } & MapOptions & MapEventCallbacks & DefaultOptions<Pick<MapOptions, typeof kvoKeys[number]>>;
 
-export const NaverMap = forwardRef<naver.maps.Map, Props>(function NaverMap(props, ref) {
+export const NaverMap = forwardRef<naver.maps.Map | null, Props>(function NaverMap(props, ref) {
   const navermaps = useNavermaps();
   const mapDiv = useMapDiv();
   const [nmap, setNmap] = useState<naver.maps.Map>();
+  const nmapRef = useRef<naver.maps.Map>();
 
   // https://github.com/facebook/react/issues/20090
   useLayoutEffect(() => {
@@ -195,6 +209,8 @@ export const NaverMap = forwardRef<naver.maps.Map, Props>(function NaverMap(prop
 
     const _nmap = new navermaps.Map(mapDiv, { ...basicMapOptions, ...kvos });
     setNmap(_nmap);
+    // for ref hack
+    nmapRef.current = _nmap;
 
     return () => {
       _nmap.destroy();
@@ -213,13 +229,15 @@ export const NaverMap = forwardRef<naver.maps.Map, Props>(function NaverMap(prop
     };
   }, {}) as Props;
 
+  // nmap 이 layoutEffect에서 생성되므로 항상 Map이 존재한다.
+  useImperativeHandle<naver.maps.Map | undefined, naver.maps.Map | undefined>(ref, () => nmapRef.current);
+
   return (
-    <>{nmap && <NaverMapCore {...uncontrolledOmittedProps} nmap={nmap} innerRef={ref} />}</>
+    <>{nmap && <NaverMapCore {...uncontrolledOmittedProps} nmap={nmap} />}</>
   );
 });
 
-function NaverMapCore({ nmap, children, innerRef, ...mapProps }: Props & { nmap: naver.maps.Map; innerRef: React.Ref<naver.maps.Map> }) {
-  useImperativeHandle(innerRef, () => nmap, [nmap]);
+function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.maps.Map }) {
   const basicMapOptions = pick(mapProps, basicMapOptionKeys);
   const {
     mapTypeId,
