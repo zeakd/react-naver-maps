@@ -1,0 +1,140 @@
+import { Suspense, useState, useEffect, useRef, useCallback } from 'react'
+import { MapDiv, NaverMap, useNavermaps, Rectangle, useMap } from 'react-naver-maps'
+
+## 지도 좌표 경계 확인하기
+
+지도의 bounds 객체를 이용하는 예제입니다. 
+
+https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-map-simple.example.html
+
+export function MyMap() {
+  const navermaps = useNavermaps();
+  const [center] = useState(new navermaps.LatLng(37.5666805, 126.9784147));
+  const [bounds, setBounds] = useState();
+  return <NaverMap     
+    // uncontrolled
+    defaultCenter={center}
+    defaultZoom={10}
+    mapTypeId={navermaps.MapTypeId.NORMAL}
+    // controlled bounds, center, zoom을 사용할 경우 반드시 해당 changed event를 연결해야합니다.
+    bounds={bounds}
+    onBoundsChanged={setBounds}
+  >
+    <FullRect bounds={bounds} />
+    <button
+      style={{
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 1000,
+        backgroundColor: '#fff',
+        border: 'solid 1px #333',
+        outline: '0 none',
+        borderRadius: '5px',
+        boxShadow: '2px 2px 1px 1px rgba(0, 0, 0, 0.5)',
+        margin: '0 5px 5px 0',
+      }}
+      onClick={() => {
+        setBounds(new navermaps.LatLngBounds(
+                        new navermaps.LatLng(37.2380651, 131.8562652),
+                        new navermaps.LatLng(37.2444436, 131.8786475)))
+      }}
+    >독도로 이동하기</button>
+  </NaverMap>
+}
+
+export function FullRect({
+  bounds
+}) {
+  const nmap = useMap();
+  const [rectBounds, setRectBounds] = useState(nmap.getBounds())
+  useEffect(() => {
+    if (bounds) {
+      setTimeout(() => {
+        setRectBounds(bounds);
+      }, 500);
+    }
+  }, [bounds]);
+  return <Rectangle
+    strokeOpacity={0}
+    strokeWeight={0}
+    fillOpacity={0.2}
+    fillColor={"#f00"}
+    bounds={rectBounds}  
+  />;
+}
+ 
+<MapDiv style={{
+  position: 'relative',
+  width: '100%',
+  height: '600px',
+}}>
+  <MyMap />
+</MapDiv>
+
+``` jsx
+function MyMap() {
+  const navermaps = useNavermaps();
+  const [center] = useState(new navermaps.LatLng(37.5666805, 126.9784147));
+  const [bounds, setBounds] = useState();
+  return <NaverMap     
+    // uncontrolled
+    defaultCenter={center}
+    defaultZoom={10}
+    mapTypeId={navermaps.MapTypeId.NORMAL}
+    // controlled bounds, center, zoom을 사용할 경우 반드시 해당 changed event를 연결해야합니다.
+    bounds={bounds}
+    onBoundsChanged={setBounds}
+  >
+    <FullRect bounds={bounds} />
+    <button
+      style={{
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 1000,
+        backgroundColor: '#fff',
+        border: 'solid 1px #333',
+        outline: '0 none',
+        borderRadius: '5px',
+        boxShadow: '2px 2px 1px 1px rgba(0, 0, 0, 0.5)',
+        margin: '0 5px 5px 0',
+      }}
+      onClick={() => {
+        setBounds(new navermaps.LatLngBounds(
+                        new navermaps.LatLng(37.2380651, 131.8562652),
+                        new navermaps.LatLng(37.2444436, 131.8786475)))
+      }}
+    >독도로 이동하기</button>
+  </NaverMap>
+}
+
+function FullRect({
+  bounds
+}) {
+  const nmap = useMap();
+  const [rectBounds, setRectBounds] = useState(nmap.getBounds())
+  useEffect(() => {
+    if (bounds) {
+      setTimeout(() => {
+        setRectBounds(bounds);
+      }, 500);
+    }
+  }, [bounds]);
+  return <Rectangle
+    strokeOpacity={0}
+    strokeWeight={0}
+    fillOpacity={0.2}
+    fillColor={"#f00"}
+    bounds={rectBounds}  
+  />;
+}
+ 
+<MapDiv style={{
+  position: 'relative',
+  width: '100%',
+  height: '600px',
+}}>
+  <MyMap />
+</MapDiv>
+```

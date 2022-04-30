@@ -1,5 +1,5 @@
 import pick from 'lodash.pick';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useLayoutEffect, useState } from 'react';
 import { useMapDiv } from './contexts/map-div';
 import { NaverMapContext } from './contexts/naver-map';
 import { useNavermaps } from './hooks/use-navermaps';
@@ -52,6 +52,9 @@ type MapOptions = {
   zoomControlOptions?: naver.maps.ZoomControlOptions;
   zoomOrigin?: naver.maps.Coord | naver.maps.CoordLiteral | null;
   blankTileImage?: string | null;
+
+  // special.
+  centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
 };
 
 const basicMapOptionKeys: Array<keyof MapOptions> = [
@@ -98,8 +101,8 @@ const kvoKeys = [
   'size',
   'bounds',
   'center',
-  'centerPoint',
   'zoom',
+  'centerPoint',
 ] as const;
 
 const kvoEvents = [
@@ -140,12 +143,25 @@ type MapEventCallbacks = {
   onZoomChanged?: (value: number) => void;
 };
 
-type Props = {
-  children?: React.ReactNode;
-  centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
-} & MapOptions & MapEventCallbacks;
+type FunctionTypeChildren = (nmap: naver.maps.Map) => React.ReactNode;
+type DefaultOptions<T> = {
+  [Property in keyof T as `default${Capitalize<string & Property>}`]: T[Property]
+};
 
-export function NaverMap(props: Props) {
+const defaultOptionKeyMap = {
+  mapTypeId: 'defaultMapTypeId',
+  size: 'defaultSize',
+  bounds: 'defaultBounds',
+  center: 'defaultCenter',
+  zoom: 'defaultZoom',
+  centerPoint: 'defaultCenterPoint',
+} as const;
+
+type Props = {
+  children?: React.ReactNode | FunctionTypeChildren;
+} & MapOptions & MapEventCallbacks & DefaultOptions<Pick<MapOptions, typeof kvoKeys[number]>>;
+
+export const NaverMap = forwardRef<naver.maps.Map, Props>(function NaverMap(props, ref) {
   const navermaps = useNavermaps();
   const mapDiv = useMapDiv();
   const [nmap, setNmap] = useState<naver.maps.Map>();
@@ -158,6 +174,15 @@ export function NaverMap(props: Props) {
 
     const basicMapOptions = pick(props, basicMapOptionKeys);
     const kvos = kvoKeys.reduce((acc, key) => {
+      // default kvo
+      if (props[defaultOptionKeyMap[key]]) {
+        return {
+          ...acc,
+          [key]: props[defaultOptionKeyMap[key]],
+        };
+      }
+
+      // kvo
       if (props[key]) {
         return {
           ...acc,
@@ -176,12 +201,25 @@ export function NaverMap(props: Props) {
     };
   }, []);
 
-  return (
-    <>{nmap && <NaverMapCore {...props} nmap={nmap} />}</>
-  );
-}
+  const uncontrolledOmittedProps = (Object.keys(props) as Array<keyof Props>).reduce((acc, key) => {
+    // kvo key가 defaultKvo key와 함께 있을 경우 무시한다.
+    if (key in defaultOptionKeyMap && props[defaultOptionKeyMap[key as keyof typeof defaultOptionKeyMap]]) {
+      return acc;
+    }
 
-function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.maps.Map }) {
+    return {
+      ...acc,
+      [key]: props[key],
+    };
+  }, {}) as Props;
+
+  return (
+    <>{nmap && <NaverMapCore {...uncontrolledOmittedProps} nmap={nmap} innerRef={ref} />}</>
+  );
+});
+
+function NaverMapCore({ nmap, children, innerRef, ...mapProps }: Props & { nmap: naver.maps.Map; innerRef: React.Ref<naver.maps.Map> }) {
+  useImperativeHandle(innerRef, () => nmap, [nmap]);
   const basicMapOptions = pick(mapProps, basicMapOptionKeys);
   const {
     mapTypeId,
@@ -253,7 +291,7 @@ function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.map
 
     if (dirties.bounds) {
       // TODO
-      nmap.panToBounds(dirties.bounds, {}, {});
+      nmap.fitBounds(dirties.bounds);
 
       // Ignore rest kvos
       return;

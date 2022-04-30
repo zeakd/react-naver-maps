@@ -16,6 +16,10 @@ const targets = [
     name: 'tutorial-3-map-types',
     filepath: 'examples/tutorial-3-map-types.mdx',
   },
+  {
+    name: 'tutorial-4-map-bounds',
+    filepath: 'examples/tutorial-4-map-bounds.mdx',
+  },
 ];
 
 const pages = targets.reduce<Record<string, ComponentType>>(

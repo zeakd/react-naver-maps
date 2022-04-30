@@ -12,7 +12,6 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
     const navermaps = useNavermaps();
     
     const [zoom, setZoom] = useState(13);
-    const center = useRef(new navermaps.LatLng(37.3595704, 127.105399)).current;
 
     const [draggable, setDraggable] = useState(true);
     const [disableKineticPan, setDisableKineticPan] = useState(true);
@@ -85,8 +84,8 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
             position: navermaps.Position.TOP_RIGHT
           }}
           
-          center={center}
-          zoom={zoom}
+          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+          defaultZoom={13}
           onZoomChanged={handleZoomChanged}
 
           // 지도 인터랙션 옵션
@@ -130,7 +129,6 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
     const navermaps = useNavermaps();
     
     const [zoom, setZoom] = useState(13);
-    const center = useRef(new navermaps.LatLng(37.3595704, 127.105399)).current;
 
     const [draggable, setDraggable] = useState(true);
     const [disableKineticPan, setDisableKineticPan] = useState(true);
@@ -203,8 +201,8 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
             position: navermaps.Position.TOP_RIGHT
           }}
           
-          center={center}
-          zoom={zoom}
+          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+          defaultZoom={13}
           onZoomChanged={handleZoomChanged}
 
           // 지도 인터랙션 옵션
