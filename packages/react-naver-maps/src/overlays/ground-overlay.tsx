@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
-import { UIEventHandlers } from '../types/event';
+import type { UIEventHandlers } from '../types/event';
 import pick from 'lodash.pick';
 
 const kvoKeys = [

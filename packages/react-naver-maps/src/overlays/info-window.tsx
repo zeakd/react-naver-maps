@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import pick from 'lodash.pick';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
-import { UIEventHandlers } from '../types/event';
+import type { UIEventHandlers } from '../types/event';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [

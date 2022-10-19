@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useEventTarget } from '../contexts/event-target';
+import type { AllowedKey } from '../types/utils';
 
 export function useAddListener(target: any, type: string, listener: (e: any) => void) {
   useEffect(() => {
@@ -36,6 +37,6 @@ export const AddListener: React.FC<Props> = (props) => {
   return null;
 };
 
-export function getListenerKeys<Props>(props: Props): string[] {
-  return Object.keys(props).filter(key => /on[A-Z]\w+/.test(key));
+export function getListenerKeys<P extends Record<string, any>>(props: P) {
+  return Object.keys(props).filter(key => /on[A-Z]\w+/.test(key)) as unknown as Array<AllowedKey<P, `on${string}`>>;
 }
