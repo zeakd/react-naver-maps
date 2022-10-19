@@ -1,24 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import type { ClientOptions } from './types/client';
 import { loadScript } from './utils/load-script';
 
-type NcpOptions = {
-  submodules?: string[];
-  ncpClientId: string;
-};
-
-type GovOptions = {
-  submodules?: string[];
-  govClientId: string;
-};
-
-type finOptions = {
-  submodules?: string[];
-  finClientId: string;
-};
-
-export type Options = NcpOptions | GovOptions | finOptions;
-
-export function loadNavermapsScript(options: Options) {
+export function loadNavermapsScript(options: ClientOptions) {
   const url = makeUrl(options);
 
   // TODO: Caching Promise
@@ -40,7 +24,7 @@ export function loadNavermapsScript(options: Options) {
   return promise;
 }
 
-function makeUrl(options: Options) {
+function makeUrl(options: ClientOptions) {
   const submodules = options.submodules;
 
   const clientIdQuery = 'ncpClientId' in options
@@ -64,7 +48,7 @@ function makeUrl(options: Options) {
   return url;
 }
 
-type Props = Options & {
+type Props = ClientOptions & {
   children: () => React.ReactElement;
 };
 

@@ -1,9 +1,9 @@
-import { useAsset } from 'use-asset';
-import { loadNavermapsScript, Options } from '../load-navermaps-script';
+import { suspend } from 'suspend-react';
+import { useClientOptions } from '../contexts/client-options';
+import { loadNavermapsScript } from '../load-navermaps-script';
+import type { ClientOptions } from '../types/client';
 
-let config: Options | undefined = undefined;
-
-async function load(options?: Options): Promise<typeof naver.maps> {
+async function load(options?: ClientOptions): Promise<typeof naver.maps> {
   if (typeof window !== 'undefined' && window.naver?.maps) {
     return window.naver.maps;
   }
@@ -12,7 +12,7 @@ async function load(options?: Options): Promise<typeof naver.maps> {
     throw new Error('react-naver-maps: set options with `useNavermaps.config`');
   }
 
-  return loadNavermapsScript(options);
+  return await loadNavermapsScript(options);
 }
 
 export function useNavermaps() {
@@ -20,29 +20,19 @@ export function useNavermaps() {
     throw new Error('react-naver-maps: browser');
   }
 
+  const options = useClientOptions();
 
-  // It is okay to return in the middle because useAsset is actually not hook.
-  // TODO: use `createAsset`
-
-  // if (typeof window !== 'undefined' && window.naver?.maps) {
-  //   return window.naver.maps;
-  // }
-
-  return useAsset(load, config);
+  return suspend(load, [options, 'react-naver-maps/loadClient']);
 }
 
-useNavermaps.config = (options: Options) => {
-  config = options;
-};
+// useNavermaps.preload = (options: any) => {
+//   if (!window) {
+//     return;
+//   }
 
-useNavermaps.preload = () => {
-  if (!window) {
-    return;
-  }
+//   return preload(load, [options, 'react-naver-maps/loadClient']);
+// };
 
-  return useAsset.preload(load, config);
-};
-
-useNavermaps.clear = () => {
-  return useAsset.clear();
-};
+// useNavermaps.clear = (options: any) => {
+//   return clear([options, 'react-naver-maps/loadClient']);
+// };
