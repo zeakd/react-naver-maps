@@ -1,5 +1,6 @@
 
 
+export { NaverMapsProvider } from './provider';
 export { NaverMap } from './naver-map';
 export { useMap } from './contexts/naver-map';
 

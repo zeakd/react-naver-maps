@@ -1,12 +1,12 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import { useNavermaps } from 'react-naver-maps';
-
-useNavermaps.config({ ncpClientId: '6tdrlcyvpt' });
+import { NaverMapsProvider } from 'react-naver-maps';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Component {...pageProps} />
+    <NaverMapsProvider ncpClientId='6tdrlcyvpt'>
+      <Component {...pageProps} />
+    </NaverMapsProvider>
   );
 }
 
