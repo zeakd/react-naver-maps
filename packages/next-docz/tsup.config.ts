@@ -5,9 +5,8 @@ const external = [...Object.keys(pkgJson.dependencies || {}), ...Object.keys(pkg
 
 export default defineConfig({
   entry: ['src/**/*.ts?(x)', '!src/**/*.(spec|test).ts?(x)'],
-  format: ['cjs', 'esm'],
+  format: ['esm', 'cjs'],
   external,
   clean: true,
   dts: true,
-  sourcemap: true,
 });

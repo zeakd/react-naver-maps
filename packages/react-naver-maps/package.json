@@ -5,11 +5,16 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
-    "prebuild": "npm run clean",
-    "clean": "trash dist/**",
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "prepack": "pnpm build",
     "lint": "eslint --ext ts,tsx src",
     "test": "jest"
   },

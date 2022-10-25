@@ -1,7 +1,7 @@
-const withMDX = require('@next/mdx')();
+import { withDocz } from 'next-docz/config';
 
 /** @type {import('next').NextConfig} */
-module.exports = withMDX({
+export default withDocz({
   reactStrictMode: true,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
 });
