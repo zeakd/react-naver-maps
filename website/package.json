@@ -10,6 +10,7 @@
     "@mdx-js/react": "^2.1.5",
     "next": "^12.3.1",
     "next-docz": "workspace:^0.0.1",
+    "normalize.css": "^8.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-naver-maps": "workspace:^0.1.0",
@@ -17,6 +18,8 @@
     "use-asset": "^1.0.4"
   },
   "devDependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@types/node": "16.11.10",
     "@types/react": "17.0.37",
     "@types/react-syntax-highlighter": "^13.5.2",
