@@ -4,13 +4,17 @@ import { Playground, Props } from 'next-docz'
 
 # 지도 기본 예제
 
-<Playground>
-  <MapDiv style={{
-    width: '100%',
-    height: '600px',
-  }}>
-    <NaverMap />
-  </MapDiv>
+<Playground 
+  codeClassName={'language-tsx'}
+>
+  <Suspense fallback={<div>how about fallback</div>}>
+    <MapDiv style={{
+      width: '100%',
+      height: '600px',
+    }}>
+      <NaverMap />
+    </MapDiv>
+  </Suspense>
 </Playground>
 
 https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-map-simple.example.html
