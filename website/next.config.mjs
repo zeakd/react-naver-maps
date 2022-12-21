@@ -4,4 +4,6 @@ import { withDocz } from 'next-docz/config';
 export default withDocz({
   reactStrictMode: true,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  trailingSlash: true,
+  basePath: process.env.WEBSITE_BASE_PATH,
 });

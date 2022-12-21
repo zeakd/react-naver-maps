@@ -1,0 +1,47 @@
+name: Deploy Website
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: 
+  push:
+    branches:
+      - next
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: |
+          pnpm install
+          pnpm -r run build
+        env:
+          WEBSITE_BASE_PATH: '/react-naver-maps/next'
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: website/out
+          target-folder: './next'
+
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+    #   - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+    #   - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+    #   - name: Check out repository code
+    #     uses: actions/checkout@v3
+    #   - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+    #   - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+    #   - name: List files in the repository
+    #     run: |
+    #       ls ${{ github.workspace }}
+    #   - run: echo "🍏 This job's status is ${{ job.status }}."
