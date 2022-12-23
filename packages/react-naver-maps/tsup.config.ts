@@ -7,7 +7,6 @@ export default defineConfig({
   entry: ['src/**/*.ts?(x)', '!src/**/*.(spec|test).ts?(x)'],
   format: ['cjs', 'esm'],
   external,
-  clean: true,
   dts: true,
   sourcemap: true,
 });
