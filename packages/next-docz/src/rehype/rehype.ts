@@ -29,6 +29,10 @@ function walk(children: any[], cb: (node: any) => void) {
   }
 }
 
+const REGEX_RENDER_FUNCTION = /^{\s*;\(\)\s*=>.*([\w\W]*)}\s*}$/;
+const REGEX_RETURN_STATEMENT = /return\s*((?:[\w\W](?!return))+)$/;
+const REGEX_PARENTHESIS = /\(([\w\W]*)\)\s*;?\s*/;
+
 const addComponentsProps = (vfile: any) => async (node: any, idx: number) => {
   if (isPlayground(node.name)) {
     const codes = await Promise.all(node.children
@@ -38,7 +42,27 @@ const addComponentsProps = (vfile: any) => async (node: any, idx: number) => {
         if (str.startsWith(';')) return str.slice(1, Infinity);
         return str;
       }));
-    const code = strip(codes.join(''));
+    let code = codes.join('').trim();
+
+    // remove return statement if code is render function instead of react element
+    const match = code.match(REGEX_RENDER_FUNCTION);
+    if (match) {
+      code = strip(match[1]);
+
+      const returnStatement = code.match(REGEX_RETURN_STATEMENT);
+      if (returnStatement) {
+        const haveParenthesis = returnStatement[1].match(REGEX_PARENTHESIS);
+        const unwrapped = haveParenthesis ? haveParenthesis[1] : returnStatement[1];
+
+        code = code.replace(
+          REGEX_RETURN_STATEMENT,
+          strip(unwrapped).trim(),
+        );
+      }
+    }
+
+    code = strip(code).trim();
+
     const attrType = node.attributes.find((attr: any) => attr.name === 'type');
     node.attributes.push(
       { type: 'mdxJsxAttribute', name: '__position', value: idx },

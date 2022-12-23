@@ -6,6 +6,9 @@ import { Playground, Props } from 'next-docz'
 
 <Playground 
   codeClassName={'language-tsx'}
+  codeHeader={`
+import { MapDiv, NaverMap } from 'react-naver-maps'
+  `}
 >
   <Suspense fallback={<div>how about fallback</div>}>
     <MapDiv style={{

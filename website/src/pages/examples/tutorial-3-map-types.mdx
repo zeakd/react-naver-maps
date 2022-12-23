@@ -1,140 +1,80 @@
+import { Playground, Props } from 'next-docz';
 import { useState, useRef } from 'react';
 import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
 
 # 지도 옵션 조정하기
 
-<MapDiv style={{
-  position: 'relative',
-  width: '100%',
-  height: '600px',
-}}>
-  {() => {
-    const navermaps = useNavermaps();
-    const [mapTypeId, setMapTypeId] = useState(navermaps.MapTypeId.NORMAL);
-    const buttons = [
-      { 
-        typeId: navermaps.MapTypeId.NORMAL,
-        text: '일반지도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.TERRAIN,
-        text: '지형도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.SATELLITE,
-        text: '위성지도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.HYBRID,
-        text: '겹쳐보기' 
-      },
-    ]
+<Playground
+  codeClassName='language-tsx'
+  codeHeader={
+`import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';\n`
+  }
+>
+  <MapDiv style={{
+    position: 'relative',
+    width: '100%',
+    height: '600px',
+  }}>
+    {() => {
+      const navermaps = useNavermaps();
+      const [mapTypeId, setMapTypeId] = useState(navermaps.MapTypeId.NORMAL);
+      const buttons = [
+        { 
+          typeId: navermaps.MapTypeId.NORMAL,
+          text: '일반지도' 
+        },
+        { 
+          typeId: navermaps.MapTypeId.TERRAIN,
+          text: '지형도' 
+        },
+        { 
+          typeId: navermaps.MapTypeId.SATELLITE,
+          text: '위성지도' 
+        },
+        { 
+          typeId: navermaps.MapTypeId.HYBRID,
+          text: '겹쳐보기' 
+        },
+      ]
 
-    return (
-      <>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 1000,
-          padding: 5,
-        }}>
-          {buttons.map(btn => {
-            return <button
-              style={{
-                backgroundColor: '#fff',
-                border: 'solid 1px #333',
-                outline: '0 none',
-                borderRadius: '5px',
-                boxShadow: '2px 2px 1px 1px rgba(0, 0, 0, 0.5)',
-                margin: '0 5px 5px 0',
-                backgroundColor: btn.typeId === mapTypeId ? '#2780E3' : 'white',
-                color: btn.typeId === mapTypeId ? 'white' : 'black',
-              }}
-              onClick={() => {
-                setMapTypeId(btn.typeId)
-              }}>{btn.text}</button>
-          })}
-        </div>
-        <NaverMap 
-          // uncontrolled kvo
-          defaultZoom={15}
-          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      return (
+        <>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1000,
+            padding: 5,
+          }}>
+            {buttons.map(btn => {
+              return <button
+                style={{
+                  backgroundColor: '#fff',
+                  border: 'solid 1px #333',
+                  outline: '0 none',
+                  borderRadius: '5px',
+                  boxShadow: '2px 2px 1px 1px rgba(0, 0, 0, 0.5)',
+                  margin: '0 5px 5px 0',
+                  backgroundColor: btn.typeId === mapTypeId ? '#2780E3' : 'white',
+                  color: btn.typeId === mapTypeId ? 'white' : 'black',
+                }}
+                onClick={() => {
+                  setMapTypeId(btn.typeId)
+                }}>{btn.text}</button>
+            })}
+          </div>
+          <NaverMap 
+            // uncontrolled kvo
+            defaultZoom={15}
+            defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
 
-          // controlled kvo
-          mapTypeId={mapTypeId}
-        />
-      </>
-    );
-  }}
-</MapDiv>
-
-``` jsx
-<MapDiv style={{
-  position: 'relative',
-  width: '100%',
-  height: '600px',
-}}>
-  {() => {
-    const navermaps = useNavermaps();
-    const [mapTypeId, setMapTypeId] = useState(navermaps.MapTypeId.NORMAL);
-    const buttons = [
-      { 
-        typeId: navermaps.MapTypeId.NORMAL,
-        text: '일반지도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.TERRAIN,
-        text: '지형도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.SATELLITE,
-        text: '위성지도' 
-      },
-      { 
-        typeId: navermaps.MapTypeId.HYBRID,
-        text: '겹쳐보기' 
-      },
-    ]
-
-    return (
-      <>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 1000,
-          padding: 5,
-        }}>
-          {buttons.map(btn => {
-            return <button
-              style={{
-                backgroundColor: '#fff',
-                border: 'solid 1px #333',
-                outline: '0 none',
-                borderRadius: '5px',
-                boxShadow: '2px 2px 1px 1px rgba(0, 0, 0, 0.5)',
-                margin: '0 5px 5px 0',
-                backgroundColor: btn.typeId === mapTypeId ? '#2780E3' : 'white',
-                color: btn.typeId === mapTypeId ? 'white' : 'black',
-              }}
-              onClick={() => {
-                setMapTypeId(btn.typeId)
-              }}>{btn.text}</button>
-          })}
-        </div>
-        <NaverMap 
-          // uncontrolled kvo
-          defaultZoom={15}
-          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
-
-          // controlled kvo
-          mapTypeId={mapTypeId}
-        />
-      </>
-    );
-  }}
-</MapDiv>
-```
+            // controlled kvo
+            mapTypeId={mapTypeId}
+          />
+        </>
+      );
+    }}
+  </MapDiv>
+</Playground>
 
 https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html

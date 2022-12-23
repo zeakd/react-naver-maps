@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ReactNode } from 'react';
 import { useMDXComponents } from '@mdx-js/react';
 
 type Props = {
-  children?: ReactNode;
+  children?: React.ReactNode | React.ComponentType;
   __code?: string;
+  codeHeader?: string;
   codeClassName?: string;
 };
 
@@ -14,9 +14,9 @@ export function Playground(props: Props) {
 
   return (
     <>
-      {props.children}
+      {typeof props.children === 'function' ? React.createElement(props.children as React.FC) : props.children}
       <Code className={props.codeClassName}>
-        {props.__code}
+        {`${props.codeHeader}\n${props.__code}`}
       </Code>
     </>
   );
