@@ -3,7 +3,6 @@ import { visit } from 'unist-util-visit';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { strip } from './strip-indent';
 import { format } from './format';
-import { inspect } from 'util';
 
 import docgen from 'react-docgen-typescript';
 import fs from 'fs';
@@ -114,6 +113,7 @@ export function rehypeDocz() {
         });
       });
 
+      // find module from sourcemap
       const filepath = require.resolve(sourceModuleName);
       const sourcemap = JSON.parse(fs.readFileSync(`${filepath}.map`, 'utf8'));
 
