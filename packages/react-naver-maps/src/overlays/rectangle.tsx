@@ -34,7 +34,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type RectangleOptions = Omit<naver.maps.RectangleOptions, 'map'>;
 
-type Props = RectangleOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = RectangleOptions & UIEventHandlers<typeof uiEvents> & {
   onBoundsChanged?: (value: naver.maps.Bounds) => void;
   onClickableChanged?: (value: boolean) => void;
   onVisibleChanged?: (value: boolean) => void;

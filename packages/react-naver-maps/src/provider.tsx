@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ClientOptionsContext } from './contexts/client-options';
 import type { ClientOptions } from './types/client';
 
-type Props = ClientOptions & { children?: ReactNode };
+export type Props = ClientOptions & { children?: ReactNode };
 
 export function NaverMapsProvider({
   children,

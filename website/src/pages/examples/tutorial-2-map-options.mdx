@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Playground, Props } from 'next-docz'
-import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
+import { Container as MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
 
 
 # 지도 옵션 조정하기
 
+네이버지도 공식 튜토리얼 [지도 옵션 조정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-map-options.example.html)의 구현 예시입니다.
+
 <Playground
   codeClassName='language-tsx'
   codeHeader={
-`import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';\n`
+`import { Container as MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';\n`
   }
 >
   <MapDiv style={{

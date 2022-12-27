@@ -1,13 +1,15 @@
 import { Playground, Props } from 'next-docz';
 import { useState, useRef } from 'react';
-import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
+import { Container as MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
 
-# 지도 옵션 조정하기
+# 지도 유형 설정하기
+
+네이버지도 공식 튜토리얼 [지도 유형 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html)의 구현 예시입니다.
 
 <Playground
   codeClassName='language-tsx'
   codeHeader={
-`import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';\n`
+`import { Container as MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';\n`
   }
 >
   <MapDiv style={{
@@ -48,6 +50,7 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
           }}>
             {buttons.map(btn => {
               return <button
+                key={btn.typeId}
                 style={{
                   backgroundColor: '#fff',
                   border: 'solid 1px #333',
@@ -76,5 +79,3 @@ import { MapDiv, NaverMap, useNavermaps } from 'react-naver-maps';
     }}
   </MapDiv>
 </Playground>
-
-https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html

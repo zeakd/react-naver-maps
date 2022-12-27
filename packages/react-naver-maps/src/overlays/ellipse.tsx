@@ -37,7 +37,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type EllipseOptions = Omit<naver.maps.EllipseOptions, 'map'>;
 
-type Props = Omit<naver.maps.EllipseOptions, 'map'> & UIEventHandlers<typeof uiEvents> & {
+export type Props = Omit<naver.maps.EllipseOptions, 'map'> & UIEventHandlers<typeof uiEvents> & {
   onBoundsChanged?: (value: naver.maps.Bounds) => void;
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;

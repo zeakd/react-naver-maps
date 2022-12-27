@@ -23,7 +23,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type GroundOverlayOptions = Omit<naver.maps.GroundOverlayOptions, 'map'>;
 
-type Props = GroundOverlayOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = GroundOverlayOptions & UIEventHandlers<typeof uiEvents> & {
   url: string;
   bounds: naver.maps.Bounds | naver.maps.BoundsLiteral;
   onOpacityChanged?: (value: number) => void;

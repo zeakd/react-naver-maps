@@ -36,7 +36,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type PolylineOptions = Omit<naver.maps.PolylineOptions, 'map'>;
 
-type Props = PolylineOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = PolylineOptions & UIEventHandlers<typeof uiEvents> & {
   onPathChanged?: (value: naver.maps.ArrayOfCoords) => void;
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;

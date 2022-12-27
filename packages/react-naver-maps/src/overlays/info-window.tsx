@@ -38,7 +38,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type InfoWindowOptions = Omit<naver.maps.InfoWindowOptions, 'map'>;
 
-type Props = InfoWindowOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = InfoWindowOptions & UIEventHandlers<typeof uiEvents> & {
   onPositionChanged?: (value: naver.maps.Coord) => void;
   onContentChanged?: (value: HTMLElement) => void;
   onZIndexChanged?: (value: number) => void;

@@ -1,6 +1,6 @@
 import pick from 'lodash.pick';
 import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
-import { useMapDiv } from './contexts/map-div';
+import { useContainerContext } from './contexts/container';
 import { NaverMapContext } from './contexts/naver-map';
 import { useNavermaps } from './hooks/use-navermaps';
 import upperfirst from 'lodash.upperfirst';
@@ -170,13 +170,13 @@ const defaultOptionKeyMap = {
   centerPoint: 'defaultCenterPoint',
 } as const;
 
-type Props = {
+export type Props = {
   children?: React.ReactNode | FunctionTypeChildren;
 } & MapOptions & MapEventCallbacks & DefaultOptions<Pick<MapOptions, typeof kvoKeys[number]>>;
 
 export const NaverMap = forwardRef<naver.maps.Map | null, Props>(function NaverMap(props, ref) {
   const navermaps = useNavermaps();
-  const mapDiv = useMapDiv();
+  const { element: mapDiv } = useContainerContext();
   const [nmap, setNmap] = useState<naver.maps.Map>();
   const nmapRef = useRef<naver.maps.Map>();
 
@@ -340,11 +340,13 @@ function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.map
   return (
     <NaverMapContext.Provider value={nmap}>
       <EventTargetContext.Provider value={nmap}>
-        <HandleEvents
-          events={events}
-          listeners={mapProps as any}
-        />
-        {children}
+        <>
+          <HandleEvents
+            events={events}
+            listeners={mapProps as any}
+          />
+          {children}
+        </>
       </EventTargetContext.Provider>
     </NaverMapContext.Provider>
   );

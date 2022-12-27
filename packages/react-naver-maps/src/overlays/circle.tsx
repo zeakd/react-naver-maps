@@ -38,7 +38,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type CircleOptions = Omit<naver.maps.CircleOptions, 'map'>;
 
-type Props = CircleOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = CircleOptions & UIEventHandlers<typeof uiEvents> & {
   onCenterChanged?: (value: naver.maps.Coord) => void;
   onRadiusChanged?: (value: number) => void;
   onStrokeWeightChanged?: (value: number) => void;

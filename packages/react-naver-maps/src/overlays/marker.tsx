@@ -52,7 +52,7 @@ type MarkerKVO = {
 // TODO: Fix DefinitelyTyped
 type MarkerOptions = Partial<MarkerKVO>;
 
-type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
   onAnimationChanged?: (value: naver.maps.Animation) => void;
   onPositionChanged?: (value: naver.maps.Coord) => void;
   onIconChanged?: (value: string | naver.maps.ImageIcon | naver.maps.HtmlIcon | naver.maps.SymbolIcon) => void;

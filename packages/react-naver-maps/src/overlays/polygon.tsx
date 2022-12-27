@@ -34,7 +34,7 @@ const events = [...uiEvents, ...kvoEvents];
 
 type PolygonOptions = Omit<naver.maps.PolygonOptions, 'map'>;
 
-type Props = PolygonOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = PolygonOptions & UIEventHandlers<typeof uiEvents> & {
   onPathsChanged?: (value: Array<naver.maps.ArrayOfCoords>) => void;
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;

@@ -1,13 +1,13 @@
-import { Suspense } from 'react'
-import { MapDiv, NaverMap } from 'react-naver-maps'
 import { Playground, Props } from 'next-docz'
+import { Suspense } from 'react'
+import { Container as MapDiv, NaverMap } from 'react-naver-maps'
 
 # 지도 기본 예제
 
 <Playground 
   codeClassName={'language-tsx'}
   codeHeader={`
-import { MapDiv, NaverMap } from 'react-naver-maps'
+import { Container as MapDiv, NaverMap } from 'react-naver-maps'
   `}
 >
   <Suspense fallback={<div>how about fallback</div>}>
