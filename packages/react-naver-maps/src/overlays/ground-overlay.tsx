@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
 import type { UIEventHandlers } from '../types/event';
@@ -30,10 +30,12 @@ export type Props = GroundOverlayOptions & UIEventHandlers<typeof uiEvents> & {
   onClickableChanged?: (event: boolean) => void;
 };
 
-export function GroundOverlay(props: Props) {
+export const GroundOverlay = forwardRef<naver.maps.GroundOverlay, Props>(function GroundOverlay(props, ref) {
   const options = pick(props, kvoKeys);
   const { url, bounds } = props;
   const [groundOverlay, setGroundOverlay] = useState(() => new naver.maps.GroundOverlay(url, bounds, options));
+
+  useImperativeHandle<naver.maps.GroundOverlay | undefined, naver.maps.GroundOverlay | undefined>(ref, () => groundOverlay, [groundOverlay]);
 
   useEffect(() => {
     if (groundOverlay.getUrl() !== url || groundOverlay.getBounds().equals(bounds as naver.maps.Bounds)) {
@@ -54,4 +56,4 @@ export function GroundOverlay(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

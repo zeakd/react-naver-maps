@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
 import type { UIEventHandlers } from '../types/event';
@@ -41,9 +41,11 @@ export type Props = RectangleOptions & UIEventHandlers<typeof uiEvents> & {
   onZIndexChanged?: (value: number) => void;
 };
 
-export function Rectangle(props: Props) {
+export const Rectangle = forwardRef<naver.maps.Rectangle, Props>(function Rectangle(props, ref) {
   const options = pick(props, [...optionKeys, ...kvoKeys]);
   const [rectangle] = useState(() => new naver.maps.Rectangle(options));
+
+  useImperativeHandle<naver.maps.Rectangle | undefined, naver.maps.Rectangle | undefined>(ref, () => rectangle);
 
   useEffect(() => {
     rectangle.setOptions(omitUndefined(options) as RectangleOptions); // TODO: FIX DefinilyTyped. setOptions의 assign type 은 Partial<Options> 이어야 함
@@ -54,4 +56,4 @@ export function Rectangle(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import pick from 'lodash.pick';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
@@ -54,9 +54,11 @@ export type Props = CircleOptions & UIEventHandlers<typeof uiEvents> & {
   onZIndexChanged?: (event: number) => void;
 };
 
-export function Circle(props: Props) {
+export const Circle = forwardRef<naver.maps.Circle, Props>(function Circle(props, ref) {
   const { center } = props;
   const [circle] = useState(() => new naver.maps.Circle(omitUndefined(pick(props, [...kvoKeys])) as CircleOptions));
+
+  useImperativeHandle<naver.maps.Circle | undefined, naver.maps.Circle | undefined>(ref, () => circle);
 
   useEffect(() => {
     if (center && !circle.getCenter().equals(center as naver.maps.Point)) {
@@ -73,4 +75,4 @@ export function Circle(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

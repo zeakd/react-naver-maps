@@ -77,20 +77,28 @@ const menu = [
     href: '/',
   },
   {
-    name: 'map-simple',
+    name: '지도 기본 예제',
     href: '/examples/tutorial-1-map-simple',
   },
   {
-    name: 'map-options',
+    name: '지도 옵션 조정하기',
     href: '/examples/tutorial-2-map-options',
   },
   {
-    name: 'map-types',
+    name: '지도 유형 설정하기',
     href: '/examples/tutorial-3-map-types',
   },
   {
-    name: 'map-bounds',
+    name: '지도 좌표 경계 확인하기',
     href: '/examples/tutorial-4-map-bounds',
+  },
+  {
+    name: '지도 이동하기',
+    href: '/examples/tutorial-5-map-moves',
+  },
+  {
+    name: 'HTML5 Geolocation API 활용하기',
+    href: '/examples/tutorial-6-map-geolocation',
   },
 ];
 

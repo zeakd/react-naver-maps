@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
 import type { UIEventHandlers } from '../types/event';
@@ -65,9 +65,11 @@ export type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
   onZIndexChanged?: (event: number) => void;
 };
 
-export function Marker(props: Props) {
+export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props, ref) {
   const { position } = props;
   const [marker] = useState(() => new naver.maps.Marker(omitUndefined(pick(props, kvoKeys))));
+
+  useImperativeHandle<naver.maps.Marker | undefined, naver.maps.Marker | undefined>(ref, () => marker);
 
   useEffect(() => {
     if (position && !marker.getPosition().equals(position as naver.maps.Point)) {
@@ -84,4 +86,4 @@ export function Marker(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

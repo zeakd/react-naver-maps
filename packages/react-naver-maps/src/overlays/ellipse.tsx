@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
 import type { UIEventHandlers } from '../types/event';
@@ -52,9 +52,11 @@ export type Props = Omit<naver.maps.EllipseOptions, 'map'> & UIEventHandlers<typ
   onZIndexChanged?: (event: number) => void;
 };
 
-export function Ellipse(props: Props) {
+export const Ellipse = forwardRef<naver.maps.Ellipse, Props>(function Ellipse(props, ref) {
   const { bounds } = props;
   const [ellipse] = useState(() => new naver.maps.Ellipse(omitUndefined(pick(props, [...kvoKeys])) as EllipseOptions));
+
+  useImperativeHandle<naver.maps.Ellipse | undefined, naver.maps.Ellipse | undefined>(ref, () => ellipse);
 
   useEffect(() => {
     ellipse.setOptions(omitUndefined(pick(props, primitiveKvoKeys)) as EllipseOptions); // TODO: FIX DefinilyTyped. setOptions의 assign type 은 Partial<Options> 이어야 함
@@ -71,4 +73,4 @@ export function Ellipse(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

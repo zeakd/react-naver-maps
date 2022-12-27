@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import pick from 'lodash.pick';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
@@ -53,9 +53,11 @@ export type Props = PolylineOptions & UIEventHandlers<typeof uiEvents> & {
   onEndIconSizeChanged?: (number: string) => void;
 };
 
-export function Polyline(props: Props) {
+export const Polyline = forwardRef<naver.maps.Polyline, Props>(function Polyline(props, ref) {
   const options = pick(props, [...kvoKeys]);
   const [polyline] = useState(() => new naver.maps.Polyline(options));
+
+  useImperativeHandle<naver.maps.Polyline | undefined, naver.maps.Polyline | undefined>(ref, () => polyline);
 
   useEffect(() => {
     polyline.setOptions(omitUndefined(options) as PolylineOptions); // TODO: FIX DefinilyTyped. setOptions의 assign type 은 Partial<Options> 이어야 함
@@ -66,4 +68,4 @@ export function Polyline(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import pick from 'lodash.pick';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
@@ -49,9 +49,11 @@ export type Props = PolygonOptions & UIEventHandlers<typeof uiEvents> & {
   onZIndexChanged?: (event: number) => void;
 };
 
-export function Polygon(props: Props) {
+export const Polygon = forwardRef<naver.maps.Polygon, Props>(function Polygon(props, ref) {
   const options = pick(props, [...kvoKeys]);
   const [polygon] = useState(() => new naver.maps.Polygon(options));
+
+  useImperativeHandle<naver.maps.Polygon | undefined, naver.maps.Polygon | undefined>(ref, () => polygon);
 
   useEffect(() => {
     polygon.setOptions(omitUndefined(options) as PolygonOptions); // TODO: FIX DefinilyTyped. setOptions의 assign type 은 Partial<Options> 이어야 함
@@ -62,4 +64,4 @@ export function Polygon(props: Props) {
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

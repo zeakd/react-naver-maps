@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import pick from 'lodash.pick';
 import { Overlay } from '../helpers/overlay';
 import { HandleEvents } from '../helpers/event';
@@ -54,9 +54,11 @@ export type Props = InfoWindowOptions & UIEventHandlers<typeof uiEvents> & {
   onAnchorColorChanged?: (value: string) => void;
 };
 
-export function InfoWindow(props: Props) {
+export const InfoWindow = forwardRef<naver.maps.InfoWindow, Props>(function InfoWindow(props, ref) {
   const { position } = props;
   const [infoWindow] = useState(() => new naver.maps.InfoWindow(omitUndefined(pick(props, [...kvoKeys])) as InfoWindowOptions));
+
+  useImperativeHandle<naver.maps.InfoWindow | undefined, naver.maps.InfoWindow | undefined>(ref, () => infoWindow);
 
   useEffect(() => {
     infoWindow.setOptions(omitUndefined(pick(props, primitiveKvoKeys)) as InfoWindowOptions); // TODO: FIX DefinilyTyped
@@ -69,8 +71,8 @@ export function InfoWindow(props: Props) {
   }, [position]);
 
   return (
-    <Overlay element={infoWindow}>
+    <Overlay element={infoWindow} autoMount={false}>
       <HandleEvents events={events} listeners={props as any} />
     </Overlay>
   );
-}
+});

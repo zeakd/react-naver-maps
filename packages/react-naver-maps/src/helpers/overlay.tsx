@@ -9,14 +9,17 @@ type MapElementType = {
 type Props = {
   element: MapElementType;
   children?: React.ReactNode;
+  autoMount?: boolean;
 };
 
 export function Overlay(props: Props) {
-  const { element, children } = props;
+  const { element, children, autoMount = true } = props;
   const nmap = useMap();
 
   useEffect(() => {
-    element.setMap(nmap ? nmap : null);
+    if (autoMount) {
+      element.setMap(nmap ? nmap : null);
+    }
   }, [nmap]);
 
   return (
