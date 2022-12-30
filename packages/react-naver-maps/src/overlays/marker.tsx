@@ -4,6 +4,9 @@ import { HandleEvents } from '../helpers/event';
 import type { UIEventHandlers } from '../types/event';
 import pick from 'lodash.pick';
 import { omitUndefined } from '../utils/omit-undefined';
+import camelcase from 'camelcase';
+import mapKeys from 'lodash.mapkeys';
+import { getKeys } from '../utils/get-keys';
 
 const primitiveKvoKeys = [
   'animation',
@@ -36,6 +39,12 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
+const defaultOptionKeyMap = kvoKeys.reduce((acc, key) => ({ ...acc, [camelcase(`default_${key}`)]: key }), {}) as {
+  [key in typeof kvoKeys[number] as `default${Capitalize<key>}`]: key;
+};
+
+type DefaultKVOOptionKey = keyof typeof defaultOptionKeyMap;
+
 type MarkerKVO = {
   animation: naver.maps.Animation;
   position: naver.maps.Coord | naver.maps.CoordLiteral;
@@ -65,13 +74,24 @@ export type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
   onZIndexChanged?: (event: number) => void;
 };
 
+function makeInitialOption(props: Props) {
+  const defaultPrefixedProps = mapKeys(pick(props, getKeys(defaultOptionKeyMap)), (_, key: DefaultKVOOptionKey) => defaultOptionKeyMap[key]);
+  const kvoProps = pick(props, kvoKeys);
+
+  return omitUndefined({ ...kvoProps, ...defaultPrefixedProps });
+}
+
 export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props, ref) {
   const { position } = props;
-  const [marker] = useState(() => new naver.maps.Marker(omitUndefined(pick(props, kvoKeys))));
+  const [marker] = useState(() => new naver.maps.Marker(makeInitialOption(props)));
 
   useImperativeHandle<naver.maps.Marker | undefined, naver.maps.Marker | undefined>(ref, () => marker);
 
   useEffect(() => {
+    if ('defaultPosition' in props && props['defaultPosition'] === undefined) {
+      return;
+    }
+
     if (position && !marker.getPosition().equals(position as naver.maps.Point)) {
       marker.setPosition(position);
     }

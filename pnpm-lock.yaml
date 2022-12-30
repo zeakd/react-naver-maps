@@ -63,6 +63,7 @@ importers:
       '@testing-library/react-hooks': ^6.0.0
       '@types/jest': ^29.2.0
       '@types/lodash.isempty': ^4.4.6
+      '@types/lodash.mapkeys': ^4.6.7
       '@types/lodash.pick': ^4.4.6
       '@types/lodash.upperfirst': ^4.3.7
       '@types/navermaps': ^3.0.13
@@ -72,6 +73,7 @@ importers:
       jest-environment-jsdom: ^29.2.0
       load-script: ^2.0.0
       lodash.isempty: ^4.4.0
+      lodash.mapkeys: ^4.6.0
       lodash.pick: ^4.4.0
       lodash.upperfirst: ^4.3.1
       prop-types: ^15.7.2
@@ -88,6 +90,7 @@ importers:
       camelcase: 5.3.1
       load-script: 2.0.0
       lodash.isempty: 4.4.0
+      lodash.mapkeys: 4.6.0
       lodash.pick: 4.4.0
       lodash.upperfirst: 4.3.1
       prop-types: 15.7.2
@@ -100,6 +103,7 @@ importers:
       '@testing-library/react-hooks': 6.0.0_biqbaboplfbrettd7655fr4n2y
       '@types/jest': 29.2.0
       '@types/lodash.isempty': 4.4.6
+      '@types/lodash.mapkeys': 4.6.7
       '@types/lodash.pick': 4.4.6
       '@types/lodash.upperfirst': 4.3.7
       '@types/navermaps': 3.0.13
@@ -2598,6 +2602,12 @@ packages:
 
   /@types/lodash.isempty/4.4.6:
     resolution: {integrity: sha512-AauKrFlA4z3Usog5HLGDupKzkCP7h5KXGlfAcRGUfvTmL7guVuEzDSNI6lYJ7syO7J2RE2F47179pSLr26UHIw==}
+    dependencies:
+      '@types/lodash': 4.14.177
+    dev: true
+
+  /@types/lodash.mapkeys/4.6.7:
+    resolution: {integrity: sha512-mfK0jlh4Itdhmy69/7r/vYftWaltahoS9kCF62UyvbDtXzMkUjuypaf2IASeoeoUPqBo/heoJSZ/vntbXC6LAA==}
     dependencies:
       '@types/lodash': 4.14.177
     dev: true
@@ -5764,6 +5774,10 @@ packages:
 
   /lodash.isempty/4.4.0:
     resolution: {integrity: sha1-b4bL7di+TsmHvpqvM8loTbGzHn4=}
+    dev: false
+
+  /lodash.mapkeys/4.6.0:
+    resolution: {integrity: sha512-0Al+hxpYvONWtg+ZqHpa/GaVzxuN3V7Xeo2p+bY06EaK/n+Y9R7nBePPN2o1LxmL0TWQSwP8LYZ008/hc9JzhA==}
     dev: false
 
   /lodash.memoize/4.1.2:

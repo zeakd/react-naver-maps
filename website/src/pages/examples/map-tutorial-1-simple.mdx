@@ -16,7 +16,11 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps'
     width: '100%',
     height: '600px',
   }}>
-    <NaverMap />
+    <NaverMap 
+      onIdle={(...args) => {
+        console.log('idle', args)
+      }}
+    />
   </MapDiv>
 </Playground>
 

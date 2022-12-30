@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import Intro from '../docs/introduction.mdx';
+import Intro from './guides/introduction.mdx';
 
 const Home: NextPage = () => {
   return (

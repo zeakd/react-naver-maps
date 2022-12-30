@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import { useEventTarget } from '../contexts/event-target';
 import type { AllowedKey } from '../types/utils';
 
-export function useAddListener(target: any, type: string, listener: (e: any) => void) {
+export function useAddListener(target: any, type: string, listener: (...args: any[]) => void) {
   useEffect(() => {
-    const mapEventListener = naver.maps.Event.addListener(target, type, listener);
+    const _listener = (...args: any[]) => listener(...args, target);
+    const mapEventListener = naver.maps.Event.addListener(target, type, _listener);
 
     return () => {
       naver.maps.Event.removeListener(mapEventListener);
@@ -15,7 +16,7 @@ export function useAddListener(target: any, type: string, listener: (e: any) => 
 interface Props {
   target?: any;
   type: string;
-  listener: (e: any) => any;
+  listener: (...args: any[]) => any;
 }
 
 export const AddListener: React.FC<Props> = (props) => {

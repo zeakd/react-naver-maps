@@ -1,0 +1,42 @@
+import { Suspense } from 'react'
+import { Playground, Props } from 'next-docz'
+import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver-maps'
+
+# 지도 기본 예제
+
+네이버지도 공식 튜토리얼 [마커 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-marker-simple.example.html)의 구현 예시입니다.
+
+<Playground
+  codeClassName={'language-tsx'}
+  codeHeader={
+`import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver-maps'\n`
+  }
+>
+  {() => {
+    function MyMap() {
+      // instead of window.naver.maps
+      const navermaps = useNavermaps();
+
+      return (
+        <NaverMap
+          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+          defaultZoom={15}
+        >
+          <Marker 
+            position={new navermaps.LatLng(37.3595704, 127.105399)}
+          />
+        </NaverMap>
+      );
+    }
+
+    return (
+      <MapDiv style={{
+        width: '100%',
+        height: '600px',
+      }}>
+        <MyMap />
+      </MapDiv>
+    );
+  }}
+</Playground>
+
