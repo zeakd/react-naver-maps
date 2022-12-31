@@ -2,4 +2,6 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 pnpm install
+git add .
+pnpm recursive run test
 pnpm recursive run build

@@ -47,8 +47,7 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/react-hooks": "^6.0.0",
+    "@testing-library/react": "^13.4.0",
     "@types/jest": "^29.2.0",
     "@types/lodash.isempty": "^4.4.6",
     "@types/lodash.mapkeys": "^4.6.7",

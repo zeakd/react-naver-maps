@@ -1,6 +1,5 @@
 import React, { Suspense } from 'react';
-import { fireEvent } from '@testing-library/react';
-import { renderHook, WrapperComponent } from '@testing-library/react-hooks';
+import { renderHook, fireEvent, waitFor } from '@testing-library/react';
 import { ClientOptionsContext } from '../contexts/client-options';
 import { useNavermaps } from './use-navermaps';
 
@@ -9,7 +8,7 @@ const naverMock = { maps: { jsContentLoaded: true } };
 
 describe('useNavermaps()', () => {
   test('Suspense client fetching', async () => {
-    const wrapper: WrapperComponent<unknown> = ({ children }) => (
+    const wrapper = ({ children }: { children: any }) => (
       <ClientOptionsContext.Provider value={{ ncpClientId: testId }}>
         <Suspense fallback={null}>
           {children}
@@ -17,7 +16,7 @@ describe('useNavermaps()', () => {
       </ClientOptionsContext.Provider>
     );
 
-    const { result, waitForNextUpdate } = renderHook(() => useNavermaps(), { wrapper });
+    const { result } = renderHook(() => useNavermaps(), { wrapper });
     expect(document.head.innerHTML).toMatch(new RegExp(`^<script.*=${testId}`));
 
     // jsdom doesn't excute <script />. Instead of mock & fetch navermaps cdn client,
@@ -29,7 +28,7 @@ describe('useNavermaps()', () => {
       new Event('load'),
     );
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current).not.toBeNull());
 
     expect(result.current).toBe(naverMock.maps);
   });

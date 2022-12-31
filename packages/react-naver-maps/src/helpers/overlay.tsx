@@ -4,6 +4,7 @@ import { EventTargetContext } from '../contexts/event-target';
 
 type MapElementType = {
   setMap(map: naver.maps.Map | null): void;
+  getMap(): naver.maps.Map | null;
 };
 
 type Props = {
@@ -17,9 +18,18 @@ export function Overlay(props: Props) {
   const nmap = useMap();
 
   useEffect(() => {
-    if (autoMount) {
-      element.setMap(nmap ? nmap : null);
+    if (!autoMount) {
+      return;
     }
+
+    if (element.getMap() === nmap) {
+      return;
+    }
+
+    element.setMap(nmap ? nmap : null);
+    return () => {
+      element.setMap(null);
+    };
   }, [nmap]);
 
   return (
