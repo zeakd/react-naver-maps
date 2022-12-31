@@ -1,12 +1,13 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Overlay } from '../helpers/overlay';
-import { HandleEvents } from '../helpers/event';
-import type { UIEventHandlers } from '../types/event';
-import pick from 'lodash.pick';
-import { omitUndefined } from '../utils/omit-undefined';
 import camelcase from 'camelcase';
 import mapKeys from 'lodash.mapkeys';
+import pick from 'lodash.pick';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+
+import { HandleEvents } from '../helpers/event';
+import { Overlay } from '../helpers/overlay';
+import type { UIEventHandlers } from '../types/event';
 import { getKeys } from '../utils/get-keys';
+import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [
   'animation',

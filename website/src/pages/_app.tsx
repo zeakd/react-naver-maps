@@ -1,11 +1,12 @@
 import 'normalize.css';
-import type { AppProps } from 'next/app';
-import { NaverMapsProvider } from 'react-naver-maps';
-import { Layout } from '../components/layout';
 import { MDXProvider } from '@mdx-js/react';
+import type { AppProps } from 'next/app';
+import { ComponentPropsWithoutRef } from 'react';
+import { NaverMapsProvider } from 'react-naver-maps';
 import { Prism } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { ComponentPropsWithoutRef } from 'react';
+
+import { Layout } from '../components/layout';
 import { useIsDarkMode } from '../hooks/useIsDarkMode';
 
 function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {

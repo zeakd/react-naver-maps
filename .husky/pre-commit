@@ -3,5 +3,6 @@
 
 pnpm install
 git add .
+pnpm recursive run lint
 pnpm recursive run test
 pnpm recursive run build

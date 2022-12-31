@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+
 import { useEventTarget } from '../contexts/event-target';
 import type { AllowedKey } from '../types/utils';
 

@@ -1,5 +1,5 @@
-import React from 'react';
 import { useMDXComponents } from '@mdx-js/react';
+import React from 'react';
 
 type Props = {
   children?: React.ReactNode | React.ComponentType;

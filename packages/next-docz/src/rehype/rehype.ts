@@ -1,15 +1,17 @@
+
+import fs from 'fs';
+import { createRequire } from 'module';
+import path from 'path';
+import { pathToFileURL } from 'url';
+
+import { fromJs } from 'esast-util-from-js';
+import { visit as estreeVisit } from 'estree-util-visit';
+import docgen from 'react-docgen-typescript';
 import { source } from 'unist-util-source';
 import { visit } from 'unist-util-visit';
-import { visit as estreeVisit } from 'estree-util-visit';
-import { strip } from './strip-indent';
-import { format } from './format';
 
-import docgen from 'react-docgen-typescript';
-import fs from 'fs';
-import path from 'path';
-import { createRequire } from 'module';
-import { pathToFileURL } from 'url';
-import { fromJs } from 'esast-util-from-js';
+import { format } from './format';
+import { strip } from './strip-indent';
 
 const require = createRequire(pathToFileURL(path.resolve(process.cwd(), './next.config.mjs')));
 

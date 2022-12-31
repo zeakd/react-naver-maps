@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { useMap } from '../contexts/naver-map';
+
 import { EventTargetContext } from '../contexts/event-target';
+import { useMap } from '../contexts/naver-map';
 
 type MapElementType = {
   setMap(map: naver.maps.Map | null): void;

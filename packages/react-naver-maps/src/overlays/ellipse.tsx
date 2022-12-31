@@ -1,8 +1,9 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Overlay } from '../helpers/overlay';
-import { HandleEvents } from '../helpers/event';
-import type { UIEventHandlers } from '../types/event';
 import pick from 'lodash.pick';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+
+import { HandleEvents } from '../helpers/event';
+import { Overlay } from '../helpers/overlay';
+import type { UIEventHandlers } from '../types/event';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [

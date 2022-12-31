@@ -1,4 +1,5 @@
 import { suspend } from 'suspend-react';
+
 import { useClientOptions } from '../contexts/client-options';
 import { loadNavermapsScript } from '../load-navermaps-script';
 import type { ClientOptions } from '../types/client';

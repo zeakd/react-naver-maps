@@ -1,7 +1,8 @@
-import React from 'react';
 import { render } from '@testing-library/react';
-import { Overlay } from './overlay';
+import React from 'react';
+
 import { NaverMapContext } from '../contexts/naver-map';
+import { Overlay } from './overlay';
 
 describe('<Overlay />', () => {
   it('should currectly handle contexted map on render', () => {

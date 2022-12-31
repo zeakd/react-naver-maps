@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import type { ClientOptions } from './types/client';
 import { loadScript } from './utils/load-script';
 

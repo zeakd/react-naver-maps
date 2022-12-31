@@ -1,5 +1,6 @@
-import React, { Suspense } from 'react';
 import { renderHook, fireEvent, waitFor } from '@testing-library/react';
+import React, { Suspense } from 'react';
+
 import { ClientOptionsContext } from '../contexts/client-options';
 import { useNavermaps } from './use-navermaps';
 

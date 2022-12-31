@@ -4,7 +4,10 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
   ],
+  plugins: ['import'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
@@ -15,6 +18,16 @@ module.exports = {
     node: true,
   },
   rules: {
+    'import/order': [
+      'error', {
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+        'newlines-between': 'always',
+        groups: ['builtin', 'external', ['parent', 'sibling', 'index']],
+      },
+    ],
     'quotes': ['error', 'single'],
     'eol-last': ['error', 'always'],
     'prefer-template': 'error',
@@ -44,5 +57,8 @@ module.exports = {
 
     'react/no-unknown-property': ['error', { ignore: ['css'] }],
   },
-  settings: { react: { 'version': 'detect' } },
+  settings: {
+    react: { 'version': 'detect' },
+    'import/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
+  },
 };

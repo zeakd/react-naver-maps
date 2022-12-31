@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "cd ../packages/react-naver-maps && pnpm link ../../website/node_modules/react; cd - && next dev",
     "build": "next build && next export",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint src"
   },  
   "dependencies": {
     "@emotion/react": "^11.10.4",

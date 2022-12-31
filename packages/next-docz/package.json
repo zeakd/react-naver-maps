@@ -16,6 +16,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "pnpm build --watch",
+    "lint": "eslint src",
     "prepack": "pnpm build"
   },
   "dependencies": {
