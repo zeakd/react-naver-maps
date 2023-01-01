@@ -1,15 +1,16 @@
-import camelcase from 'camelcase';
 import mapKeys from 'lodash.mapkeys';
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useLayoutEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useFirstMountState } from 'react-use';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
 import { getKeys } from '../utils/get-keys';
 import { omitUndefined } from '../utils/omit-undefined';
+import { getUncontrolledKey, makeUncontrolledKeyMap, UncontrolledKey } from '../utils/uncontrolled';
 
-const primitiveKvoKeys = [
+const primitiveKeys = [
   'animation',
   'icon',
   'shape',
@@ -20,11 +21,12 @@ const primitiveKvoKeys = [
   'visible',
   'zIndex',
 ] as const;
+const locationalKeys = ['position'] as const;
+const uncontrolledKeyMap = makeUncontrolledKeyMap(locationalKeys);
 const kvoKeys = [
-  ...primitiveKvoKeys,
-  'position',
+  ...primitiveKeys,
+  ...locationalKeys,
 ] as const;
-
 const kvoEvents = kvoKeys.map(key => `${key}_changed`);
 const uiEvents = [
   'mousedown',
@@ -40,12 +42,6 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-const defaultOptionKeyMap = kvoKeys.reduce((acc, key) => ({ ...acc, [camelcase(`default_${key}`)]: key }), {}) as {
-  [key in typeof kvoKeys[number] as `default${Capitalize<key>}`]: key;
-};
-
-type DefaultKVOOptionKey = keyof typeof defaultOptionKeyMap;
-
 type MarkerKVO = {
   animation: naver.maps.Animation;
   position: naver.maps.Coord | naver.maps.CoordLiteral;
@@ -59,10 +55,14 @@ type MarkerKVO = {
   zIndex: number;
 };
 
+type UncontrolledProps = {
+  [key in typeof locationalKeys[number] as UncontrolledKey<key>]: MarkerKVO[key];
+};
+
 // TODO: Fix DefinitelyTyped
 type MarkerOptions = Partial<MarkerKVO>;
 
-export type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = MarkerOptions & Partial<UncontrolledProps> & UIEventHandlers<typeof uiEvents> & {
   onAnimationChanged?: (value: naver.maps.Animation) => void;
   onPositionChanged?: (value: naver.maps.Coord) => void;
   onIconChanged?: (value: string | naver.maps.ImageIcon | naver.maps.HtmlIcon | naver.maps.SymbolIcon) => void;
@@ -76,31 +76,89 @@ export type Props = MarkerOptions & UIEventHandlers<typeof uiEvents> & {
 };
 
 function makeInitialOption(props: Props) {
-  const defaultPrefixedProps = mapKeys(pick(props, getKeys(defaultOptionKeyMap)), (_, key: DefaultKVOOptionKey) => defaultOptionKeyMap[key]);
+  const uncontrolledProps = pick(props, getKeys(uncontrolledKeyMap));
+  const prefixCleared = mapKeys(uncontrolledProps, (_, key) => uncontrolledKeyMap[key as keyof typeof uncontrolledKeyMap]);
   const kvoProps = pick(props, kvoKeys);
 
-  return omitUndefined({ ...kvoProps, ...defaultPrefixedProps });
+  return omitUndefined({ ...kvoProps, ...prefixCleared });
+}
+
+function isLocationalKey(key: string): key is typeof locationalKeys[number] {
+  return locationalKeys.includes(key as typeof locationalKeys[number]);
+}
+
+function isEqualKvo(kvo: any, target: any) {
+  if (kvo === undefined) {
+    return false;
+  }
+
+  if (kvo === target) {
+    return true;
+  }
+
+  try {
+    return kvo.equals(target);
+  } catch {
+    return kvo === target;
+  }
 }
 
 export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props, ref) {
-  const { position } = props;
   const [marker] = useState(() => new naver.maps.Marker(makeInitialOption(props)));
-
   useImperativeHandle<naver.maps.Marker | undefined, naver.maps.Marker | undefined>(ref, () => marker);
 
-  useEffect(() => {
-    if ('defaultPosition' in props && props['defaultPosition'] === undefined) {
+  // make dirties
+  const isFirst = useFirstMountState();
+  const dirtiesRef = useRef<Pick<Props, typeof kvoKeys[number]>>({});
+  dirtiesRef.current = getDirties();
+
+  function getDirties() {
+    // initialize의 option과 중복되지 않도록 첫 렌더시 제외한다.
+    if (isFirst) {
+      return {};
+    }
+
+    return kvoKeys.reduce((acc, key) => {
+      if (props[key] === undefined) {
+        return acc;
+      }
+
+      if (isLocationalKey(key) && props[getUncontrolledKey(key)] !== undefined) {
+        return acc;
+      }
+
+      const kvos = marker.getOptions(key);
+      if (isEqualKvo(kvos[key], props[key])) {
+        return acc;
+      }
+
+      return {
+        ...acc,
+        [key]: props[key],
+      };
+    }, {});
+  }
+
+  function pickDirties(keys: readonly string[]) {
+    return pick(dirtiesRef.current, keys);
+  }
+
+  // side effects
+  useLayoutEffect(() => {
+    const { position } = pickDirties(['position']);
+    if (position) {
+      marker.setPosition(position);
+    }
+  }, [dirtiesRef.current['position']]);
+
+  useLayoutEffect(() => {
+    const dirties = pickDirties(primitiveKeys);
+    if (Object.values(dirties).length < 1) {
       return;
     }
 
-    if (position && !marker.getPosition().equals(position as naver.maps.Point)) {
-      marker.setPosition(position);
-    }
-  }, [position]);
-
-  useEffect(() => {
-    marker.setOptions(pick(props, primitiveKvoKeys));
-  }, primitiveKvoKeys.map(key => props[key]));
+    marker.setOptions(dirties);
+  }, primitiveKeys.map(key => dirtiesRef.current[key]));
 
   return (
     <Overlay element={marker}>
