@@ -1,8 +1,10 @@
 import 'normalize.css';
+import { css, Global } from '@emotion/react';
 import { MDXProvider } from '@mdx-js/react';
 import type { AppProps } from 'next/app';
 import { ComponentPropsWithoutRef } from 'react';
-import { NaverMapsProvider } from 'react-naver-maps';
+import { FiExternalLink } from 'react-icons/fi';
+import { NavermapsProvider } from 'react-naver-maps';
 import { Prism } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -23,18 +25,39 @@ function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {
     : <code className={className} {...props} />;
 }
 
-const mdxComponents = { code: Code };
+function Link({ href, ...props }: ComponentPropsWithoutRef<'a'>) {
+
+  return (
+    <span css={{ verticalAlign: 'baseline' }}>
+      <a {...props} css={{ textDecoration: 'underline' }} />
+      {/https?:\/\//.test(href || '') && <FiExternalLink css={{ verticalAlign: 'top' }} />}
+    </span>
+  );
+}
+
+const mdxComponents = { code: Code, a: Link };
 
 function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <NaverMapsProvider ncpClientId='6tdrlcyvpt'>
+      <Global styles={css({
+        'a:hover': {
+          color: 'inherit',
+          textDecoration: 'underline',
+        },
+        'a:active': {
+          color: 'inherit',
+          textDecoration: 'underline',
+        },
+        'a:visited': { color: 'inherit' },
+      })}/>
+      <NavermapsProvider ncpClientId='6tdrlcyvpt'>
         <MDXProvider components={mdxComponents}>
           <Layout>
             <Component {...pageProps} />
           </Layout>
         </MDXProvider>
-      </NaverMapsProvider>
+      </NavermapsProvider>
     </>
   );
 }

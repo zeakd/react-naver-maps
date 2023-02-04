@@ -1,0 +1,169 @@
+# Migration Guide from v0.0
+
+## Removed `<RenderAfterNavermapsLoaded />`
+
+기존 RenderAfterNavermapsLoaded 는 SSR 문제와 컴포넌트 렌더 시의 모호함이 있었고 v0.1 에서 제거되었습니다. 
+대신, Application Root 에 `<NavermapsProvider />`를 추가해주세요
+
+``` jsx
+// v0.0 (X)
+import { RenderAfterNavermapsLoaded } from 'react-naver-maps'
+
+<RenderAfterNavermapsLoaded
+  ncpClientId={YOUR_CLIENT_ID}
+>
+  ...
+</RenderAfterNavermapsLoaded>
+
+// v0.1 (O)
+import { NavermapsProvider } from 'react-naver-maps'
+
+<NavermapsProvider
+  ncpClientId={YOUR_CLIENT_ID}
+>
+  <TheRestOfYourApplication />
+</NavermapsProvider>
+```
+
+## Add `<Container />`
+
+기존 `<NaverMap />`컴포넌트가 div의 역할과 navermaps 컴포넌트 역할을 동시에 수행하다보니 `HTMLDivElement`와 `naver.maps.Map` API가 섞여 있었고, 
+SSR렌더가 되지 않는 등 분리하여 컨트롤하기 어려운 문제가 있었습니다.
+
+이를 해결하기 위해 MapDiv 역할을 하는 Container 컴포넌트가 필수적으로 추가되었습니다. 
+
+- `<NaverMap />` 컴포넌트에서 id, style, className, HTML event handler를 제거해주세요.
+- `<NaverMap />`를 감싸는 `<Container />`를 추가하고 위에서 제거한 요소를 추가해주세요.
+
+``` jsx
+// v0.0 (X)
+import { NaverMap } from 'react-naver-maps'
+
+<NaverMap 
+  id='react-naver-map'
+  className='my-map'
+  onClick={() => {}} // navermaps event? or html div event?
+/>
+
+// v0.1 (O)
+import { Container as MapDiv, NaverMap } from 'react-naver-maps'
+
+// SSR Ready
+<MapDiv
+  id='react-naver-map'
+  className='my-map'
+  onClick={() => {}} // html div event
+>
+  <NaverMap 
+    onClick={() => {}} // navermaps event
+  />
+</MapDiv>
+```
+
+
+## Suspensed `useNavermaps()`
+
+`window.naver.maps` 를 직접 사용하고자 할 경우 `useNavermaps()`를 사용해주세요. 
+React Naver Maps 는 내부적으로 Suspense 를 통해 navermaps client 를 가져오고 있습니다.
+`<Container />`는 Suspense를 내장하고 있으므로 `<Container />`내부에서 호출할 경우에는 `<Suspense />`를 사용하지 않아도 됩니다.
+
+``` jsx
+// v0.1 (O)
+import { Container as MapDiv, useNavermaps } from 'react-naver-maps'
+
+<>
+<Suspense fallback={null}>
+  <MyComponent />
+</Suspense>
+<MapDiv> // Suspense가 내장되어있습니다
+  <MyComponent />
+</MapDiv>
+</>
+
+function MyComponent() {
+  const navermaps = useNavermaps(); // Suspensed
+
+  return null;
+}
+```
+
+## Typescript 지원
+
+타입스크립트가 내장되어 지원됩니다.
+
+
+## 변경사항 종합
+
+``` jsx
+// v0.0 (X)
+import { RenderAfterNavermapsLoaded, NaverMap, useNavermaps } from 'react-naver-maps'
+
+function App() {
+  return <MyMap />
+}
+
+function MyMap() {
+  ...
+  return (
+    <RenderAfterNavermapsLoaded ncpClientId={MY_CLIENTID}>
+      <>
+      <Call />
+      <NaverMap
+        id='react-naver-maps'
+        style={{ ... }}
+        onClick={() => {}}
+      />
+      </>
+    </RenderAfterNavermapsLoaded>
+  )
+}
+
+function Call() {
+  const navermaps = useNavermaps()
+  console.log(navermaps)
+  return null;
+}
+
+```
+
+``` jsx
+// v0.1 (O)
+import { Suspense } from 'react'
+import { Container as MapDiv, NaverMap, useNavermaps, NavermapsProvider } from 'react-naver-maps'
+
+// Your App Root
+function App() {
+  return (
+    <NavermapsProvider ncpClientId={MY_CLIENTID}>
+      <MyMap />
+    </NavermapsProvider>
+  )
+}
+
+function MyMap() {
+  ...
+  return (
+    <>
+    <Suspense fallback={null}>
+      <Call />
+    </Suspense>
+    <MapDiv
+      id='react-naver-maps'
+      style={{ ... }}
+      onClick={() => {}}
+    >
+      <NaverMap
+        onClick={() => {}}
+      />
+    </MapDiv>
+    </>
+  )
+}
+
+function Call() {
+  const navermaps = useNavermaps()
+  console.log(navermaps)
+  return null;
+}
+
+```

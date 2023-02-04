@@ -9,7 +9,7 @@ export type Props = {
   innerStyle?: CSSProperties;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'children'>;
 
-const innerDefaultStyle: CSSProperties = { top: 0, left: 0, width: '100%', height: '100%', position: 'absolute' };
+const innerDefaultStyle: CSSProperties = { top: 0, left: 0, width: '100%', height: '100%', position: 'absolute', zIndex: 0 };
 
 export function Container({ children, fallback, innerStyle = innerDefaultStyle, ...restProps }: Props) {
   const ref = useRef(null);
