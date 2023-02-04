@@ -1,6 +1,7 @@
 {
   "name": "next-docz",
   "version": "0.0.1",
+  "private": true,
   "description": "",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
