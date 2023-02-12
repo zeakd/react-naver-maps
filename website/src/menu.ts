@@ -62,6 +62,10 @@ export const menu = [
         name: '마커 표시하기',
         href: '/examples/marker-tutorial-1-simple',
       },
+      {
+        name: '마커 클러스터화하기',
+        href: '/examples/marker-cluster-tutorial',
+      },
     ],
   },
   {
