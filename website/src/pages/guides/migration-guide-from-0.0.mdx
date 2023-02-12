@@ -63,8 +63,9 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps'
 
 ## Suspensed `useNavermaps()`
 
-`window.naver.maps` 를 직접 사용하고자 할 경우 `useNavermaps()`를 사용해주세요. 
+`window.naver.maps` 를 사용하고자 할 경우 `useNavermaps()`를 사용해주세요. 
 React Naver Maps 는 내부적으로 Suspense 를 통해 navermaps client 를 가져오고 있습니다.
+
 `<Container />`는 Suspense를 내장하고 있으므로 `<Container />`내부에서 호출할 경우에는 `<Suspense />`를 사용하지 않아도 됩니다.
 
 ``` jsx

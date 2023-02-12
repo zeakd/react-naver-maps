@@ -7,23 +7,37 @@ import { ComponentPropsWithoutRef } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { NavermapsProvider } from 'react-naver-maps';
 import { Prism } from 'react-syntax-highlighter';
-import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 import { Layout } from '../components/layout';
-import { useIsDarkMode } from '../hooks/useIsDarkMode';
+// import { useIsDarkMode } from '../hooks/useIsDarkMode';
 
 function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {
-  const isDarkMode = useIsDarkMode();
+  // const isDarkMode = useIsDarkMode();
 
   const match = /language-(\w+)/.exec(className || '');
   return match
     ? (
       <Prism
-        language={match[1]} {...props} style={isDarkMode ? materialDark: materialLight}
+        language={match[1]} {...props} style={materialLight}
         customStyle={{ fontSize: '0.8em' }}
       />
     )
-    : <code className={className} {...props} />;
+    : (
+      <span
+        css={{
+          background: '#fafafa',
+          fontSize: '1.0em',
+          color: 'rgb(97, 130, 184)',
+          verticalAlign: 'baseline',
+          padding: '0 0.2em',
+        }}
+      >
+        <code className={className} {...props}
+          css={{ fontSize: '0.8em', verticalAlign: 'baseline' }}
+        />
+      </span>
+    );
 }
 
 function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {

@@ -21,6 +21,10 @@ export const menu = [
         href: '/guides/customize-overlays',
       },
       {
+        name: 'Suspensed useNavermaps',
+        href: '/guides/suspensed-use-navermaps',
+      },
+      {
         name: 'Migration guide from v0.0',
         href: '/guides/migration-guide-from-0.0',
       },
