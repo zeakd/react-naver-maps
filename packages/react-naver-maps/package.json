@@ -7,6 +7,7 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "module": "./dist/index.mjs",
       "require": "./dist/index.js",
@@ -24,7 +25,13 @@
     "type": "git",
     "url": "git+https://github.com/zeakd/react-naver-maps.git"
   },
-  "keywords": [],
+  "keywords": [
+    "react",
+    "naver",
+    "map",
+    "navermaps",
+    "navermap"
+  ],
   "author": "zeakd <artydeveloperduck@gmail.com>",
   "license": "MIT",
   "bugs": {
