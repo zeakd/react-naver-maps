@@ -88,7 +88,6 @@ export interface PluginOpts {
 
 export function rehypeDocz() {
   return async (tree: any, vfile: any) => {
-    // console.log(JSON.stringify(tree.children[0], null, 2));
     const nodes = tree.children
       .filter((node: any) => node.type.toLowerCase().includes('jsx'))
       .map(addComponentsProps(vfile));
@@ -119,8 +118,8 @@ export function rehypeDocz() {
       const filepath = require.resolve(sourceModuleName);
       const sourcemap = JSON.parse(fs.readFileSync(`${filepath}.map`, 'utf8'));
 
-      const parsed = docgen.parse(path.resolve(path.dirname(filepath), sourcemap.sources[0]));
-      const doc = parsed.filter(comp => comp.displayName === componentName)[0];
+      const parsed = docgen.parse(path.resolve(path.dirname(filepath), sourcemap.sources[0])) as any;
+      const doc = parsed.filter((comp: any) => comp.displayName === componentName)[0];
 
       targetNode.attributes.push({
         type: 'mdxJsxAttribute',

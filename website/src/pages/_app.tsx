@@ -2,6 +2,7 @@ import 'normalize.css';
 import { css, Global } from '@emotion/react';
 import { MDXProvider } from '@mdx-js/react';
 import type { AppProps } from 'next/app';
+import Link from 'next/link';
 import { ComponentPropsWithoutRef } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { NavermapsProvider } from 'react-naver-maps';
@@ -25,22 +26,35 @@ function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {
     : <code className={className} {...props} />;
 }
 
-function Link({ href, ...props }: ComponentPropsWithoutRef<'a'>) {
+function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
+  const isExternal = /https?:\/\//.test(href || '');
+
+  if (isExternal) {
+    return (
+      <span css={{ verticalAlign: 'baseline' }}>
+        <a href={href} {...restProps} css={{ textDecoration: 'underline' }} target='_blank' rel='noreferrer'/>
+        <FiExternalLink css={{ verticalAlign: 'top' }} />
+      </span>
+    );
+  }
 
   return (
     <span css={{ verticalAlign: 'baseline' }}>
-      <a {...props} css={{ textDecoration: 'underline' }} />
-      {/https?:\/\//.test(href || '') && <FiExternalLink css={{ verticalAlign: 'top' }} />}
+      <Link href={href || ''}>
+        <a {...restProps} css={{ textDecoration: 'underline' }} />
+      </Link>
     </span>
   );
+
 }
 
-const mdxComponents = { code: Code, a: Link };
+const mdxComponents = { code: Code, a: Anchor };
 
 function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Global styles={css({
+        a: { cursor: 'pointer' },
         'a:hover': {
           color: 'inherit',
           textDecoration: 'underline',

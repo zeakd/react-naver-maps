@@ -1,9 +1,10 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [
@@ -37,9 +38,27 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type CircleOptions = Omit<naver.maps.CircleOptions, 'map'>;
+type CircleOptions = {
+  /**
+   * center
+   * @type naver.maps.Coord | naver.maps.CoordLiteral
+   */
+  center: naver.maps.Coord | naver.maps.CoordLiteral;
+  radius?: number;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeColor?: string;
+  strokeStyle?: naver.maps.strokeStyleType;
+  strokeLineCap?: naver.maps.strokeLineCapType;
+  strokeLineJoin?: naver.maps.strokeLineJoinType;
+  fillColor?: string;
+  fillOpacity?: number;
+  clickable?: boolean;
+  visible?: boolean;
+  zIndex?: number;
+};
 
-export type Props = CircleOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = CircleOptions & {
   onCenterChanged?: (value: naver.maps.Coord) => void;
   onRadiusChanged?: (value: number) => void;
   onStrokeWeightChanged?: (value: number) => void;
@@ -53,11 +72,12 @@ export type Props = CircleOptions & UIEventHandlers<typeof uiEvents> & {
   onClickableChanged?: (event: boolean) => void;
   onVisibleChanged?: (event: boolean) => void;
   onZIndexChanged?: (event: number) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
 export const Circle = forwardRef<naver.maps.Circle, Props>(function Circle(props, ref) {
   const { center } = props;
-  const [circle] = useState(() => new naver.maps.Circle(omitUndefined(pick(props, [...kvoKeys])) as CircleOptions));
+  const navermaps = useNavermaps();
+  const [circle] = useState(() => new navermaps.Circle(omitUndefined(pick(props, [...kvoKeys])) as CircleOptions));
 
   useImperativeHandle<naver.maps.Circle | undefined, naver.maps.Circle | undefined>(ref, () => circle);
 

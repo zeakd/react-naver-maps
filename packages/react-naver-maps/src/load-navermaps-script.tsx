@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 
 import type { ClientOptions } from './types/client';
 import { loadScript } from './utils/load-script';
@@ -50,7 +51,7 @@ function makeUrl(options: ClientOptions) {
 }
 
 type Props = ClientOptions & {
-  children: () => React.ReactElement;
+  children: () => ReactElement;
 };
 
 export function LoadNavermapsScript({

@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import type { FunctionComponent } from 'react';
 
 import { useEventTarget } from '../contexts/event-target';
 import type { AllowedKey } from '../types/utils';
@@ -20,7 +21,7 @@ interface Props {
   listener: (...args: any[]) => any;
 }
 
-export const AddListener: React.FC<Props> = (props) => {
+export const AddListener: FunctionComponent<Props> = (props) => {
   const {
     target: propTarget,
     type,

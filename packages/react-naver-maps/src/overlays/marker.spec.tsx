@@ -1,14 +1,19 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import omit from 'lodash.omit';
-import React from 'react';
-import type { ReactElement } from 'react';
+import { ReactElement, Suspense } from 'react';
 
 import { NaverMapContext } from '../contexts/naver-map';
 import { Marker } from './marker';
 
 const map = {} as naver.maps.Map;
 function renderOverlay(overlay: ReactElement) {
-  return render(overlay, { wrapper: ({ children }) => (<NaverMapContext.Provider value={map}>{children}</NaverMapContext.Provider>) });
+  return render(overlay, {
+    wrapper: ({ children }) => (<NaverMapContext.Provider value={map}>
+      <Suspense fallback={null}>
+        {children}
+      </Suspense>
+    </NaverMapContext.Provider>),
+  });
 }
 const mockPosition = { equals: jest.fn(() => false) };
 let options = {} as naver.maps.MarkerOptions;
@@ -36,8 +41,9 @@ describe('<Marker />', () => {
     window.naver = { maps: { Marker: mockMarker } };
   });
 
-  it('should currectly handle options without props', () => {
+  it('should currectly handle options without props', async () => {
     const { rerender, unmount } = renderOverlay(<Marker />);
+    await waitFor(() => expect(window.naver.maps).toBeTruthy());
 
     expect(mockMethods.setMap).toBeCalledWith(map);
     expect(mockMethods.setPosition).not.toBeCalled();

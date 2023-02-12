@@ -24,7 +24,7 @@ export type { Props as PolylineProps } from './overlays/polyline';
 export type { Props as RectangleProps } from './overlays/rectangle';
 
 export { LoadNavermapsScript, loadNavermapsScript } from './load-navermaps-script';
-export { useNavermaps } from './hooks/use-navermaps';
+export { useNavermaps } from './use-navermaps';
 
 export { NaverMapContext, useMap } from './contexts/naver-map';
 export { ContainerContext, useContainerContext } from './contexts/container';

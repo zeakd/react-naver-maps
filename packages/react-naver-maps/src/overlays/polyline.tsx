@@ -1,9 +1,10 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const kvoKeys = [
@@ -35,9 +36,27 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type PolylineOptions = Omit<naver.maps.PolylineOptions, 'map'>;
+type PolylineOptions = {
+  /**
+   * @type naver.maps.ArrayOfCoords | naver.maps.KVOArrayOfCoords | naver.maps.ArrayOfCoordsLiteral
+   */
+  path: naver.maps.ArrayOfCoords | naver.maps.KVOArrayOfCoords | naver.maps.ArrayOfCoordsLiteral;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeColor?: string;
+  strokeStyle?: naver.maps.strokeStyleType;
+  strokeLineCap?: naver.maps.strokeLineCapType;
+  strokeLineJoin?: naver.maps.strokeLineJoinType;
+  clickable?: boolean;
+  visible?: boolean;
+  zIndex?: number;
+  startIcon?: naver.maps.PointingIcon;
+  startIconSize?: number;
+  endIcon?: naver.maps.PointingIcon;
+  endIconSize?: number;
+};
 
-export type Props = PolylineOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = PolylineOptions & {
   onPathChanged?: (value: naver.maps.ArrayOfCoords) => void;
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;
@@ -52,11 +71,12 @@ export type Props = PolylineOptions & UIEventHandlers<typeof uiEvents> & {
   onStartIconSizeChanged?: (number: string) => void;
   onEndIconChanged?: (value: naver.maps.PointingIcon) => void;
   onEndIconSizeChanged?: (number: string) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
 export const Polyline = forwardRef<naver.maps.Polyline, Props>(function Polyline(props, ref) {
   const options = pick(props, [...kvoKeys]);
-  const [polyline] = useState(() => new naver.maps.Polyline(options));
+  const navermaps = useNavermaps();
+  const [polyline] = useState(() => new navermaps.Polyline(options));
 
   useImperativeHandle<naver.maps.Polyline | undefined, naver.maps.Polyline | undefined>(ref, () => polyline);
 

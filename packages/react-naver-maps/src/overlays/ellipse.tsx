@@ -1,9 +1,10 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [
@@ -36,9 +37,26 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type EllipseOptions = Omit<naver.maps.EllipseOptions, 'map'>;
+type EllipseOptions = {
+  /**
+   * bounds
+   * @type naver.maps.Bounds | naver.maps.BoundsLiteral
+   */
+  bounds: naver.maps.Bounds | naver.maps.BoundsLiteral;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeColor?: string;
+  strokeStyle?: naver.maps.strokeStyleType;
+  strokeLineCap?: naver.maps.strokeLineCapType;
+  strokeLineJoin?: naver.maps.strokeLineJoinType;
+  fillColor?: string;
+  fillOpacity?: number;
+  clickable?: boolean;
+  visible?: boolean;
+  zIndex?: number;
+};
 
-export type Props = Omit<naver.maps.EllipseOptions, 'map'> & UIEventHandlers<typeof uiEvents> & {
+export type Props = EllipseOptions & {
   onBoundsChanged?: (value: naver.maps.Bounds) => void;
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;
@@ -51,11 +69,12 @@ export type Props = Omit<naver.maps.EllipseOptions, 'map'> & UIEventHandlers<typ
   onClickableChanged?: (event: boolean) => void;
   onVisibleChanged?: (event: boolean) => void;
   onZIndexChanged?: (event: number) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
 export const Ellipse = forwardRef<naver.maps.Ellipse, Props>(function Ellipse(props, ref) {
   const { bounds } = props;
-  const [ellipse] = useState(() => new naver.maps.Ellipse(omitUndefined(pick(props, [...kvoKeys])) as EllipseOptions));
+  const navermaps = useNavermaps();
+  const [ellipse] = useState(() => new navermaps.Ellipse(omitUndefined(pick(props, [...kvoKeys])) as EllipseOptions));
 
   useImperativeHandle<naver.maps.Ellipse | undefined, naver.maps.Ellipse | undefined>(ref, () => ellipse);
 

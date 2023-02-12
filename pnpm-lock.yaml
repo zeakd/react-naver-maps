@@ -26,9 +26,13 @@ importers:
 
   packages/next-docz:
     specifiers:
+      '@babel/parser': ^7.20.15
+      '@emotion/react': ^11.10.4
       '@mdx-js/loader': ^2.1.1
       '@mdx-js/react': ^2.1.5
+      '@microsoft/tsdoc': ^0.14.2
       '@next/mdx': 12.3.1
+      '@types/node': 16.11.10
       '@types/react': ^18.0.22
       esast-util-from-js: ^1.1.0
       estree-util-visit: ^1.2.0
@@ -43,7 +47,10 @@ importers:
       unist-util-visit: ^4.1.1
       webpack: ^5.74.0
     dependencies:
+      '@babel/parser': 7.20.15
+      '@emotion/react': 11.10.4_gd4tregka43x4eiz452mfdbv4y
       '@mdx-js/loader': 2.1.1_webpack@5.74.0
+      '@microsoft/tsdoc': 0.14.2
       '@next/mdx': 12.3.1_dauuo3hstxthuiihw5ghtsnclu
       esast-util-from-js: 1.1.0
       estree-util-visit: 1.2.0
@@ -53,6 +60,7 @@ importers:
       unist-util-visit: 4.1.1
     devDependencies:
       '@mdx-js/react': 2.1.5_react@18.2.0
+      '@types/node': 16.11.10
       '@types/react': 18.0.22
       next: 12.3.1_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
@@ -672,6 +680,14 @@ packages:
     dependencies:
       '@babel/types': 7.19.4
     dev: true
+
+  /@babel/parser/7.20.15:
+    resolution: {integrity: sha512-DI4a1oZuf8wC+oAJA9RW6ga3Zbe8RZFt7kD9i4qAspz3I/yHet1VvC3DiSy/fsUvv5pvJuNPh0LPOdCcqinDPg==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+    dependencies:
+      '@babel/types': 7.19.4
+    dev: false
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.16.2_@babel+core@7.16.0:
     resolution: {integrity: sha512-h37CvpLSf8gb2lIJ2CgC3t+EjFbi0t8qS7LCS1xcJIlEXE4czlofwaW7W1HA8zpgOCzI9C1nmoqNR1zWkk0pQg==}
@@ -1619,7 +1635,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
-    dev: true
 
   /@babel/template/7.16.0:
     resolution: {integrity: sha512-MnZdpFD/ZdYhXwiunMqqgyZyucaYsbL0IrjoGjaVhGilz+x8YB++kRfygSOIj1yOtWKPlx7NBp+9I1RQSgsd5A==}
@@ -1903,7 +1918,7 @@ packages:
     dependencies:
       '@babel/helper-module-imports': 7.18.6
       '@babel/plugin-syntax-jsx': 7.18.6
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.20.13
       '@emotion/hash': 0.9.0
       '@emotion/memoize': 0.8.0
       '@emotion/serialize': 1.1.0
@@ -1939,6 +1954,30 @@ packages:
     resolution: {integrity: sha512-G/YwXTkv7Den9mXDO7AhLWkE3q+I92B+VqAE+dYG4NGPaHZGvt3G8Q0p9vmE+sq7rTGphUbAvmQ9YpbfMQGGlA==}
     dev: false
 
+  /@emotion/react/11.10.4_gd4tregka43x4eiz452mfdbv4y:
+    resolution: {integrity: sha512-j0AkMpr6BL8gldJZ6XQsQ8DnS9TxEQu1R+OGmDZiWjBAJtCcbt0tS3I/YffoqHXxH6MjgI7KdMbYKw3MEiU9eA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.20.13
+      '@emotion/babel-plugin': 11.10.2
+      '@emotion/cache': 11.10.3
+      '@emotion/serialize': 1.1.0
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.0_react@18.2.0
+      '@emotion/utils': 1.2.0
+      '@emotion/weak-memoize': 0.3.0
+      '@types/react': 18.0.22
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+    dev: false
+
   /@emotion/react/11.10.4_kzbn2opkn2327fwg5yzwzya5o4:
     resolution: {integrity: sha512-j0AkMpr6BL8gldJZ6XQsQ8DnS9TxEQu1R+OGmDZiWjBAJtCcbt0tS3I/YffoqHXxH6MjgI7KdMbYKw3MEiU9eA==}
     peerDependencies:
@@ -1951,7 +1990,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.20.13
       '@emotion/babel-plugin': 11.10.2
       '@emotion/cache': 11.10.3
       '@emotion/serialize': 1.1.0
@@ -2409,6 +2448,10 @@ packages:
       '@types/react': 18.0.22
       react: 18.2.0
 
+  /@microsoft/tsdoc/0.14.2:
+    resolution: {integrity: sha512-9b8mPpKrfeGRuhFH5iO1iwCLeIIsV6+H1sRfxbkoGXIyQE2BTsPd9zqSqQJ+pv5sJ/hT5M1zvOFL02MnEezFug==}
+    dev: false
+
   /@next/env/12.3.1:
     resolution: {integrity: sha512-9P9THmRFVKGKt9DYqeC2aKIxm8rlvkK38V1P1sRE7qyoPBIs8l9oo79QoSdPtOWfzkbDAVUqvbQGgTMsb8BtJg==}
 
@@ -2843,7 +2886,6 @@ packages:
 
   /@types/node/16.11.10:
     resolution: {integrity: sha512-3aRnHa1KlOEEhJ6+CvyHKK5vE9BcLGjtUpwvqYLRvYNQKMfabu3BwfJaA/SLW8dxe28LsNDjtHwePTuzn3gmOA==}
-    dev: false
 
   /@types/node/18.11.0:
     resolution: {integrity: sha512-IOXCvVRToe7e0ny7HpT/X9Rb2RYtElG1a+VshjwT00HxrM2dWBApHQoqsI6WiY7Q03vdf2bCrIGzVrkF/5t10w==}
@@ -3398,7 +3440,7 @@ packages:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
     dependencies:
-      '@babel/runtime': 7.19.4
+      '@babel/runtime': 7.20.13
       cosmiconfig: 7.0.1
       resolve: 1.22.1
     dev: false
@@ -7694,7 +7736,6 @@ packages:
 
   /regenerator-runtime/0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
-    dev: true
 
   /regenerator-runtime/0.13.9:
     resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}

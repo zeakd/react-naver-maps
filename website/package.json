@@ -3,7 +3,7 @@
   "version": "0.1.0-next.0",
   "private": true,
   "scripts": {
-    "dev": "cd ../packages/react-naver-maps && pnpm link ../../website/node_modules/react; cd - && next dev",
+    "dev": "rm -rf .next && cd ../packages/react-naver-maps && pnpm link ../../website/node_modules/react; cd - && next dev",
     "build": "next build && next export",
     "start": "next start",
     "lint": "eslint src"

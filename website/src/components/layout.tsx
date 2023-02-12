@@ -168,6 +168,64 @@ const menu = [
       },
     ],
   },
+  {
+    type: 'category',
+    name: 'API Reference',
+    contents: [
+      {
+        name: 'NavermapsProvider',
+        href: '/api-references/navermaps-provider',
+      },
+      {
+        name: 'NaverMap',
+        href: '/api-references/naver-map',
+      },
+      {
+        name: 'Container',
+        href: '/api-references/container',
+      },
+      {
+        name: 'Circle',
+        href: '/api-references/circle',
+      },
+      {
+        name: 'Ellipse',
+        href: '/api-references/ellipse',
+      },
+      {
+        name: 'GroundOverlay',
+        href: '/api-references/ground-overlay',
+      },
+      {
+        name: 'InfoWindow',
+        href: '/api-references/info-window',
+      },
+      {
+        name: 'Marker',
+        href: '/api-references/marker',
+      },
+      {
+        name: 'Polygon',
+        href: '/api-references/polygon',
+      },
+      {
+        name: 'Polyline',
+        href: '/api-references/polyline',
+      },
+      {
+        name: 'Rectangle',
+        href: '/api-references/rectangle',
+      },
+      {
+        name: 'useNavermaps',
+        href: '/api-references/use-navermaps',
+      },
+      {
+        name: 'loadNavermapsScript',
+        href: '/api-references/load-navermaps-script',
+      },
+    ],
+  },
 ] as const;
 
 function Sidebar() {

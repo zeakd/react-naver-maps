@@ -1,11 +1,12 @@
 import mapKeys from 'lodash.mapkeys';
 import pick from 'lodash.pick';
-import React, { forwardRef, useLayoutEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useLayoutEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useFirstMountState } from 'react-use';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 import { getKeys } from '../utils/get-keys';
 import { omitUndefined } from '../utils/omit-undefined';
 import { getUncontrolledKey, makeUncontrolledKeyMap, UncontrolledKey } from '../utils/uncontrolled';
@@ -43,6 +44,7 @@ const uiEvents = [
 const events = [...uiEvents, ...kvoEvents];
 
 type MarkerKVO = {
+  /** Animation??? */
   animation: naver.maps.Animation;
   position: naver.maps.Coord | naver.maps.CoordLiteral;
   icon: string | naver.maps.ImageIcon | naver.maps.SymbolIcon | naver.maps.HtmlIcon;
@@ -72,6 +74,11 @@ export type Props = MarkerOptions & Partial<UncontrolledProps> & UIEventHandlers
   onClickableChanged?: (event: boolean) => void;
   onDraggableChanged?: (event: boolean) => void;
   onVisibleChanged?: (event: boolean) => void;
+  /**
+   * hello yeah
+   * @param event helo?
+   * @returns
+   */
   onZIndexChanged?: (event: number) => void;
 };
 
@@ -104,7 +111,8 @@ function isEqualKvo(kvo: any, target: any) {
 }
 
 export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props, ref) {
-  const [marker] = useState(() => new naver.maps.Marker(makeInitialOption(props)));
+  const navermaps = useNavermaps();
+  const [marker] = useState(() => new navermaps.Marker(makeInitialOption(props)));
   useImperativeHandle<naver.maps.Marker | undefined, naver.maps.Marker | undefined>(ref, () => marker);
 
   // make dirties
