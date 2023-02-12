@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import type { FunctionComponent } from 'react';
 
-import { useEventTarget } from '../contexts/event-target';
-import type { AllowedKey } from '../types/utils';
+import { useEventTarget } from './contexts/event-target';
+import type { AllowedKey } from './types/utils';
 
-export function useAddListener(target: any, type: string, listener: (...args: any[]) => void) {
+export function useListener(target: any, type: string, listener: (...args: any[]) => void) {
   useEffect(() => {
     const _listener = (...args: any[]) => listener(...args, target);
     const mapEventListener = naver.maps.Event.addListener(target, type, _listener);
@@ -21,7 +21,7 @@ interface Props {
   listener: (...args: any[]) => any;
 }
 
-export const AddListener: FunctionComponent<Props> = (props) => {
+export const Listener: FunctionComponent<Props> = (props) => {
   const {
     target: propTarget,
     type,
@@ -35,7 +35,7 @@ export const AddListener: FunctionComponent<Props> = (props) => {
   }
 
   // TODO: FIX DefinitelyTyped
-  useAddListener((target as unknown) as EventTarget, type, listener);
+  useListener((target as unknown) as EventTarget, type, listener);
 
   return null;
 };

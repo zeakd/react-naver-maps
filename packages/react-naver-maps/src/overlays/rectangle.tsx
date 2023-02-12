@@ -2,7 +2,7 @@ import pick from 'lodash.pick';
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 
 import { HandleEvents } from '../helpers/event';
-import { Overlay } from '../helpers/overlay';
+import { Overlay } from '../overlay';
 import type { UIEventHandlers } from '../types/event';
 import { useNavermaps } from '../use-navermaps';
 import { omitUndefined } from '../utils/omit-undefined';

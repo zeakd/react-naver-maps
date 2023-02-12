@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 
-import { NaverMapContext } from '../contexts/naver-map';
+import { NaverMapContext } from './contexts/naver-map';
 import { Overlay } from './overlay';
 
 describe('<Overlay />', () => {

@@ -1,6 +1,10 @@
 import { css } from '@emotion/react';
+import * as NavMenu from '@radix-ui/react-navigation-menu';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
+
+import { menu } from '../menu';
 
 type Props = {
   children?: ReactNode;
@@ -24,12 +28,16 @@ export function Layout(props: Props) {
         }}
       >
         <div
-          css={{ width: 280 }}
+          css={{
+            width: 260,
+            minWidth: 0,
+          }}
         >
           <Sidebar />
         </div>
         <div
           css={{
+            flex: 1,
             width: '100%',
             minWidth: 0,
           }}
@@ -48,10 +56,28 @@ type HeaderProps = {
   children?: ReactNode;
 };
 
+const navItemCss = css({
+  background: 'transparent',
+  border: 'none',
+  padding: '8px 12px',
+  outline: 'none',
+  userSelect: 'none',
+  fontWeight: '500',
+  lineHeight: 1,
+  borderRadius: '4px',
+  fontSize: '15px',
+
+  display: 'flex',
+  alignItems: 'center',
+  ':hover': { backgroundColor: '#fafafa' },
+  // color: var(--violet11);
+});
+
 function Header(props: HeaderProps) {
   return (
     <header
       css={css({
+        color: 'black',
         width: '100%',
         position: 'fixed',
         zIndex: 0,
@@ -75,7 +101,9 @@ function Header(props: HeaderProps) {
           alignItems: 'center',
         })}
       >
-        <div>
+        <div
+          // css={{ minWidth: 0 }}
+        >
           <Link href='/'><a
             css={css({
               fontWeight: 700,
@@ -107,136 +135,110 @@ function Header(props: HeaderProps) {
             </div>
           </a></Link>
         </div>
-        <nav>
-          {props.children}
+        <nav
+          // css={{ flex: 1 }}
+        >
+          <NavMenu.Root
+            css={{
+              position: 'relative',
+              // display: 'flex',
+              // justifyContent: 'center',
+              // width: '100vw',
+              zIndex: 100,
+            }}
+          >
+            <NavMenu.List css={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: 'white',
+              padding: '4px',
+              borderRadius: '6px',
+              listStyle: 'none',
+              boxShadow: '0 2px 10px var(--blackA7)',
+              margin: 0,
+            }}>
+              <NavMenu.Item>
+                <NavMenu.Trigger
+                  css={navItemCss}
+                >
+                  <span>v0.1</span>
+                  <FiChevronDown css={{ marginLeft: 5 }}/>
+                </NavMenu.Trigger>
+                <NavMenu.Content
+                  css={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    // animationDuration: '250ms',
+                    // animationTimingFunction: 'ease',
+                    padding: '5px 20px',
+                  }}
+                >
+                  <p>
+                    <NavMenu.Link href='https://zeakd.github.io/react-naver-maps'>v0.0.13</NavMenu.Link>
+                  </p>
+                </NavMenu.Content>
+              </NavMenu.Item>
+              <NavMenu.Item>
+                <NavMenu.Link css={navItemCss} href="https://github.com/zeakd/react-naver-maps">
+                  Github
+                </NavMenu.Link>
+              </NavMenu.Item>
+              <div css={{
+                position: 'absolute',
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
+                top: '100%',
+                left: '0',
+                perspective: '2000px',
+              }}>
+                <NavMenu.Viewport
+                  css={{
+                    position: 'relative',
+                    transformOrigin: 'top center',
+                    marginTop: '10px',
+                    width: '100%',
+                    backgroundColor: 'white',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                    boxShadow: 'hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px',
+                    height: 'var(--radix-navigation-menu-viewport-height)',
+                  }}
+                />
+              </div>
+            </NavMenu.List>
+          </NavMenu.Root>
         </nav>
       </div>
     </header>
   );
 }
 
-const menu = [
-  {
-    type: 'category',
-    name: 'Guides',
-    contents: [
-      {
-        name: 'Introduction',
-        href: '/',
-      },
-      {
-        name: 'Quickstart',
-        href: '/guides/quickstart',
-      },
-      {
-        name: 'Migration guide from v0.0',
-        href: '/guides/migration-guide-from-0.0',
-      },
-    ],
-  },
-  {
-    type: 'category',
-    name: 'Examples',
-    contents: [
-      {
-        name: '지도 기본 예제',
-        href: '/examples/map-tutorial-1-simple',
-      },
-      {
-        name: '지도 옵션 조정하기',
-        href: '/examples/map-tutorial-2-options',
-      },
-      {
-        name: '지도 유형 설정하기',
-        href: '/examples/map-tutorial-3-types',
-      },
-      {
-        name: '지도 좌표 경계 확인하기',
-        href: '/examples/map-tutorial-4-bounds',
-      },
-      {
-        name: '지도 이동하기',
-        href: '/examples/map-tutorial-5-moves',
-      },
-      {
-        name: 'HTML5 Geolocation API \n활용하기',
-        href: '/examples/map-tutorial-6-geolocation',
-      },
-      {
-        name: '마커 표시하기',
-        href: '/examples/marker-tutorial-1-simple',
-      },
-    ],
-  },
-  {
-    type: 'category',
-    name: 'API Reference',
-    contents: [
-      {
-        name: 'NavermapsProvider',
-        href: '/api-references/navermaps-provider',
-      },
-      {
-        name: 'NaverMap',
-        href: '/api-references/naver-map',
-      },
-      {
-        name: 'Container',
-        href: '/api-references/container',
-      },
-      {
-        name: 'Circle',
-        href: '/api-references/circle',
-      },
-      {
-        name: 'Ellipse',
-        href: '/api-references/ellipse',
-      },
-      {
-        name: 'GroundOverlay',
-        href: '/api-references/ground-overlay',
-      },
-      {
-        name: 'InfoWindow',
-        href: '/api-references/info-window',
-      },
-      {
-        name: 'Marker',
-        href: '/api-references/marker',
-      },
-      {
-        name: 'Polygon',
-        href: '/api-references/polygon',
-      },
-      {
-        name: 'Polyline',
-        href: '/api-references/polyline',
-      },
-      {
-        name: 'Rectangle',
-        href: '/api-references/rectangle',
-      },
-      {
-        name: 'useNavermaps',
-        href: '/api-references/use-navermaps',
-      },
-      {
-        name: 'loadNavermapsScript',
-        href: '/api-references/load-navermaps-script',
-      },
-    ],
-  },
-] as const;
 
 function Sidebar() {
   return (
-    <div>
+    <div
+      css={{
+        position: 'fixed',
+        top: 0,
+        padding: '0 24px',
+        boxSizing: 'border-box',
+        height: '100%',
+        width: 260,
+        overflowY: 'scroll',
+      }}
+    >
       <div
         css={{ height: 100 }}
       >
 
       </div>
-      <div css={{ paddingRight : 24, fontSize: 16 }}>
+      <div css={{
+        position: 'relative',
+        paddingRight : 24, fontSize: 16,
+      }}>
         {menu.map((item, idx) => {
           if (item.type === 'category') {
             return (
@@ -288,7 +290,10 @@ type MainProps = {
 function Main(props: MainProps) {
   return (
     <div
-      css={css({ width: '100%' })}
+      css={css({
+        width: '100%',
+        paddingBottom: 160,
+      })}
     >
       {props.children}
     </div>

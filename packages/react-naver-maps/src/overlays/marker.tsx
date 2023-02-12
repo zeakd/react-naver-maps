@@ -4,7 +4,7 @@ import { forwardRef, useLayoutEffect, useImperativeHandle, useRef, useState } fr
 import { useFirstMountState } from 'react-use';
 
 import { HandleEvents } from '../helpers/event';
-import { Overlay } from '../helpers/overlay';
+import { Overlay } from '../overlay';
 import type { UIEventHandlers } from '../types/event';
 import { useNavermaps } from '../use-navermaps';
 import { getKeys } from '../utils/get-keys';

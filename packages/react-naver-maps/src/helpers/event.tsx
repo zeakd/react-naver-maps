@@ -3,7 +3,7 @@ import camelcase from 'camelcase';
 import pick from 'lodash.pick';
 import { useMemo } from 'react';
 
-import { AddListener } from './listener';
+import { Listener } from '../listener';
 
 type Props = {
   events: string[];
@@ -23,7 +23,7 @@ export function HandleEvents(props: Props) {
         const eventName = eventMap[key];
         const listener = listeners[key];
 
-        return listener ? <AddListener
+        return listener ? <Listener
           key={key}
           type={eventName}
           listener={listener}

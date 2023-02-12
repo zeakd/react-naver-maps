@@ -32,7 +32,11 @@ function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
   if (isExternal) {
     return (
       <span css={{ verticalAlign: 'baseline' }}>
-        <a href={href} {...restProps} css={{ textDecoration: 'underline' }} target='_blank' rel='noreferrer'/>
+        <a href={href} {...restProps} css={{
+          textDecoration: 'underline',
+          color: 'black',
+          ':hover': { color: 'rgb(102, 222, 111)' },
+        }} target='_blank' rel='noreferrer'/>
         <FiExternalLink css={{ verticalAlign: 'top' }} />
       </span>
     );
@@ -41,20 +45,32 @@ function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
   return (
     <span css={{ verticalAlign: 'baseline' }}>
       <Link href={href || ''}>
-        <a {...restProps} css={{ textDecoration: 'underline' }} />
+        <a {...restProps} css={{
+          textDecoration: 'underline',
+          color: 'black',
+          ':hover': { color: 'rgb(102, 222, 111)' },
+        }} />
       </Link>
     </span>
   );
-
 }
 
-const mdxComponents = { code: Code, a: Anchor };
+function UL(props: ComponentPropsWithoutRef<'ul'>) {
+  return (
+    <ul {...props} css={{ padding: '0 15px' }} />
+  );
+}
+
+const mdxComponents = { code: Code, a: Anchor, ul: UL };
 
 function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Global styles={css({
-        a: { cursor: 'pointer' },
+        a: {
+          color: 'black',
+          cursor: 'pointer',
+        },
         'a:hover': {
           color: 'inherit',
           textDecoration: 'underline',

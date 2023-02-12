@@ -1,73 +1,31 @@
-# Introduction
+import { Playground } from 'next-docz'
+import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps'
 
-React Naver Maps 는 Naver Maps의 Non-Official React binding 라이브러리입니다. 본 라이브러리는 최대한 Naver Maps의 기본 기능을 유지하되 
-몇가지 React 에서 다루기 용이한 몇가지 기능을 제공합니다.
+# React Naver Maps
 
-## Core concepts
+React Naver Maps 는 [Naver Maps](https://navermaps.github.io/maps.js.ncp/)의 Non-Official React binding 라이브러리입니다. 
 
-### React Component interface
 
-Naver Map의 요소들을 React Component형태로 mount/unmount 할 수 있으며 children을 통해 렌더여부를 결정할 수 있습니다.
+<Playground
+  codeClassName={'language-tsx'}
+  codeHeader={
+`import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps'\n`
+  }
+>
+  <MapDiv
+    style={{
+      height: 400,
+    }}
+  >
+    <NaverMap>
+      <Marker
+        defaultPosition={{ lat: 37.5666103, lng: 126.9783882 }}
+      />
+    </NaverMap>
+  </MapDiv>
+</Playground>
 
-``` jsx
-import { NaverMap, Marker } from 'react-naver-maps'
-
-<NaverMap>
-  <Marker
-    defaultPosition={{ lat: 37.3595704, lng: 127.105399 }}
-  />
-</NaverMap>
-```
-
-### Better event handler
-
-React의 EventHandler 방식을 사용하여 더 쉽게 Naver Maps 의 이벤트를 다룰 수 있습니다.
-
-``` js
-// listener를 추가할 때
-map.addListener('zoom_changed', zoomListener); // 또는 
-window.naver.maps.Event.addListener(map, 'zoom_changed', zoomListener)
-
-// listener를 제거할 때
-map.removeListener(zoomListener); // 또는
-window.naver.maps.Event.removeListener(zoomListener)
-```
-
-``` jsx
-// props로 전달됩니다.
-<NaverMap 
-  onZoomChanged={zoomListener}
-/>
-
-// 간단히 props에서 제거합니다.
-<NaverMap 
-  // onZoomChanged={zoomListener}
-/>
-```
-
-### Controlled KVO Component
-
-[Controlled Component](https://reactjs.org/docs/forms.html#controlled-components) 방식을 사용하여 단방향 제어가 가능합니다.
-
-``` jsx
-import { NaverMap } from 'react-naver-maps';
-
-function MyMap() {
-  const [center, setCenter] = useState([37.3595704, 127.105399]);
-
-  return (
-    <>
-    <NaverMap
-      center={center}
-      onIdle={(_, map) => {
-        setCenter(map.getCenter());
-      }}
-    />
-    <button
-      onClick={() => setCenter([33.3590628, 126.534361])}
-    >제주도로 이동하기</button>
-    </>
-  )
-}
-
-```
+- [Quick Start](/guides/quickstart)
+- [Core Conepts](/guides/core-concepts)
+- [Migration guide from v0.0](/guides/migration-guide-from-0.0)
+- [Customize Overlays](/guides/customize-overlays)
