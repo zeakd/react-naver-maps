@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.0-next.2
+
+### Minor Changes
+
+- change react support version, use jsx-runtime
+
 ## 0.1.0-next.1
 
 ### Patch Changes
