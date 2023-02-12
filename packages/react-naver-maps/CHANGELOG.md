@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.1
+
+### Patch Changes
+
+- deprecated alert을 위한 RenderAfterNavermapsLoaded 추가
+
 ## 0.1.0
 
 ### Major Changes
