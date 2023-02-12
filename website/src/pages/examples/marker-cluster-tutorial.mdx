@@ -8,7 +8,11 @@ import { accidentDeath } from '../../samples/accident-death'
 
 네이버지도 공식 튜토리얼 [마커 클러스터화하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-cluster.example.html)의 구현 예시입니다.
 
-<Playground>
+<Playground
+  codeHeader={`import { Container as MapDiv, NaverMap, Marker, useNavermaps, Overlay, useMap } from 'react-naver-maps'
+import { useState } from 'react'
+  `}
+>
   {() => {
     function MarkerCluster() {
       // https://github.com/navermaps/marker-tools.js/blob/master/marker-clustering/src/MarkerClustering.js 

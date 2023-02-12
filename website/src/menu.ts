@@ -66,6 +66,10 @@ export const menu = [
         name: '마커 클러스터화하기',
         href: '/examples/marker-cluster-tutorial',
       },
+      {
+        name: '사용자 정의 컨트롤 만들기',
+        href: '/examples/control-tutorial-4-custom-p1',
+      },
     ],
   },
   {

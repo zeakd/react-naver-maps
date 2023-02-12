@@ -1,0 +1,135 @@
+import { useState, useEffect } from 'react'
+import { Playground, Props } from 'next-docz'
+import { Container as MapDiv, NaverMap, useNavermaps, Overlay, useMap } from 'react-naver-maps'
+
+# 사용자 정의 컨트롤 만들기
+
+네이버지도 공식 튜토리얼 [사용자 정의 컨트롤 만들기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-control-custom-p1.example.html)의 구현 예시입니다.
+
+<Playground
+  codeHeader={
+`import { Container as MapDiv, NaverMap, useNavermaps, Overlay, useMap } from 'react-naver-maps';
+import { useState, useEffect } from 'react';
+`
+  }
+>  
+  {() => {
+    function MyCustomControl() {
+      const locationBtnHtml = `
+        <a href="#" 
+          style="
+            z-index: 100;
+            overflow: hidden;
+            display: inline-block;
+            position: absolute;
+            top: 7px;
+            left: 5px;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(58,70,88,.45);
+            border-radius: 2px;
+            background: #fcfcfd;
+              background-clip: border-box;
+            text-align: center;
+            -webkit-background-clip: padding;
+            background-clip: padding-box;
+          "
+        >
+          <span style="
+            overflow: hidden;
+            display: inline-block;
+            color: transparent !important;
+            vertical-align: top;
+            background: url(https://ssl.pstatic.net/static/maps/m/spr_trff_v6.png) 0 0;
+              background-position-x: 0px;
+              background-position-y: 0px;
+              background-size: auto;
+            background-size: 200px 200px;
+            -webkit-background-size: 200px 200px;
+            width: 20px;
+            height: 20px;
+            margin: 7px 0 0 0;
+            background-position: -153px -31px;
+          ">NAVER 그린팩토리</span>
+        </a>
+      `;
+      const navermaps = useNavermaps();
+      const map = useMap();
+      // customControl 객체 이용하기
+      // Customize Overlay 참고
+      // https://zeakd.github.io/react-naver-maps/guides/customize-overlays/      
+      const [customControl1] = useState(() => {
+        return new navermaps.CustomControl(locationBtnHtml, {
+          position: navermaps.Position.TOP_LEFT
+        });
+      })
+      
+      useEffect(() => {
+        // naver.maps.Event.addDOMListener 사용할 필요 없이, native addEventListener를 사용합니다.
+        // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+        const domElement = customControl1.getElement();
+        const domListener = () => {
+          map.setCenter(new navermaps.LatLng(37.3595953, 127.1053971));
+        };
+
+        domElement.addEventListener('click', domListener)
+
+        return () => {
+          domElement.removeEventListener('click', domListener);
+        }
+      }, [])
+
+      useEffect(() => {
+        // Map 객체의 controls 활용하기
+        // Jquery 없이 생성하기
+        // var $locationBtn = $(locationBtnHtml),
+        //    locationBtnEl = $locationBtn[0];
+        const parent = document.createElement('div');
+        parent.innerHTML = locationBtnHtml;
+        const locationBtnEl = parent.children[0]
+
+        map.controls[naver.maps.Position.LEFT_CENTER].push(locationBtnEl);
+
+        // naver.maps.Event.addDOMListener 사용할 필요 없이, native addEventListener를 사용합니다.
+        // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+        const domListener = () => {
+          map.setCenter(new navermaps.LatLng(37.3595953, 127.1053971));
+        };
+
+        locationBtnEl.addEventListener('click', domListener)
+
+        return () => {
+          locationBtnEl.removeEventListener('click', domListener);
+        }
+      }, [])
+
+      return (
+        <Overlay element={customControl1} />
+      );
+    }
+
+    function MyMap() {
+      const [init, setInit] = useState(false);
+
+      return (
+        <NaverMap 
+          zoom={13}
+          onInit={() => {
+            setInit(true);
+          }}
+        >
+          {init && <MyCustomControl />}
+        </NaverMap>
+      )
+    }
+
+    return (
+      <MapDiv style={{
+        width: '100%',
+        height: '600px',
+      }}>
+        <MyMap />
+      </MapDiv>
+    )
+  }}  
+</Playground>
