@@ -37,3 +37,8 @@ export type { Props as OverlayProps } from './overlay';
 
 export { NcpOptions, GovOptions, finOptions, ClientOptions } from './types/client';
 export { UIEventHandlers } from './types/event';
+
+/**
+ * v0.0 alert을 위한 deprecated component
+ */
+export { RenderAfterNavermapsLoaded } from './deprecated';
