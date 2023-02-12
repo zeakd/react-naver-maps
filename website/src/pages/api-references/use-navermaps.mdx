@@ -1,0 +1,21 @@
+import { useNavermaps } from 'react-naver-maps'
+
+# useNavermaps
+
+[NavermapProvider](/api-references/navermaps-provider) 설정이 필요합니다.
+
+## Example
+
+``` jsx
+function MyComponent() {
+  const navermaps = useNavermaps(); 
+  // navermaps === window.naver.maps;
+
+  return null;
+}
+
+<NaverMap>
+  <MyComponent />
+</NaverMap>
+
+```

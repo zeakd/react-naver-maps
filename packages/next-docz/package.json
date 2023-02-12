@@ -21,7 +21,10 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "@babel/parser": "^7.20.15",
+    "@emotion/react": "^11.10.4",
     "@mdx-js/loader": "^2.1.1",
+    "@microsoft/tsdoc": "^0.14.2",
     "@next/mdx": "12.3.1",
     "esast-util-from-js": "^1.1.0",
     "estree-util-visit": "^1.2.0",
@@ -32,11 +35,12 @@
   },
   "peerDependencies": {
     "@mdx-js/react": "*",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^17 || ^18",
+    "react-dom": "^17 || ^18"
   },
   "devDependencies": {
     "@mdx-js/react": "^2.1.5",
+    "@types/node": "16.11.10",
     "@types/react": "^18.0.22",
     "next": "^12.3.1",
     "react": "^18.2.0",

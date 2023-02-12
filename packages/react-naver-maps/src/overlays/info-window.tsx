@@ -1,9 +1,10 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 import { omitUndefined } from '../utils/omit-undefined';
 
 const primitiveKvoKeys = [
@@ -37,9 +38,33 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type InfoWindowOptions = Omit<naver.maps.InfoWindowOptions, 'map'>;
+type InfoWindowOptions = {
+  /**
+   * position
+   * @type naver.maps.Coord | naver.maps.CoordLiteral
+   */
+  position?: naver.maps.Coord | naver.maps.CoordLiteral;
+  content: string;
+  zIndex?: number;
+  maxWidth?: number;
+  /**
+   * @type naver.maps.Point | naver.maps.PointLiteral
+   */
+  pixelOffset?: naver.maps.Point | naver.maps.PointLiteral;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  disableAutoPan?: boolean;
+  disableAnchor?: boolean;
+  anchorSkew?: boolean;
+  /**
+   * @type naver.maps.Size | naver.maps.SizeLiteral
+   */
+  anchorSize?: naver.maps.Size | naver.maps.SizeLiteral;
+  anchorColor?: string;
+};
 
-export type Props = InfoWindowOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = InfoWindowOptions & {
   onPositionChanged?: (value: naver.maps.Coord) => void;
   onContentChanged?: (value: HTMLElement) => void;
   onZIndexChanged?: (value: number) => void;
@@ -53,11 +78,12 @@ export type Props = InfoWindowOptions & UIEventHandlers<typeof uiEvents> & {
   onAnchorSkewChanged?: (value: boolean) => void;
   onAnchorSizeChanged?: (value: naver.maps.Size) => void;
   onAnchorColorChanged?: (value: string) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
 export const InfoWindow = forwardRef<naver.maps.InfoWindow, Props>(function InfoWindow(props, ref) {
   const { position } = props;
-  const [infoWindow] = useState(() => new naver.maps.InfoWindow(omitUndefined(pick(props, [...kvoKeys])) as InfoWindowOptions));
+  const navermaps = useNavermaps();
+  const [infoWindow] = useState(() => new navermaps.InfoWindow(omitUndefined(pick(props, [...kvoKeys])) as InfoWindowOptions));
 
   useImperativeHandle<naver.maps.InfoWindow | undefined, naver.maps.InfoWindow | undefined>(ref, () => infoWindow);
 

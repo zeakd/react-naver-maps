@@ -1,12 +1,15 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState, createElement } from 'react';
 import type { ReactNode, ComponentPropsWithoutRef, CSSProperties, ComponentType } from 'react';
 
 import { ContainerContext, ContainerContextType } from './contexts/container';
 
 export type Props = {
-  children: ReactNode | ComponentType;
-  fallback?: ReactNode;
   innerStyle?: CSSProperties;
+  fallback?: ReactNode;
+  /**
+   * 일반 children 혹은 render function
+   */
+  children?: ReactNode | ComponentType;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'children'>;
 
 const innerDefaultStyle: CSSProperties = { top: 0, left: 0, width: '100%', height: '100%', position: 'absolute', zIndex: 0 };
@@ -27,7 +30,7 @@ export function Container({ children, fallback, innerStyle = innerDefaultStyle, 
       {isMounted && ref.current ? (
         <ContainerContext.Provider value={containerContext}>
           <Suspense fallback={null}>
-            {typeof children === 'function' ? React.createElement(children as ComponentType) : children}
+            {typeof children === 'function' ? createElement(children as ComponentType) : children}
           </Suspense>
         </ContainerContext.Provider>
       ) : fallback}

@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import React from 'react';
 
 import { NaverMapContext } from '../contexts/naver-map';
 import { Overlay } from './overlay';

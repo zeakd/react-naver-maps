@@ -1,13 +1,14 @@
 import pick from 'lodash.pick';
 import upperfirst from 'lodash.upperfirst';
-import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import { useContainerContext } from './contexts/container';
 import { EventTargetContext } from './contexts/event-target';
 import { NaverMapContext } from './contexts/naver-map';
 import { HandleEvents } from './helpers/event';
-import { useNavermaps } from './hooks/use-navermaps';
 import { usePrevious } from './hooks/use-previous';
+import { useNavermaps } from './use-navermaps';
 
 type MapPaddingOptions = {
   top?: number;
@@ -19,7 +20,13 @@ type MapPaddingOptions = {
 type MapOptions = {
   background?: string;
   baseTileOpacity?: number;
+  /**
+   * @type naver.maps.Bounds | naver.maps.BoundsLiteral | null
+   */
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral | null;
+  /**
+   * @type naver.maps.Coord | naver.maps.CoordLiteral
+   */
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
   disableDoubleClickZoom?: boolean;
   disableDoubleTapZoom?: boolean;
@@ -56,6 +63,47 @@ type MapOptions = {
 
   // special.
   centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
+};
+
+type Uncontrolled = {
+  /**
+   * Uncontrolled prop of mapTypeId
+   */
+  defaultMapTypeId?: MapOptions['mapTypeId'];
+  /**
+   * Uncontrolled prop of size
+   * @type naver.maps.Coord | naver.maps.CoordLiteral
+   */
+  defaultSize?: MapOptions['size'];
+  /**
+   * Uncontrolled prop of bounds
+   * @type naver.maps.Bounds | naver.maps.BoundsLiteral | null
+   */
+  defaultBounds?: MapOptions['bounds'];
+  /**
+   * Uncontrolled prop of center
+   * @type naver.maps.Coord | naver.maps.CoordLiteral
+   */
+  defaultCenter?: MapOptions['center'];
+  /**
+   * Uncontrolled prop of zoom
+   */
+  defaultZoom?: MapOptions['zoom'];
+  /**
+   * Uncontrolled prop of centerPoint
+   * @type naver.maps.Point | naver.maps.PointLiteral
+   */
+  defaultCenterPoint?: MapOptions['centerPoint'];
+};
+
+type MapEventCallbacks = {
+  onMapTypeIdChanged?: (value: string) => void;
+  onMapTypeChanged?: (value: naver.maps.MapType) => void;
+  onSizeChanged?: (value: naver.maps.Size) => void;
+  onBoundsChanged?: (value: naver.maps.Bounds) => void;
+  onCenterChanged?: (value: naver.maps.Coord) => void;
+  onCenterPointChanged?: (value: naver.maps.Point) => void;
+  onZoomChanged?: (value: number) => void;
 };
 
 const basicMapOptionKeys: Array<keyof MapOptions> = [
@@ -147,20 +195,8 @@ const mapOnlyEvents = [
   'zooming',
 ] as const;
 const events = [...uiEvents, ...kvoEvents, ...mapOnlyEvents];
-type MapEventCallbacks = {
-  onMapTypeIdChanged?: (value: string) => void;
-  onMapTypeChanged?: (value: naver.maps.MapType) => void;
-  onSizeChanged?: (value: naver.maps.Size) => void;
-  onBoundsChanged?: (value: naver.maps.Bounds) => void;
-  onCenterChanged?: (value: naver.maps.Coord) => void;
-  onCenterPointChanged?: (value: naver.maps.Point) => void;
-  onZoomChanged?: (value: number) => void;
-};
 
-type FunctionTypeChildren = (nmap: naver.maps.Map) => React.ReactNode;
-type DefaultOptions<T> = {
-  [Property in keyof T as `default${Capitalize<string & Property>}`]: T[Property]
-};
+// type FunctionTypeChildren = (nmap: naver.maps.Map) => React.ReactNode;
 
 const defaultOptionKeyMap = {
   mapTypeId: 'defaultMapTypeId',
@@ -171,9 +207,12 @@ const defaultOptionKeyMap = {
   centerPoint: 'defaultCenterPoint',
 } as const;
 
-export type Props = {
-  children?: React.ReactNode | FunctionTypeChildren;
-} & MapOptions & MapEventCallbacks & DefaultOptions<Pick<MapOptions, typeof kvoKeys[number]>>;
+export type Props = Uncontrolled & {
+  /**
+   * Map 관련 components
+   */
+  children?: ReactNode;
+} & MapOptions & MapEventCallbacks;
 
 export const NaverMap = forwardRef<naver.maps.Map | null, Props>(function NaverMap(props, ref) {
   const navermaps = useNavermaps();

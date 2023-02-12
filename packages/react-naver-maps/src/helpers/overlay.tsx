@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 import { EventTargetContext } from '../contexts/event-target';
 import { useMap } from '../contexts/naver-map';
@@ -10,7 +11,7 @@ type MapElementType = {
 
 type Props = {
   element: MapElementType;
-  children?: React.ReactNode;
+  children?: ReactNode;
   autoMount?: boolean;
 };
 

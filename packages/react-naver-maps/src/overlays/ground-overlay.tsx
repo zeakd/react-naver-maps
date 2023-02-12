@@ -1,9 +1,10 @@
 import pick from 'lodash.pick';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';
 import { Overlay } from '../helpers/overlay';
 import type { UIEventHandlers } from '../types/event';
+import { useNavermaps } from '../use-navermaps';
 
 const kvoKeys = [
   'clickable',
@@ -22,19 +23,27 @@ const uiEvents = [
 ] as const;
 const events = [...uiEvents, ...kvoEvents];
 
-type GroundOverlayOptions = Omit<naver.maps.GroundOverlayOptions, 'map'>;
+type GroundOverlayOptions = {
+  clickable?: boolean;
+  opacity?: number;
+};
 
-export type Props = GroundOverlayOptions & UIEventHandlers<typeof uiEvents> & {
+export type Props = GroundOverlayOptions & {
   url: string;
+  /**
+   * bounds
+   * @type naver.maps.Bounds | naver.maps.BoundsLiteral
+   */
   bounds: naver.maps.Bounds | naver.maps.BoundsLiteral;
   onOpacityChanged?: (value: number) => void;
   onClickableChanged?: (event: boolean) => void;
-};
+} & UIEventHandlers<typeof uiEvents>;
 
 export const GroundOverlay = forwardRef<naver.maps.GroundOverlay, Props>(function GroundOverlay(props, ref) {
   const options = pick(props, kvoKeys);
   const { url, bounds } = props;
-  const [groundOverlay, setGroundOverlay] = useState(() => new naver.maps.GroundOverlay(url, bounds, options));
+  const navermaps = useNavermaps();
+  const [groundOverlay, setGroundOverlay] = useState(() => new navermaps.GroundOverlay(url, bounds, options));
 
   useImperativeHandle<naver.maps.GroundOverlay | undefined, naver.maps.GroundOverlay | undefined>(ref, () => groundOverlay, [groundOverlay]);
 

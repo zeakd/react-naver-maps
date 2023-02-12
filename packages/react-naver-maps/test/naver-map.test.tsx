@@ -1,6 +1,5 @@
 // import { render, fireEvent, waitFor } from '@testing-library/react';
 // import { renderHook, act } from '@testing-library/react-hooks';
-// import React from 'react';
 // import { MapDiv } from '../map-div';
 // import { NaverMap } from '../naver-map';
 
