@@ -52,10 +52,6 @@ export function Layout(props: Props) {
   );
 }
 
-type HeaderProps = {
-  children?: ReactNode;
-};
-
 const navItemCss = css({
   background: 'transparent',
   border: 'none',
@@ -73,7 +69,7 @@ const navItemCss = css({
   // color: var(--violet11);
 });
 
-function Header(props: HeaderProps) {
+function Header() {
   return (
     <header
       css={css({
@@ -176,7 +172,7 @@ function Header(props: HeaderProps) {
                   }}
                 >
                   <p>
-                    <NavMenu.Link href='https://zeakd.github.io/react-naver-maps'>v0.0.13</NavMenu.Link>
+                    <NavMenu.Link href='https://zeakd.github.io/react-naver-maps/0.0.13/'>v0.0.13</NavMenu.Link>
                   </p>
                 </NavMenu.Content>
               </NavMenu.Item>
