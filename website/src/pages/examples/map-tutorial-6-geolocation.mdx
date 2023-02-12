@@ -1,0 +1,90 @@
+import { Playground, Props } from 'next-docz';
+import { useState, useRef, useEffect } from 'react';
+import { Container as MapDiv, NaverMap, useNavermaps, InfoWindow } from 'react-naver-maps';
+
+# HTML5 Geolocation API 활용하기
+
+네이버지도 공식 튜토리얼 [HTML5 Geolocation API 활용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-map-geolocation.example.html)의 구현 예시입니다.
+
+<Playground
+  codeClassName='language-tsx'
+  codeHeader={
+`import { useState, useRef, useEffect } from 'react';
+import { Container as MapDiv, NaverMap, useNavermaps, InfoWindow } from 'react-naver-maps';\n`
+  }
+>
+  {() => {
+    function MyMap() {
+      const navermaps = useNavermaps();
+
+      // useRef 대신 useState를 통해 ref를 가져옵니다.
+      const [map, setMap] = useState(null);
+      const [infowindow, setInfoWindow] = useState(null);
+
+
+      function onSuccessGeolocation(position) {
+        if (!map || !infowindow) return
+
+        const location = new navermaps.LatLng(position.coords.latitude,
+                                            position.coords.longitude);
+        map.setCenter(location);
+        map.setZoom(10);
+        infowindow.setContent('<div style="padding:20px;">' + 'geolocation.getCurrentPosition() 위치' + '</div>');
+        infowindow.open(map, location);
+        console.log('Coordinates: ' + location.toString());
+      }
+
+      function onErrorGeolocation() {
+        if (!map || !infowindow) return
+
+        const center = map.getCenter();
+        infowindow.setContent('<div style="padding:20px;">' +
+            '<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>'+ "latitude: "+ center.lat() +"<br />longitude: "+ center.lng() +'</div>');
+        infowindow.open(map, center);
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
+        } else {
+          const center = map.getCenter();
+          infowindow.setContent('<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>');
+          infowindow.open(map, center);
+        }
+      }
+
+      useEffect(() => {
+        if (!map || !infowindow) {
+          return;
+        }
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
+        } else {
+          var center = map.getCenter();
+          infowindow.setContent('<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>');
+          infowindow.open(map, center);
+        }
+      }, [map, infowindow]);
+
+
+      return <NaverMap     
+        // uncontrolled
+        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+        defaultZoom={10}
+        defaultMapTypeId={navermaps.MapTypeId.NORMAL}
+        ref={setMap}
+      >
+        <InfoWindow ref={setInfoWindow} />
+      </NaverMap>
+    }
+
+    return (
+      <MapDiv style={{
+        position: 'relative',
+        width: '100%',
+        height: '600px',
+      }}>
+        <MyMap />
+      </MapDiv>
+    );
+  }}
+</Playground>

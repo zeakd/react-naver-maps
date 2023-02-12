@@ -1,31 +1,12 @@
-> [Breaking Change](https://github.com/zeakd/react-naver-maps/issues/65)를 포함한 **v0.1.0** 버전이 준비중입니다 🎉 <br /> `react-naver-maps@next` 로 미리 확인할 수 있습니다.
-> [next 브랜치](https://github.com/zeakd/react-naver-maps/tree/next)를 확인하세요
+# React Naver Maps
 
+React Navermaps API integration for modern development.
 
-# react-naver-maps
-Controlled React Component for Naver Maps to handle zoom, center, etc.
+## Welcome
 
-## Install
+완전히 새로운 API의 v0.1 이 배포되었습니다. [v0.1.0](https://github.com/zeakd/react-naver-maps/issues/65)
 
-``` bash
-npm install react-naver-maps
-# or
-yarn add react-naver-maps
-```
+[Website](https://zeakd.github.io/react-naver-maps)
 
-## Documentation
+이전 레거시 버전 (v0.0.13) 관련 문서는 [Legacy Website](https://zeakd.github.io/react-naver-maps/0.0.13)을 참고해주세요
 
-- [Introduction](https://zeakd.github.io/react-naver-maps/#/React%20Naver%20Maps?id=introduction)
-- [Getting Started](https://zeakd.github.io/react-naver-maps/#/React%20Naver%20Maps?id=getting-started)
-- [API Docs](https://zeakd.github.io/react-naver-maps)
-
-## [Example Projects](./examples)
- 
-## Contribute
-
-이 슈 환 영
-
-피 알 환 영
-
-  
-  

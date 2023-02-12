@@ -1,0 +1,21 @@
+import { Props } from 'next-docz'
+import { Listener } from 'react-naver-maps'
+
+# Listener
+
+[Customize overlays](/guides/customize-overlays)를 참고해주세요
+
+## Options
+
+<Props of={Listener} />
+
+## Examples
+
+``` jsx
+<Overlay element={marker}>
+  <Listener type='click' listener={() => {console.log('click') }} />
+</Overlay>
+
+// standalone
+<Listener target={marker} type='click' listener={() => {console.log('click') }} />
+```

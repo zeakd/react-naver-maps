@@ -1,0 +1,56 @@
+import { Playground } from 'next-docz'
+import { Suspense } from 'react'
+import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver-maps'
+
+# Quickstart
+
+Application 루트에 NaverMaps Provider를 제공해야합니다. 사용하시는 프레임워크에 맞춰 `<NaverMapsProvider />` 를 감싸주세요.
+
+``` jsx
+import { NaverMapsProvider } from 'react-naver-maps';
+
+function App() {
+  return (
+    <NaverMapsProvider 
+      ncpClientId='MY_NAVERMAPS_CLIENT_ID'
+      // or finClientId, govClientId  
+    >
+      <TheRestOfYourApplication />
+    </NaverMapsProvider>
+  )
+}
+```
+
+<Playground
+  codeClassName={'language-tsx'}
+  codeHeader={
+`import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver-maps'\n`
+  }
+>
+  {() => {
+    function MyMap() {
+      // instead of window.naver.maps
+      const navermaps = useNavermaps();
+
+      return (
+        <NaverMap
+          defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+          defaultZoom={15}
+        >
+          <Marker 
+            defaultPosition={new navermaps.LatLng(37.3595704, 127.105399)}
+          />
+        </NaverMap>
+      );
+    }
+
+    return (
+      <MapDiv style={{
+        width: '100%',
+        height: '600px',
+      }}>
+        <MyMap />
+      </MapDiv>
+    );
+  }}
+</Playground>

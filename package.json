@@ -1,72 +1,20 @@
 {
-  "name": "react-naver-maps",
-  "version": "0.0.13",
-  "description": "React Component for naver maps v3 module.",
-  "main": "dist/react-naver-maps.cjs.js",
-  "module": "dist/react-naver-maps.esm.js",
-  "repository": "https://github.com/zeakd/react-naver-maps",
-  "author": "zeakd <artydeveloperduck@gmail.com>",
-  "license": "MIT",
+  "name": "root",
+  "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "start": "rollup -c -w",
-    "prepublishOnly": "trash dist && npm run build",
-    "examples": "parcel examples/index.html",
-    "styleguidist": "styleguidist server",
-    "prestyleguidist:build": "npm run build",
-    "styleguidist:build": "styleguidist build",
-    "website": "npm run styleguidist:build",
-    "lint": "eslint src",
-    "test": "echo skip test"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint"
-    }
-  },
-  "dependencies": {
-    "create-react-context": "^0.2.3",
-    "debug": "^3.1.0",
-    "hoist-non-react-statics": "^3.2.0",
-    "invariant": "^2.2.4",
-    "load-js": "^3.0.2",
-    "lodash.camelcase": "^4.3.0",
-    "lodash.debounce": "^4.0.8",
-    "lodash.difference": "^4.5.0",
-    "prop-types": "^15.6.2",
-    "react-resize-detector": "^2.2.0",
-    "recompose": "^0.26.0",
-    "shallowequal": "^1.1.0",
-    "warning": "^4.0.2"
-  },
-  "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0"
+    "prepare": "husky install",
+    "test": "echo hi"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.1",
-    "@babel/plugin-external-helpers": "^7.0.0",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.4",
-    "eslint": "^5.9.0",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "eslint-plugin-react": "^7.11.1",
-    "husky": "^1.2.0",
-    "prettier": "^1.15.2",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-styleguidist": "^9.0.1",
-    "rollup": "^0.65.2",
-    "rollup-plugin-babel": "^4.0.3",
-    "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
-    "trash-cli": "^1.4.0",
-    "webpack": "^4.25.1"
+    "@changesets/cli": "^2.26.0",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
+    "eslint": "^8.25.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "^7.31.10",
+    "husky": "^8.0.0",
+    "typescript": "^4.8.4"
   },
-  "files": [
-    "dist",
-    "hocs"
-  ]
+  "packageManager": "pnpm@7.26.3"
 }
