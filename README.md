@@ -4,7 +4,7 @@ React Navermaps API integration for modern development.
 
 ## Welcome
 
-완전히 새로운 API의 v0.1.0 이 배포되었습니다. [v0.1.0](https://github.com/zeakd/react-naver-maps/issues/65)
+완전히 새로운 API의 v0.1 이 배포되었습니다. [v0.1.0](https://github.com/zeakd/react-naver-maps/issues/65)
 
 [Website](https://zeakd.github.io/react-naver-maps)
 

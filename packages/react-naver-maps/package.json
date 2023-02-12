@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps",
-  "version": "0.1.0-next.2",
+  "version": "0.1.0",
   "description": "React Navermaps API integration for modern development.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
