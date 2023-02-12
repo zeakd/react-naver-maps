@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.2
+
+### Patch Changes
+
+- update package.json
+
 ## 0.1.1
 
 ### Patch Changes
