@@ -81,6 +81,7 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Global styles={css({
+        html: { fontFamily: '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif' },
         a: {
           color: 'black',
           cursor: 'pointer',
