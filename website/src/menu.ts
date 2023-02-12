@@ -113,6 +113,18 @@ export const menu = [
         href: '/api-references/use-navermaps',
       },
       {
+        name: 'useListener',
+        href: '/api-references/use-listener',
+      },
+      {
+        name: 'Listener',
+        href: '/api-references/listener',
+      },
+      {
+        name: 'useMap',
+        href: '/api-references/use-map',
+      },
+      {
         name: 'loadNavermapsScript',
         href: '/api-references/load-navermaps-script',
       },

@@ -30,6 +30,10 @@ export { NaverMapContext, useMap } from './contexts/naver-map';
 export { ContainerContext, useContainerContext } from './contexts/container';
 export type { ContainerContextType } from './contexts/container';
 export { EventTargetContext, useEventTarget } from './contexts/event-target';
+export { useListener, Listener } from './listener';
+export type { Props as ListenerProps } from './listener';
+export { Overlay } from './overlay';
+export type { Props as OverlayProps } from './overlay';
 
 export { NcpOptions, GovOptions, finOptions, ClientOptions } from './types/client';
 export { UIEventHandlers } from './types/event';

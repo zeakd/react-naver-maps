@@ -15,7 +15,7 @@ export function useListener(target: any, type: string, listener: (...args: any[]
   }, [target, type, listener]);
 }
 
-interface Props {
+export interface Props {
   target?: any;
   type: string;
   listener: (...args: any[]) => any;

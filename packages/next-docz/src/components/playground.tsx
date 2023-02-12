@@ -15,8 +15,8 @@ export function Playground(props: Props) {
   return (
     <>
       {typeof props.children === 'function' ? React.createElement(props.children as React.FC) : props.children}
-      <Code className={props.codeClassName}>
-        {`${props.codeHeader}\n${props.__code}`}
+      <Code className={`language-tsx ${props.codeClassName}`}>
+        {`${props.codeHeader || ''}\n${props.__code}`}
       </Code>
     </>
   );

@@ -1,4 +1,102 @@
+import { Playground } from 'next-docz';
+import { useState, useRef } from 'react';
+import { 
+  Container as MapDiv,
+  NaverMap,
+  useNavermaps,
+  Overlay,
+  useListener,
+  Listener,
+  useMap,
+} from 'react-naver-maps';
+
 # Customize Overlays
 
-복잡한 로직을 다룰 수 있도록 Overlay를 생성할 수 있는 여러 유틸리티를 제공하고 있습니다.
+복잡한 로직을 다룰 수 있도록 직접 Overlay를 생성할 수 있는 여러 유틸리티를 제공하고 있습니다.
 
+<Playground
+  codeHeader={`import { 
+  Container as MapDiv,
+  NaverMap,
+  useNavermaps,
+  Overlay,
+  useListener,
+  Listener,
+  useMap,
+} from 'react-naver-maps';
+  `}
+>
+  {() => {
+    function MyMarkers() {
+      const navermaps = useNavermaps();
+
+      // 마커를 한번만 생성하기 위해 useState lazy initialize 사용
+      const [marker1] = useState(() => new navermaps.Marker({
+        position: { lat: 37.5666103, lng: 126.9783882 },
+      }));
+      
+      // 마커를 한번만 생성하기 위해 useRef 사용
+      const marker2Ref = useRef(null);
+      if (!marker2Ref.current) {
+        marker2Ref.current = new navermaps.Marker({
+          position: { lat: 37.5657259, lng: 126.97547 },
+        })
+      }
+      const marker2 = marker2Ref.current;
+
+      // hook 으로 이벤트 리스너 등록
+      useListener(marker1, 'click', () => window.alert('서울시청 click'))
+
+      return (
+        <>
+        <Overlay element={marker1} />
+        <Overlay element={marker2}>
+          {/* Component 로 이벤트 리스너 등록 */}
+          <Listener type='click' listener={() => window.alert('덕수궁 click')} />
+        </Overlay>
+        </>
+      );
+    }
+
+    function Buttons() {
+      // Map의 instance를 가져옵니다.
+      const naverMap = useMap();
+
+      return (
+        <div
+          style={{
+            position: 'relative'
+          }}
+        >
+          <button
+            
+            onClick={() => {
+              naverMap.panTo({ lat: 37.5666103, lng: 126.9783882 })
+            }}
+          >시청으로 이동</button>
+          <button
+            onClick={() => {
+              console.log('center', naverMap.getCenter());
+            }}
+          >
+            현재 위치 로깅
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <MapDiv
+        style={{
+          width: '100%',
+          height: 400,
+        }}
+      >
+        <NaverMap>
+          <MyMarkers />
+          <Buttons />
+        </NaverMap>
+      </MapDiv>
+    )
+  }}
+</Playground>

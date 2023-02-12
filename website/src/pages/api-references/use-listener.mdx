@@ -1,0 +1,16 @@
+import { Props } from 'next-docz'
+import { useListener } from 'react-naver-maps'
+
+# useListener
+
+[Customize overlays](/guides/customize-overlays)를 참고해주세요
+
+## Example
+
+``` jsx
+function MyMarker() {
+  ...
+  useListener(marker, 'click', () => console.log('click'))
+  ...
+}
+```

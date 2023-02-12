@@ -9,7 +9,7 @@ type MapElementType = {
   getMap(): naver.maps.Map | null;
 };
 
-type Props = {
+export type Props = {
   element: MapElementType;
   children?: ReactNode;
   autoMount?: boolean;
