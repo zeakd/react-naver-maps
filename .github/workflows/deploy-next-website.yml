@@ -31,6 +31,7 @@ jobs:
         with:
           folder: website/out
           target-folder: './next'
+          clean: false
 
     # runs-on: ubuntu-latest
     # steps:
