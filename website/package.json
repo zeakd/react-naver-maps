@@ -28,5 +28,8 @@
     "react-syntax-highlighter": "^15.5.0",
     "typescript": "^4.8.4",
     "use-asset": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/gtag.js": "^0.0.12"
   }
 }

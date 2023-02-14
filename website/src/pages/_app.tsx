@@ -2,14 +2,20 @@ import 'normalize.css';
 import { css, Global } from '@emotion/react';
 import { MDXProvider } from '@mdx-js/react';
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
 import Link from 'next/link';
-import { ComponentPropsWithoutRef } from 'react';
+import { useRouter } from 'next/router';
+import Script from 'next/script';
+import { ComponentPropsWithoutRef, useEffect } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { NavermapsProvider } from 'react-naver-maps';
 import { Prism } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 import { Layout } from '../components/layout';
+import * as gtag from '../lib/gtag';
+
+
 // import { useIsDarkMode } from '../hooks/useIsDarkMode';
 
 function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {
@@ -78,8 +84,38 @@ function UL(props: ComponentPropsWithoutRef<'ul'>) {
 const mdxComponents = { code: Code, a: Anchor, ul: UL };
 
 function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      gtag.pageview(url);
+    };
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   return (
     <>
+      <Head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${gtag.GA_TRACKING_ID}', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
+      </Head>
+      {/* Global Site Tag (gtag.js) - Google Analytics */}
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+      />
       <Global styles={css({
         html: { fontFamily: '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif' },
         a: {
