@@ -15,6 +15,7 @@ import { materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Layout } from '../components/layout';
 import * as gtag from '../lib/gtag';
 
+const WEBSITE_BASE_PATH = process.env.NEXT_PUBLIC_WEBSITE_BASE_PATH || '';
 
 // import { useIsDarkMode } from '../hooks/useIsDarkMode';
 
@@ -98,19 +99,14 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gtag.GA_TRACKING_ID}', {
-                cookie_flags: 'SameSite=None;Secure',
-                cookie_domain: 'zeakd.github.io'
-              });
-            `,
-          }}
-        />
+        <link rel="apple-touch-icon" sizes="180x180" href={`${WEBSITE_BASE_PATH}/apple-touch-icon.png`} />
+        <link rel="icon" type="image/png" sizes="32x32" href={`${WEBSITE_BASE_PATH}/favicon-32x32.png`} />
+        <link rel="icon" type="image/png" sizes="16x16" href={`${WEBSITE_BASE_PATH}/favicon-16x16.png`} />
+        <link rel="manifest" href={`${WEBSITE_BASE_PATH}/site.webmanifest`} />
+        <link rel="mask-icon" href={`${WEBSITE_BASE_PATH}/safari-pinned-tab.svg`} color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+
         <title>React Naver Maps</title>
       </Head>
       {/* Global Site Tag (gtag.js) - Google Analytics */}
@@ -118,6 +114,17 @@ function App({ Component, pageProps }: AppProps) {
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
       />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gtag.GA_TRACKING_ID}', {
+            cookie_flags: 'SameSite=None;Secure',
+            cookie_domain: 'zeakd.github.io'
+          });
+        `}
+      </Script>
       <Global styles={css({
         html: { fontFamily: '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif' },
         a: {

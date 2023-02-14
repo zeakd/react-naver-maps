@@ -109,14 +109,10 @@ function Header() {
               alignItems: 'center',
             })}
           >
-            <svg
-              width="35.86" height="34" viewBox="0 0 192 182" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M91 0L169.808 45.5V136.5L91 182L12.1917 136.5V45.5L91 0Z" fill="url(#paint0_linear_2_85)"/>
-              <line x1="130.005" y1="168.138" x2="119.005" y2="9.13804" stroke="white" strokeWidth="4"/>
-              <line x1="69.1094" y1="174.652" x2="20.1094" y2="32.6524" stroke="white" strokeWidth="4"/>
-              <line x1="38.7607" y1="166.43" x2="190.761" y2="46.4302" stroke="white" strokeWidth="4"/>
+            <svg width="29.5" height="34" viewBox="0 0 158 182" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" clipRule="evenodd" d="M105.423 15.2554L79 0L12.2551 38.5352L49.3537 146.046L111.099 97.2991L105.423 15.2554ZM111.433 102.131L50.7358 150.051L57.4715 169.571L79 182L115.501 160.926L111.433 102.131ZM46.0282 148.671L8.72658 40.5724L0.19165 45.5V136.5L35.5712 156.926L46.0282 148.671ZM39.2998 159.079L47.4103 152.676L52.1873 166.52L39.2998 159.079ZM115.235 99.1299L157.808 65.5197V136.5L119.357 158.7L115.235 99.1299ZM157.808 60.4234L114.901 94.2976L109.6 17.6667L157.808 45.5V60.4234Z" fill="url(#paint0_linear_5_8)"/>
               <defs>
-                <linearGradient id="paint0_linear_2_85" x1="12.5" y1="46" x2="91" y2="182" gradientUnits="userSpaceOnUse">
+                <linearGradient id="paint0_linear_5_8" x1="0.500004" y1="46" x2="79" y2="182" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#66DE6F"/>
                   <stop offset="1" stopColor="#66DEDE"/>
                 </linearGradient>

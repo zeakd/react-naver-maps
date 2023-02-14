@@ -5,7 +5,8 @@ on:
     branches:
       - main
 env: 
-  WEBSITE_GA_TRACKING_ID: G-51RCXPWJLZ
+  NEXT_PUBLIC_GA_TRACKING_ID: G-51RCXPWJLZ
+  NEXT_PUBLIC_WEBSITE_BASE_PATH: '/react-naver-maps'
   
 jobs:
   build-and-deploy:
@@ -26,8 +27,6 @@ jobs:
         run: |
           pnpm install
           pnpm -r run build
-        env:
-          WEBSITE_BASE_PATH: '/react-naver-maps'
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
