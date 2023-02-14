@@ -106,7 +106,8 @@ function App({ Component, pageProps }: AppProps) {
               gtag('js', new Date());
               gtag('config', '${gtag.GA_TRACKING_ID}', {
                 page_path: window.location.pathname,
-                cookie_flags: 'SameSite=None;Secure'
+                cookie_flags: 'SameSite=None;Secure',
+                cookie_domain: 'zeakd.github.io'
               });
             `,
           }}
