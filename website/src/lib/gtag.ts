@@ -1,4 +1,4 @@
-export const GA_TRACKING_ID = 'UA-88587508-2';
+export const GA_TRACKING_ID = 'G-51RCXPWJLZ';
 
 type MappedTypeSnakeToCamel<InputType> = {[K in keyof InputType as SnakeToCamelCase<string & K>]: InputType[K]};
 
