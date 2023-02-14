@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+env: 
+  WEBSITE_GA_TRACKING_ID: G-51RCXPWJLZ
+  
 jobs:
   build-and-deploy:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.

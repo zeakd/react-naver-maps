@@ -111,6 +111,7 @@ function App({ Component, pageProps }: AppProps) {
             `,
           }}
         />
+        <title>React Naver Maps</title>
       </Head>
       {/* Global Site Tag (gtag.js) - Google Analytics */}
       <Script

@@ -1,4 +1,4 @@
-export const GA_TRACKING_ID = 'G-51RCXPWJLZ';
+export const GA_TRACKING_ID = process.env.WEBSITE_GA_TRACKING_ID || '';
 
 type MappedTypeSnakeToCamel<InputType> = {[K in keyof InputType as SnakeToCamelCase<string & K>]: InputType[K]};
 
