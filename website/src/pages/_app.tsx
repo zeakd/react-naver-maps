@@ -108,9 +108,14 @@ function App({ Component, pageProps }: AppProps) {
         <meta name="theme-color" content="#ffffff" />
 
         <title>React Naver Maps</title>
-        {/* Global Site Tag (gtag.js) - Google Analytics */}
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
+      </Head>
+      {/* Global Site Tag (gtag.js) - Google Analytics */}
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -119,12 +124,7 @@ function App({ Component, pageProps }: AppProps) {
             cookie_domain: 'zeakd.github.io'
           });
         `}
-        </Script>
-      </Head>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
-      />
+      </Script>
       <Global styles={css({
         html: { fontFamily: '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif' },
         a: {
