@@ -1,6 +1,6 @@
 
 
-export { NavermapsProvider } from './provider';
+export { NaverMapsProvider } from './provider';
 export { NaverMap } from './naver-map';
 export { Container } from './container';
 export { Circle } from './overlays/circle';
