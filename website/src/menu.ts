@@ -77,7 +77,7 @@ export const menu = [
     name: 'API Reference',
     contents: [
       {
-        name: 'NavermapsProvider',
+        name: 'NaverMapsProvider',
         href: '/api-references/navermaps-provider',
       },
       {

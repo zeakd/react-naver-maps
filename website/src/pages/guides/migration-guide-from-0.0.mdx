@@ -3,7 +3,7 @@
 ## Removed `<RenderAfterNavermapsLoaded />`
 
 기존 RenderAfterNavermapsLoaded 는 SSR 문제와 컴포넌트 렌더 시의 모호함이 있었고 v0.1 에서 제거되었습니다. 
-대신, Application Root 에 `<NavermapsProvider />`를 추가해주세요
+대신, Application Root 에 `<NaverMapsProvider />`를 추가해주세요
 
 ``` jsx
 // v0.0 (X)
@@ -16,13 +16,13 @@ import { RenderAfterNavermapsLoaded } from 'react-naver-maps'
 </RenderAfterNavermapsLoaded>
 
 // v0.1 (O)
-import { NavermapsProvider } from 'react-naver-maps'
+import { NaverMapsProvider } from 'react-naver-maps'
 
-<NavermapsProvider
+<NaverMapsProvider
   ncpClientId={YOUR_CLIENT_ID}
 >
   <TheRestOfYourApplication />
-</NavermapsProvider>
+</NaverMapsProvider>
 ```
 
 ## Add `<Container />`
@@ -130,14 +130,14 @@ function Call() {
 ``` jsx
 // v0.1 (O)
 import { Suspense } from 'react'
-import { Container as MapDiv, NaverMap, useNavermaps, NavermapsProvider } from 'react-naver-maps'
+import { Container as MapDiv, NaverMap, useNavermaps, NaverMapsProvider } from 'react-naver-maps'
 
 // Your App Root
 function App() {
   return (
-    <NavermapsProvider ncpClientId={MY_CLIENTID}>
+    <NaverMapsProvider ncpClientId={MY_CLIENTID}>
       <MyMap />
-    </NavermapsProvider>
+    </NaverMapsProvider>
   )
 }
 

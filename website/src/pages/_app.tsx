@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import Script from 'next/script';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
-import { NavermapsProvider } from 'react-naver-maps';
+import { NaverMapsProvider } from 'react-naver-maps';
 import { Prism } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -141,13 +141,13 @@ function App({ Component, pageProps }: AppProps) {
         },
         'a:visited': { color: 'inherit' },
       })}/>
-      <NavermapsProvider ncpClientId='6tdrlcyvpt'>
+      <NaverMapsProvider ncpClientId='6tdrlcyvpt'>
         <MDXProvider components={mdxComponents}>
           <Layout>
             <Component {...pageProps} />
           </Layout>
         </MDXProvider>
-      </NavermapsProvider>
+      </NaverMapsProvider>
     </>
   );
 }

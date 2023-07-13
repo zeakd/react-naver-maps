@@ -5,7 +5,7 @@ import type { ClientOptions } from './types/client';
 
 export type Props = ClientOptions & { children?: ReactNode };
 
-export function NavermapsProvider({
+export function NaverMapsProvider({
   children,
   ...clientOptions
 }: Props) {
