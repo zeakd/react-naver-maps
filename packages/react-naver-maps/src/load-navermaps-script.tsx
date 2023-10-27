@@ -41,7 +41,7 @@ function makeUrl(options: ClientOptions) {
     throw new Error('react-naver-maps: ncpClientId, govClientId or finClientId is required');
   }
 
-  let url = `https://openapi.map.naver.com/openapi/v3/maps.js?${clientIdQuery}`;
+  let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${clientIdQuery}`;
 
   if (submodules) {
     url += `&submodules=${submodules.join(',')}`;
