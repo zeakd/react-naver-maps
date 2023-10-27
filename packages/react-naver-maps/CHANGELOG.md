@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.3
+
+### Patch Changes
+
+- 00ff206: update naver host openapi -> oapi
+
 ## 0.1.2
 
 ### Patch Changes
