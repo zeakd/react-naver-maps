@@ -4,19 +4,19 @@ import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver
 
 # Quickstart
 
-Application 루트에 NaverMaps Provider를 제공해야합니다. 사용하시는 프레임워크에 맞춰 `<NaverMapsProvider />` 를 감싸주세요.
+Application 루트에 NaverMaps Provider를 제공해야합니다. 사용하시는 프레임워크에 맞춰 `<NavermapsProvider />` 를 감싸주세요.
 
 ``` jsx
-import { NaverMapsProvider } from 'react-naver-maps';
+import { NavermapsProvider } from 'react-naver-maps';
 
 function App() {
   return (
-    <NaverMapsProvider 
+    <NavermapsProvider 
       ncpClientId='MY_NAVERMAPS_CLIENT_ID'
       // or finClientId, govClientId  
     >
       <TheRestOfYourApplication />
-    </NaverMapsProvider>
+    </NavermapsProvider>
   )
 }
 ```
