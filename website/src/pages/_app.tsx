@@ -23,28 +23,30 @@ function Code({ className, ...props }: ComponentPropsWithoutRef<'code'>) {
   // const isDarkMode = useIsDarkMode();
 
   const match = /language-(\w+)/.exec(className || '');
-  return match
-    ? (
-      <Prism
-        language={match[1]} {...props} style={materialLight}
-        customStyle={{ fontSize: '0.8em' }}
+  return match ? (
+    <Prism
+      language={match[1]}
+      {...props}
+      style={materialLight}
+      customStyle={{ fontSize: '0.8em' }}
+    />
+  ) : (
+    <span
+      css={{
+        background: '#fafafa',
+        fontSize: '1.0em',
+        color: 'rgb(97, 130, 184)',
+        verticalAlign: 'baseline',
+        padding: '0 0.2em',
+      }}
+    >
+      <code
+        className={className}
+        {...props}
+        css={{ fontSize: '0.8em', verticalAlign: 'baseline' }}
       />
-    )
-    : (
-      <span
-        css={{
-          background: '#fafafa',
-          fontSize: '1.0em',
-          color: 'rgb(97, 130, 184)',
-          verticalAlign: 'baseline',
-          padding: '0 0.2em',
-        }}
-      >
-        <code className={className} {...props}
-          css={{ fontSize: '0.8em', verticalAlign: 'baseline' }}
-        />
-      </span>
-    );
+    </span>
+  );
 }
 
 function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
@@ -53,11 +55,17 @@ function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
   if (isExternal) {
     return (
       <span css={{ verticalAlign: 'baseline' }}>
-        <a href={href} {...restProps} css={{
-          textDecoration: 'underline',
-          color: 'black',
-          ':hover': { color: 'rgb(102, 222, 111)' },
-        }} target='_blank' rel='noreferrer'/>
+        <a
+          href={href}
+          {...restProps}
+          css={{
+            textDecoration: 'underline',
+            color: 'black',
+            ':hover': { color: 'rgb(102, 222, 111)' },
+          }}
+          target="_blank"
+          rel="noreferrer"
+        />
         <FiExternalLink css={{ verticalAlign: 'top' }} />
       </span>
     );
@@ -66,20 +74,21 @@ function Anchor({ href, ...restProps }: ComponentPropsWithoutRef<'a'>) {
   return (
     <span css={{ verticalAlign: 'baseline' }}>
       <Link href={href || ''}>
-        <a {...restProps} css={{
-          textDecoration: 'underline',
-          color: 'black',
-          ':hover': { color: 'rgb(102, 222, 111)' },
-        }} />
+        <a
+          {...restProps}
+          css={{
+            textDecoration: 'underline',
+            color: 'black',
+            ':hover': { color: 'rgb(102, 222, 111)' },
+          }}
+        />
       </Link>
     </span>
   );
 }
 
 function UL(props: ComponentPropsWithoutRef<'ul'>) {
-  return (
-    <ul {...props} css={{ padding: '0 15px' }} />
-  );
+  return <ul {...props} css={{ padding: '0 15px' }} />;
 }
 
 const mdxComponents = { code: Code, a: Anchor, ul: UL };
@@ -99,11 +108,29 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <link rel="apple-touch-icon" sizes="180x180" href={`${WEBSITE_BASE_PATH}/apple-touch-icon.png`} />
-        <link rel="icon" type="image/png" sizes="32x32" href={`${WEBSITE_BASE_PATH}/favicon-32x32.png`} />
-        <link rel="icon" type="image/png" sizes="16x16" href={`${WEBSITE_BASE_PATH}/favicon-16x16.png`} />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={`${WEBSITE_BASE_PATH}/apple-touch-icon.png`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={`${WEBSITE_BASE_PATH}/favicon-32x32.png`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href={`${WEBSITE_BASE_PATH}/favicon-16x16.png`}
+        />
         <link rel="manifest" href={`${WEBSITE_BASE_PATH}/site.webmanifest`} />
-        <link rel="mask-icon" href={`${WEBSITE_BASE_PATH}/safari-pinned-tab.svg`} color="#5bbad5" />
+        <link
+          rel="mask-icon"
+          href={`${WEBSITE_BASE_PATH}/safari-pinned-tab.svg`}
+          color="#5bbad5"
+        />
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
 
@@ -125,23 +152,28 @@ function App({ Component, pageProps }: AppProps) {
           });
         `}
       </Script>
-      <Global styles={css({
-        html: { fontFamily: '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif' },
-        a: {
-          color: 'black',
-          cursor: 'pointer',
-        },
-        'a:hover': {
-          color: 'inherit',
-          textDecoration: 'underline',
-        },
-        'a:active': {
-          color: 'inherit',
-          textDecoration: 'underline',
-        },
-        'a:visited': { color: 'inherit' },
-      })}/>
-      <NavermapsProvider ncpClientId='6tdrlcyvpt'>
+      <Global
+        styles={css({
+          html: {
+            fontFamily:
+              '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+          },
+          a: {
+            color: 'black',
+            cursor: 'pointer',
+          },
+          'a:hover': {
+            color: 'inherit',
+            textDecoration: 'underline',
+          },
+          'a:active': {
+            color: 'inherit',
+            textDecoration: 'underline',
+          },
+          'a:visited': { color: 'inherit' },
+        })}
+      />
+      <NavermapsProvider ncpKeyId="6tdrlcyvpt">
         <MDXProvider components={mdxComponents}>
           <Layout>
             <Component {...pageProps} />

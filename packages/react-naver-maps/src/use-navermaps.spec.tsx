@@ -10,10 +10,8 @@ const naverMock = { maps: { jsContentLoaded: true } };
 describe('useNavermaps()', () => {
   test('Suspense client fetching', async () => {
     const wrapper = ({ children }: { children: any }) => (
-      <ClientOptionsContext.Provider value={{ ncpClientId: testId }}>
-        <Suspense fallback={null}>
-          {children}
-        </Suspense>
+      <ClientOptionsContext.Provider value={{ ncpKeyId: testId }}>
+        <Suspense fallback={null}>{children}</Suspense>
       </ClientOptionsContext.Provider>
     );
 
@@ -24,10 +22,7 @@ describe('useNavermaps()', () => {
     // we just fire onload event to await loadNavermapsScript
     // @ts-expect-error mocking navermaps client loader
     window.naver = naverMock;
-    fireEvent(
-      document.getElementsByTagName('script')[0],
-      new Event('load'),
-    );
+    fireEvent(document.getElementsByTagName('script')[0], new Event('load'));
 
     await waitFor(() => expect(result.current).not.toBeNull());
 

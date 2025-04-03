@@ -1,5 +1,3 @@
-
-
 export { NavermapsProvider } from './provider';
 export { NaverMap } from './naver-map';
 export { Container } from './container';
@@ -23,7 +21,10 @@ export type { Props as PolygonProps } from './overlays/polygon';
 export type { Props as PolylineProps } from './overlays/polyline';
 export type { Props as RectangleProps } from './overlays/rectangle';
 
-export { LoadNavermapsScript, loadNavermapsScript } from './load-navermaps-script';
+export {
+  LoadNavermapsScript,
+  loadNavermapsScript,
+} from './load-navermaps-script';
 export { useNavermaps } from './use-navermaps';
 
 export { NaverMapContext, useMap } from './contexts/naver-map';
@@ -35,7 +36,7 @@ export type { Props as ListenerProps } from './listener';
 export { Overlay } from './overlay';
 export type { Props as OverlayProps } from './overlay';
 
-export { NcpOptions, GovOptions, finOptions, ClientOptions } from './types/client';
+export { NcpOptions, ClientOptions } from './types/client';
 export { UIEventHandlers } from './types/event';
 
 /**

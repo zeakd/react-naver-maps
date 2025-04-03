@@ -16,7 +16,7 @@ export function loadNavermapsScript(options: ClientOptions) {
       return navermaps;
     }
 
-    return new Promise<typeof naver.maps>(resolve => {
+    return new Promise<typeof naver.maps>((resolve) => {
       navermaps.onJSContentLoaded = () => {
         resolve(navermaps);
       };
@@ -29,16 +29,10 @@ export function loadNavermapsScript(options: ClientOptions) {
 function makeUrl(options: ClientOptions) {
   const submodules = options.submodules;
 
-  const clientIdQuery = 'ncpClientId' in options
-    ? `ncpClientId=${options.ncpClientId}`
-    : 'govClientId' in options
-      ? `govClientId=${options.govClientId}`
-      : 'finClientId' in options
-        ? `finClientId=${options.finClientId}`
-        : undefined;
+  const clientIdQuery = `ncpKeyId=${options.ncpKeyId}`;
 
-  if (!clientIdQuery) {
-    throw new Error('react-naver-maps: ncpClientId, govClientId or finClientId is required');
+  if (!options.ncpKeyId) {
+    throw new Error('react-naver-maps: ncpKeyId is required');
   }
 
   let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${clientIdQuery}`;
@@ -54,10 +48,7 @@ type Props = ClientOptions & {
   children: () => ReactElement;
 };
 
-export function LoadNavermapsScript({
-  children: Children,
-  ...options
-}: Props) {
+export function LoadNavermapsScript({ children: Children, ...options }: Props) {
   const [navermaps, setNavermaps] = useState<typeof naver.maps>();
 
   useEffect(() => {
@@ -66,7 +57,5 @@ export function LoadNavermapsScript({
     });
   }, []);
 
-  return (
-    (navermaps && Children) ? <Children /> : null
-  );
+  return navermaps && Children ? <Children /> : null;
 }
