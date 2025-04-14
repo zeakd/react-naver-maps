@@ -141,7 +141,7 @@ function App({ Component, pageProps }: AppProps) {
         },
         'a:visited': { color: 'inherit' },
       })}/>
-      <NavermapsProvider ncpClientId='6tdrlcyvpt'>
+      <NavermapsProvider ncpKeyId='6tdrlcyvpt'>
         <MDXProvider components={mdxComponents}>
           <Layout>
             <Component {...pageProps} />

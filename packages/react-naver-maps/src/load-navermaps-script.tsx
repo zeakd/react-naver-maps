@@ -29,19 +29,18 @@ export function loadNavermapsScript(options: ClientOptions) {
 function makeUrl(options: ClientOptions) {
   const submodules = options.submodules;
 
-  const clientIdQuery = 'ncpClientId' in options
-    ? `ncpClientId=${options.ncpClientId}`
-    : 'govClientId' in options
-      ? `govClientId=${options.govClientId}`
-      : 'finClientId' in options
-        ? `finClientId=${options.finClientId}`
-        : undefined;
+  const clientIdQuery = 'ncpKeyId' in options ? options.ncpKeyId :
+    'ncpClientId' in options ? options.ncpClientId :
+    'govClientId' in options ? options.govClientId :
+    'finClientId' in options ? options.finClientId :
+    undefined;
+
 
   if (!clientIdQuery) {
-    throw new Error('react-naver-maps: ncpClientId, govClientId or finClientId is required');
+    throw new Error('react-naver-maps: ncpKeyId is required');
   }
 
-  let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${clientIdQuery}`;
+  let url = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientIdQuery}`;
 
   if (submodules) {
     url += `&submodules=${submodules.join(',')}`;
