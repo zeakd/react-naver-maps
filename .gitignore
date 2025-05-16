@@ -68,3 +68,5 @@ styleguide/index.html
 .vscode
 
 .DS_Store
+
+.idea
