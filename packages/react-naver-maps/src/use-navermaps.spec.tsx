@@ -10,7 +10,7 @@ const naverMock = { maps: { jsContentLoaded: true } };
 describe('useNavermaps()', () => {
   test('Suspense client fetching', async () => {
     const wrapper = ({ children }: { children: any }) => (
-      <ClientOptionsContext.Provider value={{ ncpClientId: testId }}>
+      <ClientOptionsContext.Provider value={{ ncpKeyId: testId }}>
         <Suspense fallback={null}>
           {children}
         </Suspense>

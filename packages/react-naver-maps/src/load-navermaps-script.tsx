@@ -29,16 +29,17 @@ export function loadNavermapsScript(options: ClientOptions) {
 function makeUrl(options: ClientOptions) {
   const submodules = options.submodules;
 
-  const clientIdQuery = 'ncpClientId' in options
-    ? `ncpClientId=${options.ncpClientId}`
-    : 'govClientId' in options
-      ? `govClientId=${options.govClientId}`
-      : 'finClientId' in options
-        ? `finClientId=${options.finClientId}`
-        : undefined;
+  const clientIdQuery = 'ncpKeyId' in options ? `ncpKeyId=${options.ncpKeyId}` :
+    'ncpClientId' in options
+      ? `ncpClientId=${options.ncpClientId}`
+      : 'govClientId' in options
+        ? `govClientId=${options.govClientId}`
+        : 'finClientId' in options
+          ? `finClientId=${options.finClientId}`
+          : undefined;
 
   if (!clientIdQuery) {
-    throw new Error('react-naver-maps: ncpClientId, govClientId or finClientId is required');
+    throw new Error('react-naver-maps: ncpKeyId, ncpClientId, govClientId or finClientId is required');
   }
 
   let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${clientIdQuery}`;
@@ -49,6 +50,7 @@ function makeUrl(options: ClientOptions) {
 
   return url;
 }
+
 
 type Props = ClientOptions & {
   children: () => ReactElement;
@@ -67,6 +69,6 @@ export function LoadNavermapsScript({
   }, []);
 
   return (
-    (navermaps && Children) ? <Children /> : null
+    (navermaps && Children) ? <Children/> : null
   );
 }
