@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.4
+
+### Patch Changes
+
+- b8ae0a7: 신규 client key 이름 ncpKeyId를 사용가능하도록 업데이트
+
 ## 0.1.3
 
 ### Patch Changes
