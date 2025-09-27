@@ -1,4 +1,4 @@
-import pick from 'lodash.pick';
+import { pick } from 'lodash-es';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { HandleEvents } from '../helpers/event';

@@ -1,5 +1,4 @@
-import mapKeys from 'lodash.mapkeys';
-import pick from 'lodash.pick';
+import { mapKeys, pick } from 'lodash-es';
 import { forwardRef, useLayoutEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useFirstMountState } from 'react-use';
 

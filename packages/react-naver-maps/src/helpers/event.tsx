@@ -1,6 +1,6 @@
 
 import camelcase from 'camelcase';
-import pick from 'lodash.pick';
+import { pick } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { Listener } from '../listener';
