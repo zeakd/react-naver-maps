@@ -1,5 +1,6 @@
+import { jest } from '@jest/globals';
 import { render, waitFor } from '@testing-library/react';
-import omit from 'lodash.omit';
+import { omit } from 'lodash-es';
 import { ReactElement, Suspense } from 'react';
 
 import { NaverMapContext } from '../contexts/naver-map';

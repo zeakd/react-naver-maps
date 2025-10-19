@@ -1,5 +1,4 @@
-import pick from 'lodash.pick';
-import upperfirst from 'lodash.upperfirst';
+import { pick, upperFirst } from 'lodash-es';
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -306,7 +305,7 @@ function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.map
 
   function getDirtyKVOs(keys: Array<typeof kvoKeys[number]>): Pick<Props, typeof kvoKeys[number]> {
     return keys.reduce((acc, key) => {
-      const currentValue = nmap[`get${upperfirst(key)}` as keyof naver.maps.Map]();
+      const currentValue = nmap[`get${upperFirst(key)}` as keyof naver.maps.Map]();
       const propValue = mapProps[key];
 
       if (!propValue || prevKVOs && prevKVOs[key] === propValue) {
