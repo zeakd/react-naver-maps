@@ -4,26 +4,41 @@ import type { ReactElement } from 'react';
 import type { ClientOptions } from './types/client';
 import { loadScript } from './utils/load-script';
 
+let cachedPromise: Promise<typeof naver.maps> | null = null;
+
 export function loadNavermapsScript(options: ClientOptions) {
+  if (cachedPromise) {
+    return cachedPromise;
+  }
+
   const url = makeUrl(options);
 
-  // TODO: Caching Promise
+  cachedPromise = loadScript(url)
+    .then(() => {
+      const navermaps = window.naver?.maps;
 
-  const promise = loadScript(url).then(() => {
-    const navermaps = window.naver.maps;
+      if (!navermaps) {
+        throw new Error('react-naver-maps: Failed to load Naver Maps script. '
+          + 'window.naver.maps is not available. '
+          + 'Please check your client ID and network connection.');
+      }
 
-    if (navermaps.jsContentLoaded) {
-      return navermaps;
-    }
+      if (navermaps.jsContentLoaded) {
+        return navermaps;
+      }
 
-    return new Promise<typeof naver.maps>(resolve => {
-      navermaps.onJSContentLoaded = () => {
-        resolve(navermaps);
-      };
+      return new Promise<typeof naver.maps>(resolve => {
+        navermaps.onJSContentLoaded = () => {
+          resolve(navermaps);
+        };
+      });
+    })
+    .catch((err) => {
+      cachedPromise = null;
+      throw err;
     });
-  });
 
-  return promise;
+  return cachedPromise;
 }
 
 function makeUrl(options: ClientOptions) {
@@ -63,12 +78,16 @@ export function LoadNavermapsScript({
   const [navermaps, setNavermaps] = useState<typeof naver.maps>();
 
   useEffect(() => {
-    loadNavermapsScript(options).then((maps) => {
-      setNavermaps(maps);
-    });
+    loadNavermapsScript(options)
+      .then((maps) => {
+        setNavermaps(maps);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   return (
-    (navermaps && Children) ? <Children/> : null
+    (navermaps && Children) ? <Children /> : null
   );
 }
