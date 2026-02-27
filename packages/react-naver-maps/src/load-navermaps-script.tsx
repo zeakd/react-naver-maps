@@ -4,16 +4,17 @@ import type { ReactElement } from 'react';
 import type { ClientOptions } from './types/client';
 import { loadScript } from './utils/load-script';
 
-let cachedPromise: Promise<typeof naver.maps> | null = null;
+const cachedPromises = new Map<string, Promise<typeof naver.maps>>();
 
 export function loadNavermapsScript(options: ClientOptions) {
-  if (cachedPromise) {
-    return cachedPromise;
-  }
-
   const url = makeUrl(options);
 
-  cachedPromise = loadScript(url)
+  const cached = cachedPromises.get(url);
+  if (cached) {
+    return cached;
+  }
+
+  const promise = loadScript(url)
     .then(() => {
       const navermaps = window.naver?.maps;
 
@@ -34,11 +35,13 @@ export function loadNavermapsScript(options: ClientOptions) {
       });
     })
     .catch((err) => {
-      cachedPromise = null;
+      cachedPromises.delete(url);
       throw err;
     });
 
-  return cachedPromise;
+  cachedPromises.set(url, promise);
+
+  return promise;
 }
 
 function makeUrl(options: ClientOptions) {
