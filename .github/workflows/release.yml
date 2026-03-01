@@ -25,6 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          registry-url: https://registry.npmjs.org
           cache: pnpm
 
       - name: Install Dependencies
@@ -42,6 +43,8 @@ jobs:
           publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ''
+          NPM_CONFIG_PROVENANCE: 'true'
           HUSKY: '0'
 
       - name: Upload package tarballs to GitHub Releases
