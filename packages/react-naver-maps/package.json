@@ -38,6 +38,10 @@
     "url": "https://github.com/zeakd/react-naver-maps/issues"
   },
   "homepage": "https://zeakd.github.io/react-naver-maps",
+  "publishConfig": {
+    "provenance": true,
+    "registry": "https://registry.npmjs.org"
+  },
   "dependencies": {
     "camelcase": "^5.3.1",
     "load-script": "^2.0.0",
