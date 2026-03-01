@@ -30,9 +30,30 @@ jobs:
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
-        # with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          # publish: yarn release
+        with:
+          publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Upload package tarballs to GitHub Releases
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          TMPDIR=$(mktemp -d)
+          echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -c '.[]' | while read pkg; do
+            name=$(echo "$pkg" | jq -r '.name')
+            version=$(echo "$pkg" | jq -r '.version')
+            tag="${name}@${version}"
+
+            pnpm --filter "$name" pack --pack-destination "$TMPDIR"
+            tarball="${TMPDIR}/${name}-${version}.tgz"
+            if [ -f "$tarball" ]; then
+              gh release upload "$tag" "$tarball" --clobber
+              echo "✓ ${name}-${version}.tgz → $tag"
+            else
+              echo "⚠ tarball not found: $tarball"
+            fi
+          done
+          rm -rf "$TMPDIR"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

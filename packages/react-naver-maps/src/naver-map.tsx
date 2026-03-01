@@ -246,7 +246,7 @@ export const NaverMap = forwardRef<naver.maps.Map | null, Props>(function NaverM
       return acc;
     }, {});
 
-    const _nmap = new navermaps.Map(mapDiv, { ...basicMapOptions, ...kvos });
+    const _nmap = new navermaps.Map(mapDiv, { ...basicMapOptions, ...kvos } as naver.maps.MapOptions);
     setNmap(_nmap);
     // for ref hack
     nmapRef.current = _nmap;
@@ -305,14 +305,14 @@ function NaverMapCore({ nmap, children, ...mapProps }: Props & { nmap: naver.map
 
   function getDirtyKVOs(keys: Array<typeof kvoKeys[number]>): Pick<Props, typeof kvoKeys[number]> {
     return keys.reduce((acc, key) => {
-      const currentValue = nmap[`get${upperFirst(key)}` as keyof naver.maps.Map]();
+      const currentValue = (nmap[`get${upperFirst(key)}` as keyof naver.maps.Map] as () => unknown)() as any;
       const propValue = mapProps[key];
 
       if (!propValue || prevKVOs && prevKVOs[key] === propValue) {
         return acc;
       }
 
-      const isEqual = typeof currentValue.equals === 'function' ? currentValue.equals(propValue) : currentValue === propValue;
+      const isEqual = typeof currentValue?.equals === 'function' ? currentValue.equals(propValue) : currentValue === propValue;
 
       if (isEqual) {
         return acc;

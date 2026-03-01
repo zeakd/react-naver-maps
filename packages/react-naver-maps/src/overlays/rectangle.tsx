@@ -42,9 +42,9 @@ type RectangleOptions = {
   strokeWeight?: number;
   strokeOpacity?: number;
   strokeColor?: string;
-  strokeStyle?: naver.maps.strokeStyleType;
-  strokeLineCap?: naver.maps.strokeLineCapType;
-  strokeLineJoin?: naver.maps.strokeLineJoinType;
+  strokeStyle?: naver.maps.StrokeStyleType;
+  strokeLineCap?: naver.maps.StrokeLineCapType;
+  strokeLineJoin?: naver.maps.StrokeLineJoinType;
   fillColor?: string;
   fillOpacity?: number;
   clickable?: boolean;
