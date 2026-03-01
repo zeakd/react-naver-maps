@@ -111,7 +111,7 @@ function isEqualKvo(kvo: any, target: any) {
 
 export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props, ref) {
   const navermaps = useNavermaps();
-  const [marker] = useState(() => new navermaps.Marker(makeInitialOption(props)));
+  const [marker] = useState(() => new navermaps.Marker(makeInitialOption(props) as naver.maps.MarkerOptions));
   useImperativeHandle<naver.maps.Marker | undefined, naver.maps.Marker | undefined>(ref, () => marker);
 
   // make dirties
@@ -164,7 +164,7 @@ export const Marker = forwardRef<naver.maps.Marker, Props>(function Marker(props
       return;
     }
 
-    marker.setOptions(dirties);
+    marker.setOptions(dirties as naver.maps.MarkerOptions);
   }, primitiveKeys.map(key => dirtiesRef.current[key]));
 
   return (

@@ -44,9 +44,9 @@ type PolylineOptions = {
   strokeWeight?: number;
   strokeOpacity?: number;
   strokeColor?: string;
-  strokeStyle?: naver.maps.strokeStyleType;
-  strokeLineCap?: naver.maps.strokeLineCapType;
-  strokeLineJoin?: naver.maps.strokeLineJoinType;
+  strokeStyle?: naver.maps.StrokeStyleType;
+  strokeLineCap?: naver.maps.StrokeLineCapType;
+  strokeLineJoin?: naver.maps.StrokeLineJoinType;
   clickable?: boolean;
   visible?: boolean;
   zIndex?: number;
@@ -61,9 +61,9 @@ export type Props = PolylineOptions & {
   onStrokeWeightChanged?: (value: number) => void;
   onStrokeOpacityChanged?: (value: number) => void;
   onStrokeColorChanged?: (value: string) => void;
-  onStrokeStyleChanged?: (value: naver.maps.strokeStyleType) => void;
-  onStrokeLineCapChanged?: (value: naver.maps.strokeLineCapType) => void;
-  onStrokeLineJoinChanged?: (value: naver.maps.strokeLineJoinType) => void;
+  onStrokeStyleChanged?: (value: naver.maps.StrokeStyleType) => void;
+  onStrokeLineCapChanged?: (value: naver.maps.StrokeLineCapType) => void;
+  onStrokeLineJoinChanged?: (value: naver.maps.StrokeLineJoinType) => void;
   onClickableChanged?: (value: boolean) => void;
   onVisibleChanged?: (value: boolean) => void;
   onZIndexChanged?: (value: number) => void;

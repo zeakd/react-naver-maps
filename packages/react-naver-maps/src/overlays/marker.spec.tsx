@@ -3,8 +3,8 @@ import { render, waitFor } from '@testing-library/react';
 import { omit } from 'lodash-es';
 import { ReactElement, Suspense } from 'react';
 
-import { NaverMapContext } from '../contexts/naver-map';
 import { Marker } from './marker';
+import { NaverMapContext } from '../contexts/naver-map';
 
 const map = {} as naver.maps.Map;
 function renderOverlay(overlay: ReactElement) {
@@ -35,7 +35,7 @@ const mockMarker = jest.fn().mockImplementation((opt) => {
 
 describe('<Marker />', () => {
   beforeEach(() => {
-    options = {};
+    options = {} as naver.maps.MarkerOptions;
     mockMarker.mockClear();
     Object.values(mockMethods).forEach(mock => mock.mockClear());
     // @ts-expect-error mocking navermaps client loader
