@@ -1,5 +1,11 @@
 # react-naver-maps
 
+## 0.1.5
+
+### Patch Changes
+
+- 228aa73: Fix promise caching and error handling in loadNavermapsScript, replace deprecated lodash packages with lodash-es
+
 ## 0.1.4
 
 ### Patch Changes
