@@ -70,3 +70,9 @@ styleguide/index.html
 .DS_Store
 
 .idea
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Astro
+.astro/

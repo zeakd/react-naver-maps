@@ -1,0 +1,28 @@
+---
+title: Introduction
+category: guides
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro'
+import BasicMap from '../../../examples/basic-map.tsx'
+
+`react-naver-maps`는 [Naver Maps JavaScript API v3](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-Getting-Started.html)를 위한 React 컴포넌트 라이브러리입니다.
+
+## 빠른 시작
+
+```bash
+npm install react-naver-maps
+```
+
+## 기본 사용법
+
+<Example of={BasicMap} />
+
+`NavermapsProvider`로 감싸면 하위 컴포넌트에서 `useNavermaps()` 훅을 통해 네이버맵 API에 접근할 수 있습니다.
+
+## 특징
+
+- **선언적 API**: React 컴포넌트로 지도를 구성합니다
+- **TypeScript 지원**: `@types/navermaps` 기반의 완전한 타입 지원
+- **Suspense 지원**: 스크립트 로딩을 Suspense와 통합
