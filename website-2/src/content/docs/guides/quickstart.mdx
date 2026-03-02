@@ -1,0 +1,66 @@
+---
+title: Quickstart
+category: guides
+order: 2
+---
+
+## 설치
+
+```bash
+npm install react-naver-maps
+# or
+yarn add react-naver-maps
+# or
+pnpm add react-naver-maps
+```
+
+## Provider 설정
+
+앱의 루트에 `NavermapsProvider`를 추가합니다.
+
+```tsx
+import { NavermapsProvider } from 'react-naver-maps'
+
+function App() {
+  return (
+    <NavermapsProvider ncpClientId="YOUR_CLIENT_ID">
+      <MyMap />
+    </NavermapsProvider>
+  )
+}
+```
+
+## 지도 표시
+
+```tsx
+import { Container as MapDiv, NaverMap } from 'react-naver-maps'
+
+function MyMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '400px' }}>
+      <NaverMap />
+    </MapDiv>
+  )
+}
+```
+
+## 마커 추가
+
+```tsx
+import { Container as MapDiv, NaverMap, Marker, useNavermaps } from 'react-naver-maps'
+
+function MyMap() {
+  const navermaps = useNavermaps()
+
+  return (
+    <MapDiv style={{ width: '100%', height: '400px' }}>
+      <NaverMap
+        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+        defaultZoom={15}
+      >
+        <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
+      </NaverMap>
+    </MapDiv>
+  )
+}
+```

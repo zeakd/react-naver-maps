@@ -1,0 +1,59 @@
+{
+  "name": "astro-component-docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./integration": {
+      "types": "./dist/integration.d.ts",
+      "import": "./dist/integration.js"
+    },
+    "./schema": {
+      "types": "./src/content/schema.ts",
+      "import": "./src/content/schema.ts"
+    },
+    "./components/Example.astro": "./src/components/Example.astro",
+    "./components/ExampleRenderer": {
+      "types": "./dist/components/ExampleRenderer.d.ts",
+      "import": "./dist/components/ExampleRenderer.js"
+    },
+    "./components/CodeBlock.astro": "./src/components/CodeBlock.astro",
+    "./components/PropsTable.astro": "./src/components/PropsTable.astro",
+    "./components/LiveCode.astro": "./src/components/LiveCode.astro"
+  },
+  "files": [
+    "dist",
+    "src/components",
+    "src/content"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "clean": "tsc -b --clean"
+  },
+  "dependencies": {
+    "estree-util-visit": "^2.0.0",
+    "esast-util-from-js": "^2.0.1",
+    "ts-morph": "^24.0.0",
+    "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "astro": "^5.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "typescript": "6.0.0-beta",
+    "@types/react": "^18.0.0 || ^19.0.0",
+    "@types/mdast": "^4.0.0",
+    "@types/hast": "^3.0.0",
+    "@types/estree": "^1.0.0"
+  },
+  "peerDependencies": {
+    "astro": "^4.0.0 || ^5.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  }
+}
