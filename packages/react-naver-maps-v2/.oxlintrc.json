@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "plugins": ["react", "typescript", "unicorn", "import"],
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "react/react-in-jsx-scope": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "19"
+    }
+  },
+  "ignorePatterns": ["dist/**", "node_modules/**"],
+  "overrides": [
+    {
+      "files": ["**/*.spec.*", "**/*.test.*", "**/__tests__/**"],
+      "plugins": ["vitest"],
+      "rules": {
+        "typescript/no-explicit-any": "off"
+      }
+    }
+  ]
+}
