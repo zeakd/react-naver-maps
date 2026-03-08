@@ -1,5 +1,10 @@
 import { Project, Node, type Type, type Symbol as TsSymbol } from 'ts-morph';
-import type { ComponentDoc, PropInfo, PackageConfig, PropsOverride } from './types.js';
+import type {
+  ComponentDoc,
+  PropInfo,
+  PackageConfig,
+  PropsOverride,
+} from './types.js';
 
 /**
  * Extract props from a React component's type declarations using ts-morph.
@@ -25,7 +30,10 @@ export function extractAllProps(pkg: PackageConfig): ComponentDoc[] {
       const [name, declarations] = exportedDecl;
 
       for (const decl of declarations) {
-        if (!Node.isFunctionDeclaration(decl) && !Node.isVariableDeclaration(decl)) {
+        if (
+          !Node.isFunctionDeclaration(decl) &&
+          !Node.isVariableDeclaration(decl)
+        ) {
           continue;
         }
 
@@ -63,7 +71,10 @@ function getComponentPropsType(decl: any): Type | undefined {
     if (!initializer) return undefined;
 
     // Arrow function or function expression
-    if (Node.isArrowFunction(initializer) || Node.isFunctionExpression(initializer)) {
+    if (
+      Node.isArrowFunction(initializer) ||
+      Node.isFunctionExpression(initializer)
+    ) {
       const params = initializer.getParameters();
       if (params.length === 0) return undefined;
       return params[0].getType();
@@ -79,7 +90,10 @@ function getComponentPropsType(decl: any): Type | undefined {
       const args = initializer.getArguments();
       if (args.length > 0) {
         const firstArg = args[0];
-        if (Node.isArrowFunction(firstArg) || Node.isFunctionExpression(firstArg)) {
+        if (
+          Node.isArrowFunction(firstArg) ||
+          Node.isFunctionExpression(firstArg)
+        ) {
           const params = firstArg.getParameters();
           if (params.length === 0) return undefined;
           return params[0].getType();
@@ -122,7 +136,10 @@ function getSymbolDescription(symbol: TsSymbol): string | undefined {
   const docs = symbol.getJsDocTags();
   const descTag = docs.find((t) => t.getName() === 'description');
   if (descTag) {
-    return descTag.getText().map((t) => t.text).join('');
+    return descTag
+      .getText()
+      .map((t) => t.text)
+      .join('');
   }
 
   // Fall back to JSDoc comment
@@ -154,9 +171,7 @@ function getJsDocDescription(decl: any): string | undefined {
  * e.g., `import("react").ReactNode` → `ReactNode`
  */
 function simplifyType(typeStr: string): string {
-  return typeStr
-    .replace(/import\("[^"]*"\)\./g, '')
-    .replace(/readonly /g, '');
+  return typeStr.replace(/import\("[^"]*"\)\./g, '').replace(/readonly /g, '');
 }
 
 function applyOverrides(

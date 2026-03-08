@@ -2,6 +2,11 @@
   "name": "astro-component-docs",
   "version": "0.0.1",
   "private": true,
+  "files": [
+    "dist",
+    "src/components",
+    "src/content"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -25,31 +30,26 @@
     "./components/PropsTable.astro": "./src/components/PropsTable.astro",
     "./components/LiveCode.astro": "./src/components/LiveCode.astro"
   },
-  "files": [
-    "dist",
-    "src/components",
-    "src/content"
-  ],
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
     "clean": "tsc -b --clean"
   },
   "dependencies": {
-    "estree-util-visit": "^2.0.0",
     "esast-util-from-js": "^2.0.1",
+    "estree-util-visit": "^2.0.0",
     "ts-morph": "^24.0.0",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@types/estree": "^1.0.0",
+    "@types/hast": "^3.0.0",
+    "@types/mdast": "^4.0.0",
+    "@types/react": "^18.0.0 || ^19.0.0",
     "astro": "^5.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "typescript": "6.0.0-beta",
-    "@types/react": "^18.0.0 || ^19.0.0",
-    "@types/mdast": "^4.0.0",
-    "@types/hast": "^3.0.0",
-    "@types/estree": "^1.0.0"
+    "typescript": "6.0.1-rc"
   },
   "peerDependencies": {
     "astro": "^4.0.0 || ^5.0.0",

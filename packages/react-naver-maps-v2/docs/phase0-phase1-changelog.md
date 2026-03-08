@@ -13,14 +13,14 @@ Phase 0(프로젝트 세팅) + Phase 1(코어 인프라 + NaverMap + Marker) 구
 
 ### 생성한 설정 파일
 
-| 파일 | 용도 |
-|------|------|
-| `package.json` | ESM only, `exports` 단일 진입점, peerDeps react 19 |
-| `tsconfig.json` | `nodenext`, `es2023`, `verbatimModuleSyntax`, `types: ["navermaps"]` |
-| `.oxlintrc.json` | oxlint 설정 (react 19, typescript, unicorn, import 플러그인) |
-| `.oxfmtrc.json` | oxfmt 설정 (싱글 따옴표, 2스페이스, trailing comma) |
-| `vitest.config.ts` | Vitest browser mode (Playwright chromium, port 3000) |
-| `.gitignore` | `dist/`, `node_modules/` |
+| 파일               | 용도                                                                 |
+| ------------------ | -------------------------------------------------------------------- |
+| `package.json`     | ESM only, `exports` 단일 진입점, peerDeps react 19                   |
+| `tsconfig.json`    | `nodenext`, `es2023`, `verbatimModuleSyntax`, `types: ["navermaps"]` |
+| `.oxlintrc.json`   | oxlint 설정 (react 19, typescript, unicorn, import 플러그인)         |
+| `.oxfmtrc.json`    | oxfmt 설정 (싱글 따옴표, 2스페이스, trailing comma)                  |
+| `vitest.config.ts` | Vitest browser mode (Playwright chromium, port 3000)                 |
+| `.gitignore`       | `dist/`, `node_modules/`                                             |
 
 ### 설계 결정
 
@@ -148,7 +148,9 @@ getSnapshot: target.get(property)
 #### `omit-undefined.ts` — undefined 키 제거
 
 ```typescript
-export function omitUndefined<T extends Record<string, unknown>>(obj: T): Partial<T>
+export function omitUndefined<T extends Record<string, unknown>>(
+  obj: T,
+): Partial<T>;
 ```
 
 네이버맵 생성자에 `{ mapTypeId: undefined }` 같은 명시적 undefined를 전달하면 내부 초기화가 실패하므로, undefined 키를 제거하여 네이버맵이 기본값을 사용하도록 한다.
@@ -164,6 +166,7 @@ export function omitUndefined<T extends Record<string, unknown>>(obj: T): Partia
 **원인**: `naver.maps.Map` 생성자에 `{ mapTypeId: undefined, minZoom: undefined, ... }` 형태로 명시적 undefined 값을 전달하면, 네이버맵 내부에서 기본값 대신 undefined를 사용하여 mapType 설정을 건너뜀. `in` 연산자로 키 존재 여부를 체크하는 내부 로직이 원인으로 추정.
 
 **재현**: 바닐라 JS에서도 동일 재현.
+
 ```javascript
 // ❌ 타일 로드 안됨
 new naver.maps.Map(div, { center: {...}, zoom: 16, mapTypeId: undefined });
@@ -212,11 +215,11 @@ new naver.maps.Map(div, { center: {...}, zoom: 16 });
 
 ### 테스트 파일 (10개 테스트)
 
-| 파일 | 테스트 수 | 방식 |
-|------|----------|------|
-| `hooks/__tests__/use-kvo.spec.tsx` | 3 | Mock KVO 객체 |
-| `hooks/__tests__/use-controlled-kvo.spec.tsx` | 4 | Mock KVO + spy |
-| `__tests__/smoke.spec.tsx` | 3 | 실제 네이버맵 API (port 3000) |
+| 파일                                          | 테스트 수 | 방식                          |
+| --------------------------------------------- | --------- | ----------------------------- |
+| `hooks/__tests__/use-kvo.spec.tsx`            | 3         | Mock KVO 객체                 |
+| `hooks/__tests__/use-controlled-kvo.spec.tsx` | 4         | Mock KVO + spy                |
+| `__tests__/smoke.spec.tsx`                    | 3         | 실제 네이버맵 API (port 3000) |
 
 ### smoke 테스트 내용
 
@@ -246,23 +249,23 @@ pnpm dev           # vite dev server → http://localhost:3000
 
 ## 검증 결과
 
-| 항목 | 결과 |
-|------|------|
-| `pnpm build` (tsc -b) | ✅ 통과 |
-| `pnpm lint` (oxlint) | ✅ 0 warnings, 0 errors |
-| `pnpm fmt:check` (oxfmt) | ✅ 통과 |
-| `pnpm test` (vitest) | ✅ 10/10 통과 |
+| 항목                           | 결과                          |
+| ------------------------------ | ----------------------------- |
+| `pnpm build` (tsc -b)          | ✅ 통과                       |
+| `pnpm lint` (oxlint)           | ✅ 0 warnings, 0 errors       |
+| `pnpm fmt:check` (oxfmt)       | ✅ 통과                       |
+| `pnpm test` (vitest)           | ✅ 10/10 통과                 |
 | 브라우저 확인 (localhost:3000) | ✅ 맵 타일 + 마커 정상 렌더링 |
 
 ---
 
 ## 루트 레포 변경사항
 
-| 파일 | 변경 내용 |
-|------|----------|
-| `.gitignore` | `.playwright-mcp/`, `docs/`, `tmp/` 추가 |
-| `pnpm-workspace.yaml` | `website-2` 추가, `overrides` 섹션 추가 |
-| `package.json` | `dependencies.react` link 추가 (workspace 호환) |
+| 파일                  | 변경 내용                                       |
+| --------------------- | ----------------------------------------------- |
+| `.gitignore`          | `.playwright-mcp/`, `docs/`, `tmp/` 추가        |
+| `pnpm-workspace.yaml` | `website-2` 추가, `overrides` 섹션 추가         |
+| `package.json`        | `dependencies.react` link 추가 (workspace 호환) |
 
 ---
 
