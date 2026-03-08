@@ -1,0 +1,74 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  __code?: string;
+  title?: string;
+}
+
+const { __code, title } = Astro.props;
+---
+
+<div class="acd-example">
+  {title && <div class="acd-example-title">{title}</div>}
+  <div class="acd-example-preview">
+    <slot />
+  </div>
+  {__code && (
+    <details class="acd-example-details" open>
+      <summary>코드 보기</summary>
+      <div class="acd-example-code">
+        <Code code={__code} lang="tsx" theme="github-dark" />
+      </div>
+    </details>
+  )}
+</div>
+
+<style>
+  .acd-example {
+    border: 1px solid var(--acd-border, #e2e8f0);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .acd-example-title {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--acd-text-muted, #64748b);
+    border-bottom: 1px solid var(--acd-border, #e2e8f0);
+    background: var(--acd-bg-subtle, #f8fafc);
+  }
+
+  .acd-example-preview {
+    padding: 1.5rem;
+  }
+
+  .acd-example-details {
+    border-top: 1px solid var(--acd-border, #e2e8f0);
+  }
+
+  .acd-example-details summary {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    color: var(--acd-text-muted, #64748b);
+    cursor: pointer;
+    user-select: none;
+    background: var(--acd-bg-subtle, #f8fafc);
+  }
+
+  .acd-example-details summary:hover {
+    color: var(--acd-text, #1e293b);
+  }
+
+  .acd-example-code {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .acd-example-code :global(pre) {
+    margin: 0;
+    border-radius: 0;
+  }
+</style>
