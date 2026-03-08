@@ -1,7 +1,11 @@
 import type { AstroIntegration } from 'astro';
 import type { AstroComponentDocsConfig } from './props/types.js';
 
-export type { AstroComponentDocsConfig, PackageConfig, PropsOverride } from './props/types.js';
+export type {
+  AstroComponentDocsConfig,
+  PackageConfig,
+  PropsOverride,
+} from './props/types.js';
 
 export default function astroComponentDocs(
   config: AstroComponentDocsConfig = {},

@@ -21,8 +21,7 @@ export function rehypeExample() {
 
     visit(
       tree,
-      (node: any) =>
-        node.type === 'mdxJsxFlowElement' && isExample(node.name),
+      (node: any) => node.type === 'mdxJsxFlowElement' && isExample(node.name),
       (exampleNode: any) => {
         const ofAttr = exampleNode.attributes?.find(
           (a: any) => a.name === 'of',

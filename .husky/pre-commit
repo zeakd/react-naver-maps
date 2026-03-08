@@ -1,8 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-pnpm install
-git add .
-pnpm recursive run build
-pnpm recursive run lint
-pnpm recursive run test
+pnpm exec oxlint --ignore-path .gitignore
+pnpm exec oxfmt --check --ignore-path .gitignore .
+pnpm exec tsc -b

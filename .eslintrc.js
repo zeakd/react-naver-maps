@@ -20,7 +20,8 @@ module.exports = {
   },
   rules: {
     'import/order': [
-      'error', {
+      'error',
+      {
         alphabetize: {
           order: 'asc',
           caseInsensitive: true,
@@ -29,7 +30,7 @@ module.exports = {
         groups: ['builtin', 'external', ['parent', 'sibling', 'index']],
       },
     ],
-    'quotes': ['error', 'single'],
+    quotes: ['error', 'single'],
     'eol-last': ['error', 'always'],
     'prefer-template': 'error',
     'object-curly-spacing': ['error', 'always'],
@@ -46,9 +47,9 @@ module.exports = {
     '@typescript-eslint/member-delimiter-style': ['error'],
     '@typescript-eslint/type-annotation-spacing': ['error'],
 
-    'indent': 'off',
+    indent: 'off',
     '@typescript-eslint/indent': ['error', 2],
-    'semi': 'off',
+    semi: 'off',
     '@typescript-eslint/semi': ['error'],
     'comma-dangle': 'off',
     '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
@@ -59,7 +60,7 @@ module.exports = {
     'react/no-unknown-property': ['error', { ignore: ['css'] }],
   },
   settings: {
-    react: { 'version': 'detect' },
+    react: { version: 'detect' },
     'import/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
   },
 };

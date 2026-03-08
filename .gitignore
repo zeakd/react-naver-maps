@@ -76,3 +76,6 @@ tsconfig.tsbuildinfo
 
 # Astro
 .astro/
+
+# Legacy packages (reference only)
+tmp/
