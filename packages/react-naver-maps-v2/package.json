@@ -1,0 +1,44 @@
+{
+  "name": "react-naver-maps",
+  "version": "2.0.0-alpha.0",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/react-naver-maps.d.ts",
+      "default": "./dist/react-naver-maps.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "dev": "vite --config example/vite.config.ts example --port 3000"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.0",
+    "@types/navermaps": "^3.7.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/browser": "^3.0.0",
+    "oxfmt": "latest",
+    "oxlint": "latest",
+    "playwright": "^1.49.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^6.0.0-beta",
+    "vite": "^7.3.1",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
