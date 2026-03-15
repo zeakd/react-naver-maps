@@ -11,9 +11,9 @@
   --acd-bg-subtle: #f8fafc;
   --acd-text: #1e293b;
   --acd-text-muted: #64748b;
-  --acd-accent: #6366f1;
+  --acd-accent: #2ab090;
 
-  --site-header-height: 56px;
+  --site-header-height: 60px;
   --site-sidebar-width: 260px;
   --site-content-max-width: 860px;
 }
@@ -41,13 +41,17 @@ a:hover {
 
 code {
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
-  font-size: 0.875em;
-  padding: 0.125rem 0.375rem;
-  border-radius: 4px;
-  background: var(--acd-bg-subtle);
 }
 
 pre code {
-  padding: 0;
-  background: none;
+  font-size: inherit;
+}
+
+:not(pre) > code {
+  font-size: 0.875em;
+  padding: 0.1rem 0.175rem;
+  border-radius: 3px;
+  background: #eef7f4;
+  color: #1a7a5a;
+  border: 1px solid #d0ebe2;
 }

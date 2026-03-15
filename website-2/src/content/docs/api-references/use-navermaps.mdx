@@ -1,0 +1,58 @@
+---
+title: useNavermaps
+category: api-references
+order: 13
+---
+
+`useNavermaps()`는 `naver.maps` 네임스페이스를 반환하는 훅입니다. `NavermapsProvider` 내부에서 사용합니다.
+
+내부적으로 React 19의 `use()`를 사용하여, 스크립트 로드가 완료될 때까지 컴포넌트를 suspend합니다.
+
+## 사용법
+
+```tsx
+import { useNavermaps } from 'react-naver-maps';
+
+function MapContent() {
+  const navermaps = useNavermaps();
+  return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultZoom={15}
+    />
+  );
+}
+```
+
+## Suspense와 함께 사용
+
+`Container` 안에서 호출하면 내장 Suspense가 자동으로 처리합니다. Container 밖에서 호출할 때는 직접 `<Suspense>`로 감싸야 합니다.
+
+```tsx
+// Container 안 — Suspense 자동
+<Container style={{ width: '100%', height: '400px' }}>
+  <MapContent /> {/* useNavermaps() 호출 */}
+</Container>
+
+// Container 밖 — Suspense 필요
+<Suspense fallback={<p>로딩 중...</p>}>
+  <CoordDisplay /> {/* useNavermaps() 호출 */}
+</Suspense>
+```
+
+## 반환값
+
+| 타입                | 설명                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `typeof naver.maps` | 네이버맵 네임스페이스. `LatLng`, `Map`, `Marker` 등 모든 클래스와 유틸리티에 접근 가능 |
+
+## preloadNavermaps()
+
+스크립트 로드를 미리 시작합니다. `NavermapsProvider` 바깥에서도 호출 가능합니다.
+
+```tsx
+import { preloadNavermaps } from 'react-naver-maps';
+
+// 라우터 수준에서 미리 로드
+preloadNavermaps({ ncpKeyId: 'YOUR_NCP_KEY_ID' });
+```

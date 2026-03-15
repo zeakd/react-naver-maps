@@ -4,19 +4,25 @@ category: guides
 order: 2
 ---
 
+## 사전 준비
+
+네이버맵 API를 사용하려면 NCP(Naver Cloud Platform)에서 클라이언트 ID를 발급받아야 합니다.
+[공식 가이드](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html)를 참고하여 발급을 진행해주세요.
+
+1. [Naver Cloud Platform 콘솔](https://console.ncloud.com)에 로그인
+2. **AI·Application Service → Maps** 에서 Application 등록
+3. **Web** 서비스 환경 추가 후 허용 도메인 입력 (예: `http://localhost:3000`)
+4. 등록 완료 후 **인증 정보**에서 Client ID 확인
+
 ## 설치
 
 ```bash
 npm install react-naver-maps
-# or
-yarn add react-naver-maps
-# or
-pnpm add react-naver-maps
 ```
 
 ## Provider 설정
 
-앱의 루트에 `NavermapsProvider`를 추가합니다.
+앱의 루트에 `NavermapsProvider`를 추가합니다. `ncpKeyId`에 발급받은 Client ID를 전달합니다.
 
 ```tsx
 import { NavermapsProvider } from 'react-naver-maps';

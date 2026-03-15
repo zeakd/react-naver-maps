@@ -78,15 +78,21 @@ function MyCustomControl() {
   return null;
 }
 
-function CustomControlMapInner() {
+function CustomControlMapContent() {
   useNavermaps(); // 네이버맵 스크립트 로드 대기
   const [init, setInit] = useState(false);
 
   return (
+    <NaverMap defaultZoom={13} onInit={() => setInit(true)}>
+      {init && <MyCustomControl />}
+    </NaverMap>
+  );
+}
+
+function CustomControlMapInner() {
+  return (
     <MapDiv style={{ width: '100%', height: '600px' }}>
-      <NaverMap defaultZoom={13} onInit={() => setInit(true)}>
-        {init && <MyCustomControl />}
-      </NaverMap>
+      <CustomControlMapContent />
     </MapDiv>
   );
 }

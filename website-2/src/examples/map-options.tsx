@@ -24,8 +24,46 @@ const selectedBtnStyle = {
   color: 'white',
 };
 
-function MapOptionsMap() {
+function MapOptionsMapContent({
+  interaction,
+  kineticPan,
+  tileTransition,
+  controls,
+  minZoom,
+}: {
+  interaction: boolean;
+  kineticPan: boolean;
+  tileTransition: boolean;
+  controls: boolean;
+  minZoom: number;
+}) {
   const navermaps = useNavermaps();
+
+  return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultZoom={13}
+      draggable={interaction}
+      pinchZoom={interaction}
+      scrollWheel={interaction}
+      keyboardShortcuts={interaction}
+      disableDoubleTapZoom={!interaction}
+      disableDoubleClickZoom={!interaction}
+      disableTwoFingerTapZoom={!interaction}
+      disableKineticPan={!kineticPan}
+      tileTransition={tileTransition}
+      scaleControl={controls}
+      logoControl={controls}
+      mapDataControl={controls}
+      zoomControl={true}
+      zoomControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
+      mapTypeControl={controls}
+      minZoom={minZoom}
+    />
+  );
+}
+
+function MapOptionsMap() {
   const [interaction, setInteraction] = useState(true);
   const [kineticPan, setKineticPan] = useState(false);
   const [tileTransition, setTileTransition] = useState(true);
@@ -34,24 +72,11 @@ function MapOptionsMap() {
 
   return (
     <MapDiv style={{ width: '100%', height: '600px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
-        defaultZoom={13}
-        draggable={interaction}
-        pinchZoom={interaction}
-        scrollWheel={interaction}
-        keyboardShortcuts={interaction}
-        disableDoubleTapZoom={!interaction}
-        disableDoubleClickZoom={!interaction}
-        disableTwoFingerTapZoom={!interaction}
-        disableKineticPan={!kineticPan}
+      <MapOptionsMapContent
+        interaction={interaction}
+        kineticPan={kineticPan}
         tileTransition={tileTransition}
-        scaleControl={controls}
-        logoControl={controls}
-        mapDataControl={controls}
-        zoomControl={true}
-        zoomControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
-        mapTypeControl={controls}
+        controls={controls}
         minZoom={minZoom}
       />
       <div

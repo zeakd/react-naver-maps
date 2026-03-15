@@ -7,7 +7,7 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
-function GeolocationMap() {
+function GeolocationMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [location, setLocation] = useState<{
@@ -46,19 +46,25 @@ function GeolocationMap() {
   }, [navermaps]);
 
   return (
+    <NaverMap
+      ref={mapRef}
+      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultZoom={10}
+    >
+      {location.loaded && (
+        <InfoWindow
+          position={new navermaps.LatLng(location.lat, location.lng)}
+          content={location.error ? '위치를 가져올 수 없습니다' : '현재 위치'}
+        />
+      )}
+    </NaverMap>
+  );
+}
+
+function GeolocationMap() {
+  return (
     <MapDiv style={{ width: '100%', height: '600px' }}>
-      <NaverMap
-        ref={mapRef}
-        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
-        defaultZoom={10}
-      >
-        {location.loaded && (
-          <InfoWindow
-            position={new navermaps.LatLng(location.lat, location.lng)}
-            content={location.error ? '위치를 가져올 수 없습니다' : '현재 위치'}
-          />
-        )}
-      </NaverMap>
+      <GeolocationMapContent />
     </MapDiv>
   );
 }
