@@ -8,35 +8,41 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
-function InfoWindowMap() {
+function InfoWindowMapContent() {
   const navermaps = useNavermaps();
   const [open, setOpen] = useState(true);
 
   return (
-    <MapDiv style={{ width: '100%', height: '400px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
-        defaultZoom={15}
-      >
-        <Marker
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultZoom={15}
+    >
+      <Marker
+        position={new navermaps.LatLng(37.5666805, 126.9784147)}
+        onClick={() => setOpen((prev) => !prev)}
+      />
+      {open && (
+        <InfoWindow
+          content="서울시청"
           position={new navermaps.LatLng(37.5666805, 126.9784147)}
-          onClick={() => setOpen((prev) => !prev)}
+          onClose={() => setOpen(false)}
         />
-        {open && (
-          <InfoWindow
-            content="서울시청"
-            position={new navermaps.LatLng(37.5666805, 126.9784147)}
-            onClose={() => setOpen(false)}
-          />
-        )}
-      </NaverMap>
+      )}
+    </NaverMap>
+  );
+}
+
+function InfoWindowMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '400px' }}>
+      <InfoWindowMapContent />
     </MapDiv>
   );
 }
 
 export default function InfoWindowExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <InfoWindowMap />
     </NavermapsProvider>
   );

@@ -18,12 +18,13 @@ const navigation = buildNavigation(
   })),
 );
 
-const categoryOrder = ['guides', 'examples', 'api-reference'];
+const categoryOrder = ['guides', 'examples', 'tutorials', 'api-references'];
 
 const categoryLabels: Record<string, string> = {
   guides: 'Guides',
   examples: 'Examples',
-  'api-reference': 'API Reference',
+  'api-references': 'API Reference',
+  'tutorials': 'Tutorials',
 };
 
 navigation.sort(
@@ -39,12 +40,25 @@ navigation.sort(
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - react-naver-maps</title>
+    <meta name="description" content="react-naver-maps - Naver Maps JavaScript API v3를 위한 React 컴포넌트 라이브러리" />
+    <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${import.meta.env.BASE_URL}/favicon-32x32.png`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`${import.meta.env.BASE_URL}/favicon-16x16.png`} />
   </head>
   <body>
     <header class="site-header">
       <div class="site-header-inner">
         <a href={`${import.meta.env.BASE_URL}/`} class="site-logo">
-          react-naver-maps
+          <svg width="22" height="25" viewBox="0 0 158 182" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M105.423 15.2554L79 0L12.2551 38.5352L49.3537 146.046L111.099 97.2991L105.423 15.2554ZM111.433 102.131L50.7358 150.051L57.4715 169.571L79 182L115.501 160.926L111.433 102.131ZM46.0282 148.671L8.72658 40.5724L0.19165 45.5V136.5L35.5712 156.926L46.0282 148.671ZM39.2998 159.079L47.4103 152.676L52.1873 166.52L39.2998 159.079ZM115.235 99.1299L157.808 65.5197V136.5L119.357 158.7L115.235 99.1299ZM157.808 60.4234L114.901 94.2976L109.6 17.6667L157.808 45.5V60.4234Z" fill="url(#logo-grad)"/>
+            <defs>
+              <linearGradient id="logo-grad" x1="0.5" y1="46" x2="79" y2="182" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#66DE6F"/>
+                <stop offset="1" stop-color="#66DEDE"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          React Naver Maps
         </a>
         <nav class="site-header-nav">
           <span class="site-version">v0.1</span>
@@ -71,7 +85,7 @@ navigation.sort(
               {cat.items.map((item) => (
                 <li>
                   <a
-                    href={`${import.meta.env.BASE_URL}/docs/${item.slug}/`}
+                    href={item.slug === 'guides/introduction' ? `${import.meta.env.BASE_URL}/` : `${import.meta.env.BASE_URL}/${item.slug}/`}
                     class:list={[
                       'sidebar-link',
                       { active: item.slug === slug },
@@ -116,8 +130,11 @@ navigation.sort(
   }
 
   .site-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 700;
-    font-size: 1.125rem;
+    font-size: 1.375rem;
     color: var(--acd-text);
   }
 
@@ -132,15 +149,15 @@ navigation.sort(
   }
 
   .site-version {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     padding: 0.125rem 0.5rem;
-    border-radius: 9999px;
+    border-radius: 3px;
     background: var(--acd-bg-subtle);
     color: var(--acd-text-muted);
   }
 
   .site-github {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     color: var(--acd-text-muted);
   }
 
@@ -162,7 +179,7 @@ navigation.sort(
   }
 
   .sidebar-category {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .sidebar-category-title {
@@ -171,7 +188,7 @@ navigation.sort(
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--acd-text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .sidebar-links {
@@ -180,7 +197,7 @@ navigation.sort(
 
   .sidebar-link {
     display: block;
-    padding: 0.25rem 0.75rem;
+    padding: 0.125rem 0.75rem;
     font-size: 0.875rem;
     color: var(--acd-text-muted);
     border-radius: 4px;
@@ -194,7 +211,7 @@ navigation.sort(
   }
 
   .sidebar-link.active {
-    background: #eef2ff;
+    background: #e6f7f2;
     color: var(--acd-accent);
     font-weight: 500;
   }
@@ -210,25 +227,25 @@ navigation.sort(
   }
 
   .site-content :global(h1) {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.3;
   }
 
   .site-content :global(h2) {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-top: 2.5rem;
+    margin-top: 2rem;
     margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.375rem;
     border-bottom: 1px solid var(--acd-border);
   }
 
   .site-content :global(h3) {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
     margin-bottom: 0.5rem;
   }
 
@@ -246,10 +263,31 @@ navigation.sort(
     margin-bottom: 0.25rem;
   }
 
+  .site-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .site-content :global(th) {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--acd-border);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .site-content :global(td) {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--acd-border);
+    vertical-align: top;
+  }
+
   .site-content :global(pre) {
     margin: 1rem 0;
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 4px;
     overflow-x: auto;
   }
 </style>

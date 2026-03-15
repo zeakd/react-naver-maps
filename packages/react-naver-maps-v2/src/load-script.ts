@@ -71,7 +71,7 @@ function cacheKey(options: LoadOptions): string {
 
 export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
   if (typeof document === 'undefined') {
-    throw new Error('loadScript must be called in browser environment');
+    return new Promise<typeof naver.maps>(() => {});
   }
 
   const key = cacheKey(options);

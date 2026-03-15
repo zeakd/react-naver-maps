@@ -20,12 +20,12 @@ const buttonStyle: React.CSSProperties = {
   cursor: 'pointer',
 };
 
-function MapMovesMap() {
+function MapMovesMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
 
   return (
-    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+    <>
       <NaverMap
         ref={mapRef}
         defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
@@ -104,13 +104,21 @@ function MapMovesMap() {
           panBy로 조금씩 이동하기
         </button>
       </div>
+    </>
+  );
+}
+
+function MapMovesMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+      <MapMovesMapContent />
     </MapDiv>
   );
 }
 
 export default function MapMovesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapMovesMap />
     </NavermapsProvider>
   );

@@ -78,7 +78,7 @@ export function rehypeExample() {
           },
         });
 
-        // Insert the component as a child with client:only="react"
+        // Insert the component as a child with client:load
         exampleNode.children = [
           {
             type: 'mdxJsxFlowElement',
@@ -86,8 +86,8 @@ export function rehypeExample() {
             attributes: [
               {
                 type: 'mdxJsxAttribute',
-                name: 'client:only',
-                value: 'react',
+                name: 'client:load',
+                value: null,
               },
             ],
             children: [],

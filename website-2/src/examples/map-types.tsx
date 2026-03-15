@@ -20,24 +20,31 @@ const buttonStyle = (active: boolean) => ({
   cursor: 'pointer' as const,
 });
 
-function MapTypesMap() {
+function MapTypesMapContent({ mapTypeId }: { mapTypeId: string }) {
   const navermaps = useNavermaps();
-  const [mapTypeId, setMapTypeId] = useState(navermaps.MapTypeId.NORMAL);
+
+  return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultZoom={15}
+      mapTypeId={mapTypeId}
+    />
+  );
+}
+
+function MapTypesMap() {
+  const [mapTypeId, setMapTypeId] = useState('NORMAL');
 
   const mapTypes = [
-    { id: navermaps.MapTypeId.NORMAL, label: '일반지도' },
-    { id: navermaps.MapTypeId.TERRAIN, label: '지형도' },
-    { id: navermaps.MapTypeId.SATELLITE, label: '위성지도' },
-    { id: navermaps.MapTypeId.HYBRID, label: '겹쳐보기' },
+    { id: 'NORMAL', label: '일반지도' },
+    { id: 'TERRAIN', label: '지형도' },
+    { id: 'SATELLITE', label: '위성지도' },
+    { id: 'HYBRID', label: '겹쳐보기' },
   ];
 
   return (
     <MapDiv style={{ width: '100%', height: '600px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
-        defaultZoom={15}
-        mapTypeId={mapTypeId}
-      />
+      <MapTypesMapContent mapTypeId={mapTypeId} />
       <div
         style={{
           position: 'absolute',
@@ -63,7 +70,7 @@ function MapTypesMap() {
 
 export default function MapTypesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapTypesMap />
     </NavermapsProvider>
   );

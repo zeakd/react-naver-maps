@@ -1,0 +1,18 @@
+---
+title: 지도 기본 예제
+category: tutorials
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import BasicMap from '../../../examples/basic-map.tsx';
+
+가장 기본적인 지도 표시 예제입니다.
+
+<Example of={BasicMap} />
+
+## 설명
+
+`NavermapsProvider`로 인증 키를 설정하고, `Container`로 지도 영역을 잡은 뒤 `NaverMap`을 렌더링합니다.
+
+`Container`는 `position: relative`인 div이며, 내부에 Suspense를 포함하고 있어 스크립트 로드를 자동으로 처리합니다.

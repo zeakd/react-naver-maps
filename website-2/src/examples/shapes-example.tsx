@@ -30,38 +30,44 @@ const polylinePath = [
   { lat: 37.56, lng: 126.985 },
 ];
 
-function ShapesMap() {
+function ShapesMapContent() {
   const navermaps = useNavermaps();
 
   return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.565, 126.98)}
+      defaultZoom={13}
+    >
+      <Rectangle
+        bounds={rectBounds}
+        strokeColor="#FF0000"
+        strokeWeight={2}
+        fillColor="#FF0000"
+        fillOpacity={0.15}
+      />
+      <Polygon
+        paths={polygonPaths}
+        strokeColor="#00AA00"
+        strokeWeight={2}
+        fillColor="#00FF00"
+        fillOpacity={0.15}
+      />
+      <Polyline path={polylinePath} strokeColor="#0000FF" strokeWeight={3} />
+    </NaverMap>
+  );
+}
+
+function ShapesMap() {
+  return (
     <MapDiv style={{ width: '100%', height: '400px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.565, 126.98)}
-        defaultZoom={13}
-      >
-        <Rectangle
-          bounds={rectBounds}
-          strokeColor="#FF0000"
-          strokeWeight={2}
-          fillColor="#FF0000"
-          fillOpacity={0.15}
-        />
-        <Polygon
-          paths={polygonPaths}
-          strokeColor="#00AA00"
-          strokeWeight={2}
-          fillColor="#00FF00"
-          fillOpacity={0.15}
-        />
-        <Polyline path={polylinePath} strokeColor="#0000FF" strokeWeight={3} />
-      </NaverMap>
+      <ShapesMapContent />
     </MapDiv>
   );
 }
 
 export default function ShapesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <ShapesMap />
     </NavermapsProvider>
   );

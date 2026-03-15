@@ -6,31 +6,37 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
-function CircleMap() {
+function CircleMapContent() {
   const navermaps = useNavermaps();
 
   return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultZoom={14}
+    >
+      <Circle
+        center={new navermaps.LatLng(37.5666805, 126.9784147)}
+        radius={500}
+        strokeColor="#5347AA"
+        strokeWeight={2}
+        fillColor="#E4E0FF"
+        fillOpacity={0.3}
+      />
+    </NaverMap>
+  );
+}
+
+function CircleMap() {
+  return (
     <MapDiv style={{ width: '100%', height: '400px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
-        defaultZoom={14}
-      >
-        <Circle
-          center={new navermaps.LatLng(37.5666805, 126.9784147)}
-          radius={500}
-          strokeColor="#5347AA"
-          strokeWeight={2}
-          fillColor="#E4E0FF"
-          fillOpacity={0.3}
-        />
-      </NaverMap>
+      <CircleMapContent />
     </MapDiv>
   );
 }
 
 export default function CircleExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <CircleMap />
     </NavermapsProvider>
   );

@@ -1,0 +1,129 @@
+---
+title: Suspense & 스크립트 로딩
+category: guides
+order: 4
+---
+
+## 동작 방식
+
+`react-naver-maps`는 React 19의 `use()`를 사용하여 네이버맵 스크립트를 로드합니다.
+`useNavermaps()` 훅이 호출되면 스크립트 로드 Promise를 `use()`로 감싸서, 로드가 완료될 때까지 컴포넌트를 suspend합니다.
+
+## Container의 내장 Suspense
+
+`<Container>`는 내부에 `<Suspense>`를 포함하고 있으므로, 별도로 감쌀 필요가 없습니다.
+
+```tsx
+// Container 안에서는 Suspense 불필요
+<Container style={{ width: '100%', height: '400px' }}>
+  <NaverMap /> {/* 내부에서 useNavermaps() 호출 */}
+</Container>
+```
+
+`fallback` prop으로 로딩 UI를 지정할 수 있습니다.
+
+```tsx
+<Container
+  style={{ width: '100%', height: '400px' }}
+  fallback={<div>지도를 불러오는 중...</div>}
+>
+  <NaverMap />
+</Container>
+```
+
+## SSR / 정적 빌드와 함께 사용
+
+`react-naver-maps`는 SSR 환경을 지원합니다. 서버에서는 네이버맵 스크립트를 로드할 수 없으므로, `<Container>`의 외부 div(높이 포함)만 렌더링되고 내부 지도는 클라이언트에서 hydration 후 표시됩니다.
+
+이 동작이 올바르게 작동하려면 **`useNavermaps()`를 반드시 `<Container>` 안에서 호출**해야 합니다. Container의 내장 Suspense가 스크립트 로딩을 처리합니다.
+
+```tsx
+// ✅ 올바른 구조 — useNavermaps()가 Container 안
+function MyMap() {
+  return (
+    <Container style={{ width: '100%', height: '400px' }}>
+      <MapContent />
+    </Container>
+  );
+}
+
+function MapContent() {
+  const navermaps = useNavermaps();
+  return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultZoom={15}
+    />
+  );
+}
+```
+
+```tsx
+// ❌ 잘못된 구조 — useNavermaps()가 Container 밖
+function MyMap() {
+  const navermaps = useNavermaps(); // Suspense boundary 없음!
+  return (
+    <Container style={{ width: '100%', height: '400px' }}>
+      <NaverMap
+        defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+        defaultZoom={15}
+      />
+    </Container>
+  );
+}
+```
+
+Container 밖에서 `useNavermaps()`를 호출하면 SSR 시 suspend를 잡을 Suspense boundary가 없어 빌드가 실패합니다.
+
+## Container 외부에서 useNavermaps() 사용
+
+지도가 아닌 곳에서 `useNavermaps()`를 호출해야 한다면 직접 `<Suspense>`로 감싸야 합니다.
+
+```tsx
+import { Suspense } from 'react';
+import { NavermapsProvider, useNavermaps } from 'react-naver-maps';
+
+function CoordDisplay() {
+  const navermaps = useNavermaps();
+  const coord = new navermaps.LatLng(37.5666, 126.9784);
+  return <p>{coord.toString()}</p>;
+}
+
+function App() {
+  return (
+    <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
+      <Suspense fallback={<p>로딩 중...</p>}>
+        <CoordDisplay />
+      </Suspense>
+    </NavermapsProvider>
+  );
+}
+```
+
+## render function으로 간단하게
+
+`<Container>`는 render function children을 지원합니다.
+별도 컴포넌트를 만들지 않고 `navermaps` 네임스페이스에 접근할 수 있습니다.
+
+```tsx
+<Container style={{ width: '100%', height: '400px' }}>
+  {(navermaps) => (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultZoom={15}
+    />
+  )}
+</Container>
+```
+
+## preloadNavermaps()
+
+스크립트 로드를 미리 시작하여 사용자가 지도 페이지에 도달했을 때 대기 시간을 줄일 수 있습니다.
+`NavermapsProvider` 바깥에서도 호출 가능합니다.
+
+```tsx
+import { preloadNavermaps } from 'react-naver-maps';
+
+// 라우터 수준에서 미리 로드
+preloadNavermaps({ ncpKeyId: 'YOUR_NCP_KEY_ID' });
+```

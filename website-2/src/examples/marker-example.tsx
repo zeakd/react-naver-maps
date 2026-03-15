@@ -6,24 +6,30 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
-function MarkerMap() {
+function MarkerMapContent() {
   const navermaps = useNavermaps();
 
   return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultZoom={15}
+    >
+      <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
+    </NaverMap>
+  );
+}
+
+function MarkerMap() {
+  return (
     <MapDiv style={{ width: '100%', height: '400px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
-        defaultZoom={15}
-      >
-        <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
-      </NaverMap>
+      <MarkerMapContent />
     </MapDiv>
   );
 }
 
 export default function MarkerExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MarkerMap />
     </NavermapsProvider>
   );

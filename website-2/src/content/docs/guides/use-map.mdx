@@ -1,0 +1,90 @@
+---
+title: useMap & 명령형 API
+category: guides
+order: 5
+---
+
+## useMap()
+
+`useMap()`은 현재 `<NaverMap>` 인스턴스(`naver.maps.Map`)를 반환합니다.
+`<NaverMap>` 하위 컴포넌트에서 사용할 수 있습니다.
+
+```tsx
+import { useMap } from 'react-naver-maps';
+
+function MyControls() {
+  const map = useMap();
+
+  return (
+    <div>
+      <button onClick={() => map.setZoom(map.getZoom() + 1)}>+</button>
+      <button onClick={() => map.setZoom(map.getZoom() - 1)}>-</button>
+    </div>
+  );
+}
+```
+
+## 지도 이동
+
+```tsx
+function MoveButtons() {
+  const map = useMap();
+  const navermaps = useNavermaps();
+
+  return (
+    <div>
+      <button
+        onClick={() => map.panTo(new navermaps.LatLng(37.5666, 126.9784))}
+      >
+        서울시청으로 이동
+      </button>
+      <button
+        onClick={() => map.morph(new navermaps.LatLng(33.359, 126.5344), 12)}
+      >
+        제주도로 이동 (줌 포함)
+      </button>
+    </div>
+  );
+}
+```
+
+`panTo`는 애니메이션과 함께 이동합니다. center와 zoom을 동시에 변경할 때는 `morph()`를 사용하세요.
+`setCenter()`는 진행 중인 애니메이션을 강제 중단하므로, 일반적인 이동에는 `panTo`가 적합합니다.
+
+## 현재 상태 조회
+
+```tsx
+function MapInfo() {
+  const map = useMap();
+  const [info, setInfo] = useState('');
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          const center = map.getCenter();
+          const zoom = map.getZoom();
+          const bounds = map.getBounds();
+          setInfo(`center: ${center}, zoom: ${zoom}, bounds: ${bounds}`);
+        }}
+      >
+        현재 상태
+      </button>
+      {info && <pre>{info}</pre>}
+    </div>
+  );
+}
+```
+
+## 컴포넌트 구조
+
+`useMap()`은 `<NaverMap>` 하위에서만 동작합니다. 일반적인 구조:
+
+```tsx
+<Container style={{ width: '100%', height: '400px' }}>
+  <NaverMap defaultCenter={{ lat: 37.5666, lng: 126.9784 }} defaultZoom={15}>
+    <MyControls /> {/* useMap() 사용 가능 */}
+    <Marker position={{ lat: 37.5666, lng: 126.9784 }} />
+  </NaverMap>
+</Container>
+```

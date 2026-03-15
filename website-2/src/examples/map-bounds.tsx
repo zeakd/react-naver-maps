@@ -20,7 +20,7 @@ const buttonStyle = {
   cursor: 'pointer' as const,
 };
 
-function MapBoundsMap() {
+function MapBoundsMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [bounds, setBounds] = useState<naver.maps.LatLngBounds | null>(null);
@@ -31,7 +31,7 @@ function MapBoundsMap() {
   );
 
   return (
-    <MapDiv style={{ width: '100%', height: '600px' }}>
+    <>
       <NaverMap
         ref={mapRef}
         defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
@@ -74,13 +74,21 @@ function MapBoundsMap() {
           독도로 이동하기
         </button>
       </div>
+    </>
+  );
+}
+
+function MapBoundsMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '600px' }}>
+      <MapBoundsMapContent />
     </MapDiv>
   );
 }
 
 export default function MapBoundsExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapBoundsMap />
     </NavermapsProvider>
   );

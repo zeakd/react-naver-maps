@@ -82,24 +82,30 @@ function ClusterMap() {
   return null;
 }
 
-function ClusterMapContainer() {
+function ClusterMapContent() {
   const navermaps = useNavermaps();
 
   return (
+    <NaverMap
+      defaultCenter={new navermaps.LatLng(36.2253017, 127.6460516)}
+      defaultZoom={6}
+    >
+      <ClusterMap />
+    </NaverMap>
+  );
+}
+
+function ClusterMapContainer() {
+  return (
     <MapDiv style={{ width: '100%', height: '600px' }}>
-      <NaverMap
-        defaultCenter={new navermaps.LatLng(36.2253017, 127.6460516)}
-        defaultZoom={6}
-      >
-        <ClusterMap />
-      </NaverMap>
+      <ClusterMapContent />
     </MapDiv>
   );
 }
 
 export default function MarkerClusterExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <ClusterMapContainer />
     </NavermapsProvider>
   );

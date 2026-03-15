@@ -1,0 +1,55 @@
+---
+title: useControlledKVO
+category: api-references
+order: 16
+---
+
+`useControlledKVO()`는 React prop 값을 네이버맵 KVO 프로퍼티에 단방향으로 동기화하는 훅입니다. 내장 오버레이 컴포넌트들이 내부적으로 사용하며, 커스텀 오버레이를 만들 때도 활용할 수 있습니다.
+
+## 시그니처
+
+```tsx
+function useControlledKVO(
+  target: naver.maps.KVO,
+  property: string,
+  value?: unknown,
+): void;
+```
+
+| 파라미터   | 타입                   | 설명                                           |
+| ---------- | ---------------------- | ---------------------------------------------- |
+| `target`   | `naver.maps.KVO`       | 동기화할 KVO 객체                              |
+| `property` | `string`               | 동기화할 프로퍼티 이름                         |
+| `value`    | `unknown \| undefined` | `undefined`이면 동기화하지 않음 (uncontrolled) |
+
+## 동작 방식
+
+1. 첫 렌더는 skip (생성자에서 이미 적용)
+2. 이후 렌더마다 `target.get(property)`와 `value`를 비교
+3. 다르면 setter 호출 (`setPosition`, `setCenter` 등)
+4. `value`가 `undefined`이면 동기화하지 않음 — uncontrolled 모드
+
+비교에는 `===` 후 `.equals()` (LatLng, LatLngBounds 등)를 사용합니다.
+
+## 사용 예
+
+```tsx
+import { useControlledKVO } from 'react-naver-maps';
+
+function useCustomOverlay(
+  instance: naver.maps.KVO,
+  props: {
+    position?: naver.maps.LatLng;
+    visible?: boolean;
+  },
+) {
+  useControlledKVO(instance, 'position', props.position);
+  useControlledKVO(instance, 'visible', props.visible);
+}
+```
+
+## 설계 참고
+
+- `useLayoutEffect`로 실행 — paint 전에 KVO를 업데이트하여 깜빡임 방지
+- KVO를 구독하지 않음 — 렌더 시점에 직접 비교하여 불필요한 리렌더 방지
+- NaverMap의 `center`/`zoom`/`bounds`에는 사용하지 않음 — 상호 의존적이어서 전용 dirty diff로 처리
