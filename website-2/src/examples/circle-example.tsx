@@ -30,7 +30,7 @@ function CircleMap() {
 
 export default function CircleExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <CircleMap />
     </NavermapsProvider>
   );

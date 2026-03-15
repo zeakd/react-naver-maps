@@ -100,7 +100,7 @@ function MapOptionsMap() {
 
 export default function MapOptionsExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapOptionsMap />
     </NavermapsProvider>
   );

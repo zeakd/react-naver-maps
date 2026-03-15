@@ -39,7 +39,7 @@ function CustomOverlayMap() {
 
 export default function CustomOverlayExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <CustomOverlayMap />
     </NavermapsProvider>
   );

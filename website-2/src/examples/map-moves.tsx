@@ -110,7 +110,7 @@ function MapMovesMap() {
 
 export default function MapMovesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapMovesMap />
     </NavermapsProvider>
   );

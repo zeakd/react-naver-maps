@@ -36,7 +36,7 @@ function InfoWindowMap() {
 
 export default function InfoWindowExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <InfoWindowMap />
     </NavermapsProvider>
   );

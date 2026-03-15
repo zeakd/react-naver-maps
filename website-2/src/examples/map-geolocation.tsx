@@ -65,7 +65,7 @@ function GeolocationMap() {
 
 export default function MapGeolocationExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <GeolocationMap />
     </NavermapsProvider>
   );

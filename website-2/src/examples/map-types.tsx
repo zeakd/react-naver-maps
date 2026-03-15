@@ -63,7 +63,7 @@ function MapTypesMap() {
 
 export default function MapTypesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapTypesMap />
     </NavermapsProvider>
   );

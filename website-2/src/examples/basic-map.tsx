@@ -6,7 +6,7 @@ import {
 
 export default function BasicMap() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapDiv style={{ width: '100%', height: '400px' }}>
         <NaverMap />
       </MapDiv>

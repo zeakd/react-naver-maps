@@ -61,7 +61,7 @@ function ShapesMap() {
 
 export default function ShapesExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <ShapesMap />
     </NavermapsProvider>
   );

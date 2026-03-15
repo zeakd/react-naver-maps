@@ -99,7 +99,7 @@ function ClusterMapContainer() {
 
 export default function MarkerClusterExample() {
   return (
-    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+    <NavermapsProvider ncpKeyId="aluya4ff04">
       <ClusterMapContainer />
     </NavermapsProvider>
   );

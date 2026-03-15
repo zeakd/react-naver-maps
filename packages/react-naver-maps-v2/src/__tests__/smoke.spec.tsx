@@ -5,7 +5,7 @@ import { loadScript } from '../load-script.js';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { Suspense } from 'react';
 
-const NCP_CLIENT_ID = '6tdrlcyvpt';
+const NCP_KEY_ID = 'aluya4ff04';
 
 function waitForDom(
   root: HTMLElement,
@@ -34,7 +34,7 @@ describe('smoke', () => {
   let root: ReturnType<typeof createRoot>;
 
   beforeAll(async () => {
-    await loadScript({ ncpKeyId: NCP_CLIENT_ID });
+    await loadScript({ ncpKeyId: NCP_KEY_ID });
   });
 
   afterEach(() => {
@@ -58,7 +58,7 @@ describe('smoke', () => {
     root = createRoot(rootContainer);
 
     root.render(
-      <NavermapsProvider ncpKeyId={NCP_CLIENT_ID}>
+      <NavermapsProvider ncpKeyId={NCP_KEY_ID}>
         <Suspense fallback={<div data-testid="fallback">loading</div>}>
           <TestChild />
         </Suspense>
@@ -81,7 +81,7 @@ describe('smoke', () => {
     root = createRoot(rootContainer);
 
     root.render(
-      <NavermapsProvider ncpKeyId={NCP_CLIENT_ID}>
+      <NavermapsProvider ncpKeyId={NCP_KEY_ID}>
         <Container style={{ width: '600px', height: '400px' }}>
           <NaverMap
             defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
