@@ -5,9 +5,10 @@ import { preconnect } from 'react-dom';
 import type { LoadOptions } from './load-script.js';
 import { ClientOptionsContext } from './contexts/client-options.js';
 
-export interface NavermapsProviderProps extends LoadOptions {
+/** 네이버맵 스크립트 로딩을 위한 Provider. 앱 루트에 배치한다. */
+export type NavermapsProviderProps = LoadOptions & {
   children: ReactNode;
-}
+};
 
 export function NavermapsProvider({
   children,

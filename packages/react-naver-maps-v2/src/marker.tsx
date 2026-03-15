@@ -25,7 +25,10 @@ export interface MarkerProps extends EventHandlerProps<MarkerEvent> {
     | naver.maps.ImageIcon
     | naver.maps.SymbolIcon
     | naver.maps.HtmlIcon;
+  animation?: naver.maps.Animation;
+  shape?: naver.maps.MarkerShape;
   title?: string;
+  cursor?: string;
   clickable?: boolean;
   draggable?: boolean;
   visible?: boolean;
@@ -43,7 +46,10 @@ export function Marker({ ref, ...props }: MarkerProps) {
           map,
           position: (props.position ?? props.defaultPosition)!,
           icon: props.icon,
+          animation: props.animation,
+          shape: props.shape,
           title: props.title,
+          cursor: props.cursor,
           clickable: props.clickable,
           draggable: props.draggable,
           visible: props.visible,
@@ -70,7 +76,10 @@ function MarkerInner({ marker, ...props }: MarkerInnerProps) {
   useControlledKVO(marker, 'draggable', props.draggable);
   useControlledKVO(marker, 'zIndex', props.zIndex);
   useControlledKVO(marker, 'icon', props.icon);
+  useControlledKVO(marker, 'animation', props.animation);
+  useControlledKVO(marker, 'shape', props.shape);
   useControlledKVO(marker, 'title', props.title);
+  useControlledKVO(marker, 'cursor', props.cursor);
 
   // UI events
   useEffect(() => {
