@@ -184,6 +184,45 @@ describe('Marker 스펙 테스트', () => {
     });
   });
 
+  test('onDragend 핸들러 변경 시 리스너 교체', async () => {
+    const handler1 = vi.fn();
+    const handler2 = vi.fn();
+    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
+    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
+
+    const { rerender } = render(
+      <Wrapper>
+        <Marker position={{ lat: 37.5, lng: 127.0 }} onDragend={handler1} />
+      </Wrapper>,
+    );
+
+    await vi.waitFor(() => {
+      expect(mock.getLastInstance('Marker')).toBeDefined();
+    });
+
+    // 첫 렌더에서 dragend 리스너 등록 확인
+    expect(addSpy).toHaveBeenCalledWith(expect.anything(), 'dragend', handler1);
+
+    addSpy.mockClear();
+
+    rerender(
+      <Wrapper>
+        <Marker position={{ lat: 37.5, lng: 127.0 }} onDragend={handler2} />
+      </Wrapper>,
+    );
+
+    await vi.waitFor(() => {
+      // 이전 리스너 제거
+      expect(removeSpy).toHaveBeenCalled();
+      // 새 리스너 등록
+      expect(addSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        'dragend',
+        handler2,
+      );
+    });
+  });
+
   test('undefined props는 생성자 옵션에서 제외 (omitUndefined)', async () => {
     render(
       <Wrapper>

@@ -19,9 +19,14 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
-    "dev": "vite --config example/vite.config.ts example --port 3000"
+    "dev": "vite --config example/vite.config.ts example --port 3000",
+    "test:visual": "npx playwright test --config e2e/playwright.config.ts",
+    "test:visual:update": "npx playwright test --config e2e/playwright.config.ts --update-snapshots",
+    "test:visual:cache": "TILE_CACHE=update npx playwright test --config e2e/playwright.config.ts --update-snapshots",
+    "test:visual:cached": "TILE_CACHE=use npx playwright test --config e2e/playwright.config.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@testing-library/react": "^16.0.0",
     "@types/navermaps": "^3.7.5",
     "@types/react": "^19.0.0",
