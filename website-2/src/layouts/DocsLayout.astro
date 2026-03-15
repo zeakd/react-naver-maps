@@ -6,9 +6,10 @@ import '../styles/global.css';
 interface Props {
   title: string;
   category?: string;
+  slug?: string;
 }
 
-const { title, category } = Astro.props;
+const { title, slug } = Astro.props;
 const allDocs = await getCollection('docs');
 const navigation = buildNavigation(
   allDocs.map((doc) => ({
@@ -17,11 +18,19 @@ const navigation = buildNavigation(
   })),
 );
 
+const categoryOrder = ['guides', 'examples', 'api-reference'];
+
 const categoryLabels: Record<string, string> = {
   guides: 'Guides',
   examples: 'Examples',
   'api-reference': 'API Reference',
 };
+
+navigation.sort(
+  (a, b) =>
+    (categoryOrder.indexOf(a.name) ?? 99) -
+    (categoryOrder.indexOf(b.name) ?? 99),
+);
 ---
 
 <!doctype html>
@@ -65,7 +74,7 @@ const categoryLabels: Record<string, string> = {
                     href={`${import.meta.env.BASE_URL}/docs/${item.slug}/`}
                     class:list={[
                       'sidebar-link',
-                      { active: item.slug.startsWith(category ?? '') },
+                      { active: item.slug === slug },
                     ]}
                   >
                     {item.title}

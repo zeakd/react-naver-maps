@@ -1,0 +1,20 @@
+---
+title: 도형 오버레이
+category: examples
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ShapesExample from '../../../examples/shapes-example.tsx';
+
+Rectangle, Polygon, Polyline을 함께 표시하는 예제입니다.
+
+<Example of={ShapesExample} />
+
+## 설명
+
+- **Rectangle**: `bounds`로 사각 영역을 지정합니다.
+- **Polygon**: `paths`에 꼭짓점 좌표 배열을 전달합니다.
+- **Polyline**: `path`에 경로 좌표를 전달합니다. 채움(fill) 없이 선만 그립니다.
+
+모든 도형은 `strokeColor`, `strokeWeight`, `fillColor`, `fillOpacity` 등 공통 스타일 prop을 지원합니다.

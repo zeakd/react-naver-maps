@@ -1,0 +1,18 @@
+---
+title: 지도 이동
+category: examples
+order: 9
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapMovesExample from '../../../examples/map-moves.tsx';
+
+다양한 방법으로 지도를 이동하는 예제입니다.
+
+> [네이버 공식 튜토리얼 - 지도 이동](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-map-moves.example.html)
+
+<Example of={MapMovesExample} />
+
+## 설명
+
+`ref`로 map 인스턴스에 접근하여 `setCenter()`, `setZoom()`, `fitBounds()`, `panTo()`, `panBy()` 등의 메서드를 직접 호출합니다.

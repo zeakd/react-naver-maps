@@ -1,0 +1,25 @@
+---
+title: CustomOverlay
+category: api-reference
+order: 10
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`CustomOverlay` 컴포넌트는 React children을 지도 위 특정 좌표에 렌더링합니다. `createPortal`을 사용하므로 일반 React 컴포넌트를 그대로 활용할 수 있습니다.
+
+## 사용법
+
+```tsx
+import { CustomOverlay } from 'react-naver-maps';
+
+<CustomOverlay position={{ lat: 37.5, lng: 127.0 }}>
+  <div style={{ background: '#fff', padding: '8px', borderRadius: '4px' }}>
+    커스텀 콘텐츠
+  </div>
+</CustomOverlay>;
+```
+
+## Props
+
+<PropsTable of="CustomOverlay" package="react-naver-maps" />

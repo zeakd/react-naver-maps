@@ -1,0 +1,18 @@
+---
+title: 지도 옵션
+category: examples
+order: 6
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapOptionsExample from '../../../examples/map-options.tsx';
+
+지도의 인터랙션 옵션을 런타임에 토글하는 예제입니다.
+
+> [네이버 공식 튜토리얼 - 지도 옵션](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-map-options.example.html)
+
+<Example of={MapOptionsExample} />
+
+## 설명
+
+`NaverMap`의 `draggable`, `scrollWheel`, `disableDoubleClickZoom`, `disableKineticPan`, `keyboardShortcuts` props를 controlled로 사용하여 런타임에 옵션을 토글할 수 있습니다.
