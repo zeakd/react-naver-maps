@@ -79,3 +79,11 @@ tsconfig.tsbuildinfo
 
 # Legacy packages (reference only)
 tmp/
+
+# Internal research (reverse engineering, analysis - not committed)
+research/
+
+# Playwright
+test-results/
+__tile_cache__/
+screenshots/

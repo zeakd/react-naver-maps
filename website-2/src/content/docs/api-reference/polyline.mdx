@@ -1,0 +1,29 @@
+---
+title: Polyline
+category: api-reference
+order: 8
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`Polyline` 컴포넌트는 지도 위에 선을 그립니다.
+
+## 사용법
+
+```tsx
+import { Polyline } from 'react-naver-maps';
+
+<Polyline
+  path={[
+    { lat: 37.55, lng: 126.97 },
+    { lat: 37.56, lng: 126.98 },
+    { lat: 37.55, lng: 126.99 },
+  ]}
+  strokeColor="#f00"
+  strokeWeight={3}
+/>;
+```
+
+## Props
+
+<PropsTable of="Polyline" package="react-naver-maps" />

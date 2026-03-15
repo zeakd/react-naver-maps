@@ -1,11 +1,12 @@
 import {
+  NavermapsProvider,
   Container as MapDiv,
   NaverMap,
   Marker,
   useNavermaps,
 } from 'react-naver-maps';
 
-export default function MarkerExample() {
+function MarkerMap() {
   const navermaps = useNavermaps();
 
   return (
@@ -17,5 +18,13 @@ export default function MarkerExample() {
         <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
       </NaverMap>
     </MapDiv>
+  );
+}
+
+export default function MarkerExample() {
+  return (
+    <NavermapsProvider ncpClientId="6tdrlcyvpt">
+      <MarkerMap />
+    </NavermapsProvider>
   );
 }

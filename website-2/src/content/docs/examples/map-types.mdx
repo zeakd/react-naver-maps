@@ -1,0 +1,18 @@
+---
+title: 지도 유형
+category: examples
+order: 7
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesExample from '../../../examples/map-types.tsx';
+
+지도 유형(일반, 지형도, 위성, 혼합)을 전환하는 예제입니다.
+
+> [네이버 공식 튜토리얼 - 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html)
+
+<Example of={MapTypesExample} />
+
+## 설명
+
+`NaverMap`의 `mapTypeId` prop을 controlled로 사용하여 `navermaps.MapTypeId.NORMAL`, `TERRAIN`, `SATELLITE`, `HYBRID` 사이를 전환합니다.

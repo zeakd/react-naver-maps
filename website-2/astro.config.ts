@@ -11,7 +11,7 @@ export default defineConfig({
       packages: [
         {
           name: 'react-naver-maps',
-          tsconfig: '../packages/react-naver-maps/tsconfig.json',
+          tsconfig: '../packages/react-naver-maps-v2/tsconfig.json',
         },
       ],
     }),

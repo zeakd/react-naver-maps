@@ -1,0 +1,59 @@
+---
+title: 이벤트 핸들링
+category: guides
+order: 4
+---
+
+## 기본 사용법
+
+모든 오버레이 컴포넌트는 `on*` 형태의 이벤트 핸들러 prop을 지원합니다.
+
+```tsx
+<Marker
+  position={{ lat: 37.5, lng: 127.0 }}
+  onClick={(e) => console.log('클릭!', e.coord)}
+  onDragend={(e) => console.log('드래그 완료', e.coord)}
+/>
+```
+
+## 컴포넌트별 이벤트
+
+### NaverMap
+
+| 이벤트                                 | 설명                |
+| -------------------------------------- | ------------------- |
+| `onClick`                              | 지도 클릭           |
+| `onDblclick`                           | 더블클릭            |
+| `onRightclick`                         | 우클릭              |
+| `onDragstart` / `onDrag` / `onDragend` | 드래그              |
+| `onCenterChanged`                      | 중심 좌표 변경      |
+| `onZoomChanged`                        | 줌 레벨 변경        |
+| `onBoundsChanged`                      | 표시 영역 변경      |
+| `onInit`                               | 지도 초기화 완료    |
+| `onIdle`                               | 모든 타일 로드 완료 |
+
+### Marker
+
+포인터 이벤트(click, dblclick, mousedown, mouseup, rightclick, mouseover, mouseout) + 드래그 이벤트(dragstart, drag, dragend).
+
+### Shape (Circle, Rectangle, Ellipse, Polygon, Polyline)
+
+포인터 이벤트: click, dblclick, mousedown, mouseup, rightclick, mouseover, mouseout.
+
+### InfoWindow
+
+| 이벤트    | 설명         |
+| --------- | ------------ |
+| `onClose` | 정보 창 닫힘 |
+| `onClick` | 정보 창 클릭 |
+
+## 이벤트 변경
+
+이벤트 핸들러가 변경되면 이전 핸들러는 자동으로 해제되고 새 핸들러가 등록됩니다.
+
+```tsx
+const [handler, setHandler] = useState(() => () => console.log('A'));
+
+// handler가 변경되면 이전 리스너 해제 → 새 리스너 등록
+<Marker onClick={handler} position={{ lat: 37.5, lng: 127.0 }} />;
+```

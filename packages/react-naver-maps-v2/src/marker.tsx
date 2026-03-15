@@ -1,13 +1,16 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
+import { useOverlayLifecycle } from './hooks/use-overlay-lifecycle.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import type { EventHandlerProps, MarkerEvent } from './types/overlay-events.js';
 
-export interface MarkerProps {
+/** 지도 위에 마커를 표시한다. NaverMap 내부에서 사용. */
+export interface MarkerProps extends EventHandlerProps<MarkerEvent> {
   ref?: Ref<naver.maps.Marker>;
 
   // Controlled
@@ -22,52 +25,39 @@ export interface MarkerProps {
     | naver.maps.ImageIcon
     | naver.maps.SymbolIcon
     | naver.maps.HtmlIcon;
+  animation?: naver.maps.Animation;
+  shape?: naver.maps.MarkerShape;
   title?: string;
+  cursor?: string;
   clickable?: boolean;
   draggable?: boolean;
   visible?: boolean;
   zIndex?: number;
-
-  // Events
-  onClick?: (e: naver.maps.PointerEvent) => void;
-  onDblclick?: (e: naver.maps.PointerEvent) => void;
-  onMouseover?: (e: naver.maps.PointerEvent) => void;
-  onMouseout?: (e: naver.maps.PointerEvent) => void;
-  onDragstart?: (e: naver.maps.PointerEvent) => void;
-  onDrag?: (e: naver.maps.PointerEvent) => void;
-  onDragend?: (e: naver.maps.PointerEvent) => void;
 }
 
 export function Marker({ ref, ...props }: MarkerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
-  const markerRef = useRef<naver.maps.Marker | null>(null);
 
-  useEffect(() => {
-    const instance = new navermaps.Marker(
-      omitUndefined({
-        map,
-        position: (props.position ?? props.defaultPosition)!,
-        icon: props.icon,
-        title: props.title,
-        clickable: props.clickable,
-        draggable: props.draggable,
-        visible: props.visible,
-        zIndex: props.zIndex,
-      }) as naver.maps.MarkerOptions,
-    );
-    markerRef.current = instance;
-    setMarker(instance);
-
-    return () => {
-      naver.maps?.Event?.clearInstanceListeners(instance);
-      instance.setMap(null);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useImperativeHandle(ref, () => markerRef.current!);
+  const marker = useOverlayLifecycle(
+    () =>
+      new navermaps.Marker(
+        omitUndefined({
+          map,
+          position: (props.position ?? props.defaultPosition)!,
+          icon: props.icon,
+          animation: props.animation,
+          shape: props.shape,
+          title: props.title,
+          cursor: props.cursor,
+          clickable: props.clickable,
+          draggable: props.draggable,
+          visible: props.visible,
+          zIndex: props.zIndex,
+        }),
+      ),
+    ref,
+  );
 
   if (!marker) return null;
 
@@ -86,7 +76,10 @@ function MarkerInner({ marker, ...props }: MarkerInnerProps) {
   useControlledKVO(marker, 'draggable', props.draggable);
   useControlledKVO(marker, 'zIndex', props.zIndex);
   useControlledKVO(marker, 'icon', props.icon);
+  useControlledKVO(marker, 'animation', props.animation);
+  useControlledKVO(marker, 'shape', props.shape);
   useControlledKVO(marker, 'title', props.title);
+  useControlledKVO(marker, 'cursor', props.cursor);
 
   // UI events
   useEffect(() => {
@@ -103,9 +96,21 @@ function MarkerInner({ marker, ...props }: MarkerInnerProps) {
       listeners.push(
         naver.maps.Event.addListener(marker, 'mouseover', props.onMouseover),
       );
+    if (props.onMousedown)
+      listeners.push(
+        naver.maps.Event.addListener(marker, 'mousedown', props.onMousedown),
+      );
+    if (props.onMouseup)
+      listeners.push(
+        naver.maps.Event.addListener(marker, 'mouseup', props.onMouseup),
+      );
     if (props.onMouseout)
       listeners.push(
         naver.maps.Event.addListener(marker, 'mouseout', props.onMouseout),
+      );
+    if (props.onRightclick)
+      listeners.push(
+        naver.maps.Event.addListener(marker, 'rightclick', props.onRightclick),
       );
     if (props.onDragstart)
       listeners.push(
@@ -126,8 +131,11 @@ function MarkerInner({ marker, ...props }: MarkerInnerProps) {
     marker,
     props.onClick,
     props.onDblclick,
+    props.onMousedown,
+    props.onMouseup,
     props.onMouseover,
     props.onMouseout,
+    props.onRightclick,
     props.onDragstart,
     props.onDrag,
     props.onDragend,

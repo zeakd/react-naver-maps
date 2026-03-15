@@ -1,0 +1,32 @@
+---
+title: Polygon
+category: api-reference
+order: 7
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`Polygon` 컴포넌트는 지도 위에 다각형을 그립니다.
+
+## 사용법
+
+```tsx
+import { Polygon } from 'react-naver-maps';
+
+<Polygon
+  paths={[
+    [
+      { lat: 37.57, lng: 126.97 },
+      { lat: 37.58, lng: 126.98 },
+      { lat: 37.56, lng: 126.98 },
+    ],
+  ]}
+  strokeColor="#00f"
+  fillColor="#00f"
+  fillOpacity={0.2}
+/>;
+```
+
+## Props
+
+<PropsTable of="Polygon" package="react-naver-maps" />

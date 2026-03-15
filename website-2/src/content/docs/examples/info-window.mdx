@@ -1,0 +1,18 @@
+---
+title: 정보 창
+category: examples
+order: 4
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import InfoWindowExample from '../../../examples/info-window-example.tsx';
+
+마커를 클릭하면 정보 창이 토글되는 예제입니다.
+
+<Example of={InfoWindowExample} />
+
+## 설명
+
+`InfoWindow`의 `content`에 문자열을 전달하면 해당 텍스트가 정보 창에 표시됩니다. `onClose` 이벤트로 닫기를 감지할 수 있습니다.
+
+마커를 클릭하면 정보 창이 열리고 닫힙니다.
