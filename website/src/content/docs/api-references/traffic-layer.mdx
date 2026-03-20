@@ -1,0 +1,31 @@
+---
+title: TrafficLayer
+category: api-references
+order: 19
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`TrafficLayer`는 실시간 교통 레이어를 지도 위에 표시합니다.
+
+## 사용법
+
+```tsx
+import { TrafficLayer } from 'react-naver-maps';
+
+<NaverMap>
+  <TrafficLayer />
+</NaverMap>;
+```
+
+## 자동 갱신
+
+`autoRefresh`를 설정하면 교통 정보를 주기적으로 자동 갱신합니다.
+
+```tsx
+<TrafficLayer autoRefresh interval={60000} />
+```
+
+## Props
+
+<PropsTable of="TrafficLayer" package="react-naver-maps" />
