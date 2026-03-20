@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 - react-naver-maps</title>
+    <meta name="description" content="페이지를 찾을 수 없습니다" />
+    <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
+  </head>
+  <body>
+    <div class="not-found">
+      <h1>404</h1>
+      <p>페이지를 찾을 수 없습니다.</p>
+      <a href={`${import.meta.env.BASE_URL}/`}>홈으로 돌아가기</a>
+    </div>
+  </body>
+</html>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .not-found h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--acd-text);
+    margin: 0;
+  }
+
+  .not-found p {
+    font-size: 1.125rem;
+    color: var(--acd-text-muted);
+    margin: 0;
+  }
+
+  .not-found a {
+    margin-top: 1rem;
+    color: var(--acd-accent);
+    font-weight: 500;
+  }
+</style>

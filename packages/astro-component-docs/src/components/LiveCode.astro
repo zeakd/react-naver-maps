@@ -1,0 +1,71 @@
+---
+import { Code } from 'astro:components';
+
+interface ImportSpec {
+  module: string;
+  names: Array<{ name: string; alias?: string }>;
+}
+
+interface Props {
+  code: string;
+  lang?: string;
+  imports?: ImportSpec[];
+}
+
+const { code, lang = 'tsx', imports = [] } = Astro.props;
+---
+
+<div class="acd-live-code">
+  <div class="acd-live-code-header">
+    <span class="acd-live-code-badge">Live</span>
+    {imports.length > 0 && (
+      <span class="acd-live-code-imports">
+        {imports.map((imp) => imp.module).join(', ')}
+      </span>
+    )}
+  </div>
+  <div class="acd-live-code-source">
+    <Code code={code} lang={lang} theme="github-dark" />
+  </div>
+  {/* TODO: 라이브 에디팅 + 미리보기 영역 (React island) */}
+</div>
+
+<style>
+  .acd-live-code {
+    border: 1px solid var(--acd-border, #e2e8f0);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .acd-live-code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #1e1e2e;
+    border-bottom: 1px solid #2e2e3e;
+  }
+
+  .acd-live-code-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.125rem 0.5rem;
+    border-radius: 3px;
+    background: #22c55e;
+    color: #fff;
+  }
+
+  .acd-live-code-imports {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-family: monospace;
+  }
+
+  .acd-live-code-source :global(pre) {
+    margin: 0;
+    border-radius: 0;
+  }
+</style>

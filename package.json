@@ -1,20 +1,16 @@
 {
-  "name": "root",
+  "name": "react-naver-maps-workspace",
   "private": true,
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "test": "echo hi"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
-    "@typescript-eslint/parser": "^5.40.1",
-    "eslint": "^8.25.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-react": "^7.31.10",
-    "husky": "^8.0.0",
-    "typescript": "^4.8.4"
+    "husky": "^9.1.7",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.56.0",
+    "typescript": "6.0.1-rc"
   },
   "packageManager": "pnpm@10.30.1"
 }

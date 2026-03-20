@@ -1,6 +1,3 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 
-export type ContainerContextType = { element: HTMLElement | null };
-
-export const ContainerContext = createContext<ContainerContextType>({ element: null });
-export const useContainerContext = () => useContext(ContainerContext);
+export const ContainerContext = createContext<HTMLDivElement | null>(null);

@@ -1,0 +1,22 @@
+---
+title: Marker
+category: api-references
+order: 2
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`Marker` 컴포넌트는 지도 위에 마커를 표시합니다.
+
+## 사용법
+
+```tsx
+import { Marker, useNavermaps } from 'react-naver-maps';
+
+const navermaps = useNavermaps();
+<Marker position={new navermaps.LatLng(37.5, 127.0)} />;
+```
+
+## Props
+
+<PropsTable of="Marker" package="react-naver-maps" />

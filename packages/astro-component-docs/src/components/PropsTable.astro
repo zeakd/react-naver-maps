@@ -1,0 +1,104 @@
+---
+// @ts-ignore - virtual module
+import { propsData } from 'virtual:astro-component-docs/props';
+import type { ComponentDoc, PropInfo } from '../props/types.js';
+
+interface Props {
+  of: string;
+  package: string;
+}
+
+const { of: componentName, package: packageName } = Astro.props;
+const key = `${packageName}:${componentName}`;
+const doc: ComponentDoc | undefined = propsData[key];
+---
+
+{doc ? (
+  <div class="acd-props">
+    {doc.description && <p class="acd-props-description">{doc.description}</p>}
+    <table class="acd-props-table">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>타입</th>
+          <th>필수</th>
+          <th>기본값</th>
+          <th>설명</th>
+        </tr>
+      </thead>
+      <tbody>
+        {doc.props.map((prop: PropInfo) => (
+          <tr>
+            <td>
+              <code>{prop.name}</code>
+            </td>
+            <td>
+              <code class="acd-props-type">{prop.type}</code>
+            </td>
+            <td>{prop.required ? '✓' : '-'}</td>
+            <td>
+              {prop.defaultValue ? <code>{prop.defaultValue}</code> : '-'}
+            </td>
+            <td>{prop.description ?? '-'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+) : (
+  <div class="acd-props-error">
+    <code>{componentName}</code> props를 찾을 수 없습니다 (패키지: <code>{packageName}</code>).
+  </div>
+)}
+
+<style>
+  .acd-props {
+    margin: 1.5rem 0;
+  }
+
+  .acd-props-description {
+    margin-bottom: 1rem;
+    color: var(--acd-text-muted, #64748b);
+  }
+
+  .acd-props-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .acd-props-table th {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--acd-border, #e2e8f0);
+    font-weight: 600;
+    color: var(--acd-text, #1e293b);
+    white-space: nowrap;
+  }
+
+  .acd-props-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--acd-border, #e2e8f0);
+    vertical-align: top;
+  }
+
+  .acd-props-table code {
+    font-size: 0.8125rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    background: var(--acd-bg-subtle, #f1f5f9);
+  }
+
+  .acd-props-type {
+    color: var(--acd-accent, #2ab090);
+  }
+
+  .acd-props-error {
+    padding: 1rem;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    background: #fef2f2;
+    color: #991b1b;
+    font-size: 0.875rem;
+  }
+</style>

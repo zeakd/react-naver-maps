@@ -1,0 +1,128 @@
+---
+title: v1에서 마이그레이션
+category: guides
+order: 7
+---
+
+## 요약
+
+v2는 React 19 전용으로 재작성되었습니다. 주요 변경 사항:
+
+- **이벤트**: `<Listener>`, `useListener()` 제거 → `on*` props
+- **인증 키**: `ncpClientId` (레거시) → `ncpKeyId` (표준)
+- **CustomOverlay**: 신규 컴포넌트
+- **InfoWindow**: children 대신 `content` prop (문자열)
+- **내부 API 비공개화**: `Overlay`, `EventTargetContext`, `useContainerContext` 제거
+
+## 인증 키
+
+```diff
+- <NavermapsProvider ncpClientId="YOUR_KEY">
++ <NavermapsProvider ncpKeyId="YOUR_KEY">
+```
+
+`ncpClientId`, `govClientId`, `finClientId`도 호환되지만, `ncpKeyId`가 현재 표준입니다.
+
+## 이벤트 핸들링
+
+v1의 `<Listener>` 컴포넌트와 `useListener()` 훅이 제거되었습니다.
+모든 이벤트를 `on*` props로 처리합니다.
+
+```diff
+- import { Marker, Listener } from 'react-naver-maps';
++ import { Marker } from 'react-naver-maps';
+
+- <Marker position={pos}>
+-   <Listener type="click" listener={(e) => handleClick(e)} />
+- </Marker>
++ <Marker position={pos} onClick={(e) => handleClick(e)} />
+```
+
+```diff
+- import { useListener } from 'react-naver-maps';
+- useListener(marker, 'click', handleClick);
+
+// v2에서는 컴포넌트 props로 대체
++ <Marker onClick={handleClick} />
+```
+
+## Overlay 컴포넌트
+
+v1의 `<Overlay element={...}>` 컴포넌트가 제거되었습니다.
+네이티브 오버레이 인스턴스를 직접 관리하는 대신, 제공되는 컴포넌트를 사용하세요.
+
+```diff
+- const [marker] = useState(() => new navermaps.Marker({ position }));
+- <Overlay element={marker} />
+
++ <Marker position={position} />
+```
+
+React 엘리먼트를 지도에 렌더링하려면 `<CustomOverlay>`를 사용합니다.
+
+```tsx
+<CustomOverlay position={{ lat: 37.5666, lng: 126.9784 }}>
+  <div className="my-tooltip">커스텀 UI</div>
+</CustomOverlay>
+```
+
+## InfoWindow
+
+v1에서 children으로 React 엘리먼트를 전달하던 방식은 더 이상 지원되지 않습니다.
+`content` prop에 HTML 문자열을 전달하세요.
+
+```diff
+- <InfoWindow position={pos}>
+-   <div>정보</div>
+- </InfoWindow>
+
++ <InfoWindow position={pos} content="<div>정보</div>" />
+```
+
+React 컴포넌트를 렌더링해야 한다면 `<CustomOverlay>`를 사용하세요.
+
+## Container
+
+`children` 타입이 변경되었습니다.
+
+```diff
+- // v1: ComponentType을 children으로 전달
+- <Container><MyMapComponent /></Container>
+
++ // v2: ReactNode 또는 render function
++ <Container>{(navermaps) => <NaverMap ... />}</Container>
+```
+
+## 스크립트 로딩
+
+`loadNavermapsScript()`가 내부 전용으로 변경되었습니다.
+Provider 외부에서 미리 로드하려면 `preloadNavermaps()`를 사용합니다.
+
+```diff
+- import { loadNavermapsScript } from 'react-naver-maps';
+- await loadNavermapsScript({ ncpClientId: 'KEY' });
+
++ import { preloadNavermaps } from 'react-naver-maps';
++ preloadNavermaps({ ncpKeyId: 'KEY' });
+```
+
+## 제거된 export 목록
+
+| v1                           | v2 대체                               |
+| ---------------------------- | ------------------------------------- |
+| `<Listener>`                 | `on*` props                           |
+| `useListener()`              | `on*` props                           |
+| `<Overlay>`                  | 각 오버레이 컴포넌트 직접 사용        |
+| `EventTargetContext`         | 내부 전용                             |
+| `useContainerContext()`      | 내부 전용                             |
+| `loadNavermapsScript()`      | `preloadNavermaps()`                  |
+| `RenderAfterNavermapsLoaded` | `<NavermapsProvider>` + `<Container>` |
+
+## 신규 API
+
+| API                  | 설명                                       |
+| -------------------- | ------------------------------------------ |
+| `<CustomOverlay>`    | React children을 지도 좌표에 Portal 렌더링 |
+| `preloadNavermaps()` | Provider 외부에서 스크립트 미리 로드       |
+| `useKVO()`           | KVO 속성 감시                              |
+| `useControlledKVO()` | controlled 패턴 KVO 동기화                 |

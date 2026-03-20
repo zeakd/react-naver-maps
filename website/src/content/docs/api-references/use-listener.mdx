@@ -1,0 +1,54 @@
+---
+title: useListener
+category: api-references
+order: 16
+---
+
+`useListener()`는 네이버맵 네이티브 이벤트를 React 콜백으로 연결하는 훅입니다.
+`on*` props로 처리할 수 없는 이벤트(KVO changed, 생명주기 등)에 사용합니다.
+
+## 사용법
+
+```tsx
+import { useListener, useMap } from 'react-naver-maps';
+
+function IdleTracker() {
+  const map = useMap();
+
+  useListener(map, 'idle', () => {
+    console.log('지도 이동 완료');
+  });
+
+  return null;
+}
+```
+
+인라인 함수를 그대로 전달해도 리스너 재구독이 발생하지 않습니다. `useCallback`이 필요 없습니다.
+
+## 시나리오
+
+```tsx
+// KVO changed 이벤트
+useListener(overlay, 'position_changed', onPositionChanged);
+
+// Map 이벤트
+useListener(map, 'idle', onIdle);
+useListener(map, 'tilesloaded', onTilesLoaded);
+
+// 생명주기 이벤트
+useListener(overlay, 'added', onAdded);
+useListener(overlay, 'draw', onDraw);
+```
+
+## 파라미터
+
+| 이름        | 타입                               | 설명                                     |
+| ----------- | ---------------------------------- | ---------------------------------------- |
+| `target`    | `naver.maps.KVO \| null`           | 이벤트 대상. `null`이면 구독하지 않음    |
+| `eventName` | `string`                           | 네이버맵 이벤트 이름                     |
+| `listener`  | `((...args) => void) \| undefined` | 콜백 함수. `undefined`이면 구독하지 않음 |
+
+## 콜백 안정성
+
+내부에서 `useRef`로 콜백을 안정화합니다 (`useEffectEvent` 패턴).
+콜백 함수가 매 렌더마다 바뀌어도 리스너를 재구독하지 않으며, 호출 시 항상 최신 함수가 실행됩니다.

@@ -1,17 +1,21 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { preconnect } from 'react-dom';
+import type { LoadOptions } from './load-script.js';
+import { ClientOptionsContext } from './contexts/client-options.js';
 
-import { ClientOptionsContext } from './contexts/client-options';
-import type { ClientOptions } from './types/client';
-
-export type Props = ClientOptions & { children?: ReactNode };
+/** 네이버맵 스크립트 로딩을 위한 Provider. 앱 루트에 배치한다. */
+export type NavermapsProviderProps = LoadOptions & {
+  children: ReactNode;
+};
 
 export function NavermapsProvider({
   children,
-  ...clientOptions
-}: Props) {
+  ...options
+}: NavermapsProviderProps) {
+  preconnect('https://oapi.map.naver.com');
   return (
-    <ClientOptionsContext.Provider value={clientOptions}>
-      {children}
-    </ClientOptionsContext.Provider>
+    <ClientOptionsContext value={options}>{children}</ClientOptionsContext>
   );
 }

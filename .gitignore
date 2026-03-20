@@ -70,3 +70,20 @@ styleguide/index.html
 .DS_Store
 
 .idea
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Astro
+.astro/
+
+# Legacy packages (reference only)
+tmp/
+
+# Internal research (reverse engineering, analysis - not committed)
+research/
+
+# Playwright
+test-results/
+__tile_cache__/
+screenshots/

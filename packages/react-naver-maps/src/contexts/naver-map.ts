@@ -1,4 +1,3 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 
-export const NaverMapContext = createContext<naver.maps.Map | undefined>(undefined);
-export const useMap: () => naver.maps.Map | undefined = () => useContext(NaverMapContext);
+export const NaverMapContext = createContext<naver.maps.Map | null>(null);

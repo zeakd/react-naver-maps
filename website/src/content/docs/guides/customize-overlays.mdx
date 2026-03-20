@@ -1,0 +1,103 @@
+---
+title: 커스텀 오버레이
+category: guides
+order: 6
+---
+
+제공되는 컴포넌트(`Marker`, `Circle` 등)로 충분하지 않은 경우, 네이버맵 네이티브 API와 React를 조합하여 커스텀 오버레이를 만들 수 있습니다.
+
+## CustomOverlay 컴포넌트
+
+가장 간단한 방법은 `CustomOverlay`를 사용하는 것입니다. React children을 지도 좌표에 Portal로 렌더링합니다.
+
+```tsx
+import { CustomOverlay } from 'react-naver-maps';
+
+function MyMap() {
+  return (
+    <NaverMap>
+      <CustomOverlay position={{ lat: 37.5666, lng: 126.9784 }}>
+        <div
+          style={{
+            background: 'white',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          }}
+        >
+          서울시청
+        </div>
+      </CustomOverlay>
+    </NaverMap>
+  );
+}
+```
+
+## useMap으로 명령형 조작
+
+`useMap()` 훅으로 지도 인스턴스에 접근하여 명령형 API를 사용할 수 있습니다.
+
+```tsx
+import { useMap } from 'react-naver-maps';
+
+function MapControls() {
+  const map = useMap();
+
+  return (
+    <div>
+      <button onClick={() => map.panTo({ lat: 37.5666, lng: 126.9784 })}>
+        서울시청으로 이동
+      </button>
+      <button onClick={() => console.log('center', map.getCenter())}>
+        현재 위치 로깅
+      </button>
+    </div>
+  );
+}
+```
+
+## useKVO로 KVO 값 구독
+
+네이버맵 객체의 KVO 프로퍼티를 React 상태로 구독할 수 있습니다.
+
+```tsx
+import { useKVO, useMap } from 'react-naver-maps';
+
+function ZoomDisplay() {
+  const map = useMap();
+  const zoom = useKVO<number>(map, 'zoom');
+
+  return <div>현재 줌 레벨: {zoom}</div>;
+}
+```
+
+고주기 KVO(`center`, `bounds` 등)는 드래그 중 매 프레임 발화되므로, `on*Changed` 이벤트 핸들러를 사용하세요.
+
+## useControlledKVO로 prop 동기화
+
+네이티브 오버레이 인스턴스의 프로퍼티를 React prop과 동기화할 수 있습니다. 내장 컴포넌트들이 내부적으로 사용하는 훅입니다.
+
+```tsx
+import { useControlledKVO } from 'react-naver-maps';
+
+function useMyOverlay(
+  instance: naver.maps.KVO,
+  props: { position?: naver.maps.LatLng; visible?: boolean },
+) {
+  useControlledKVO(instance, 'position', props.position);
+  useControlledKVO(instance, 'visible', props.visible);
+}
+```
+
+`value`가 `undefined`이면 동기화하지 않으므로, controlled/uncontrolled 패턴을 자연스럽게 지원합니다.
+
+## v1에서 변경된 점
+
+v1의 `<Overlay>`, `useListener()`, `<Listener>` 컴포넌트는 v2에서 제거되었습니다.
+
+| v1                                             | v2                                        |
+| ---------------------------------------------- | ----------------------------------------- |
+| `<Overlay element={marker} />`                 | `<Marker />` 컴포넌트 직접 사용           |
+| `useListener(target, 'click', handler)`        | `<Marker onClick={handler} />`            |
+| `<Listener type="click" listener={handler} />` | `onClick={handler}` prop                  |
+| 네이티브 인스턴스 수동 생성                    | `<CustomOverlay>` 또는 제공 컴포넌트 사용 |

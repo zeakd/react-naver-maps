@@ -1,0 +1,94 @@
+---
+title: useOverlay
+category: api-references
+order: 15
+---
+
+`useOverlay()`는 네이버맵 오버레이 인스턴스를 React 생명주기에 연결하는 훅입니다.
+바닐라로 만든 `OverlayView` 상속 객체를 React 컴포넌트에서 사용할 수 있게 합니다.
+
+## 사용법
+
+```tsx
+import { useOverlay, useMap, useNavermaps } from 'react-naver-maps';
+
+function MyOverlay({ position }) {
+  const navermaps = useNavermaps();
+  const map = useMap();
+
+  const overlay = useOverlay(() => {
+    return new MyCustomOverlayView({ position, map });
+  });
+
+  return null;
+}
+```
+
+## 공식 CustomOverlay 패턴 연결
+
+[네이버맵 공식 CustomOverlay 튜토리얼](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-CustomOverlay.html)대로 만든 바닐라 클래스를 React에서 사용할 수 있습니다.
+
+```tsx
+// 바닐라 클래스 (공식 패턴 그대로)
+class MyOverlayView extends naver.maps.OverlayView {
+  constructor(options) {
+    super();
+    this._element = document.createElement('div');
+    this._position = options.position;
+    this.setMap(options.map);
+  }
+  onAdd() {
+    this.getPanes().overlayLayer.appendChild(this._element);
+  }
+  draw() {
+    const point = this.getProjection().fromCoordToOffset(this._position);
+    this._element.style.left = point.x + 'px';
+    this._element.style.top = point.y + 'px';
+  }
+  onRemove() {
+    this._element.parentNode?.removeChild(this._element);
+  }
+  setPosition(position) {
+    this._position = position;
+    this.draw();
+  }
+}
+
+// React 컴포넌트에서 연결
+function MyOverlay({ position, onPositionChanged }) {
+  const navermaps = useNavermaps();
+  const map = useMap();
+
+  const overlay = useOverlay(() => new MyOverlayView({ position, map }));
+
+  // 속성 동기화
+  useEffect(() => {
+    if (overlay) overlay.setPosition(position);
+  }, [overlay, position]);
+
+  // 이벤트 구독
+  useListener(overlay, 'position_changed', onPositionChanged);
+
+  return null;
+}
+```
+
+## 파라미터
+
+| 이름      | 타입      | 설명                                                    |
+| --------- | --------- | ------------------------------------------------------- |
+| `factory` | `() => T` | 인스턴스를 생성하는 팩토리 함수. 마운트 시 1회만 호출됨 |
+| `ref`     | `Ref<T>`  | (선택) 인스턴스를 노출할 ref                            |
+
+## 반환값
+
+| 타입        | 설명                                       |
+| ----------- | ------------------------------------------ |
+| `T \| null` | 생성된 인스턴스. 마운트 완료 전에는 `null` |
+
+## 생명주기
+
+- **mount**: `factory()` 호출 → 인스턴스 생성 (`useLayoutEffect`로 paint 전 실행)
+- **unmount**: `clearInstanceListeners(instance)` + `instance.setMap(null)`
+
+재생성이 필요한 경우 React `key` prop으로 제어합니다.

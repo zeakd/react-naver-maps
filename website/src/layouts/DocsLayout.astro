@@ -1,0 +1,301 @@
+---
+import { getCollection } from 'astro:content';
+import { buildNavigation } from 'astro-component-docs';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  category?: string;
+  slug?: string;
+}
+
+const { title, slug } = Astro.props;
+const allDocs = await getCollection('docs');
+const navigation = buildNavigation(
+  allDocs.map((doc) => ({
+    slug: doc.slug,
+    data: doc.data,
+  })),
+);
+
+const categoryOrder = ['guides', 'examples', 'tutorials', 'api-references'];
+
+const categoryLabels: Record<string, string> = {
+  guides: 'Guides',
+  examples: 'Examples',
+  'api-references': 'API Reference',
+  'tutorials': 'Tutorials',
+};
+
+navigation.sort(
+  (a, b) =>
+    (categoryOrder.indexOf(a.name) ?? 99) -
+    (categoryOrder.indexOf(b.name) ?? 99),
+);
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - react-naver-maps</title>
+    <meta name="description" content="react-naver-maps - Naver Maps JavaScript API v3를 위한 React 컴포넌트 라이브러리" />
+    <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${import.meta.env.BASE_URL}/favicon-32x32.png`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`${import.meta.env.BASE_URL}/favicon-16x16.png`} />
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-51RCXPWJLZ"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-51RCXPWJLZ');
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href={`${import.meta.env.BASE_URL}/`} class="site-logo">
+          <svg width="22" height="25" viewBox="0 0 158 182" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M105.423 15.2554L79 0L12.2551 38.5352L49.3537 146.046L111.099 97.2991L105.423 15.2554ZM111.433 102.131L50.7358 150.051L57.4715 169.571L79 182L115.501 160.926L111.433 102.131ZM46.0282 148.671L8.72658 40.5724L0.19165 45.5V136.5L35.5712 156.926L46.0282 148.671ZM39.2998 159.079L47.4103 152.676L52.1873 166.52L39.2998 159.079ZM115.235 99.1299L157.808 65.5197V136.5L119.357 158.7L115.235 99.1299ZM157.808 60.4234L114.901 94.2976L109.6 17.6667L157.808 45.5V60.4234Z" fill="url(#logo-grad)"/>
+            <defs>
+              <linearGradient id="logo-grad" x1="0.5" y1="46" x2="79" y2="182" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#66DE6F"/>
+                <stop offset="1" stop-color="#66DEDE"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          React Naver Maps
+        </a>
+        <nav class="site-header-nav">
+          <span class="site-version">v0.1</span>
+          <a
+            href="https://github.com/zeakd/react-naver-maps"
+            class="site-github"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="site-container">
+      <aside class="site-sidebar">
+        {navigation.map((cat) => (
+          <div class="sidebar-category">
+            <h3 class="sidebar-category-title">
+              {categoryLabels[cat.name] ?? cat.name}
+            </h3>
+            <ul class="sidebar-links">
+              {cat.items.map((item) => (
+                <li>
+                  <a
+                    href={item.slug === 'guides/introduction' ? `${import.meta.env.BASE_URL}/` : `${import.meta.env.BASE_URL}/${item.slug}/`}
+                    class:list={[
+                      'sidebar-link',
+                      { active: item.slug === slug },
+                    ]}
+                  >
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </aside>
+
+      <main class="site-main">
+        <article class="site-content">
+          <slot />
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: var(--site-header-height);
+    border-bottom: 1px solid var(--acd-border);
+    background: #fff;
+  }
+
+  .site-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1440px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .site-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.375rem;
+    color: var(--acd-text);
+  }
+
+  .site-logo:hover {
+    text-decoration: none;
+  }
+
+  .site-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .site-version {
+    font-size: 0.8125rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 3px;
+    background: var(--acd-bg-subtle);
+    color: var(--acd-text-muted);
+  }
+
+  .site-github {
+    font-size: 0.9375rem;
+    color: var(--acd-text-muted);
+  }
+
+  .site-container {
+    display: flex;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .site-sidebar {
+    position: sticky;
+    top: var(--site-header-height);
+    width: var(--site-sidebar-width);
+    height: calc(100vh - var(--site-header-height));
+    overflow-y: auto;
+    padding: 1.5rem;
+    border-right: 1px solid var(--acd-border);
+    flex-shrink: 0;
+  }
+
+  .sidebar-category {
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-category-title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--acd-text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-links {
+    list-style: none;
+  }
+
+  .sidebar-link {
+    display: block;
+    padding: 0.125rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--acd-text-muted);
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  .sidebar-link:hover {
+    background: var(--acd-bg-subtle);
+    color: var(--acd-text);
+    text-decoration: none;
+  }
+
+  .sidebar-link.active {
+    background: #e6f7f2;
+    color: var(--acd-accent);
+    font-weight: 500;
+  }
+
+  .site-main {
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 3rem 5rem;
+  }
+
+  .site-content {
+    max-width: var(--site-content-max-width);
+  }
+
+  .site-content :global(h1) {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .site-content :global(h2) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid var(--acd-border);
+  }
+
+  .site-content :global(h3) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .site-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .site-content :global(ul),
+  .site-content :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .site-content :global(li) {
+    margin-bottom: 0.25rem;
+  }
+
+  .site-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .site-content :global(th) {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--acd-border);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .site-content :global(td) {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--acd-border);
+    vertical-align: top;
+  }
+
+  .site-content :global(pre) {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+</style>

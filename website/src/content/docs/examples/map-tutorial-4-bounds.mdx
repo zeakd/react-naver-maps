@@ -1,0 +1,18 @@
+---
+title: 지도 경계
+category: tutorials
+order: 5
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapBoundsExample from '../../../examples/map-bounds.tsx';
+
+지도 경계(bounds)를 활용하는 예제입니다. 현재 bounds를 Rectangle로 표시하고, 특정 위치로 이동합니다.
+
+> [네이버 공식 튜토리얼 - 지도 경계](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-map-bounds.example.html)
+
+<Example of={MapBoundsExample} />
+
+## 설명
+
+`ref`로 map 인스턴스에 접근하여 `fitBounds()`를 호출합니다. `onBoundsChanged` 이벤트로 현재 경계를 추적하여 `Rectangle`로 표시합니다.

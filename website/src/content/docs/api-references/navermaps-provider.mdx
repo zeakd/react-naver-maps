@@ -1,0 +1,51 @@
+---
+title: NavermapsProvider
+category: api-references
+order: 11
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`NavermapsProvider`는 네이버맵 스크립트 로딩에 필요한 인증 정보를 하위 컴포넌트에 제공합니다. 앱의 루트에 배치합니다.
+
+## 사용법
+
+```tsx
+import { NavermapsProvider } from 'react-naver-maps';
+
+function App() {
+  return (
+    <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
+      <MyMap />
+    </NavermapsProvider>
+  );
+}
+```
+
+## 인증 키
+
+4종의 인증 키를 지원하며, 하나만 전달합니다.
+
+| prop          | 설명                             |
+| ------------- | -------------------------------- |
+| `ncpKeyId`    | 현재 표준 (NCP, `/v3/auth` 인증) |
+| `ncpClientId` | NCP 레거시                       |
+| `govClientId` | 공공기관용                       |
+| `finClientId` | 금융기관용                       |
+
+## 서브모듈
+
+네이버맵 서브모듈(예: drawing, visualization)을 로드하려면 `submodules`를 전달합니다.
+
+```tsx
+<NavermapsProvider
+  ncpKeyId="YOUR_NCP_KEY_ID"
+  submodules={['drawing', 'visualization']}
+>
+  ...
+</NavermapsProvider>
+```
+
+## Props
+
+<PropsTable of="NavermapsProvider" package="react-naver-maps" />

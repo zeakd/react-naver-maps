@@ -1,0 +1,133 @@
+---
+title: Core Concepts
+category: guides
+order: 3
+---
+
+`react-naver-maps`는 네이버맵의 기본 기능을 유지하면서, React에서 다루기 쉬운 인터페이스를 제공합니다. 핵심 개념 세 가지를 이해하면 대부분의 기능을 활용할 수 있습니다.
+
+## React 컴포넌트 인터페이스
+
+네이버맵의 요소들을 React 컴포넌트 형태로 mount/unmount할 수 있습니다. children을 통해 렌더 여부를 결정할 수 있습니다.
+
+```tsx
+import { NaverMap, Marker } from 'react-naver-maps';
+
+function MyMap() {
+  const [showMarker, setShowMarker] = useState(true);
+
+  return (
+    <NaverMap>
+      {showMarker && (
+        <Marker defaultPosition={{ lat: 37.3595704, lng: 127.105399 }} />
+      )}
+    </NaverMap>
+  );
+}
+```
+
+네이버맵 네이티브 API에서는 `marker.setMap(map)` / `marker.setMap(null)`로 직접 관리해야 하지만, `react-naver-maps`에서는 React의 조건부 렌더링으로 처리됩니다.
+
+## 이벤트 핸들링
+
+네이티브 API에서는 리스너를 수동으로 추가하고 제거해야 합니다.
+
+```js
+// 네이티브: 리스너 추가
+map.addListener('zoom_changed', zoomListener);
+// 또는
+window.naver.maps.Event.addListener(map, 'zoom_changed', zoomListener);
+
+// 네이티브: 리스너 제거
+map.removeListener(zoomListener);
+// 또는
+window.naver.maps.Event.removeListener(zoomListener);
+```
+
+`react-naver-maps`에서는 `on*` props로 간단하게 처리됩니다.
+
+```tsx
+// props로 전달
+<NaverMap onZoomChanged={zoomListener} />
+
+// props에서 제거하면 리스너도 자동 해제
+<NaverMap />
+```
+
+모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 각 컴포넌트에서 사용 가능한 이벤트는 API Reference를 참고하세요.
+
+```tsx
+<Marker
+  position={{ lat: 37.5, lng: 127.0 }}
+  onClick={(e) => console.log('클릭!', e.coord)}
+  onDragend={(e) => console.log('드래그 완료', e.coord)}
+/>
+```
+
+핸들러가 변경되면 이전 리스너는 자동으로 해제되고 새 핸들러가 등록됩니다.
+
+## Controlled / Uncontrolled
+
+React의 [Controlled Component](https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable) 패턴을 지원합니다.
+
+### Uncontrolled (기본값)
+
+`default*` 접두사가 붙은 prop은 초기값만 설정합니다. 이후 사용자 조작에 의한 변경은 네이버맵이 자체 관리합니다.
+
+```tsx
+<NaverMap defaultCenter={{ lat: 37.5, lng: 127.0 }} defaultZoom={15} />
+```
+
+### Controlled (외부 관리)
+
+`default` 접두사 없이 사용하면 React state로 값을 관리합니다. 사용자 조작과 프로그래밍 방식 모두 React state를 통해 제어됩니다.
+
+```tsx
+function MyMap() {
+  const [center, setCenter] = useState({ lat: 37.3595704, lng: 127.105399 });
+
+  return (
+    <>
+      <NaverMap
+        center={center}
+        onCenterChanged={(center) => setCenter(center)}
+      />
+      <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
+        제주도로 이동하기
+      </button>
+    </>
+  );
+}
+```
+
+### 지원하는 컴포넌트
+
+| 컴포넌트            | Controlled                 | Uncontrolled                                    |
+| ------------------- | -------------------------- | ----------------------------------------------- |
+| NaverMap            | `center`, `zoom`, `bounds` | `defaultCenter`, `defaultZoom`, `defaultBounds` |
+| Marker              | `position`                 | `defaultPosition`                               |
+| Circle              | `center`, `radius`         | `defaultCenter`, `defaultRadius`                |
+| Rectangle / Ellipse | `bounds`                   | `defaultBounds`                                 |
+| Polygon             | `paths`                    | `defaultPaths`                                  |
+| Polyline            | `path`                     | `defaultPath`                                   |
+
+### 규칙
+
+- **하나의 prop에 대해 controlled와 uncontrolled을 혼용하지 마세요.** `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
+- Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
+
+## 컴포넌트 계층 구조
+
+```
+NavermapsProvider        ← 인증 키 설정 (앱 루트)
+  └── Container          ← 지도 DOM 영역 + Suspense
+        └── NaverMap     ← 지도 인스턴스
+              ├── Marker
+              ├── Circle
+              ├── InfoWindow
+              └── ...    ← 오버레이 컴포넌트들
+```
+
+- `NavermapsProvider`: 인증 키를 Context로 제공. 앱 루트에 한 번만 배치
+- `Container`: 지도가 렌더링될 DOM div. 내장 Suspense로 스크립트 로딩 처리
+- `NaverMap`: 실제 지도 인스턴스. 하위에 오버레이 컴포넌트를 배치

@@ -1,0 +1,25 @@
+---
+title: GroundOverlay
+category: api-references
+order: 9
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`GroundOverlay` 컴포넌트는 이미지를 지도 위에 오버레이합니다. `url` 또는 `bounds`가 변경되면 인스턴스가 재생성됩니다.
+
+## 사용법
+
+```tsx
+import { GroundOverlay } from 'react-naver-maps';
+
+<GroundOverlay
+  url="https://example.com/overlay.png"
+  bounds={{ south: 37.5, west: 126.9, north: 37.6, east: 127.0 }}
+  opacity={0.7}
+/>;
+```
+
+## Props
+
+<PropsTable of="GroundOverlay" package="react-naver-maps" />

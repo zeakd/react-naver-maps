@@ -1,0 +1,100 @@
+---
+title: Introduction
+category: guides
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import BasicMap from '../../../examples/basic-map.tsx';
+
+`react-naver-maps`는 [Naver Maps JavaScript API v3](https://navermaps.github.io/maps.js.ncp/)의 Non-Official React 컴포넌트 라이브러리입니다.
+
+네이버맵의 기본 기능을 최대한 유지하면서, React에서 다루기 쉬운 인터페이스를 제공합니다.
+
+## 빠른 시작
+
+```bash
+npm install react-naver-maps
+```
+
+## 기본 사용법
+
+<Example of={BasicMap} />
+
+`NavermapsProvider`로 감싸면 하위 컴포넌트에서 `useNavermaps()` 훅을 통해 네이버맵 API에 접근할 수 있습니다.
+
+## 핵심 개념
+
+### React 컴포넌트 인터페이스
+
+네이버맵의 요소들을 React 컴포넌트 형태로 mount/unmount할 수 있으며, children을 통해 렌더 여부를 결정할 수 있습니다.
+
+```tsx
+import { NaverMap, Marker } from 'react-naver-maps';
+
+<NaverMap>
+  <Marker defaultPosition={{ lat: 37.3595704, lng: 127.105399 }} />
+</NaverMap>;
+```
+
+### 이벤트 핸들링
+
+네이버맵 네이티브 API에서는 리스너를 수동으로 추가하고 제거해야 합니다.
+
+```js
+// 네이티브: 리스너 추가
+map.addListener('zoom_changed', zoomListener);
+// 또는
+window.naver.maps.Event.addListener(map, 'zoom_changed', zoomListener);
+
+// 네이티브: 리스너 제거
+map.removeListener(zoomListener);
+// 또는
+window.naver.maps.Event.removeListener(zoomListener);
+```
+
+`react-naver-maps`에서는 `on*` props로 간단하게 처리됩니다.
+
+```tsx
+// props로 전달
+<NaverMap onZoomChanged={zoomListener} />
+
+// props에서 제거하면 리스너도 자동 해제
+<NaverMap />
+```
+
+자세한 내용은 [핵심 개념](/guides/core-concepts/) 가이드를 참고하세요.
+
+### Controlled 컴포넌트
+
+React의 [Controlled Component](https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable) 패턴을 사용하여 지도 상태를 단방향으로 제어할 수 있습니다.
+
+```tsx
+import { NaverMap } from 'react-naver-maps';
+
+function MyMap() {
+  const [center, setCenter] = useState({ lat: 37.3595704, lng: 127.105399 });
+
+  return (
+    <>
+      <NaverMap
+        center={center}
+        onCenterChanged={(center) => setCenter(center)}
+      />
+      <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
+        제주도로 이동하기
+      </button>
+    </>
+  );
+}
+```
+
+`default*` props를 사용하면 초기값만 설정하고 이후 변경은 네이버맵이 자체 관리합니다.
+자세한 내용은 [Controlled vs Uncontrolled](/guides/core-concepts/) 가이드를 참고하세요.
+
+## 특징
+
+- **선언적 API**: React 컴포넌트로 지도를 구성합니다
+- **TypeScript 지원**: `@types/navermaps` 기반의 완전한 타입 지원
+- **Suspense 지원**: 스크립트 로딩을 React 19 Suspense와 통합
+- **Controlled/Uncontrolled**: React 패턴에 맞는 상태 관리

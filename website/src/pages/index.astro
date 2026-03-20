@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const docs = await getCollection('docs');
+const entry = docs.find((d) => d.slug === 'guides/introduction')!;
+const { Content } = await entry.render();
+---
+
+<DocsLayout title={entry.data.title} category={entry.data.category} slug={entry.slug}>
+  <h1>{entry.data.title}</h1>
+  <Content />
+</DocsLayout>

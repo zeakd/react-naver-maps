@@ -1,0 +1,40 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  lang?: string;
+  theme?: string;
+  title?: string;
+}
+
+const { code, lang = 'tsx', theme = 'github-dark', title } = Astro.props;
+---
+
+<div class="acd-code-block">
+  {title && <div class="acd-code-title">{title}</div>}
+  <Code code={code} lang={lang} theme={theme} />
+</div>
+
+<style>
+  .acd-code-block {
+    border: 1px solid var(--acd-border, #e2e8f0);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .acd-code-title {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--acd-text-muted, #94a3b8);
+    background: #1e1e2e;
+    border-bottom: 1px solid #2e2e3e;
+  }
+
+  .acd-code-block :global(pre) {
+    margin: 0;
+    border-radius: 0;
+  }
+</style>

@@ -1,6 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
+import type { LoadOptions } from '../load-script.js';
 
-import type { ClientOptions } from '../types/client';
-
-export const ClientOptionsContext = createContext<ClientOptions>({} as ClientOptions);
-export const useClientOptions = () => useContext(ClientOptionsContext);
+export const ClientOptionsContext = createContext<LoadOptions | null>(null);
