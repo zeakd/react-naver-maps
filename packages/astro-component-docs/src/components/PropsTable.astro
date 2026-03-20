@@ -16,6 +16,7 @@ const doc: ComponentDoc | undefined = propsData[key];
 {doc ? (
   <div class="acd-props">
     {doc.description && <p class="acd-props-description">{doc.description}</p>}
+    <div class="acd-props-table-wrap">
     <table class="acd-props-table">
       <thead>
         <tr>
@@ -44,6 +45,7 @@ const doc: ComponentDoc | undefined = propsData[key];
         ))}
       </tbody>
     </table>
+    </div>
   </div>
 ) : (
   <div class="acd-props-error">
@@ -54,6 +56,11 @@ const doc: ComponentDoc | undefined = propsData[key];
 <style>
   .acd-props {
     margin: 1.5rem 0;
+  }
+
+  .acd-props-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .acd-props-description {
@@ -100,5 +107,16 @@ const doc: ComponentDoc | undefined = propsData[key];
     background: #fef2f2;
     color: #991b1b;
     font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    .acd-props-table th,
+    .acd-props-table td {
+      padding: 0.375rem 0.5rem;
+    }
+
+    .acd-props-table {
+      font-size: 0.8125rem;
+    }
   }
 </style>
