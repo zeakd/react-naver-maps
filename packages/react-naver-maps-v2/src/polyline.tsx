@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
-import { useOverlayLifecycle } from './hooks/use-overlay-lifecycle.js';
+import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
@@ -37,7 +37,7 @@ export function Polyline({ ref, ...props }: PolylineProps) {
   const navermaps = useNavermaps();
   const map = useMap();
 
-  const polyline = useOverlayLifecycle(
+  const polyline = useOverlay(
     () =>
       new navermaps.Polyline(
         omitUndefined({

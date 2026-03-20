@@ -36,7 +36,7 @@ import { omitUndefined } from './utils/omit-undefined.js';
  * 따라서 click, mousedown 등의 UI 이벤트가 네이버맵 이벤트 시스템으로 전달되지 않는다.
  * 지원 이벤트: open, close, *_changed (KVO)
  *
- * useOverlayLifecycle을 쓰지 않는 이유:
+ * useOverlay를 쓰지 않는 이유:
  * - cleanup이 setMap(null)이 아니라 close() (동일하지만 의미적 구분)
  * - open() 시 anchor 처리, position silent set, autoPan 등 추가 로직
  */

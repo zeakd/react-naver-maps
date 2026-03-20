@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
-import { useOverlayLifecycle } from './hooks/use-overlay-lifecycle.js';
+import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
@@ -33,7 +33,7 @@ export function Circle({ ref, ...props }: CircleProps) {
   const navermaps = useNavermaps();
   const map = useMap();
 
-  const circle = useOverlayLifecycle(
+  const circle = useOverlay(
     () =>
       new navermaps.Circle(
         omitUndefined({

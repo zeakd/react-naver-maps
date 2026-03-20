@@ -2,10 +2,14 @@ import type { Ref } from 'react';
 import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 
 /**
- * 오버레이 생명주기 관리 훅.
+ * 네이버맵 오버레이 인스턴스를 React 생명주기에 연결한다.
  *
- * mount: factory() 호출 → 인스턴스 생성
- * unmount: clearInstanceListeners + setMap(null)
+ * 바닐라로 만든 OverlayView 상속 객체를 React 컴포넌트에서 사용할 수 있게 한다.
+ * mount 시 factory()로 인스턴스 생성, unmount 시 clearInstanceListeners + setMap(null).
+ *
+ * ```tsx
+ * const overlay = useOverlay(() => new MyOverlay({ position, map }));
+ * ```
  *
  * ## useLayoutEffect를 쓰는 이유
  *
@@ -29,10 +33,7 @@ import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
  * factory는 마운트 시 1회만 호출된다. 의존성 변경에 의한 재생성은 지원하지 않는다.
  * 재생성이 필요한 GroundOverlay 등은 React key prop으로 제어한다.
  */
-export function useOverlayLifecycle<T>(
-  factory: () => T,
-  ref?: Ref<T>,
-): T | null {
+export function useOverlay<T>(factory: () => T, ref?: Ref<T>): T | null {
   const [instance, setInstance] = useState<T | null>(null);
   const instanceRef = useRef<T | null>(null);
 

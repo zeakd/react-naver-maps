@@ -153,6 +153,18 @@ export function createMockNaverMaps() {
     } as unknown;
   }
 
+  function createTrafficLayerConstructor() {
+    return function (this: unknown, options?: Record<string, unknown>) {
+      const instance = new MockKVO(options);
+      (instance as unknown as Record<string, unknown>).startAutoRefresh =
+        () => {};
+      (instance as unknown as Record<string, unknown>).endAutoRefresh =
+        () => {};
+      instances.push({ type: 'TrafficLayer', instance, options });
+      return instance;
+    } as unknown;
+  }
+
   const Event = {
     addListener: (
       target: MockKVO,
@@ -179,6 +191,9 @@ export function createMockNaverMaps() {
     Polygon: createConstructor('Polygon'),
     Polyline: createConstructor('Polyline'),
     GroundOverlay: createConstructor('GroundOverlay'),
+    CadastralLayer: createConstructor('CadastralLayer'),
+    StreetLayer: createConstructor('StreetLayer'),
+    TrafficLayer: createTrafficLayerConstructor(),
     OverlayView: MockOverlayView,
     LatLng: class MockLatLng {
       lat: number;

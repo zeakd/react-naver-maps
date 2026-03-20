@@ -30,9 +30,9 @@ import type {
  * useLayoutEffect의 의존성 배열 [url, bounds]로 제어하며,
  * cleanup에서 이전 인스턴스를 확실히 정리한다.
  *
- * ## useOverlayLifecycle을 쓰지 않는 이유
+ * ## useOverlay를 쓰지 않는 이유
  *
- * useOverlayLifecycle은 의존성 배열이 []로 고정(마운트 1회)이다.
+ * useOverlay는 의존성 배열이 []로 고정(마운트 1회)이다.
  * url/bounds 변경에 의한 재생성이 필요하므로 직접 useLayoutEffect를 사용한다.
  */
 export interface GroundOverlayProps extends EventHandlerProps<GroundOverlayEvent> {

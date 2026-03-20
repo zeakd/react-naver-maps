@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
-import { useOverlayLifecycle } from './hooks/use-overlay-lifecycle.js';
+import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { EventHandlerProps, MarkerEvent } from './types/overlay-events.js';
 
@@ -39,7 +39,7 @@ export function Marker({ ref, ...props }: MarkerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
 
-  const marker = useOverlayLifecycle(
+  const marker = useOverlay(
     () =>
       new navermaps.Marker(
         omitUndefined({

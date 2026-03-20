@@ -25,6 +25,12 @@ export { Polygon } from './polygon.js';
 export type { PolygonProps } from './polygon.js';
 export { Polyline } from './polyline.js';
 export type { PolylineProps } from './polyline.js';
+export { CadastralLayer } from './cadastral-layer.js';
+export type { CadastralLayerProps } from './cadastral-layer.js';
+export { StreetLayer } from './street-layer.js';
+export type { StreetLayerProps } from './street-layer.js';
+export { TrafficLayer } from './traffic-layer.js';
+export type { TrafficLayerProps } from './traffic-layer.js';
 
 // Types
 export type { StrokeStyle, FillStyle } from './types/shape-style.js';
@@ -39,6 +45,8 @@ export type {
 // Hooks
 export { useNavermaps, preloadNavermaps } from './hooks/use-navermaps.js';
 export { useMap } from './hooks/use-map.js';
+export { useOverlay } from './hooks/use-overlay.js';
+export { useListener } from './hooks/use-listener.js';
 export { useKVO } from './hooks/use-kvo.js';
 export { useControlledKVO } from './hooks/use-controlled-kvo.js';
 
