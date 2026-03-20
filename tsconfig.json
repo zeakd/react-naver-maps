@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-    { "path": "packages/react-naver-maps-v2" },
+    { "path": "packages/react-naver-maps" },
     { "path": "packages/astro-component-docs" }
   ]
 }

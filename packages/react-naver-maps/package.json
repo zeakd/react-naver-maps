@@ -1,6 +1,6 @@
 {
   "name": "react-naver-maps",
-  "version": "2.0.0-alpha.0",
+  "version": "0.1.5",
   "files": [
     "dist"
   ],
@@ -33,9 +33,9 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/browser": "^3.0.0",
-    "oxfmt": "latest",
-    "oxlint": "latest",
-    "playwright": "^1.49.0",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "playwright": "^1.58.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "6.0.1-rc",
