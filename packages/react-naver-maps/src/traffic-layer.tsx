@@ -32,6 +32,8 @@ export function TrafficLayer({
       naver.maps.Event.clearInstanceListeners(layer);
       layer.setMap(null);
     };
+    // interval은 생성자 옵션으로만 전달되므로 deps에 포함하지 않는다.
+    // interval 변경 시 재생성이 필요하면 React key로 제어한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navermaps, map]);
 
