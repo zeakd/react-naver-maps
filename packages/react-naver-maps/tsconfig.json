@@ -17,5 +17,11 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/__tests__/**"
+  ]
 }
