@@ -1,10 +1,26 @@
 {
   "name": "react-naver-maps",
   "version": "0.1.5",
+  "description": "React components for Naver Maps JavaScript API v3",
+  "keywords": [
+    "maps",
+    "naver",
+    "naver-maps",
+    "navermaps",
+    "react"
+  ],
+  "homepage": "https://zeakd.github.io/react-naver-maps",
+  "bugs": "https://github.com/zeakd/react-naver-maps/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeakd/react-naver-maps"
+  },
   "files": [
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/react-naver-maps.d.ts",
