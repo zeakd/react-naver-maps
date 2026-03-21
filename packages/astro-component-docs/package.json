@@ -33,7 +33,8 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
-    "clean": "tsc -b --clean"
+    "clean": "tsc -b --clean",
+    "test": "bun test src/"
   },
   "dependencies": {
     "esast-util-from-js": "^2.0.1",

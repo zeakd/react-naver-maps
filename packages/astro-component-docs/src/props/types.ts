@@ -23,7 +23,6 @@ export interface PropsOverride {
 export interface PackageConfig {
   name: string;
   tsconfig?: string;
-  entrypoint?: string;
   propsOverrides?: Record<string, Record<string, PropsOverride>>;
 }
 
