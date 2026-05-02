@@ -118,7 +118,9 @@ export function CustomOverlay({
   const [overlay, setOverlay] = useState<ReactOverlayViewInstance | null>(null);
   const overlayRef = useRef<ReactOverlayViewInstance | null>(null);
 
-  // satisfies로 propName이 keyof CustomOverlayProps에 속함을 컴파일 시점에 강제
+  // satisfies로 propName이 keyof CustomOverlayProps에 속함을 컴파일 시점에 강제.
+  // 정책: static 호출이 1~2회이면 satisfies, 3회 이상이면 wrapper(useXStatic).
+  // 자세한 정책은 naver-map.tsx의 useNaverMapStatic 주석 참고.
   useStaticProp(
     'CustomOverlay',
     'pane' satisfies keyof CustomOverlayProps,

@@ -392,3 +392,74 @@ describe('NaverMap lifecycle events register via useLayoutEffect (fix-13)', () =
     expect((addCalls.init ?? 0) - before).toBeGreaterThan(0);
   });
 });
+
+describe('NaverMap logoControl one-way controlled (fix-15)', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    setupNaverMock();
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+    delete (globalThis as Record<string, unknown>).naver;
+    lastMapInstance = null;
+  });
+
+  test('logoControl=false 시 dev에서 한 번 경고', () => {
+    render(
+      <Wrapper>
+        <NaverMap logoControl={false} />
+      </Wrapper>,
+    );
+
+    const calls = warnSpy.mock.calls.filter((c) =>
+      String(c[0]).includes('logoControl=false'),
+    );
+    expect(calls).toHaveLength(1);
+  });
+
+  test('logoControl=true 또는 미지정은 경고 없음', () => {
+    const { rerender } = render(
+      <Wrapper>
+        <NaverMap logoControl={true} />
+      </Wrapper>,
+    );
+
+    rerender(
+      <Wrapper>
+        <NaverMap />
+      </Wrapper>,
+    );
+
+    const calls = warnSpy.mock.calls.filter((c) =>
+      String(c[0]).includes('logoControl=false'),
+    );
+    expect(calls).toHaveLength(0);
+  });
+
+  test('logoControl false → true → false 토글 시에도 경고는 한 번만', () => {
+    const { rerender } = render(
+      <Wrapper>
+        <NaverMap logoControl={false} />
+      </Wrapper>,
+    );
+
+    rerender(
+      <Wrapper>
+        <NaverMap logoControl={true} />
+      </Wrapper>,
+    );
+    rerender(
+      <Wrapper>
+        <NaverMap logoControl={false} />
+      </Wrapper>,
+    );
+
+    const calls = warnSpy.mock.calls.filter((c) =>
+      String(c[0]).includes('logoControl=false'),
+    );
+    expect(calls).toHaveLength(1);
+  });
+});

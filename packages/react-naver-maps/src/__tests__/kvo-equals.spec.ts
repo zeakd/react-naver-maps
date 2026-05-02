@@ -37,4 +37,26 @@ describe('kvoEquals', () => {
     const b = { value: 1 };
     expect(kvoEquals(a, b)).toBe(false);
   });
+
+  test('a에 equals 없고 b에 있으면 b.equals(a) 시도 (양쪽 비교)', () => {
+    const literal = { lat: 37.5, lng: 127.0 };
+    const instance = {
+      lat: 37.5,
+      lng: 127.0,
+      equals: function (other: unknown) {
+        return (
+          (other as { lat?: number }).lat === this.lat &&
+          (other as { lng?: number }).lng === this.lng
+        );
+      },
+    };
+    // prev=literal, new=instance
+    expect(kvoEquals(literal, instance)).toBe(true);
+    // prev=instance, new=literal — 기존 케이스
+    expect(kvoEquals(instance, literal)).toBe(true);
+  });
+
+  test('양쪽 모두 equals 없는 객체 → false (deep eq 안 함)', () => {
+    expect(kvoEquals({ a: 1 }, { a: 1 })).toBe(false);
+  });
 });

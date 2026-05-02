@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useControlledKVO, kvoEquals } from './hooks/use-controlled-kvo.js';
-import { useStaticProp } from './hooks/use-static-prop.js';
+import { useStaticProp, isDev } from './hooks/use-static-prop.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
 import { omitUndefined } from './utils/omit-undefined.js';
@@ -268,7 +268,13 @@ interface NaverMapInnerProps extends Omit<NaverMapProps, 'ref'> {
   map: naver.maps.Map;
 }
 
-// keyof NaverMapProps로 propName 오타 방지 + value 타입 매칭 자동 추론
+// keyof NaverMapProps로 propName 오타 방지 + value 타입 매칭 자동 추론.
+//
+// 정책: static prop 호출이 3회 이상이면 wrapper, 1~2회면 satisfies 패턴 사용.
+// - wrapper(이 파일, 5회 호출): 호출 사이트 짧고 일관 — `useNaverMapStatic('foo', x)`
+// - satisfies(CustomOverlay/TrafficLayer, 1회 호출): wrapper 추가 비용 회피 —
+//   `useStaticProp('Comp', 'foo' satisfies keyof Props, x)`
+// 둘 다 컴파일 시점에 propName 오타를 잡고 value 타입을 추론한다.
 function useNaverMapStatic<K extends keyof NaverMapProps>(
   propName: K,
   value: NaverMapProps[K],
@@ -378,16 +384,17 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useNaverMapStatic('useStyleMap', props.useStyleMap);
 
   // logoControl은 일방향 controlled — SDK가 false를 거부 (setRefinedOption: value || true).
-  // useStaticProp으로 "변경 무시"라 안내하면 부정확. 대신 false 시도를 직접 잡아 안내.
+  // false 시도 시 안내. 한 인스턴스당 한 번만 출력하도록 ref로 보호 (toggle 시 폭주 방지).
   const logoControlValue = props.logoControl;
+  const logoWarnedRef = useRef(false);
   useEffect(() => {
-    const proc = (globalThis as { process?: { env?: { NODE_ENV?: string } } })
-      .process;
-    if (proc?.env?.NODE_ENV === 'production') return;
-    if (logoControlValue === false) {
+    if (!isDev) return;
+    if (logoControlValue === false && !logoWarnedRef.current) {
+      logoWarnedRef.current = true;
       // eslint-disable-next-line no-console
       console.warn(
-        '[react-naver-maps] <NaverMap logoControl={false} />: SDK가 logoControl=false를 거부합니다 (내부적으로 true로 강제). 로고는 항상 표시됩니다. 위치만 변경하려면 logoControlOptions를 사용하세요.',
+        '[react-naver-maps] <NaverMap logoControl={false} />: SDK rejects logoControl=false (forces true internally). Logo is always visible. Use logoControlOptions to change position only.\n' +
+          'SDK가 logoControl=false를 거부합니다 (내부적으로 true로 강제). 로고는 항상 표시됩니다. 위치만 변경하려면 logoControlOptions를 사용하세요.',
       );
     }
   }, [logoControlValue]);

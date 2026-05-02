@@ -19,17 +19,24 @@ function capitalize(s: string): string {
  * 배열(paths, path)은 equals가 없으므로 === 비교만 됨.
  * 안정적인 참조를 전달해야 불필요한 setter 호출을 방지할 수 있다.
  */
+type Equatable = { equals: (v: unknown) => boolean };
+
+function hasEquals(v: unknown): v is Equatable {
+  return (
+    v !== null &&
+    typeof v === 'object' &&
+    'equals' in v &&
+    typeof (v as Equatable).equals === 'function'
+  );
+}
+
 export function kvoEquals(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
-  if (
-    typeof a === 'object' &&
-    typeof b === 'object' &&
-    'equals' in a &&
-    typeof (a as { equals: (v: unknown) => boolean }).equals === 'function'
-  ) {
-    return (a as { equals: (v: unknown) => boolean }).equals(b);
-  }
+  // 양쪽 어느 쪽이든 equals가 있으면 시도. prev=literal, new=LatLng instance처럼 한쪽만
+  // SDK 객체일 때(또는 그 반대) false negative를 막는다.
+  if (hasEquals(a)) return a.equals(b);
+  if (hasEquals(b)) return b.equals(a);
   return false;
 }
 

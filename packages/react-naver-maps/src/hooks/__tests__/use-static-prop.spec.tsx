@@ -33,7 +33,7 @@ describe('useStaticProp', () => {
     const { rerender } = render(<Probe value={1} />);
     rerender(<Probe value={2} />);
     expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0]).toContain("'foo'은 static prop입니다");
+    expect(warnSpy.mock.calls[0][0]).toContain("'foo' is a static prop");
     expect(warnSpy.mock.calls[0][0]).toContain('TestComponent');
   });
 

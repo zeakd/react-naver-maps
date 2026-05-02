@@ -132,6 +132,24 @@ function InfoWindowInner({
   open,
   ...props
 }: InfoWindowInnerProps) {
+  // 'open'/'close' 이벤트 listener를 useLayoutEffect로 우선 등록 (paint 전).
+  // 그래야 아래 open useEffect에서 infoWindow.open(map)이 동기 발화하는 'open' 이벤트를
+  // 누락 없이 catch한다. (인터랙션 이벤트와 달리 SDK 메서드 호출 직후 동기 발화 — fix-13과 동일 원리)
+  useLayoutEffect(() => {
+    const listeners: naver.maps.MapEventListener[] = [];
+    if (props.onOpen)
+      listeners.push(
+        naver.maps.Event.addListener(infoWindow, 'open', props.onOpen),
+      );
+    if (props.onClose)
+      listeners.push(
+        naver.maps.Event.addListener(infoWindow, 'close', props.onClose),
+      );
+    return () => {
+      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+    };
+  }, [infoWindow, props.onOpen, props.onClose]);
+
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   useEffect(() => {
     if (open === undefined) return;
@@ -165,22 +183,6 @@ function InfoWindowInner({
   useControlledKVO(infoWindow, 'anchorSize', props.anchorSize);
   useControlledKVO(infoWindow, 'anchorColor', props.anchorColor);
   useControlledKVO(infoWindow, 'pixelOffset', props.pixelOffset);
-
-  // 이벤트: open, close (네이버맵 이벤트 시스템에서 발화하는 이벤트만)
-  useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
-    if (props.onOpen)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'open', props.onOpen),
-      );
-    if (props.onClose)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'close', props.onClose),
-      );
-    return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
-    };
-  }, [infoWindow, props.onOpen, props.onClose]);
 
   return null;
 }

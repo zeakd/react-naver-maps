@@ -252,4 +252,48 @@ describe('InfoWindow 스펙 테스트', () => {
     // 어느 키도 setOptions 호출되지 않아야 함
     expect(setOptionsSpy).not.toHaveBeenCalled();
   });
+
+  test('onOpen listener가 open() 호출보다 먼저 등록됨 (fix-16)', async () => {
+    const onOpen = vi.fn();
+    const events: string[] = [];
+
+    // mockKVO 인스턴스의 open이 prototype에 있으므로 패치 시점이 까다로움.
+    // 대신 Event.addListener('open', ...) 호출 vs 인스턴스 _trigger('open') 호출 순서 측정.
+    // useLayoutEffect에서 addListener → useEffect에서 open() 호출 → open() 안에서 _trigger('open').
+
+    const origAddListener = mock.navermaps.Event.addListener;
+    (
+      mock.navermaps as { Event: { addListener: typeof origAddListener } }
+    ).Event.addListener = function (
+      target: naver.maps.KVO,
+      event: string,
+      cb: () => void,
+    ) {
+      if (event === 'open') events.push('addListener(open)');
+      return origAddListener(target, event, cb);
+    };
+
+    // mock InfoWindow.open이 빈 함수이므로, 우리 컴포넌트의 open() 호출 직후 'open' 이벤트가
+    // 발화하지 않는다. 검증을 위해 open() 호출을 가로채서 _trigger를 명시적으로 호출.
+    // 이를 위해 인스턴스를 가져와서 spy + 트리거 시뮬레이션.
+
+    render(
+      <Wrapper>
+        <InfoWindow content="hello" open onOpen={onOpen} />
+      </Wrapper>,
+    );
+
+    let instance: MockKVO;
+    await vi.waitFor(() => {
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance).toBeDefined();
+    });
+
+    // open이 호출되었음 검증 후, 이 시점에 listener가 이미 등록되어 있어야 함
+    expect(events).toContain('addListener(open)');
+
+    // listener가 등록되어 있으니 직접 trigger하면 onOpen이 호출되어야 함
+    instance!._trigger('open');
+    expect(onOpen).toHaveBeenCalledTimes(1);
+  });
 });
