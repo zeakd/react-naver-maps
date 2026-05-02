@@ -7,54 +7,70 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
+const FALLBACK_CENTER = { lat: 37.5666805, lng: 126.9784147 };
+
+type LocationState =
+  | { status: 'pending' }
+  | { status: 'success'; lat: number; lng: number }
+  | { status: 'error'; lat: number; lng: number };
+
 function GeolocationMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
-  const [location, setLocation] = useState<{
-    lat: number;
-    lng: number;
-    loaded: boolean;
-    error: boolean;
-  }>({
-    lat: 37.5666805,
-    lng: 126.9784147,
-    loaded: false,
-    error: false,
+  const [location, setLocation] = useState<LocationState>({
+    status: 'pending',
   });
 
   useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocation({ status: 'error', ...FALLBACK_CENTER });
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setLocation({
-          lat: latitude,
-          lng: longitude,
-          loaded: true,
-          error: false,
-        });
-
-        if (mapRef.current) {
-          mapRef.current.setCenter(new navermaps.LatLng(latitude, longitude));
-          mapRef.current.setZoom(10);
-        }
+        setLocation({ status: 'success', lat: latitude, lng: longitude });
+        mapRef.current?.setCenter(new navermaps.LatLng(latitude, longitude));
       },
-      (err) => {
-        console.error('Geolocation error:', err);
-        setLocation((prev) => ({ ...prev, loaded: true, error: true }));
+      () => {
+        const center = mapRef.current?.getCenter();
+        setLocation({
+          status: 'error',
+          lat: center?.y ?? FALLBACK_CENTER.lat,
+          lng: center?.x ?? FALLBACK_CENTER.lng,
+        });
       },
     );
   }, [navermaps]);
 
+  const renderContent = () => {
+    if (location.status === 'success') {
+      return `<div style="padding:20px;">geolocation.getCurrentPosition() 위치</div>`;
+    }
+    if (location.status === 'error') {
+      return (
+        `<div style="padding:20px;">` +
+        `<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>` +
+        `latitude: ${location.lat}<br />longitude: ${location.lng}` +
+        `</div>`
+      );
+    }
+    return '';
+  };
+
   return (
     <NaverMap
       ref={mapRef}
-      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultCenter={
+        new navermaps.LatLng(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng)
+      }
       defaultZoom={10}
     >
-      {location.loaded && (
+      {location.status !== 'pending' && (
         <InfoWindow
+          open
           position={new navermaps.LatLng(location.lat, location.lng)}
-          content={location.error ? '위치를 가져올 수 없습니다' : '현재 위치'}
+          content={renderContent()}
         />
       )}
     </NaverMap>

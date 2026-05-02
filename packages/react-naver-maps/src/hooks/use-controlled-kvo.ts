@@ -85,17 +85,37 @@ export function useControlledKVO(
     }
     if (value === undefined) return;
 
-    const current = target.get(property);
+    // setter/getter 우선순위 (높은 순):
+    //   1. 전용 setX/getX 메서드 — Map.setMapTypeId처럼 추가 부수효과 수행 (registry 전환 등)
+    //   2. setOptions(key, value)/getOptions(key) — Map은 옵션을 _mapOptions(별도 KVO)에
+    //      저장하므로 이 경로를 통해서만 SDK가 보는 실제 값이 바뀐다. Marker도 동일 시그니처.
+    //   3. set(key, value)/get(key) — 자체 KVO 직접 접근 (위 둘 다 없을 때)
+    //
+    // setMapTypeId는 mapTypes.setSelectedTypeId를 호출해서 registry를 전환.
+    // setOptions로 mapTypeId를 바꾸면 mapOptions의 KVO만 갱신되고 registry는 안 바뀐다.
+    // 따라서 전용 setter 우선이 정답.
+    const setterName = `set${capitalize(property)}`;
+    const getterName = `get${capitalize(property)}`;
+    const t = target as unknown as Record<string, unknown>;
+    const hasSetter = typeof t[setterName] === 'function';
+    const hasGetter = typeof t[getterName] === 'function';
+    const hasOptions =
+      typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+
+    let current: unknown;
+    if (hasGetter) {
+      current = (t[getterName] as () => unknown)();
+    } else if (hasOptions) {
+      current = (t.getOptions as (key: string) => unknown)(property);
+    } else {
+      current = target.get(property);
+    }
     if (kvoEquals(current, value)) return;
 
-    const setterName = `set${capitalize(property)}`;
-    if (
-      typeof (target as unknown as Record<string, unknown>)[setterName] ===
-      'function'
-    ) {
-      (target as unknown as Record<string, (v: unknown) => void>)[setterName](
-        value,
-      );
+    if (hasSetter) {
+      (t[setterName] as (v: unknown) => void)(value);
+    } else if (hasOptions) {
+      (t.setOptions as (key: string, value: unknown) => void)(property, value);
     } else {
       target.set(property, value);
     }

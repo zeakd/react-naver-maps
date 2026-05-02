@@ -89,4 +89,24 @@ describe('TrafficLayer', () => {
     );
     expect(setMapSpy).toHaveBeenCalledWith(null);
   });
+
+  /**
+   * fix-07: autoRefresh 미지정(undefined) 시 endAutoRefresh를 호출하지 않아야 한다.
+   * 사용자가 prop을 안 줬으면 SDK 기본값을 따라야 함 (false로 강제하면 안 됨).
+   */
+  test('autoRefresh 미지정 시 endAutoRefresh/startAutoRefresh 모두 미호출 (fix-07)', () => {
+    render(<TrafficLayer />);
+
+    expect(lastInstance.endAutoRefresh).not.toHaveBeenCalled();
+    expect(lastInstance.startAutoRefresh).not.toHaveBeenCalled();
+  });
+
+  test('autoRefresh undefined → undefined rerender도 미호출 유지 (fix-07)', () => {
+    const { rerender } = render(<TrafficLayer />);
+
+    rerender(<TrafficLayer interval={5000} />);
+
+    expect(lastInstance.endAutoRefresh).not.toHaveBeenCalled();
+    expect(lastInstance.startAutoRefresh).not.toHaveBeenCalled();
+  });
 });

@@ -21,6 +21,13 @@ export interface PolygonProps
   // Uncontrolled
   defaultPaths?: naver.maps.ArrayOfCoords[] | naver.maps.ArrayOfCoordsLiteral[];
 
+  /**
+   * path 단순화 강도. 정수, 1 이상.
+   * 값이 클수록 더 많은 점을 줄여 렌더 성능을 높이지만 모양이 거칠어진다.
+   * 변경 시 즉시 redraw된다 (`_simplifyLevel_changed` 핸들러).
+   */
+  simplifyLevel?: number;
+
   // Options
   clickable?: boolean;
   visible?: boolean;
@@ -45,6 +52,7 @@ export function Polygon({ ref, ...props }: PolygonProps) {
           strokeLineJoin: props.strokeLineJoin,
           fillColor: props.fillColor,
           fillOpacity: props.fillOpacity,
+          simplifyLevel: props.simplifyLevel,
           clickable: props.clickable,
           visible: props.visible,
           zIndex: props.zIndex,
@@ -73,6 +81,7 @@ function PolygonInner({ polygon, ...props }: PolygonInnerProps) {
   useControlledKVO(polygon, 'strokeLineJoin', props.strokeLineJoin);
   useControlledKVO(polygon, 'fillColor', props.fillColor);
   useControlledKVO(polygon, 'fillOpacity', props.fillOpacity);
+  useControlledKVO(polygon, 'simplifyLevel', props.simplifyLevel);
   useControlledKVO(polygon, 'clickable', props.clickable);
   useControlledKVO(polygon, 'visible', props.visible);
   useControlledKVO(polygon, 'zIndex', props.zIndex);

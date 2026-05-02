@@ -158,4 +158,98 @@ describe('InfoWindow 스펙 테스트', () => {
       expect(addSpy).toHaveBeenCalledWith(expect.anything(), 'open', onOpen);
     });
   });
+
+  /**
+   * fix-08: InfoWindow를 per-key useControlledKVO로 전환.
+   *
+   * 객체 일괄 setOptions(obj) 호출은 deps 단일 변경에도 모든 키 _changed 발화.
+   * per-key 구조에서는 변경된 키만 setOptions(key, val) 호출되어야 한다.
+   */
+  test('position 변경 시 setOptions("position", ...)만 호출 + 다른 옵션 미호출 (fix-08)', async () => {
+    const p1 = { lat: 37.5, lng: 127.0 };
+    const p2 = { lat: 38.0, lng: 128.0 };
+
+    const { rerender } = render(
+      <Wrapper>
+        <InfoWindow
+          content="hello"
+          position={p1}
+          maxWidth={300}
+          backgroundColor="#fff"
+          zIndex={5}
+        />
+      </Wrapper>,
+    );
+
+    let instance: MockKVO;
+    await vi.waitFor(() => {
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance).toBeDefined();
+    });
+
+    const setOptionsSpy = vi.spyOn(instance!, 'setOptions');
+    const setSpy = vi.spyOn(instance!, 'set');
+
+    rerender(
+      <Wrapper>
+        <InfoWindow
+          content="hello"
+          position={p2}
+          maxWidth={300}
+          backgroundColor="#fff"
+          zIndex={5}
+        />
+      </Wrapper>,
+    );
+
+    // position만 setOptions로 라우팅 (setX인 setPosition이 있으면 그 경로 사용)
+    // — 두 경로 중 하나는 호출되어야 함
+    await vi.waitFor(() => {
+      const positionUpdated =
+        setOptionsSpy.mock.calls.some((c) => c[0] === 'position') ||
+        setSpy.mock.calls.some((c) => c[0] === 'position');
+      expect(positionUpdated).toBe(true);
+    });
+
+    // 다른 옵션은 setOptions로 호출되지 않아야 함 (per-key 검증)
+    const otherKeys = [
+      'maxWidth',
+      'backgroundColor',
+      'zIndex',
+      'borderColor',
+      'pixelOffset',
+    ];
+    for (const key of otherKeys) {
+      expect(setOptionsSpy).not.toHaveBeenCalledWith(key, expect.anything());
+      expect(setSpy).not.toHaveBeenCalledWith(key, expect.anything());
+    }
+  });
+
+  test('다른 prop 미변경 시 InfoWindow 옵션 setOptions 미호출 (fix-08)', async () => {
+    const p1 = { lat: 37.5, lng: 127.0 };
+
+    const { rerender } = render(
+      <Wrapper>
+        <InfoWindow content="hello" position={p1} maxWidth={300} />
+      </Wrapper>,
+    );
+
+    let instance: MockKVO;
+    await vi.waitFor(() => {
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance).toBeDefined();
+    });
+
+    const setOptionsSpy = vi.spyOn(instance!, 'setOptions');
+
+    // 동일 props로 rerender
+    rerender(
+      <Wrapper>
+        <InfoWindow content="hello" position={p1} maxWidth={300} />
+      </Wrapper>,
+    );
+
+    // 어느 키도 setOptions 호출되지 않아야 함
+    expect(setOptionsSpy).not.toHaveBeenCalled();
+  });
 });

@@ -101,3 +101,51 @@ describe('useKVO', () => {
     mockKVO.set('zoom', 20);
   });
 });
+
+/**
+ * fix-06: useKVO가 Map의 _mapOptions로 라우팅되어야 한다.
+ *
+ * Map은 옵션을 별도 _mapOptions KVO에 저장한다. addListener를 Map 본체에 걸면
+ * draggable_changed 같은 이벤트는 발화하지 않는다 — _mapOptions에 걸어야 한다.
+ * 또한 getOptions(key)로 읽어야 SDK가 보는 실제 값을 반환한다.
+ */
+describe('useKVO with Map._mapOptions (fix-06)', () => {
+  test('Map의 _mapOptions에 listener 등록 + getOptions로 값 조회', () => {
+    const mapOptions = new MockKVO();
+    mapOptions.set('draggable', true);
+
+    // Map 모방: _mapOptions, setOptions/getOptions 보유
+    const map = {
+      _mapOptions: mapOptions,
+      setOptions: (key: string, value: any) => mapOptions.set(key, value),
+      getOptions: (key: string) => mapOptions.get(key),
+      get: (_key: string) => undefined, // 본체 KVO에는 값이 없음
+    };
+
+    (globalThis as any).naver = {
+      maps: {
+        Event: {
+          addListener: (target: any, eventName: string, cb: () => void) => {
+            return target._addListener(eventName, cb);
+          },
+          removeListener: () => {},
+        },
+      },
+    };
+
+    const { result } = renderHook(() =>
+      useKVO<boolean>(map as any, 'draggable'),
+    );
+
+    // 초기값: getOptions(_mapOptions)로 조회됨
+    expect(result.current).toBe(true);
+
+    // map.setOptions('draggable', false) → _mapOptions에 set → draggable_changed 발화
+    // → useKVO가 구독 중이므로 React 리렌더 발생
+    act(() => {
+      map.setOptions('draggable', false);
+    });
+
+    expect(result.current).toBe(false);
+  });
+});

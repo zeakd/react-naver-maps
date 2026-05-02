@@ -11,12 +11,19 @@ import {
 import { createPortal } from 'react-dom';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { kvoEquals } from './hooks/use-controlled-kvo.js';
+import { useStaticProp } from './hooks/use-static-prop.js';
 
-/** React children을 지도 위 특정 좌표에 렌더링한다. Portal 기반. */
+/**
+ * React children을 지도 위 특정 좌표에 렌더링한다. Portal 기반.
+ *
+ * `pane`은 생성 시에만 적용된다. 런타임에 다른 pane으로 옮기려면 React `key`로 재마운트한다.
+ */
 export interface CustomOverlayProps {
   ref?: Ref<naver.maps.OverlayView>;
   position: naver.maps.LatLng | naver.maps.LatLngLiteral;
   children: React.ReactNode;
+  /** 생성 시점에만 적용. 변경하려면 React `key`로 재마운트. */
   pane?: string;
   anchor?: naver.maps.Point;
   zIndex?: number;
@@ -111,6 +118,13 @@ export function CustomOverlay({
   const [overlay, setOverlay] = useState<ReactOverlayViewInstance | null>(null);
   const overlayRef = useRef<ReactOverlayViewInstance | null>(null);
 
+  // satisfies로 propName이 keyof CustomOverlayProps에 속함을 컴파일 시점에 강제
+  useStaticProp(
+    'CustomOverlay',
+    'pane' satisfies keyof CustomOverlayProps,
+    pane,
+  );
+
   useLayoutEffect(() => {
     const OverlayViewClass = createOverlayViewClass(navermaps);
     const instance = new OverlayViewClass({ position, pane, anchor, zIndex });
@@ -127,12 +141,23 @@ export function CustomOverlay({
 
   useImperativeHandle(ref, () => overlayRef.current!);
 
+  // 인라인 LatLng/Point 객체로 매 렌더 새 참조가 들어와도 LatLng.equals/Point.equals로
+  // 실제 값이 같으면 setter를 건너뛴다. setPosition/setAnchor는 draw()를 호출하므로
+  // 빈 호출은 좌표 변환 + DOM 갱신 비용이 든다.
+  const prevPositionRef = useRef<typeof position | null>(null);
   useEffect(() => {
-    overlay?.setPosition(position);
+    if (!overlay) return;
+    if (kvoEquals(prevPositionRef.current, position)) return;
+    prevPositionRef.current = position;
+    overlay.setPosition(position);
   }, [overlay, position]);
 
+  const prevAnchorRef = useRef<typeof anchor | null>(null);
   useEffect(() => {
-    overlay?.setAnchor(anchor);
+    if (!overlay) return;
+    if (kvoEquals(prevAnchorRef.current, anchor)) return;
+    prevAnchorRef.current = anchor;
+    overlay.setAnchor(anchor);
   }, [overlay, anchor]);
 
   useEffect(() => {

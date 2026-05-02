@@ -27,6 +27,13 @@ export interface PolylineProps
   endIcon?: naver.maps.PointingIcon;
   endIconSize?: number;
 
+  /**
+   * path 단순화 강도. 정수, 1 이상.
+   * 값이 클수록 더 많은 점을 줄여 렌더 성능을 높이지만 모양이 거칠어진다.
+   * 변경 시 즉시 redraw된다 (`_simplifyLevel_changed` 핸들러).
+   */
+  simplifyLevel?: number;
+
   // Options
   clickable?: boolean;
   visible?: boolean;
@@ -53,6 +60,7 @@ export function Polyline({ ref, ...props }: PolylineProps) {
           startIconSize: props.startIconSize,
           endIcon: props.endIcon,
           endIconSize: props.endIconSize,
+          simplifyLevel: props.simplifyLevel,
           clickable: props.clickable,
           visible: props.visible,
           zIndex: props.zIndex,
@@ -83,6 +91,7 @@ function PolylineInner({ polyline, ...props }: PolylineInnerProps) {
   useControlledKVO(polyline, 'startIconSize', props.startIconSize);
   useControlledKVO(polyline, 'endIcon', props.endIcon);
   useControlledKVO(polyline, 'endIconSize', props.endIconSize);
+  useControlledKVO(polyline, 'simplifyLevel', props.simplifyLevel);
   useControlledKVO(polyline, 'clickable', props.clickable);
   useControlledKVO(polyline, 'visible', props.visible);
   useControlledKVO(polyline, 'zIndex', props.zIndex);

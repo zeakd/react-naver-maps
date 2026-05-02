@@ -151,40 +151,20 @@ function InfoWindowInner({
     infoWindow.setContent(content);
   }, [infoWindow, content]);
 
-  // 옵션 변경 시 setOptions
-  useEffect(() => {
-    infoWindow.setOptions(
-      omitUndefined({
-        maxWidth: props.maxWidth,
-        backgroundColor: props.backgroundColor,
-        borderColor: props.borderColor,
-        borderWidth: props.borderWidth,
-        disableAutoPan: props.disableAutoPan,
-        disableAnchor: props.disableAnchor,
-        anchorSkew: props.anchorSkew,
-        anchorSize: props.anchorSize,
-        anchorColor: props.anchorColor,
-        pixelOffset: props.pixelOffset,
-        zIndex: props.zIndex,
-      }) as naver.maps.InfoWindowOptions,
-    );
-  }, [
-    infoWindow,
-    props.maxWidth,
-    props.backgroundColor,
-    props.borderColor,
-    props.borderWidth,
-    props.disableAutoPan,
-    props.disableAnchor,
-    props.anchorSkew,
-    props.anchorSize,
-    props.anchorColor,
-    props.pixelOffset,
-    props.zIndex,
-  ]);
-
-  // position 변경
+  // 개별 옵션을 useControlledKVO로 처리 — equality 검사 후 변경된 키만 setOptions(key, val).
+  // 객체 setOptions(obj) 일괄 호출은 deps 하나만 바뀌어도 모든 키 _changed 발화 + resize/draw → 폭주 위험.
   useControlledKVO(infoWindow, 'position', props.position);
+  useControlledKVO(infoWindow, 'zIndex', props.zIndex);
+  useControlledKVO(infoWindow, 'maxWidth', props.maxWidth);
+  useControlledKVO(infoWindow, 'backgroundColor', props.backgroundColor);
+  useControlledKVO(infoWindow, 'borderColor', props.borderColor);
+  useControlledKVO(infoWindow, 'borderWidth', props.borderWidth);
+  useControlledKVO(infoWindow, 'disableAutoPan', props.disableAutoPan);
+  useControlledKVO(infoWindow, 'disableAnchor', props.disableAnchor);
+  useControlledKVO(infoWindow, 'anchorSkew', props.anchorSkew);
+  useControlledKVO(infoWindow, 'anchorSize', props.anchorSize);
+  useControlledKVO(infoWindow, 'anchorColor', props.anchorColor);
+  useControlledKVO(infoWindow, 'pixelOffset', props.pixelOffset);
 
   // 이벤트: open, close (네이버맵 이벤트 시스템에서 발화하는 이벤트만)
   useEffect(() => {

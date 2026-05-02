@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { useStaticProp } from './hooks/use-static-prop.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 
 /** 실시간 교통 레이어를 지도 위에 표시한다. */
@@ -24,6 +25,13 @@ export function TrafficLayer({
   const map = useMap();
   const layerRef = useRef<naver.maps.TrafficLayer | null>(null);
 
+  // satisfies로 propName이 keyof TrafficLayerProps에 속함을 컴파일 시점에 강제
+  useStaticProp(
+    'TrafficLayer',
+    'interval' satisfies keyof TrafficLayerProps,
+    interval,
+  );
+
   useLayoutEffect(() => {
     const layer = new navermaps.TrafficLayer(omitUndefined({ interval }));
     layer.setMap(map);
@@ -40,6 +48,8 @@ export function TrafficLayer({
   useEffect(() => {
     const layer = layerRef.current;
     if (!layer) return;
+    // prop 미지정 시 SDK 기본값에 맡기고 호출하지 않는다.
+    if (autoRefresh === undefined) return;
     if (autoRefresh) {
       layer.startAutoRefresh();
     } else {

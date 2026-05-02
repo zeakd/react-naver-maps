@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useControlledKVO, kvoEquals } from './hooks/use-controlled-kvo.js';
+import { useStaticProp } from './hooks/use-static-prop.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
 import { omitUndefined } from './utils/omit-undefined.js';
@@ -37,11 +38,47 @@ export interface NaverMapProps {
   defaultCenterPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Static options (생성 시에만 적용)
-  minZoom?: number;
-  maxZoom?: number;
+  /**
+   * 로고 컨트롤 표시 여부. SDK 패턴: 일방향 controlled.
+   * - `true`/미지정: 표시 (SDK 기본).
+   * - `false`: SDK가 `setRefinedOption`에서 `value || true`로 강제 변환하여 거부.
+   *
+   * 즉 false로는 끌 수 없다. 위치만 바꾸려면 `logoControlOptions`를 사용한다.
+   * dev에서 `false` 시도 시 console.warn으로 안내.
+   */
   logoControl?: boolean;
+  /**
+   * X축 타일 반복(세계 일주). SDK 패턴: static.
+   * 런타임 변경 시 tile system 재구성이 필요해 생성자에만 적용한다.
+   */
+  repeatX?: boolean;
+  /**
+   * GL 벡터맵 활성화. SDK 패턴: static.
+   * 런타임 변경 시 SDK가 `switchTo()`로 렌더 모드 전체를 교체하므로 비싸고 위험.
+   * 생성자에만 적용한다. 사용 시 GL 서브모듈을 함께 로드해야 한다.
+   */
+  gl?: boolean;
+  /**
+   * Style Editor에서 발행한 My Style ID. SDK 패턴: static (GL 모드 전용).
+   * 생성자에만 적용한다.
+   */
+  customStyleId?: string;
+  /** 스타일 맵 사용 여부. SDK 패턴: static. 생성자에만 적용한다. */
+  useStyleMap?: boolean;
 
   // Controlled options (런타임 변경 가능)
+  minZoom?: number;
+  maxZoom?: number;
+
+  // Controlled options (런타임 변경 가능)
+  /** 커서 스타일. SDK 패턴: controlled (`setCursor`/`getCursor`). */
+  cursor?: string;
+  /** 지도 기울기(GL 모드). SDK 패턴: controlled (`setTilt`/`getTilt`, `tilt_changed`). */
+  tilt?: number;
+  /** 지도 회전(GL 모드). SDK 패턴: controlled (`setRotation`/`getRotation`, `rotation_changed`). */
+  rotation?: number;
+  /** 타일 페이드 인 효과 지속 시간(ms). SDK 패턴: controlled (KVO 옵션). */
+  tileDuration?: number;
   background?: string;
   baseTileOpacity?: number;
   draggable?: boolean;
@@ -79,6 +116,8 @@ export interface NaverMapProps {
   onSizeChanged?: (value: naver.maps.Size) => void;
   onCenterPointChanged?: (value: naver.maps.Point) => void;
   onMapTypeChanged?: (value: naver.maps.MapType) => void;
+  onTiltChanged?: (value: number) => void;
+  onRotationChanged?: (value: number) => void;
 
   // 맵 라이프사이클 이벤트
   onInit?: () => void;
@@ -156,6 +195,10 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
         size: props.size ?? props.defaultSize,
         minZoom: props.minZoom,
         maxZoom: props.maxZoom,
+        cursor: props.cursor,
+        tilt: props.tilt,
+        rotation: props.rotation,
+        tileDuration: props.tileDuration,
         background: props.background,
         baseTileOpacity: props.baseTileOpacity,
         draggable: props.draggable,
@@ -185,6 +228,11 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
         tileSpare: props.tileSpare,
         zoomOrigin: props.zoomOrigin,
         blankTileImage: props.blankTileImage,
+        // Static (생성자에만 적용)
+        repeatX: props.repeatX,
+        gl: props.gl,
+        customStyleId: props.customStyleId,
+        useStyleMap: props.useStyleMap,
       }),
     );
     // centerPoint는 MapOptions에 정의되지 않으므로 생성 후 직접 설정
@@ -218,6 +266,14 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
 
 interface NaverMapInnerProps extends Omit<NaverMapProps, 'ref'> {
   map: naver.maps.Map;
+}
+
+// keyof NaverMapProps로 propName 오타 방지 + value 타입 매칭 자동 추론
+function useNaverMapStatic<K extends keyof NaverMapProps>(
+  propName: K,
+  value: NaverMapProps[K],
+): void {
+  useStaticProp('NaverMap', propName, value);
 }
 
 function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
@@ -314,6 +370,28 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     };
   });
 
+  // Static props (마운트 시에만 적용 — 변경 시 dev에서 경고)
+  // wrapper로 keyof NaverMapProps 강제 → propName 오타 시 컴파일 에러
+  useNaverMapStatic('repeatX', props.repeatX);
+  useNaverMapStatic('gl', props.gl);
+  useNaverMapStatic('customStyleId', props.customStyleId);
+  useNaverMapStatic('useStyleMap', props.useStyleMap);
+
+  // logoControl은 일방향 controlled — SDK가 false를 거부 (setRefinedOption: value || true).
+  // useStaticProp으로 "변경 무시"라 안내하면 부정확. 대신 false 시도를 직접 잡아 안내.
+  const logoControlValue = props.logoControl;
+  useEffect(() => {
+    const proc = (globalThis as { process?: { env?: { NODE_ENV?: string } } })
+      .process;
+    if (proc?.env?.NODE_ENV === 'production') return;
+    if (logoControlValue === false) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[react-naver-maps] <NaverMap logoControl={false} />: SDK가 logoControl=false를 거부합니다 (내부적으로 true로 강제). 로고는 항상 표시됩니다. 위치만 변경하려면 logoControlOptions를 사용하세요.',
+      );
+    }
+  }, [logoControlValue]);
+
   // =========================================================================
   // 저주기 KVO: useControlledKVO 유지
   //
@@ -321,7 +399,13 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   // 드래그 중 변경되지 않으므로 useControlledKVO의 매 렌더 비교가 문제되지 않음.
   // =========================================================================
   useControlledKVO(map, 'mapTypeId', props.mapTypeId);
+  useControlledKVO(map, 'minZoom', props.minZoom);
+  useControlledKVO(map, 'maxZoom', props.maxZoom);
   useControlledKVO(map, 'size', props.size);
+  useControlledKVO(map, 'cursor', props.cursor);
+  useControlledKVO(map, 'tilt', props.tilt);
+  useControlledKVO(map, 'rotation', props.rotation);
+  useControlledKVO(map, 'tileDuration', props.tileDuration);
   useControlledKVO(map, 'background', props.background);
   useControlledKVO(map, 'baseTileOpacity', props.baseTileOpacity);
   useControlledKVO(map, 'draggable', props.draggable);
@@ -355,6 +439,20 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useControlledKVO(map, 'zoomOrigin', props.zoomOrigin);
   useControlledKVO(map, 'blankTileImage', props.blankTileImage);
 
+  // 라이프사이클 이벤트(init/idle/tilesloaded 등)는 SDK가 동기 또는 빠른 async로 발화.
+  // useEffect(paint 후)는 1 프레임 늦어 init을 놓칠 수 있으므로 useLayoutEffect로 등록.
+  useLayoutEffect(() => {
+    const add = naver.maps.Event.addListener;
+    const ls: naver.maps.MapEventListener[] = [];
+    if (props.onInit) ls.push(add(map, 'init', props.onInit));
+    if (props.onIdle) ls.push(add(map, 'idle', props.onIdle));
+    if (props.onTilesloaded)
+      ls.push(add(map, 'tilesloaded', props.onTilesloaded));
+    return () => {
+      ls.forEach((l) => naver.maps.Event.removeListener(l));
+    };
+  }, [map, props.onInit, props.onIdle, props.onTilesloaded]);
+
   // Events
   useEffect(() => {
     const add = naver.maps.Event.addListener;
@@ -375,14 +473,14 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       ls.push(add(map, 'centerPoint_changed', props.onCenterPointChanged));
     if (props.onMapTypeChanged)
       ls.push(add(map, 'mapType_changed', props.onMapTypeChanged));
+    if (props.onTiltChanged)
+      ls.push(add(map, 'tilt_changed', props.onTiltChanged));
+    if (props.onRotationChanged)
+      ls.push(add(map, 'rotation_changed', props.onRotationChanged));
 
-    // 라이프사이클
-    if (props.onInit) ls.push(add(map, 'init', props.onInit));
-    if (props.onIdle) ls.push(add(map, 'idle', props.onIdle));
+    // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect로 분리됨 — 누락 방지)
     if (props.onPanning) ls.push(add(map, 'panning', props.onPanning));
     if (props.onZooming) ls.push(add(map, 'zooming', props.onZooming));
-    if (props.onTilesloaded)
-      ls.push(add(map, 'tilesloaded', props.onTilesloaded));
     if (props.onResize) ls.push(add(map, 'resize', props.onResize));
     if (props.onProjectionChanged)
       ls.push(add(map, 'projection_changed', props.onProjectionChanged));
@@ -439,12 +537,11 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     props.onSizeChanged,
     props.onCenterPointChanged,
     props.onMapTypeChanged,
-    // 라이프사이클
-    props.onInit,
-    props.onIdle,
+    props.onTiltChanged,
+    props.onRotationChanged,
+    // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect deps로 분리됨)
     props.onPanning,
     props.onZooming,
-    props.onTilesloaded,
     props.onResize,
     props.onProjectionChanged,
     props.onAddLayer,

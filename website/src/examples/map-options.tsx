@@ -65,7 +65,7 @@ function MapOptionsMapContent({
 
 function MapOptionsMap() {
   const [interaction, setInteraction] = useState(true);
-  const [kineticPan, setKineticPan] = useState(false);
+  const [kineticPan, setKineticPan] = useState(true);
   const [tileTransition, setTileTransition] = useState(true);
   const [controls, setControls] = useState(true);
   const [minZoom, setMinZoom] = useState(7);
