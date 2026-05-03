@@ -96,9 +96,17 @@ export class MockKVO {
     this.set('path', path);
   }
 
-  // InfoWindow 전용
-  open(..._args: unknown[]): void {}
-  close(): void {}
+  // InfoWindow 전용 — SDK 동작 시뮬레이션:
+  //   open(map, ?anchor): setMap(map) → onAdd → 'open' 이벤트 동기 발화
+  //   close(): setMap(null) → onRemove → 'close' 동기 발화
+  // 이 동작이 있어야 fix-16(onOpen useLayoutEffect 등록)의 timing 보호를
+  // 회귀 테스트가 실제로 catch할 수 있음.
+  open(..._args: unknown[]): void {
+    this._trigger('open');
+  }
+  close(): void {
+    this._trigger('close');
+  }
   setContent(_content: unknown): void {}
   setOptions(_options: unknown): void {}
 

@@ -133,8 +133,10 @@ function InfoWindowInner({
   ...props
 }: InfoWindowInnerProps) {
   // 'open'/'close' 이벤트 listener를 useLayoutEffect로 우선 등록 (paint 전).
-  // 그래야 아래 open useEffect에서 infoWindow.open(map)이 동기 발화하는 'open' 이벤트를
-  // 누락 없이 catch한다. (인터랙션 이벤트와 달리 SDK 메서드 호출 직후 동기 발화 — fix-13과 동일 원리)
+  // 같은 컴포넌트 내에서 React가 hook 등록 순서를 보장하므로 useEffect로도 timing 자체는
+  // 안전하지만(이 컴포넌트는 listener 등록 다음에 open() 호출 useEffect가 따라옴),
+  // 향후 코드 변경이나 SDK가 다른 곳에서 동기 발화하는 패턴을 추가했을 때 안전하도록 보수적으로
+  // useLayoutEffect 사용. (fix-16, fix-13과 동일한 라이프사이클 이벤트 정책)
   useLayoutEffect(() => {
     const listeners: naver.maps.MapEventListener[] = [];
     if (props.onOpen)
