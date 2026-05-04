@@ -17,6 +17,10 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # astro-component-docs의 test 스크립트가 bun 사용 (bun test src/)
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm -r run lint
