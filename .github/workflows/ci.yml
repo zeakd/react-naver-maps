@@ -23,7 +23,7 @@ jobs:
           bun-version: latest
       - run: pnpm install --frozen-lockfile
       # vitest browser mode가 Playwright Chromium 헤드리스를 사용하므로 설치 필요
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter react-naver-maps exec playwright install --with-deps chromium
       - run: pnpm -r run build
       - run: pnpm -r run lint
       - run: pnpm -r run test
