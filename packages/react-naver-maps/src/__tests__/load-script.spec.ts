@@ -101,14 +101,14 @@ describe('waitForJsContentLoaded', () => {
 
     const promise = waitForJsContentLoaded(maps);
 
-    // 우리가 새로 등록한 콜백 발화
+    // waitForJsContentLoaded 가 새로 등록한 콜백 발화
     (maps as any).onJSContentLoaded();
     await promise;
 
     expect(prevCalled).toBe(true);
   });
 
-  test('기존 onJSContentLoaded 핸들러가 throw 해도 우리 resolve 는 진행됨', async () => {
+  test('기존 onJSContentLoaded 핸들러가 throw 해도 waitForJsContentLoaded 의 Promise resolve 는 진행됨', async () => {
     const maps = {
       jsContentLoaded: false,
       onJSContentLoaded: () => {
