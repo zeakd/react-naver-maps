@@ -54,7 +54,8 @@ export function getClientParam(options: LoadOptions): [string, string] {
   );
 }
 
-function buildUrl(options: LoadOptions): string {
+/** @internal exported for tests */
+export function buildUrl(options: LoadOptions): string {
   const [paramName, paramValue] = getClientParam(options);
   const params = new URLSearchParams({ [paramName]: paramValue });
   let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${params.toString()}`;
@@ -74,7 +75,8 @@ function cacheKey(options: LoadOptions): string {
   return `${paramValue}:${sub}`;
 }
 
-function waitForJsContentLoaded(
+/** @internal exported for tests */
+export function waitForJsContentLoaded(
   maps: typeof naver.maps,
 ): Promise<typeof naver.maps> {
   if (maps.jsContentLoaded) return Promise.resolve(maps);
