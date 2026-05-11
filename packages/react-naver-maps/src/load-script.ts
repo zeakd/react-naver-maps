@@ -57,16 +57,40 @@ export function getClientParam(options: LoadOptions): [string, string] {
 function buildUrl(options: LoadOptions): string {
   const [paramName, paramValue] = getClientParam(options);
   const params = new URLSearchParams({ [paramName]: paramValue });
+  let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${params.toString()}`;
   if (options.submodules?.length) {
-    params.set('submodules', options.submodules.join(','));
+    // Naver Maps 로더는 submodules 쿼리 값을 raw `,` 로 split 해서
+    // 각 `maps-{name}.js` 청크를 로드합니다. URLSearchParams 가 `,` 를
+    // `%2C` 로 percent-encode 하면 로더가 전체 문자열을 하나의 submodule
+    // 이름으로 취급해 `maps-{joined}%2C{...}.js` 에 요청 → 404 발생.
+    url += `&submodules=${options.submodules.join(',')}`;
   }
-  return `https://oapi.map.naver.com/openapi/v3/maps.js?${params.toString()}`;
+  return url;
 }
 
 function cacheKey(options: LoadOptions): string {
   const [, paramValue] = getClientParam(options);
   const sub = options.submodules?.toSorted().join(',') ?? '';
   return `${paramValue}:${sub}`;
+}
+
+function waitForJsContentLoaded(
+  maps: typeof naver.maps,
+): Promise<typeof naver.maps> {
+  if (maps.jsContentLoaded) return Promise.resolve(maps);
+  return new Promise((resolve) => {
+    const prev = maps.onJSContentLoaded;
+    maps.onJSContentLoaded = () => {
+      if (typeof prev === 'function') {
+        try {
+          prev();
+        } catch {
+          // chained handler 의 에러가 submodule resolution 을 막지 않도록 swallow
+        }
+      }
+      resolve(maps);
+    };
+  });
 }
 
 export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
@@ -80,7 +104,7 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
 
   const promise = new Promise<typeof naver.maps>((resolve, reject) => {
     if (typeof naver !== 'undefined' && naver.maps) {
-      resolve(naver.maps);
+      waitForJsContentLoaded(naver.maps).then(resolve);
       return;
     }
 
@@ -89,7 +113,7 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
     script.async = true;
     script.addEventListener('load', () => {
       if (typeof naver !== 'undefined' && naver.maps) {
-        resolve(naver.maps);
+        waitForJsContentLoaded(naver.maps).then(resolve);
       } else {
         reject(new Error('naver.maps not available after script load'));
       }
