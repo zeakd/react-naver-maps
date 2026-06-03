@@ -33,6 +33,12 @@ export function useKVO<T>(target: naver.maps.KVO, property: string): T {
     _mapOptions?: naver.maps.KVO;
   };
   // Map은 옵션을 _mapOptions에 저장. 거기에 구독해야 발화 받음.
+  //
+  // 주의: 구독 대상 선택(_mapOptions ?? target)과 읽기 대상 선택(getOptions ?? get)의
+  // 조건이 서로 다르다. "getOptions는 있지만 _mapOptions는 없는" 대상(Shape/Marker)에서는
+  // 구독은 본체 KVO(target)에, 읽기는 getOptions(→get)에 간다. 현재 SDK에서는 둘이 동일
+  // 슬롯을 보므로 정합하지만, Map은 getOptions('minZoom')이 클램프된 userMinZoom을 반환하는 등
+  // _mapOptions.get과 의미가 다른 키가 있어, 채널 일치를 깨는 SDK 변경이 있으면 주의가 필요하다.
   const t = target as WithOptions;
   const optionsTarget = t._mapOptions ?? null;
 

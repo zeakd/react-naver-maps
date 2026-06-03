@@ -109,6 +109,11 @@ export function useControlledKVO(
     const hasOptions =
       typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
 
+    // 주의: 읽기(getter/getOptions/get)와 쓰기(setter/setOptions/set) 경로를 독립적으로
+    // 선택한다. "전용 getter는 없지만 전용 setter는 있는" prop(예: Marker position —
+    // setPosition은 있고 getPosition은 없음)에서는 읽기는 getOptions/get, 쓰기는 setPosition을
+    // 탄다. 현재 SDK에서는 이들이 동일 KVO 슬롯을 보므로 결과가 일관되지만, 이는 SDK 구현이
+    // setX와 setOptions/set을 같은 슬롯에 라우팅한다는 전제에 의존한 정합성이다.
     let current: unknown;
     if (hasGetter) {
       current = (t[getterName] as () => unknown)();
