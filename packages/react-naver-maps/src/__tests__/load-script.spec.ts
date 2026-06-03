@@ -1,7 +1,8 @@
-import { describe, test, expect } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 import {
   buildUrl,
   getClientParam,
+  loadScript,
   waitForJsContentLoaded,
 } from '../load-script.js';
 
@@ -119,5 +120,58 @@ describe('waitForJsContentLoaded', () => {
     const promise = waitForJsContentLoaded(maps);
     (maps as any).onJSContentLoaded();
     await expect(promise).resolves.toBe(maps);
+  });
+});
+
+// loadScript 진입점부터의 통합 경로. 단위 테스트(waitForJsContentLoaded)와 달리
+// loadScript 가 실제로 submodule attach 를 기다리도록 와이어링됐는지 검증한다.
+// 이미 naver.maps 가 로드된 경로만 다룬다(script 태그 append/네트워크 경로는 E2E 영역).
+describe('loadScript (통합)', () => {
+  const original = (globalThis as any).naver;
+  afterEach(() => {
+    (globalThis as any).naver = original;
+  });
+
+  test('이미 로드됨 + jsContentLoaded=true 면 즉시 resolve', async () => {
+    const maps = { jsContentLoaded: true } as unknown as typeof naver.maps;
+    (globalThis as any).naver = { maps };
+    // cache 격리를 위해 테스트마다 고유 키 사용
+    await expect(
+      loadScript({ ncpKeyId: 'loadScript-loaded-true' }),
+    ).resolves.toBe(maps);
+  });
+
+  test('이미 로드됨 + jsContentLoaded=false 면 onJSContentLoaded 발화까지 대기 후 resolve', async () => {
+    const maps = {
+      jsContentLoaded: false,
+      onJSContentLoaded: undefined as undefined | (() => void),
+    } as unknown as typeof naver.maps & {
+      onJSContentLoaded: undefined | (() => void);
+    };
+    (globalThis as any).naver = { maps };
+
+    let resolved = false;
+    const promise = loadScript({ ncpKeyId: 'loadScript-loaded-false' }).then(
+      (r) => {
+        resolved = true;
+        return r;
+      },
+    );
+
+    await Promise.resolve();
+    // 회귀(직접 resolve)였다면 여기서 이미 resolved=true 였을 것
+    expect(resolved).toBe(false);
+
+    maps.onJSContentLoaded!(); // submodule attach 완료 신호
+    await expect(promise).resolves.toBe(maps);
+    expect(resolved).toBe(true);
+  });
+
+  test('같은 options 재호출 시 동일 Promise 반환 (cache)', () => {
+    const maps = { jsContentLoaded: true } as unknown as typeof naver.maps;
+    (globalThis as any).naver = { maps };
+    const a = loadScript({ ncpKeyId: 'loadScript-cache' });
+    const b = loadScript({ ncpKeyId: 'loadScript-cache' });
+    expect(a).toBe(b);
   });
 });
