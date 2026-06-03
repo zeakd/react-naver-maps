@@ -27,11 +27,8 @@ jobs:
         with:
           bun-version: latest
       - run: pnpm install --frozen-lockfile
-      # vitest browser mode가 Playwright Chromium 헤드리스를 사용하므로 설치 필요.
-      # --with-deps(sudo apt-get install)는 GitHub 호스티드 ubuntu에서 apt 락으로 hang하고,
-      # 호스티드 러너는 chromium 런타임 라이브러리를 대부분 사전 포함하므로 제거한다.
-      - run: pnpm --filter react-naver-maps exec playwright install chromium
-        timeout-minutes: 10
+      # 단위 테스트는 happy-dom 환경(vi.mock 기반)이라 Playwright/브라우저 설치가 불필요하다.
+      # 실제 SDK를 로드하는 smoke 통합 테스트(test:browser)는 별도이며 CI에서 돌리지 않는다.
       - run: pnpm -r run build
       - run: pnpm -r run lint
       - run: pnpm -r run test

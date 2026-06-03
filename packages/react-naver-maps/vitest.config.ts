@@ -1,37 +1,19 @@
 import { defineConfig } from 'vitest/config';
 
-// 항상 headless로 실행 (CI/로컬 공통). PWDEBUG/HEADED 환경 변수 등으로
-// 의도치 않게 브라우저 GUI가 뜨는 일을 막기 위해 명시적으로 false로 잠금.
-process.env.PWDEBUG = '0';
-process.env.HEADED = '0';
-
 export default defineConfig({
   test: {
-    exclude: ['e2e/**', 'node_modules/**'],
-    // 타입 레벨 테스트(event-types.spec.ts의 expectTypeOf/toEqualTypeOf)를 실제로 평가한다.
-    // 이게 없으면 expectTypeOf는 런타임 no-op이라 타입 회귀를 잡지 못한다.
+    // smoke.spec.tsx는 실제 naver maps SDK를 네트워크에서 로드하는 통합 테스트라
+    // real 브라우저가 필요하다. happy-dom으로 대체 불가하므로 여기서 제외하고,
+    // vitest.browser.config.ts로 분리해 `pnpm test:browser`로 실행한다.
+    exclude: ['e2e/**', 'node_modules/**', '**/smoke.spec.tsx'],
+    // 대부분의 테스트는 vi.mock으로 naver SDK를 mock하므로 real 브라우저가 불필요.
+    // happy-dom으로 충분하고, CI에서 Playwright 설치(불안정·hang)를 제거할 수 있다.
+    environment: 'happy-dom',
+    // 타입 레벨 테스트(event-types.spec.ts의 expectTypeOf/toEqualTypeOf) 실제 평가.
     typecheck: {
       enabled: true,
       tsconfig: './tsconfig.test.json',
       include: ['**/event-types.spec.ts'],
-    },
-    browser: {
-      enabled: true,
-      provider: 'playwright',
-      headless: true,
-      api: {
-        port: 3000,
-      },
-      instances: [
-        {
-          browser: 'chromium',
-          launch: {
-            headless: true,
-            // GUI 띄우는 옵션 차단
-            devtools: false,
-          },
-        },
-      ],
     },
   },
 });
