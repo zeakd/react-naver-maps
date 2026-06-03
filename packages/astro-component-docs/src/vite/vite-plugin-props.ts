@@ -50,7 +50,12 @@ export function vitePluginProps(config: AstroComponentDocsConfig): VitePlugin {
     },
 
     handleHotUpdate({ file }: { file: string }) {
-      if (file.endsWith('tsconfig.json') || file.endsWith('.d.ts')) {
+      if (
+        file.endsWith('tsconfig.json') ||
+        file.endsWith('.d.ts') ||
+        file.endsWith('.ts') ||
+        file.endsWith('.tsx')
+      ) {
         propsCache = null;
       }
     },

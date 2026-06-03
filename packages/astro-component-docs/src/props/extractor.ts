@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { Project, Node, type Type, type Symbol as TsSymbol } from 'ts-morph';
 import type {
   ComponentDoc,
@@ -7,20 +9,36 @@ import type {
 } from './types.js';
 
 /**
- * Extract props from a React component's type declarations using ts-morph.
+ * Extract props from a React component's .d.ts declarations using ts-morph.
  *
  * Strategy:
- * 1. Load the project from the package's tsconfig
- * 2. Find the component's exported function declaration
- * 3. Extract the first parameter's type (Props)
- * 4. For each property, extract name, type, required, description, defaultValue
- * 5. Apply user overrides
+ * 1. Read the package's tsconfig to find outDir and compiler options
+ * 2. Load .d.ts files from outDir (not source files)
+ * 3. Find the component's exported function declaration
+ * 4. Extract the first parameter's type (Props)
+ * 5. For each property, extract name, type, required, description, defaultValue
+ * 6. Apply user overrides
  */
 export function extractAllProps(pkg: PackageConfig): ComponentDoc[] {
+  const tsconfigPath = resolve(pkg.tsconfig!);
+  const tsconfigDir = dirname(tsconfigPath);
+  const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf-8'));
+  const outDir = tsconfig.compilerOptions?.outDir ?? 'dist';
+  const dtsDir = resolve(tsconfigDir, outDir);
+
   const project = new Project({
-    tsConfigFilePath: pkg.tsconfig,
-    skipAddingFilesFromTsConfig: false,
+    tsConfigFilePath: tsconfigPath,
+    skipAddingFilesFromTsConfig: true,
   });
+
+  const added = project.addSourceFilesAtPaths(`${dtsDir}/**/*.d.ts`);
+  if (added.length === 0) {
+    console.warn(
+      `[astro-component-docs] No .d.ts files found in "${dtsDir}". ` +
+        `Build the package first (e.g. tsc -b).`,
+    );
+    return [];
+  }
 
   const docs: ComponentDoc[] = [];
 
