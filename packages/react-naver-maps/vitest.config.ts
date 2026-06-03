@@ -8,6 +8,13 @@ process.env.HEADED = '0';
 export default defineConfig({
   test: {
     exclude: ['e2e/**', 'node_modules/**'],
+    // 타입 레벨 테스트(event-types.spec.ts의 expectTypeOf/toEqualTypeOf)를 실제로 평가한다.
+    // 이게 없으면 expectTypeOf는 런타임 no-op이라 타입 회귀를 잡지 못한다.
+    typecheck: {
+      enabled: true,
+      tsconfig: './tsconfig.test.json',
+      include: ['**/event-types.spec.ts'],
+    },
     browser: {
       enabled: true,
       provider: 'playwright',
