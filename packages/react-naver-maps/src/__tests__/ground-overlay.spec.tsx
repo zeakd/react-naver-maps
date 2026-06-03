@@ -166,4 +166,35 @@ describe('GroundOverlay 스펙 테스트', () => {
     expect(instance._listeners['click']).toBeDefined();
     expect(instance._listeners['click']).toHaveLength(1);
   });
+
+  // GROUND_DOMEVENTS의 click 리스너가 연속 클릭을 합성 dblclick으로 발화하므로(maps.beautified.js:9014),
+  // onDblclick은 실제로 바인딩되어야 한다. 타입 축소 라운드에서 잘못 제거됐던 회귀를 잡는다.
+  test('SDK가 발화하는 5종 이벤트(click/dblclick/mousedown/mouseup/rightclick) 모두 바인딩', () => {
+    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
+
+    render(
+      <GroundOverlay
+        url="https://example.com/image.png"
+        bounds={bounds}
+        onClick={vi.fn()}
+        onDblclick={vi.fn()}
+        onMousedown={vi.fn()}
+        onMouseup={vi.fn()}
+        onRightclick={vi.fn()}
+      />,
+    );
+
+    const instance = createdInstances[0].instance;
+    for (const event of [
+      'click',
+      'dblclick',
+      'mousedown',
+      'mouseup',
+      'rightclick',
+    ]) {
+      expect(instance._listeners[event], `${event} 리스너 누락`).toHaveLength(
+        1,
+      );
+    }
+  });
 });

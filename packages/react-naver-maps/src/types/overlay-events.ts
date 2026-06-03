@@ -20,10 +20,18 @@ export type ShapeEvent =
 export type MarkerEvent = ShapeEvent | 'dragstart' | 'drag' | 'dragend';
 
 /**
- * GroundOverlay: 맵 이벤트 시스템에서 Shape와 동일한 마우스 이벤트를 지원한다.
- * 공식 문서는 click/dblclick만 명시하지만, 실제로는 전체 마우스 이벤트가 발화한다.
+ * GroundOverlay: SDK가 GROUND_DOMEVENTS = ["click", "mousedown", "mouseup", "contextmenu"]를 등록한다.
+ * click 리스너는 250ms·5px 이내 연속 클릭을 합성 dblclick으로 trigger하고,
+ * contextmenu는 rightclick으로 매핑되어 발화한다.
+ * mouseover/mouseout/mousemove는 별도 DOM 이벤트 배열이라 GroundOverlay가 바인딩하지 않는다.
+ * 근거: maps.beautified.js:862 (GROUND_DOMEVENTS), :9014 (_getSingleClickType → "dblclick"), :275 (이벤트명 매핑 J: contextmenu→rightclick).
  */
-export type GroundOverlayEvent = ShapeEvent;
+export type GroundOverlayEvent =
+  | 'click'
+  | 'dblclick'
+  | 'mousedown'
+  | 'mouseup'
+  | 'rightclick';
 
 export type PointerEventHandler = (e: naver.maps.PointerEvent) => void;
 

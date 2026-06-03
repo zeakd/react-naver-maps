@@ -41,6 +41,11 @@ export interface GroundOverlayProps extends EventHandlerProps<GroundOverlayEvent
   bounds: naver.maps.LatLngBounds | naver.maps.LatLngBoundsLiteral;
   opacity?: number;
   clickable?: boolean;
+  /**
+   * 이미지 요청의 CORS 모드. SDK 패턴: controlled (`_crossOrigin_changed` KVO 핸들러).
+   * 일반적인 값은 `"anonymous"`, `"use-credentials"`.
+   */
+  crossOrigin?: string;
 }
 
 export function GroundOverlay({ ref, ...props }: GroundOverlayProps) {
@@ -58,6 +63,7 @@ export function GroundOverlay({ ref, ...props }: GroundOverlayProps) {
         map,
         opacity: props.opacity,
         clickable: props.clickable,
+        crossOrigin: props.crossOrigin,
       }),
     );
     overlayRef.current = instance;
@@ -85,8 +91,10 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
   // KVO sync
   useControlledKVO(overlay, 'opacity', props.opacity);
   useControlledKVO(overlay, 'clickable', props.clickable);
+  useControlledKVO(overlay, 'crossOrigin', props.crossOrigin);
 
-  // UI events — 맵 이벤트 시스템에서 Shape와 동일한 마우스 이벤트를 지원
+  // UI events — SDK는 GROUND_DOMEVENTS(click/mousedown/mouseup/contextmenu)를 등록하고,
+  // click 리스너가 연속 클릭을 합성 dblclick으로, contextmenu를 rightclick으로 발화한다.
   useEffect(() => {
     const listeners: naver.maps.MapEventListener[] = [];
     if (props.onClick)
@@ -105,18 +113,6 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
       listeners.push(
         naver.maps.Event.addListener(overlay, 'mouseup', props.onMouseup),
       );
-    if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'mouseover', props.onMouseover),
-      );
-    if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'mouseout', props.onMouseout),
-      );
-    if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'mousemove', props.onMousemove),
-      );
     if (props.onRightclick)
       listeners.push(
         naver.maps.Event.addListener(overlay, 'rightclick', props.onRightclick),
@@ -130,9 +126,6 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
     props.onDblclick,
     props.onMousedown,
     props.onMouseup,
-    props.onMouseover,
-    props.onMouseout,
-    props.onMousemove,
     props.onRightclick,
   ]);
 

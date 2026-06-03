@@ -1,0 +1,15 @@
+{
+  // vitest typecheck 전용. 메인 tsconfig.json은 빌드 산출물을 위해 spec을 exclude하므로,
+  // 타입 테스트(event-types.spec.ts의 expectTypeOf)를 검사하려면 별도 구성이 필요하다.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "rootDir": "."
+  },
+  "include": ["src/**/*.spec.ts"],
+  "exclude": ["node_modules", "dist"]
+}

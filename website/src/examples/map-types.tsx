@@ -33,13 +33,13 @@ function MapTypesMapContent({ mapTypeId }: { mapTypeId: string }) {
 }
 
 function MapTypesMap() {
-  const [mapTypeId, setMapTypeId] = useState('NORMAL');
+  const [mapTypeId, setMapTypeId] = useState('normal');
 
   const mapTypes = [
-    { id: 'NORMAL', label: '일반지도' },
-    { id: 'TERRAIN', label: '지형도' },
-    { id: 'SATELLITE', label: '위성지도' },
-    { id: 'HYBRID', label: '겹쳐보기' },
+    { id: 'normal', label: '일반지도' },
+    { id: 'terrain', label: '지형도' },
+    { id: 'satellite', label: '위성지도' },
+    { id: 'hybrid', label: '겹쳐보기' },
   ];
 
   return (

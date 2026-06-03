@@ -43,10 +43,20 @@ describe('EventHandlerProps 매핑 타입', () => {
     expectTypeOf<Result>().toHaveProperty('onDragend');
   });
 
-  test('GroundOverlayEvent → click, dblclick만', () => {
+  test('GroundOverlayEvent → click, dblclick, mousedown, mouseup, rightclick (fix-09)', () => {
     type Result = EventHandlerProps<GroundOverlayEvent>;
     expectTypeOf<Result>().toHaveProperty('onClick');
     expectTypeOf<Result>().toHaveProperty('onDblclick');
+    expectTypeOf<Result>().toHaveProperty('onMousedown');
+    expectTypeOf<Result>().toHaveProperty('onMouseup');
+    expectTypeOf<Result>().toHaveProperty('onRightclick');
+
+    // GROUND_DOMEVENTS = ["click", "mousedown", "mouseup", "contextmenu"].
+    // click → 합성 dblclick, contextmenu → rightclick으로 발화하므로 5종.
+    // mouseover/mouseout/mousemove는 바인딩하지 않으므로 제외.
+    expectTypeOf<GroundOverlayEvent>().toEqualTypeOf<
+      'click' | 'dblclick' | 'mousedown' | 'mouseup' | 'rightclick'
+    >();
   });
 
   test('핸들러 시그니처가 PointerEventHandler', () => {
@@ -95,8 +105,20 @@ describe('각 오버레이 Props에 이벤트 포함 확인', () => {
     expectTypeOf<PolylineProps>().toHaveProperty('onMouseup');
   });
 
-  test('GroundOverlayProps에 click/dblclick만', () => {
+  test('GroundOverlayProps에 click/dblclick/mousedown/mouseup/rightclick (fix-09)', () => {
     expectTypeOf<GroundOverlayProps>().toHaveProperty('onClick');
     expectTypeOf<GroundOverlayProps>().toHaveProperty('onDblclick');
+    expectTypeOf<GroundOverlayProps>().toHaveProperty('onMousedown');
+    expectTypeOf<GroundOverlayProps>().toHaveProperty('onMouseup');
+    expectTypeOf<GroundOverlayProps>().toHaveProperty('onRightclick');
+  });
+
+  test('GroundOverlayProps의 이벤트 핸들러는 5종만 (fix-09)', () => {
+    // EventHandlerProps<GroundOverlayEvent>가 정확한 키 집합을 갖는지 검증
+    type Handlers = EventHandlerProps<GroundOverlayEvent>;
+    type HandlerKeys = keyof Handlers;
+    expectTypeOf<HandlerKeys>().toEqualTypeOf<
+      'onClick' | 'onDblclick' | 'onMousedown' | 'onMouseup' | 'onRightclick'
+    >();
   });
 });

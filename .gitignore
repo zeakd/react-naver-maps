@@ -87,3 +87,9 @@ research/
 test-results/
 __tile_cache__/
 screenshots/CLAUDE.md
+
+# Vitest browser mode 산출물
+__screenshots__/
+
+# 통합 예제 (작업 중 — 별도 브랜치/PR로 분리 예정. stash 보관)
+examples/

@@ -19,17 +19,24 @@ function capitalize(s: string): string {
  * 배열(paths, path)은 equals가 없으므로 === 비교만 됨.
  * 안정적인 참조를 전달해야 불필요한 setter 호출을 방지할 수 있다.
  */
+type Equatable = { equals: (v: unknown) => boolean };
+
+function hasEquals(v: unknown): v is Equatable {
+  return (
+    v !== null &&
+    typeof v === 'object' &&
+    'equals' in v &&
+    typeof (v as Equatable).equals === 'function'
+  );
+}
+
 export function kvoEquals(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
-  if (
-    typeof a === 'object' &&
-    typeof b === 'object' &&
-    'equals' in a &&
-    typeof (a as { equals: (v: unknown) => boolean }).equals === 'function'
-  ) {
-    return (a as { equals: (v: unknown) => boolean }).equals(b);
-  }
+  // 양쪽 어느 쪽이든 equals가 있으면 시도. prev=literal, new=LatLng instance처럼 한쪽만
+  // SDK 객체일 때(또는 그 반대) false negative를 막는다.
+  if (hasEquals(a)) return a.equals(b);
+  if (hasEquals(b)) return b.equals(a);
   return false;
 }
 
@@ -85,17 +92,42 @@ export function useControlledKVO(
     }
     if (value === undefined) return;
 
-    const current = target.get(property);
+    // setter/getter 우선순위 (높은 순):
+    //   1. 전용 setX/getX 메서드 — Map.setMapTypeId처럼 추가 부수효과 수행 (registry 전환 등)
+    //   2. setOptions(key, value)/getOptions(key) — Map은 옵션을 _mapOptions(별도 KVO)에
+    //      저장하므로 이 경로를 통해서만 SDK가 보는 실제 값이 바뀐다. Marker도 동일 시그니처.
+    //   3. set(key, value)/get(key) — 자체 KVO 직접 접근 (위 둘 다 없을 때)
+    //
+    // setMapTypeId는 mapTypes.setSelectedTypeId를 호출해서 registry를 전환.
+    // setOptions로 mapTypeId를 바꾸면 mapOptions의 KVO만 갱신되고 registry는 안 바뀐다.
+    // 따라서 전용 setter 우선이 정답.
+    const setterName = `set${capitalize(property)}`;
+    const getterName = `get${capitalize(property)}`;
+    const t = target as unknown as Record<string, unknown>;
+    const hasSetter = typeof t[setterName] === 'function';
+    const hasGetter = typeof t[getterName] === 'function';
+    const hasOptions =
+      typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+
+    // 주의: 읽기(getter/getOptions/get)와 쓰기(setter/setOptions/set) 경로를 독립적으로
+    // 선택한다. "전용 getter는 없지만 전용 setter는 있는" prop(예: Marker position —
+    // setPosition은 있고 getPosition은 없음)에서는 읽기는 getOptions/get, 쓰기는 setPosition을
+    // 탄다. 현재 SDK에서는 이들이 동일 KVO 슬롯을 보므로 결과가 일관되지만, 이는 SDK 구현이
+    // setX와 setOptions/set을 같은 슬롯에 라우팅한다는 전제에 의존한 정합성이다.
+    let current: unknown;
+    if (hasGetter) {
+      current = (t[getterName] as () => unknown)();
+    } else if (hasOptions) {
+      current = (t.getOptions as (key: string) => unknown)(property);
+    } else {
+      current = target.get(property);
+    }
     if (kvoEquals(current, value)) return;
 
-    const setterName = `set${capitalize(property)}`;
-    if (
-      typeof (target as unknown as Record<string, unknown>)[setterName] ===
-      'function'
-    ) {
-      (target as unknown as Record<string, (v: unknown) => void>)[setterName](
-        value,
-      );
+    if (hasSetter) {
+      (t[setterName] as (v: unknown) => void)(value);
+    } else if (hasOptions) {
+      (t.setOptions as (key: string, value: unknown) => void)(property, value);
     } else {
       target.set(property, value);
     }

@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [main]
 
+# 같은 브랜치의 이전 run을 자동 취소 — hang/중복 run 누적 방지
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -17,7 +22,13 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # astro-component-docs의 test 스크립트가 bun 사용 (bun test src/)
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - run: pnpm install --frozen-lockfile
+      # 단위 테스트는 happy-dom 환경(vi.mock 기반)이라 Playwright/브라우저 설치가 불필요하다.
+      # 실제 SDK를 로드하는 smoke 통합 테스트(test:browser)는 별도이며 CI에서 돌리지 않는다.
       - run: pnpm -r run build
       - run: pnpm -r run lint
       - run: pnpm -r run test

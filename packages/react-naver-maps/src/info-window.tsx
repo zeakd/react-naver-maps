@@ -132,6 +132,26 @@ function InfoWindowInner({
   open,
   ...props
 }: InfoWindowInnerProps) {
+  // 'open'/'close' 이벤트 listener를 useLayoutEffect로 우선 등록 (paint 전).
+  // 같은 컴포넌트 내에서 React가 hook 등록 순서를 보장하므로 useEffect로도 timing 자체는
+  // 안전하지만(이 컴포넌트는 listener 등록 다음에 open() 호출 useEffect가 따라옴),
+  // 향후 코드 변경이나 SDK가 다른 곳에서 동기 발화하는 패턴을 추가했을 때 안전하도록 보수적으로
+  // useLayoutEffect 사용. (fix-16, fix-13과 동일한 라이프사이클 이벤트 정책)
+  useLayoutEffect(() => {
+    const listeners: naver.maps.MapEventListener[] = [];
+    if (props.onOpen)
+      listeners.push(
+        naver.maps.Event.addListener(infoWindow, 'open', props.onOpen),
+      );
+    if (props.onClose)
+      listeners.push(
+        naver.maps.Event.addListener(infoWindow, 'close', props.onClose),
+      );
+    return () => {
+      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+    };
+  }, [infoWindow, props.onOpen, props.onClose]);
+
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   useEffect(() => {
     if (open === undefined) return;
@@ -151,56 +171,20 @@ function InfoWindowInner({
     infoWindow.setContent(content);
   }, [infoWindow, content]);
 
-  // 옵션 변경 시 setOptions
-  useEffect(() => {
-    infoWindow.setOptions(
-      omitUndefined({
-        maxWidth: props.maxWidth,
-        backgroundColor: props.backgroundColor,
-        borderColor: props.borderColor,
-        borderWidth: props.borderWidth,
-        disableAutoPan: props.disableAutoPan,
-        disableAnchor: props.disableAnchor,
-        anchorSkew: props.anchorSkew,
-        anchorSize: props.anchorSize,
-        anchorColor: props.anchorColor,
-        pixelOffset: props.pixelOffset,
-        zIndex: props.zIndex,
-      }) as naver.maps.InfoWindowOptions,
-    );
-  }, [
-    infoWindow,
-    props.maxWidth,
-    props.backgroundColor,
-    props.borderColor,
-    props.borderWidth,
-    props.disableAutoPan,
-    props.disableAnchor,
-    props.anchorSkew,
-    props.anchorSize,
-    props.anchorColor,
-    props.pixelOffset,
-    props.zIndex,
-  ]);
-
-  // position 변경
+  // 개별 옵션을 useControlledKVO로 처리 — equality 검사 후 변경된 키만 setOptions(key, val).
+  // 객체 setOptions(obj) 일괄 호출은 deps 하나만 바뀌어도 모든 키 _changed 발화 + resize/draw → 폭주 위험.
   useControlledKVO(infoWindow, 'position', props.position);
-
-  // 이벤트: open, close (네이버맵 이벤트 시스템에서 발화하는 이벤트만)
-  useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
-    if (props.onOpen)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'open', props.onOpen),
-      );
-    if (props.onClose)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'close', props.onClose),
-      );
-    return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
-    };
-  }, [infoWindow, props.onOpen, props.onClose]);
+  useControlledKVO(infoWindow, 'zIndex', props.zIndex);
+  useControlledKVO(infoWindow, 'maxWidth', props.maxWidth);
+  useControlledKVO(infoWindow, 'backgroundColor', props.backgroundColor);
+  useControlledKVO(infoWindow, 'borderColor', props.borderColor);
+  useControlledKVO(infoWindow, 'borderWidth', props.borderWidth);
+  useControlledKVO(infoWindow, 'disableAutoPan', props.disableAutoPan);
+  useControlledKVO(infoWindow, 'disableAnchor', props.disableAnchor);
+  useControlledKVO(infoWindow, 'anchorSkew', props.anchorSkew);
+  useControlledKVO(infoWindow, 'anchorSize', props.anchorSize);
+  useControlledKVO(infoWindow, 'anchorColor', props.anchorColor);
+  useControlledKVO(infoWindow, 'pixelOffset', props.pixelOffset);
 
   return null;
 }

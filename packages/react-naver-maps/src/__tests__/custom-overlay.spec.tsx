@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ReactNode } from 'react';
+import { createRef, type ReactNode } from 'react';
 import { createMockNaverMaps, type MockKVO } from './test-utils.js';
 
 vi.mock('../hooks/use-navermaps.js', () => ({
@@ -80,37 +80,53 @@ describe('CustomOverlay 스펙 테스트', () => {
   });
 
   test('position 변경 시 draw 재호출 (left/top 업데이트)', async () => {
+    const ref = createRef<naver.maps.OverlayView>();
+
     const { rerender } = render(
       <Wrapper>
-        <CustomOverlay position={{ lat: 37.5, lng: 127.0 }}>
+        <CustomOverlay position={{ lat: 37.5, lng: 127.0 }} ref={ref}>
           <span data-testid="pos-child">content</span>
         </CustomOverlay>
       </Wrapper>,
     );
 
     await vi.waitFor(() => {
+      expect(ref.current).not.toBeNull();
       const child = document.querySelector('[data-testid="pos-child"]');
       expect(child).not.toBeNull();
       const container = child!.parentElement!;
-      // fromCoordToOffset mock은 항상 { x: 100, y: 200 }을 반환
+      // fromCoordToOffset mock: lat=37.5,lng=127 → { x: 100, y: 200 }
       expect(container.style.left).toBe('100px');
       expect(container.style.top).toBe('200px');
     });
 
+    // 실제 draw 재호출을 인스턴스 메서드 spy로 단언 (setPosition → draw 경로).
+    const setPositionSpy = vi.spyOn(
+      ref.current as unknown as { setPosition: (p: unknown) => void },
+      'setPosition',
+    );
+
     rerender(
       <Wrapper>
-        <CustomOverlay position={{ lat: 38.0, lng: 128.0 }}>
+        <CustomOverlay position={{ lat: 38.0, lng: 128.0 }} ref={ref}>
           <span data-testid="pos-child">content</span>
         </CustomOverlay>
       </Wrapper>,
     );
 
+    // setPosition이 새 좌표로 호출되어야 함 (draw가 재실행되는 트리거)
+    await vi.waitFor(() => {
+      expect(setPositionSpy).toHaveBeenCalledWith({ lat: 38.0, lng: 128.0 });
+    });
+
+    // left/top이 새 좌표 기반 값으로 갱신 (draw 미재호출이면 100/200 그대로 → FAIL)
+    // lng=128 → x=100+(128-127)=101, lat=38 → y=200+(38-37.5)=200.5
     await vi.waitFor(() => {
       const child = document.querySelector('[data-testid="pos-child"]');
       expect(child).not.toBeNull();
       const container = child!.parentElement!;
-      expect(container.style.left).toBe('100px');
-      expect(container.style.top).toBe('200px');
+      expect(container.style.left).toBe('101px');
+      expect(container.style.top).toBe('200.5px');
     });
   });
 
@@ -225,5 +241,105 @@ describe('CustomOverlay 스펙 테스트', () => {
       const pane = container.parentElement;
       expect(pane).not.toBeNull();
     });
+  });
+
+  /**
+   * fix-10: position에 .equals()를 가진 객체(LatLng 인스턴스)를 같은 좌표로 다시 전달하면
+   * 참조가 다르더라도 kvoEquals(equals 호출)로 변경 없음으로 판정해 setPosition을 호출하지 않아야 한다.
+   *
+   * test-utils의 MockLatLng은 .equals()가 없으므로, 이 테스트에서는 .equals()를 가진
+   * 별도 LatLng-like 객체로 검증한다.
+   */
+  test('동일 좌표 LatLng(.equals) 재전달 시 setPosition 미호출 (fix-10)', async () => {
+    class LatLngLike {
+      constructor(
+        public lat: number,
+        public lng: number,
+      ) {}
+      equals(other: { lat: number; lng: number }) {
+        return this.lat === other.lat && this.lng === other.lng;
+      }
+    }
+
+    const ref = createRef<naver.maps.OverlayView>();
+
+    const p1 = new LatLngLike(37.5, 127.0) as unknown as naver.maps.LatLng;
+
+    const { rerender } = render(
+      <Wrapper>
+        <CustomOverlay position={p1} ref={ref}>
+          <span data-testid="eq-child">content</span>
+        </CustomOverlay>
+      </Wrapper>,
+    );
+
+    await vi.waitFor(() => {
+      expect(ref.current).not.toBeNull();
+    });
+
+    // ref로 받은 인스턴스에 spy 설치 (prototype 메서드를 instance level로 가로챔)
+    const setPositionSpy = vi.spyOn(
+      ref.current as unknown as { setPosition: (p: unknown) => void },
+      'setPosition',
+    );
+
+    // 같은 좌표를 가진 새 LatLngLike 인스턴스 (참조는 다름, equals는 true)
+    const p2 = new LatLngLike(37.5, 127.0) as unknown as naver.maps.LatLng;
+
+    rerender(
+      <Wrapper>
+        <CustomOverlay position={p2} ref={ref}>
+          <span data-testid="eq-child">content</span>
+        </CustomOverlay>
+      </Wrapper>,
+    );
+
+    // kvoEquals(p1, p2) === true이므로 setPosition 미호출
+    expect(setPositionSpy).not.toHaveBeenCalled();
+  });
+
+  test('실제 좌표가 다른 LatLng 전달 시 setPosition 호출 (fix-10 회귀 검증)', async () => {
+    class LatLngLike {
+      constructor(
+        public lat: number,
+        public lng: number,
+      ) {}
+      equals(other: { lat: number; lng: number }) {
+        return this.lat === other.lat && this.lng === other.lng;
+      }
+    }
+
+    const ref = createRef<naver.maps.OverlayView>();
+
+    const p1 = new LatLngLike(37.5, 127.0) as unknown as naver.maps.LatLng;
+
+    const { rerender } = render(
+      <Wrapper>
+        <CustomOverlay position={p1} ref={ref}>
+          <span data-testid="diff-child">content</span>
+        </CustomOverlay>
+      </Wrapper>,
+    );
+
+    await vi.waitFor(() => {
+      expect(ref.current).not.toBeNull();
+    });
+
+    const setPositionSpy = vi.spyOn(
+      ref.current as unknown as { setPosition: (p: unknown) => void },
+      'setPosition',
+    );
+
+    const p2 = new LatLngLike(38.0, 128.0) as unknown as naver.maps.LatLng;
+
+    rerender(
+      <Wrapper>
+        <CustomOverlay position={p2} ref={ref}>
+          <span data-testid="diff-child">content</span>
+        </CustomOverlay>
+      </Wrapper>,
+    );
+
+    expect(setPositionSpy).toHaveBeenCalledWith(p2);
   });
 });
