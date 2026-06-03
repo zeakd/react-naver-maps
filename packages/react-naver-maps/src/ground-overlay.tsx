@@ -93,12 +93,17 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
   useControlledKVO(overlay, 'clickable', props.clickable);
   useControlledKVO(overlay, 'crossOrigin', props.crossOrigin);
 
-  // UI events — SDK는 GROUND_DOMEVENTS에 등록된 click/mousedown/mouseup/contextmenu(rightclick)만 발화.
+  // UI events — SDK는 GROUND_DOMEVENTS(click/mousedown/mouseup/contextmenu)를 등록하고,
+  // click 리스너가 연속 클릭을 합성 dblclick으로, contextmenu를 rightclick으로 발화한다.
   useEffect(() => {
     const listeners: naver.maps.MapEventListener[] = [];
     if (props.onClick)
       listeners.push(
         naver.maps.Event.addListener(overlay, 'click', props.onClick),
+      );
+    if (props.onDblclick)
+      listeners.push(
+        naver.maps.Event.addListener(overlay, 'dblclick', props.onDblclick),
       );
     if (props.onMousedown)
       listeners.push(
@@ -118,6 +123,7 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
   }, [
     overlay,
     props.onClick,
+    props.onDblclick,
     props.onMousedown,
     props.onMouseup,
     props.onRightclick,

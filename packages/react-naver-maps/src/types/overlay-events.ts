@@ -20,12 +20,15 @@ export type ShapeEvent =
 export type MarkerEvent = ShapeEvent | 'dragstart' | 'drag' | 'dragend';
 
 /**
- * GroundOverlay: SDK가 GROUND_DOMEVENTS = ["click", "mousedown", "mouseup", "contextmenu"]만 등록한다.
- * dblclick/mouseover/mouseout/mousemove는 발화하지 않는다.
- * 근거: maps.beautified.js:862 (B = GROUND_DOMEVENTS).
+ * GroundOverlay: SDK가 GROUND_DOMEVENTS = ["click", "mousedown", "mouseup", "contextmenu"]를 등록한다.
+ * click 리스너는 250ms·5px 이내 연속 클릭을 합성 dblclick으로 trigger하고,
+ * contextmenu는 rightclick으로 매핑되어 발화한다.
+ * mouseover/mouseout/mousemove는 별도 DOM 이벤트 배열이라 GroundOverlay가 바인딩하지 않는다.
+ * 근거: maps.beautified.js:862 (GROUND_DOMEVENTS), :9014 (_getSingleClickType → "dblclick"), :275 (이벤트명 매핑 J: contextmenu→rightclick).
  */
 export type GroundOverlayEvent =
   | 'click'
+  | 'dblclick'
   | 'mousedown'
   | 'mouseup'
   | 'rightclick';
