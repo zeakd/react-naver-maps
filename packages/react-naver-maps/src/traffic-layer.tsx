@@ -12,7 +12,12 @@ export interface TrafficLayerProps {
   ref?: Ref<naver.maps.TrafficLayer>;
   /** autoRefresh 주기 (ms). 생성자 옵션으로만 전달된다. */
   interval?: number;
-  /** true이면 교통 정보를 주기적으로 자동 갱신한다. */
+  /**
+   * true이면 교통 정보를 주기적으로 자동 갱신한다.
+   * 주의: `undefined`는 "SDK 기본값에 위임"을 의미하며 명시적 정지가 아니다.
+   * 한 번 `true`로 켠 뒤 `undefined`로 바꿔도 자동 갱신은 멈추지 않는다.
+   * 정지하려면 명시적으로 `false`를 전달한다.
+   */
   autoRefresh?: boolean;
 }
 

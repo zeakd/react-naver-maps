@@ -65,20 +65,29 @@ export interface NaverMapProps {
   customStyleId?: string;
   /** 스타일 맵 사용 여부. SDK 패턴: static. 생성자에만 적용한다. */
   useStyleMap?: boolean;
+  /**
+   * 타일 페이드 인 효과 지속 시간(ms). SDK 패턴: static.
+   * SDK에 `setTileDuration`/`tileDuration_changed`가 없고 타일 인스턴스 생성 시에만
+   * 읽히므로(maps.beautified.js:5568/5642/6468) 런타임 변경이 무시된다. 생성자에만 적용한다.
+   */
+  tileDuration?: number;
 
   // Controlled options (런타임 변경 가능)
   minZoom?: number;
   maxZoom?: number;
 
   // Controlled options (런타임 변경 가능)
-  /** 커서 스타일. SDK 패턴: controlled (`setCursor`/`getCursor`). */
+  /**
+   * 커서 스타일. SDK 패턴: controlled (`setCursor`/`getCursor`).
+   * 주의: SDK가 드래그 중 손 커서("open"/"closed")로 자체 토글하고 초기화 시
+   * `setCursor("open")`을 호출하므로(map-view.js), controlled 값과 상호 덮어쓰기될 수 있다.
+   * `draggable={false}`처럼 드래그가 없는 경우에 안정적으로 동작한다.
+   */
   cursor?: string;
   /** 지도 기울기(GL 모드). SDK 패턴: controlled (`setTilt`/`getTilt`, `tilt_changed`). */
   tilt?: number;
   /** 지도 회전(GL 모드). SDK 패턴: controlled (`setRotation`/`getRotation`, `rotation_changed`). */
   rotation?: number;
-  /** 타일 페이드 인 효과 지속 시간(ms). SDK 패턴: controlled (KVO 옵션). */
-  tileDuration?: number;
   background?: string;
   baseTileOpacity?: number;
   draggable?: boolean;
@@ -382,6 +391,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useNaverMapStatic('gl', props.gl);
   useNaverMapStatic('customStyleId', props.customStyleId);
   useNaverMapStatic('useStyleMap', props.useStyleMap);
+  useNaverMapStatic('tileDuration', props.tileDuration);
 
   // logoControl은 일방향 controlled — SDK가 false를 거부 (setRefinedOption: value || true).
   // false 시도 시 안내. 한 인스턴스당 한 번만 출력하도록 ref로 보호 (toggle 시 폭주 방지).
@@ -412,7 +422,6 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useControlledKVO(map, 'cursor', props.cursor);
   useControlledKVO(map, 'tilt', props.tilt);
   useControlledKVO(map, 'rotation', props.rotation);
-  useControlledKVO(map, 'tileDuration', props.tileDuration);
   useControlledKVO(map, 'background', props.background);
   useControlledKVO(map, 'baseTileOpacity', props.baseTileOpacity);
   useControlledKVO(map, 'draggable', props.draggable);
