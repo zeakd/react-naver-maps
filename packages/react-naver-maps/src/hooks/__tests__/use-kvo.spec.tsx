@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { useKVO } from '../use-kvo.js';
 
 // Minimal KVO mock that mimics naver.maps.KVO + Event behavior
@@ -24,7 +24,11 @@ class MockKVO {
       this.listeners[eventName] = [];
     }
     this.listeners[eventName].push(cb);
-    return { eventName, cb };
+    return { target: this, eventName, cb };
+  }
+
+  _hasListener(eventName: string, cb: Listener) {
+    return (this.listeners[eventName]?.indexOf(cb) ?? -1) >= 0;
   }
 
   _removeListener(handle: { eventName: string; cb: Listener }) {
@@ -36,8 +40,20 @@ class MockKVO {
   }
 }
 
-function setupNaverMock() {
+interface NaverMockHandles {
+  removeListener: ReturnType<typeof vi.fn>;
+}
+
+function setupNaverMock(): { kvo: MockKVO } & NaverMockHandles {
   const mockKVO = new MockKVO();
+
+  // removeListener는 실제로 리스너를 제거해야 한다 — 그래야 unmount 후
+  // set()이 콜백을 호출하지 않음을 단언해 cleanup 회귀를 catch할 수 있다.
+  const removeListener = vi.fn(
+    (handle: { target: MockKVO; eventName: string; cb: Listener }) => {
+      handle.target._removeListener(handle);
+    },
+  );
 
   (globalThis as any).naver = {
     maps: {
@@ -45,21 +61,22 @@ function setupNaverMock() {
         addListener: (target: MockKVO, eventName: string, cb: Listener) => {
           return target._addListener(eventName, cb);
         },
-        removeListener: (_handle: { eventName: string; cb: Listener }) => {
-          // no-op for this mock
-        },
+        removeListener,
       },
     },
   };
 
-  return mockKVO;
+  return { kvo: mockKVO, removeListener };
 }
 
 describe('useKVO', () => {
   let mockKVO: MockKVO;
+  let removeListener: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockKVO = setupNaverMock();
+    const setup = setupNaverMock();
+    mockKVO = setup.kvo;
+    removeListener = setup.removeListener;
   });
 
   test('set()으로 값 변경 시 React 상태 업데이트', () => {
@@ -86,19 +103,32 @@ describe('useKVO', () => {
     expect(result.current).toEqual({ lat: 37.5, lng: 127.0 });
   });
 
-  test('언마운트 시 리스너 해제', () => {
+  test('언마운트 시 리스너 해제 → set() 콜백 미호출', () => {
     mockKVO.set('zoom', 10);
 
-    const { unmount } = renderHook(() =>
+    const { result, unmount } = renderHook(() =>
       useKVO<number>(mockKVO as any, 'zoom'),
     );
 
-    // naver.maps.Event.removeListener가 호출되는지 확인
-    // (실제로는 리스너 제거를 mock의 removeListener에서 처리)
+    // 구독 중에는 set()이 리렌더를 유발 (useSyncExternalStore 콜백 등록 확인)
+    act(() => {
+      mockKVO.set('zoom', 15);
+    });
+    expect(result.current).toBe(15);
+
     unmount();
 
-    // unmount 후 set해도 에러가 나지 않아야 함
-    mockKVO.set('zoom', 20);
+    // removeListener가 호출되어 실제로 리스너가 제거되어야 함
+    expect(removeListener).toHaveBeenCalledTimes(1);
+    expect(
+      mockKVO._hasListener('zoom_changed', removeListener.mock.calls[0][0].cb),
+    ).toBe(false);
+
+    // unmount 후 set해도 (a) 에러 없음, (b) 더 이상 구독 콜백 미호출 → result 고정
+    act(() => {
+      mockKVO.set('zoom', 20);
+    });
+    expect(result.current).toBe(15);
   });
 });
 

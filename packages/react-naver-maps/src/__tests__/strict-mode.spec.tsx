@@ -281,8 +281,25 @@ describe('StrictMode + NaverMap dirty diff', () => {
       </StrictMode>,
     );
 
-    // 마지막에 살아있는 Map 인스턴스 (StrictMode 더블 mount 후 두 번째)
-    const map = mapInstances[mapInstances.length - 1]!;
+    // (1) StrictMode가 실제로 더블 마운트(mount→unmount→remount)를 일으켰는지 단언.
+    // 더블 마운트가 안 일어나면 이 테스트가 검증하려는 시나리오 자체가 성립 안 함.
+    expect(mapInstances).toHaveLength(2);
+
+    const firstMap = mapInstances[0]!;
+    const secondMap = mapInstances[1]!;
+
+    // (2) 첫 인스턴스는 StrictMode unmount에서 cleanup되어야 함:
+    //     destroy() 호출 + clearInstanceListeners(firstInstance) 호출.
+    expect(firstMap.destroy).toHaveBeenCalled();
+    expect(
+      (globalThis as any).naver.maps.Event.clearInstanceListeners,
+    ).toHaveBeenCalledWith(firstMap);
+
+    // 마지막에 살아있는 Map 인스턴스 (두 번째)
+    const map = secondMap;
+
+    // cleanup 이후 호출 카운트만 보기 위해 첫 인스턴스 setZoom 기준값 기록
+    const firstSetZoomCallsBefore = firstMap.setZoom.mock.calls.length;
 
     rerender(
       <StrictMode>
@@ -292,8 +309,12 @@ describe('StrictMode + NaverMap dirty diff', () => {
       </StrictMode>,
     );
 
-    // dirty diff가 새 mount의 prevRef(=10)와 비교하여 setZoom(15)을 호출
+    // (3) dirty diff가 살아있는(두 번째) 인스턴스에만 setZoom(15) 호출
     expect(map.setZoom).toHaveBeenCalledWith(15);
+
+    // (4) cleanup된 첫 인스턴스에는 stale setter가 호출되지 않아야 함
+    expect(firstMap.setZoom.mock.calls.length).toBe(firstSetZoomCallsBefore);
+    expect(firstMap.setZoom).not.toHaveBeenCalledWith(15);
   });
 
   test('StrictMode 더블 마운트 후 동일 zoom rerender는 setter 미호출', () => {

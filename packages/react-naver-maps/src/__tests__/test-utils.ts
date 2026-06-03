@@ -129,7 +129,18 @@ export class MockOverlayView extends MockKVO {
 
   getProjection() {
     return {
-      fromCoordToOffset: (_coord: unknown) => ({ x: 100, y: 200 }),
+      // 좌표 의존 변환: draw가 재호출되지 않으면 left/top이 갱신되지 않으므로
+      // position 변경 회귀를 실제로 catch할 수 있다.
+      // base { x:100, y:200 } + 좌표 델타 (lng→x, lat→y). 기본 좌표 lat=37.5,lng=127 → {100,200}.
+      fromCoordToOffset: (coord: unknown) => {
+        const c = coord as { lat?: number; lng?: number };
+        const lat = c?.lat ?? 37.5;
+        const lng = c?.lng ?? 127.0;
+        return {
+          x: 100 + (lng - 127.0),
+          y: 200 + (lat - 37.5),
+        };
+      },
     };
   }
 
