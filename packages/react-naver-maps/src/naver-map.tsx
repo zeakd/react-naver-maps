@@ -181,10 +181,29 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
   const [map, setMap] = useState<naver.maps.Map | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
 
+  // StrictMode(dev)에서 mount→unmount→remount가 즉시 반복될 때
+  // 예약된 destroy를 다음 tick에서 취소할 수 있도록 하는 플래그.
+  const pendingDestroyRef = useRef(false);
+
   // Map 생성: DOM commit 후 layout effect에서 수행 (paint 전)
   useLayoutEffect(() => {
     if (!container) {
       throw new Error('NaverMap must be used within <Container>');
+    }
+    // StrictMode의 즉시 재마운트라면 예약된 destroy를 취소하고 기존 인스턴스 재사용
+    pendingDestroyRef.current = false;
+    if (mapRef.current) {
+      setMap(mapRef.current);
+      return () => {
+        pendingDestroyRef.current = true;
+        queueMicrotask(() => {
+          if (pendingDestroyRef.current && mapRef.current) {
+            naver.maps?.Event?.clearInstanceListeners(mapRef.current);
+            mapRef.current.destroy();
+            mapRef.current = null;
+          }
+        });
+      };
     }
 
     // bounds가 있으면 center/zoom 대신 bounds로 초기화
