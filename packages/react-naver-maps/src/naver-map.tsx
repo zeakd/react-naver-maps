@@ -180,18 +180,43 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
   const container = use(ContainerContext);
   const [map, setMap] = useState<naver.maps.Map | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
+  const pendingDestroyRef = useRef(false);
 
   // Map 생성: DOM commit 후 layout effect에서 수행 (paint 전)
+  //
+  // destroy 는 cleanup 에서 바로 하지 않고 microtask 로 미룬다. StrictMode(dev)는
+  // mount → cleanup → setup 을 같은 commit 안에서 동기로 실행하므로, 다시 실행된
+  // setup 이 예약을 취소하고 살아 있는 인스턴스를 재사용한다. 바로 destroy 하고
+  // 새로 만들면 gl 서브모듈에서 네이버 SDK 가 인증 실패로 표시한다 (#171).
+  // 실제 unmount 에서는 취소할 setup 이 없으므로 microtask 에서 destroy 된다.
   useLayoutEffect(() => {
     if (!container) {
       throw new Error('NaverMap must be used within <Container>');
     }
 
+    pendingDestroyRef.current = false;
+    const instance = mapRef.current ?? createMap(container);
+    mapRef.current = instance;
+    setMap(instance);
+
+    return () => {
+      pendingDestroyRef.current = true;
+      queueMicrotask(() => {
+        if (!pendingDestroyRef.current || mapRef.current !== instance) return;
+        naver.maps?.Event?.clearInstanceListeners(instance);
+        instance.destroy();
+        mapRef.current = null;
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function createMap(el: HTMLElement): naver.maps.Map {
     // bounds가 있으면 center/zoom 대신 bounds로 초기화
     const initialBounds = props.bounds ?? props.defaultBounds;
 
     const instance = new navermaps.Map(
-      container,
+      el,
       omitUndefined({
         center: initialBounds
           ? undefined
@@ -249,16 +274,8 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
     if (initialCenterPoint) {
       instance.setCenterPoint(initialCenterPoint);
     }
-
-    mapRef.current = instance;
-    setMap(instance);
-
-    return () => {
-      naver.maps?.Event?.clearInstanceListeners(instance);
-      instance.destroy();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return instance;
+  }
 
   useImperativeHandle(ref, () => mapRef.current!);
 
