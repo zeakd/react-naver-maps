@@ -5,7 +5,70 @@ import { loadScript } from '../load-script.js';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { Suspense } from 'react';
 
-const NCP_KEY_ID = 'aluya4ff04';
+// Maps 키. Web 서비스 URL 에 http://localhost:4321 이 등록되어 있다(vitest.browser.config.ts 포트).
+// VITE_NCP_KEY_ID 로 바꿔 넣을 수 있다 (예: 잘못된 키로 인증 실패 감지 확인).
+const NCP_KEY_ID: string =
+  (import.meta as { env?: Record<string, string | undefined> }).env
+    ?.VITE_NCP_KEY_ID || 'aluya4ff04';
+
+/**
+ * 첫 지도를 만들어 인증 결과를 기다린다.
+ *
+ * 네이버맵 SDK 는 페이지에서 처음 만든 지도로 한 번 인증한다(/v3/auth JSONP). 실패하면
+ * 응답 처리 중 전역 navermap_authFailure 를 호출하고 타일 자리에 실패 안내를 그린다.
+ * 지도 DOM·스타일 요청은 인증 결과와 무관하게 생기므로 성공 신호로 쓸 수 없다.
+ * 콜백은 응답 직후가 아니라 조금 뒤에 오므로, /v3/auth 응답이 도착한 뒤
+ * AUTH_GRACE_MS 동안 실패 콜백이 없으면 통과로 본다.
+ * 인증 응답 전에 지도를 없애면 콜백이 오지 않으므로 판정이 끝날 때까지 지도를 유지한다.
+ */
+// 2026-11 실측: 잘못된 키에서 /v3/auth 응답 뒤 약 1.1초에 실패 콜백이 호출됐다.
+const AUTH_GRACE_MS = 3000;
+
+function checkAuth(timeout = 10000): Promise<'ok' | 'failed'> {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement('div');
+    el.style.cssText = 'width:300px;height:200px';
+    document.body.appendChild(el);
+    let settled = false;
+    const finish = (result: 'ok' | 'failed') => {
+      if (settled) return;
+      settled = true;
+      try {
+        map.destroy();
+      } catch {
+        // 인증 실패 직후의 지도는 정리 중 에러를 낼 수 있다. 판정에는 영향이 없다.
+      }
+      el.remove();
+      resolve(result);
+    };
+    (window as unknown as Record<string, unknown>).navermap_authFailure = () =>
+      finish('failed');
+    const map = new naver.maps.Map(el, {
+      center: new naver.maps.LatLng(37.5666, 126.9784),
+      zoom: 15,
+    });
+    const start = Date.now();
+    const poll = () => {
+      if (settled) return;
+      const responded = performance
+        .getEntriesByType('resource')
+        .some((e) => e.name.includes('oapi.map.naver.com/v3/auth'));
+      if (responded) {
+        setTimeout(() => finish('ok'), AUTH_GRACE_MS);
+        return;
+      }
+      if (Date.now() - start > timeout) {
+        settled = true;
+        reject(new Error('Timeout: /v3/auth 응답이 없음'));
+        return;
+      }
+      setTimeout(poll, 50);
+    };
+    poll();
+  });
+}
+
+let authResult: 'ok' | 'failed' | undefined;
 
 function waitForDom(
   root: HTMLElement,
@@ -35,11 +98,19 @@ describe('smoke', () => {
 
   beforeAll(async () => {
     await loadScript({ ncpKeyId: NCP_KEY_ID });
+    authResult = await checkAuth();
   });
 
   afterEach(() => {
     root?.unmount();
     rootContainer?.remove();
+  });
+
+  test('인증 통과', () => {
+    expect(
+      authResult,
+      `인증 실패: ${location.origin} 이 키 ${NCP_KEY_ID} 의 Web 서비스 URL 에 등록되어 있는지 확인`,
+    ).toBe('ok');
   });
 
   test('스크립트 로드 확인', () => {
