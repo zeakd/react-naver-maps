@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, v0.4]
 
 # 같은 브랜치의 이전 run을 자동 취소 — hang/중복 run 누적 방지
 concurrency:
