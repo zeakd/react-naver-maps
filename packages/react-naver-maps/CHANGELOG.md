@@ -1,5 +1,17 @@
 # react-naver-maps
 
+## 0.3.0
+
+### Minor Changes
+
+- fe5edd3: 인증 키 옵션을 `ncpKeyId` 하나로 정리. AI NAVER API 지도 API 종료(2026-11-24)에 맞춰 `ncpClientId`·`govClientId`·`finClientId` 를 제거했다. 이 옵션만 넘기면 제거 안내 에러를 던진다. (#174)
+
+  `useNavermaps` 가 따로 들고 있던 Promise 캐시를 없애고 `loadScript` 캐시 하나만 쓴다. 스크립트 로드에 실패하면 다음 렌더에서 다시 시도한다.
+
+### Patch Changes
+
+- 7196830: StrictMode(dev)의 mount → cleanup → setup 에서 NaverMap 이 지도를 destroy 하고 새로 만들던 문제 수정. destroy 를 microtask 로 미뤄 다시 실행된 setup 이 기존 인스턴스를 재사용한다. 지도가 두 번 초기화되며 로고·축척 컨트롤이 두 벌 남던 현상을 고친다. gl 서브모듈에서 보고된 인증 실패(#171)와 같은 지점의 수정이다.
+
 ## 0.2.2
 
 ### Patch Changes
