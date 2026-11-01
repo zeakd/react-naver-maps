@@ -24,14 +24,10 @@ function App() {
 
 ## 인증 키
 
-4종의 인증 키를 지원하며, 하나만 전달합니다.
+NCP 콘솔 [Maps > Application](https://console.ncloud.com/maps/application) 에서 발급한 Client ID 를 `ncpKeyId` 로 전달합니다.
+Application 의 Web 서비스 URL 에 지도를 띄울 주소(로컬 개발 주소 포함)를 등록해야 인증됩니다.
 
-| prop          | 설명                             |
-| ------------- | -------------------------------- |
-| `ncpKeyId`    | 현재 표준 (NCP, `/v3/auth` 인증) |
-| `ncpClientId` | NCP 레거시                       |
-| `govClientId` | 공공기관용                       |
-| `finClientId` | 금융기관용                       |
+AI NAVER API 의 지도 API 가 2026-11-24 에 종료되어, 0.3.0 에서 `ncpClientId`·`govClientId`·`finClientId` 는 제거되었습니다. 기존 키는 Maps 로 옮겨지지 않으므로 Maps 에서 Application 을 새로 등록해야 합니다. ([#174](https://github.com/zeakd/react-naver-maps/issues/174))
 
 ## 서브모듈
 

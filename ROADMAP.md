@@ -46,7 +46,7 @@ React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
 - Shape 5개 useOverlayLifecycle 통일
 - CustomOverlay ref 지원
 - InfoWindow position useControlledKVO 통일
-- NCP 인증 키 4종 지원 (ncpKeyId, ncpClientId, govClientId, finClientId)
+- 인증 키는 Maps 의 ncpKeyId 하나만 받음 (0.3.0 에서 ncpClientId·govClientId·finClientId 제거, #174)
 - Container render function children 지원
 
 ---

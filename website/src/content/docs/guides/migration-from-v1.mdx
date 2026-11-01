@@ -12,8 +12,8 @@ order: 7
 
 ## 인증 키
 
-NCP 콘솔에서 발급받은 키를 `ncpKeyId`로 전달합니다.
-기존 `ncpClientId`도 동작하지만, `ncpKeyId`가 현재 NCP 표준입니다.
+NCP 콘솔 Maps 에서 발급받은 키를 `ncpKeyId`로 전달합니다.
+`ncpClientId`(AI NAVER API) 키는 2026-11-24 지도 API 종료와 함께 동작하지 않으며, 0.3.0 부터 옵션도 제거되었습니다. ([#174](https://github.com/zeakd/react-naver-maps/issues/174))
 
 ```tsx
 <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
