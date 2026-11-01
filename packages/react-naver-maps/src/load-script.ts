@@ -1,63 +1,35 @@
 /**
- * 네이버맵 인증 키 옵션.
+ * 네이버맵 스크립트 로딩 옵션.
  *
- * 네이버맵 API는 4종의 인증 키를 지원한다:
- * - ncpKeyId: 현재 표준 (NCP, /v3/auth 인증)
- * - ncpClientId: NCP 레거시 (/v1/validatev3 인증)
- * - govClientId: 공공기관용 레거시
- * - finClientId: 금융기관용 레거시
- *
- * 하나만 전달해야 하며, 여러 개 전달 시 마지막 것이 사용된다.
+ * `ncpKeyId`는 NCP 콘솔 Maps > Application 에서 발급한 Client ID 다.
+ * AI NAVER API 의 지도 API 가 2026-11-24 에 종료되어 그쪽 키 파라미터
+ * (`ncpClientId`, `govClientId`, `finClientId`)는 0.3.0 에서 제거했다.
+ * https://github.com/zeakd/react-naver-maps/issues/174
  */
 export type LoadOptions = {
+  ncpKeyId: string;
   submodules?: string[];
-} & (
-  | {
-      ncpKeyId: string;
-      ncpClientId?: never;
-      govClientId?: never;
-      finClientId?: never;
-    }
-  | {
-      ncpKeyId?: never;
-      ncpClientId: string;
-      govClientId?: never;
-      finClientId?: never;
-    }
-  | {
-      ncpKeyId?: never;
-      ncpClientId?: never;
-      govClientId: string;
-      finClientId?: never;
-    }
-  | {
-      ncpKeyId?: never;
-      ncpClientId?: never;
-      govClientId?: never;
-      finClientId: string;
-    }
-);
+};
+
+const REMOVED_KEY_OPTIONS = ['ncpClientId', 'govClientId', 'finClientId'];
 
 const cache = new Map<string, Promise<typeof naver.maps>>();
 
-export function getClientParam(options: LoadOptions): [string, string] {
-  if ('ncpKeyId' in options && options.ncpKeyId)
-    return ['ncpKeyId', options.ncpKeyId];
-  if ('ncpClientId' in options && options.ncpClientId)
-    return ['ncpClientId', options.ncpClientId];
-  if ('govClientId' in options && options.govClientId)
-    return ['govClientId', options.govClientId];
-  if ('finClientId' in options && options.finClientId)
-    return ['finClientId', options.finClientId];
-  throw new Error(
-    'react-naver-maps: 인증 키가 필요합니다 (ncpKeyId, ncpClientId, govClientId, finClientId 중 하나)',
-  );
+/** @internal exported for tests */
+export function getKeyId(options: LoadOptions): string {
+  if (options.ncpKeyId) return options.ncpKeyId;
+  const removed = REMOVED_KEY_OPTIONS.find((name) => name in options);
+  if (removed) {
+    throw new Error(
+      `react-naver-maps: ${removed} 는 0.3.0 에서 제거되었습니다. NCP 콘솔 Maps 에서 발급한 키를 ncpKeyId 로 전달하세요. https://github.com/zeakd/react-naver-maps/issues/174`,
+    );
+  }
+  throw new Error('react-naver-maps: ncpKeyId 가 필요합니다');
 }
 
 /** @internal exported for tests */
 export function buildUrl(options: LoadOptions): string {
-  const [paramName, paramValue] = getClientParam(options);
-  const params = new URLSearchParams({ [paramName]: paramValue });
+  const params = new URLSearchParams({ ncpKeyId: getKeyId(options) });
   let url = `https://oapi.map.naver.com/openapi/v3/maps.js?${params.toString()}`;
   if (options.submodules?.length) {
     // Naver Maps 로더는 submodules 쿼리 값을 raw `,` 로 split 해서
@@ -70,9 +42,8 @@ export function buildUrl(options: LoadOptions): string {
 }
 
 function cacheKey(options: LoadOptions): string {
-  const [, paramValue] = getClientParam(options);
   const sub = options.submodules?.toSorted().join(',') ?? '';
-  return `${paramValue}:${sub}`;
+  return `${getKeyId(options)}:${sub}`;
 }
 
 /** @internal exported for tests */

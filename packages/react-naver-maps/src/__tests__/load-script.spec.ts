@@ -1,42 +1,28 @@
 import { afterEach, describe, expect, test } from 'vitest';
+import type { LoadOptions } from '../load-script.js';
 import {
   buildUrl,
-  getClientParam,
+  getKeyId,
   loadScript,
   waitForJsContentLoaded,
 } from '../load-script.js';
 
-describe('getClientParam', () => {
-  test('ncpKeyId 전달 시 ["ncpKeyId", value] 반환', () => {
-    expect(getClientParam({ ncpKeyId: 'test-key' })).toEqual([
-      'ncpKeyId',
-      'test-key',
-    ]);
+describe('getKeyId', () => {
+  test('ncpKeyId 를 반환', () => {
+    expect(getKeyId({ ncpKeyId: 'test-key' })).toBe('test-key');
   });
 
-  test('ncpClientId 전달 시 ["ncpClientId", value] 반환', () => {
-    expect(getClientParam({ ncpClientId: 'test-client' })).toEqual([
-      'ncpClientId',
-      'test-client',
-    ]);
-  });
-
-  test('govClientId 전달 시 ["govClientId", value] 반환', () => {
-    expect(getClientParam({ govClientId: 'gov-id' })).toEqual([
-      'govClientId',
-      'gov-id',
-    ]);
-  });
-
-  test('finClientId 전달 시 ["finClientId", value] 반환', () => {
-    expect(getClientParam({ finClientId: 'fin-id' })).toEqual([
-      'finClientId',
-      'fin-id',
-    ]);
-  });
+  test.each(['ncpClientId', 'govClientId', 'finClientId'])(
+    '제거된 %s 만 전달하면 제거 안내 에러',
+    (name) => {
+      // JS 사용자나 타입을 우회한 호출이 0.2 방식으로 키를 넘기는 경우
+      const options = { [name]: 'legacy-key' } as unknown as LoadOptions;
+      expect(() => getKeyId(options)).toThrow(`${name} 는 0.3.0 에서 제거`);
+    },
+  );
 
   test('키 없으면 에러', () => {
-    expect(() => getClientParam({} as any)).toThrow('인증 키가 필요합니다');
+    expect(() => getKeyId({} as LoadOptions)).toThrow('ncpKeyId 가 필요합니다');
   });
 });
 
