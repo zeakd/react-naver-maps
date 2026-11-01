@@ -15,8 +15,11 @@ export default defineConfig({
       enabled: true,
       provider: 'playwright',
       headless: true,
+      // Maps 키의 Web 서비스 URL 에 등록된 로컬 주소(http://localhost:4321)와 맞춘다.
+      // 포트가 바뀌면 인증이 실패하므로 strictPort 로 다른 포트로 넘어가지 않게 한다.
       api: {
-        port: 3000,
+        port: 4321,
+        strictPort: true,
       },
       instances: [
         {

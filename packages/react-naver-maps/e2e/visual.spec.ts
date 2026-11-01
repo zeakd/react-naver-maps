@@ -3,39 +3,28 @@ import { setupTileCache } from './tile-cache';
 
 const TILE_LOAD_TIMEOUT = 5000;
 
+// name 은 스크린샷 파일 이름(__screenshots__/{name}.png), slug 는 website/src/content/docs/examples/{slug}.mdx
 const examples = [
   // 기본 예제
-  { name: 'marker', path: '/react-naver-maps/docs/examples/marker/' },
-  { name: 'circle', path: '/react-naver-maps/docs/examples/circle/' },
-  { name: 'shapes', path: '/react-naver-maps/docs/examples/shapes/' },
-  { name: 'info-window', path: '/react-naver-maps/docs/examples/info-window/' },
-  {
-    name: 'custom-overlay',
-    path: '/react-naver-maps/docs/examples/custom-overlay/',
-  },
+  { name: 'marker', slug: 'marker-tutorial-1-simple' },
+  { name: 'circle', slug: 'circle' },
+  { name: 'shapes', slug: 'shapes' },
+  { name: 'info-window', slug: 'info-window' },
+  { name: 'custom-overlay', slug: 'custom-overlay' },
   // 공식 튜토리얼 매핑
-  { name: 'map-options', path: '/react-naver-maps/docs/examples/map-options/' },
-  { name: 'map-types', path: '/react-naver-maps/docs/examples/map-types/' },
-  { name: 'map-bounds', path: '/react-naver-maps/docs/examples/map-bounds/' },
-  { name: 'map-moves', path: '/react-naver-maps/docs/examples/map-moves/' },
-  {
-    name: 'map-geolocation',
-    path: '/react-naver-maps/docs/examples/map-geolocation/',
-  },
-  {
-    name: 'custom-control',
-    path: '/react-naver-maps/docs/examples/custom-control/',
-  },
-  {
-    name: 'marker-cluster',
-    path: '/react-naver-maps/docs/examples/marker-cluster/',
-  },
+  { name: 'map-options', slug: 'map-tutorial-2-options' },
+  { name: 'map-types', slug: 'map-tutorial-3-types' },
+  { name: 'map-bounds', slug: 'map-tutorial-4-bounds' },
+  { name: 'map-moves', slug: 'map-tutorial-5-moves' },
+  { name: 'map-geolocation', slug: 'map-tutorial-6-geolocation' },
+  { name: 'custom-control', slug: 'control-tutorial-4-custom-p1' },
+  { name: 'marker-cluster', slug: 'marker-cluster-tutorial' },
 ];
 
-for (const { name, path: pagePath } of examples) {
+for (const { name, slug } of examples) {
   test(name, async ({ page }) => {
     await setupTileCache(page);
-    await page.goto(pagePath);
+    await page.goto(`/react-naver-maps/examples/${slug}/`);
 
     // React hydration + 네이버맵 로드 대기
     await page.locator('img[alt="NAVER"]').first().waitFor({ timeout: 30000 });
