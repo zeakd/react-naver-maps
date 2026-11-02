@@ -7,10 +7,11 @@ describe('kvoEquals', () => {
     expect(kvoEquals(obj, obj)).toBe(true);
   });
 
-  test('다른 참조, 같은 원시값 → false (=== 비교)', () => {
+  test('일반 객체는 키별로 얕게 비교한다', () => {
     const a = { lat: 37.5, lng: 127.0 };
-    const b = { lat: 37.5, lng: 127.0 };
-    expect(kvoEquals(a, b)).toBe(false);
+    expect(kvoEquals(a, { lat: 37.5, lng: 127.0 })).toBe(true);
+    expect(kvoEquals(a, { lat: 37.5, lng: 127.1 })).toBe(false);
+    expect(kvoEquals(a, { lat: 37.5 })).toBe(false);
   });
 
   test('null vs undefined → false', () => {
@@ -56,7 +57,8 @@ describe('kvoEquals', () => {
     expect(kvoEquals(instance, literal)).toBe(true);
   });
 
-  test('양쪽 모두 equals 없는 객체 → false (deep eq 안 함)', () => {
-    expect(kvoEquals({ a: 1 }, { a: 1 })).toBe(false);
+  test('중첩 객체와 배열은 깊이 비교하지 않는다', () => {
+    expect(kvoEquals({ a: { b: 1 } }, { a: { b: 1 } })).toBe(false);
+    expect(kvoEquals([1], [1])).toBe(false);
   });
 });

@@ -65,6 +65,10 @@ export function createPlaywrightDriver(page: Page): ScenarioDriver {
       if (kind !== 'up') await page.mouse.move(x, y);
       if (kind !== 'move') await page.mouse[kind]();
     },
+    async clickMarker() {
+      // 지도 중앙의 Marker. 컨테이너 크기는 app.tsx 의 600x400.
+      await page.mouse.click(300, 190);
+    },
     async wheel(x, y, deltaY) {
       await page.mouse.move(x, y);
       await page.mouse.wheel(0, deltaY);

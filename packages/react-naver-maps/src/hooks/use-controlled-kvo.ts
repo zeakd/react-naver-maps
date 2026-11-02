@@ -17,8 +17,9 @@ function capitalize(s: string): string {
  * - LatLngBounds.equals: 내부적으로 LatLng.equals 사용
  * - Point/Size.equals: loose equality (==)
  *
- * 배열(paths, path)은 equals가 없으므로 === 비교만 됨.
- * 안정적인 참조를 전달해야 불필요한 setter 호출을 방지할 수 있다.
+ * 일반 객체(padding, *ControlOptions)는 키별 얕은 비교를 한다.
+ * 배열(paths, path)은 참조만 비교한다. SDK 는 배열을 감싸 저장하므로 현재 값과는 같아지지 않고,
+ * 직전 prop 과 같은 참조면 건너뛴다 (useControlledKVO). 안정적인 참조를 전달해야 setter 를 피한다.
  */
 type Equatable = { equals: (v: unknown) => boolean };
 
@@ -31,6 +32,25 @@ function hasEquals(v: unknown): v is Equatable {
   );
 }
 
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    Object.getPrototypeOf(v) === Object.prototype
+  );
+}
+
+function shallowEquals(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const keys = Object.keys(a);
+  return (
+    keys.length === Object.keys(b).length &&
+    keys.every((key) => Object.is(a[key], b[key]))
+  );
+}
+
 export function kvoEquals(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
@@ -38,6 +58,7 @@ export function kvoEquals(a: unknown, b: unknown): boolean {
   // SDK 객체일 때(또는 그 반대) false negative를 막는다.
   if (hasEquals(a)) return a.equals(b);
   if (hasEquals(b)) return b.equals(a);
+  if (isPlainObject(a) && isPlainObject(b)) return shallowEquals(a, b);
   return false;
 }
 
@@ -83,6 +104,7 @@ export function useControlledKVO(
   value?: unknown,
 ): void {
   const isFirstRef = useRef(true);
+  const prevValueRef = useRef(value);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
@@ -90,6 +112,11 @@ export function useControlledKVO(
       isFirstRef.current = false;
       return;
     }
+    // SDK 는 path, padding 등을 바꿔 저장해 현재 값과 영원히 같아지지 않는다.
+    // prop 이 그대로면 SDK 를 건드리지 않는다.
+    const unchanged = kvoEquals(prevValueRef.current, value);
+    prevValueRef.current = value;
+    if (unchanged) return;
     if (value === undefined || !sdkAlive()) return;
 
     // setter/getter 우선순위 (높은 순):

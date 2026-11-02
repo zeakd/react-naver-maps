@@ -2,7 +2,9 @@ import {
   calls,
   controlCount,
   fired,
+  kvoFollowsMap,
   mapAttached,
+  markerClicked,
   noBacktrack,
   settlesAt,
   settlesAtZoom,
@@ -87,6 +89,44 @@ export const scenarios: Scenario[] = [
       { t: 'frames', n: 30 },
     ],
     expect: [mapAttached()],
+  },
+  {
+    name: 'useKVO 는 지도 이동과 줌을 따라간다',
+    app: { mode: 'props' },
+    steps: [
+      { t: 'props', props: { center: A, zoom: 13 } },
+      { t: 'frames', n: 90 },
+    ],
+    expect: [settlesAt(A), kvoFollowsMap()],
+  },
+  {
+    name: '값이 그대로면 재렌더해도 setter 를 부르지 않는다',
+    app: { mode: 'props', polyline: true, inlineOptions: true },
+    steps: [
+      ...[1, 2, 3, 4, 5].map((tick): Step => ({ t: 'props', props: { tick } })),
+      { t: 'frames', n: 5 },
+    ],
+    expect: [calls({ setPath: 0, setOptions: 0 })],
+  },
+  {
+    name: '인라인 anchor 로 재렌더해도 InfoWindow 를 다시 열지 않는다',
+    app: { mode: 'props', infoWindow: true },
+    steps: [
+      ...[1, 2, 3].map((tick): Step => ({ t: 'props', props: { tick } })),
+      { t: 'frames', n: 5 },
+    ],
+    expect: [calls({ infoWindowOpen: 0, infoWindowClose: 0 })],
+  },
+  {
+    name: 'clickable 을 나중에 켠 Marker 도 클릭을 받는다',
+    app: { mode: 'props', marker: true, markerClickable: false },
+    steps: [
+      { t: 'props', props: { markerClickable: true } },
+      { t: 'frames', n: 5 },
+      { t: 'clickMarker' },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerClicked(1)],
   },
   {
     name: 'controlled 드래그는 지도 메서드를 다시 부르지 않는다',

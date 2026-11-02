@@ -16,6 +16,16 @@ export type AppConfig = {
   mapKey?: number;
   /** 인라인 핸들러가 있는 Marker 를 함께 올린다. */
   marker?: boolean;
+  /** Marker 의 clickable */
+  markerClickable?: boolean;
+  /** 값이 그대로인 path 로 Polyline 을 함께 올린다. */
+  polyline?: boolean;
+  /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
+  inlineOptions?: boolean;
+  /** 값이 그대로인 인라인 anchor 로 열린 InfoWindow 를 함께 올린다. */
+  infoWindow?: boolean;
+  /** 값을 바꾸지 않고 재렌더만 일으킨다. */
+  tick?: number;
 };
 
 export type Step =
@@ -23,7 +33,9 @@ export type Step =
   | { t: 'frames'; n: number }
   | { t: 'call'; method: string; args?: unknown[] }
   | { t: 'mouse'; kind: 'down' | 'move' | 'up'; x: number; y: number }
-  | { t: 'wheel'; x: number; y: number; deltaY: number };
+  | { t: 'wheel'; x: number; y: number; deltaY: number }
+  /** 지도 안의 Marker 를 실제 DOM 클릭으로 누른다. */
+  | { t: 'clickMarker' };
 
 /** 한 프레임 동안 관찰한 지도 상태. 공개 API 로 읽을 수 있는 값만 담는다. */
 export type TraceFrame = {
@@ -39,6 +51,12 @@ export type TraceFrame = {
   controls: number;
   /** 지도 DOM 이 문서에 붙어 있는가 */
   attached: boolean;
+  /** useKVO 로 읽은 zoom */
+  kvoZoom: number;
+  /** useKVO 로 읽은 center 위도 */
+  kvoLat: number;
+  /** 이 프레임까지 Marker 가 받은 클릭 수 */
+  markerClicks: number;
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */
@@ -62,4 +80,5 @@ export interface ScenarioDriver {
   call(method: string, args: unknown[]): Promise<void>;
   mouse(kind: 'down' | 'move' | 'up', x: number, y: number): Promise<void>;
   wheel(x: number, y: number, deltaY: number): Promise<void>;
+  clickMarker(): Promise<void>;
 }

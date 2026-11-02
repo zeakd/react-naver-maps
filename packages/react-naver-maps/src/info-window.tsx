@@ -19,6 +19,7 @@ import {
   clearMapListeners,
 } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
+import { kvoEquals } from './hooks/use-controlled-kvo.js';
 
 /**
  * 네이버맵 InfoWindow를 선언적으로 제어한다.
@@ -157,15 +158,22 @@ function InfoWindowInner({
   }, [infoWindow, props.onOpen, props.onClose]);
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
+  const openedRef = useRef<{ anchor: unknown } | null>(null);
   useEffect(() => {
     if (open === undefined || !sdkAlive()) return;
     if (open) {
+      // 인라인 anchor 는 참조가 매번 달라도 값이 같으면 다시 열지 않는다.
+      // open 은 close 와 open 이벤트를 다시 내고 autoPan 도 다시 돈다.
+      const opened = openedRef.current;
+      if (opened && kvoEquals(opened.anchor, props.anchor)) return;
       if (props.anchor) {
         infoWindow.open(map, props.anchor);
       } else {
         infoWindow.open(map);
       }
+      openedRef.current = { anchor: props.anchor };
     } else {
+      openedRef.current = null;
       infoWindow.close();
     }
   }, [infoWindow, map, open, props.anchor]);

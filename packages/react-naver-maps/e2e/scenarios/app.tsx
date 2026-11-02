@@ -3,9 +3,13 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
   Container,
+  InfoWindow,
   Marker,
   NaverMap,
   NavermapsProvider,
+  Polyline,
+  useKVO,
+  useMap,
 } from '../../src/react-naver-maps.js';
 import { loadScript } from '../../src/load-script.js';
 import type { AppConfig, LL, TraceFrame } from './types.js';
@@ -32,15 +36,25 @@ const OBSERVED_METHODS = [
   'setZoom',
   'fitBounds',
 ];
+const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
+const STABLE_PATH = [
+  { lat: 37.56, lng: 126.97 },
+  { lat: 37.57, lng: 126.98 },
+];
 
-type Observed = { calls: string[]; events: string[]; zoomReports: number[] };
+type Observed = {
+  calls: string[];
+  events: string[];
+  zoomReports: number[];
+  kvo: { zoom: number; lat: number };
+  markerClicks: number;
+  recordKvo: (zoom: number, lat: number) => void;
+  recordMarkerClick: () => void;
+};
 
-function observeMethods(maps: typeof naver.maps, calls: string[]) {
-  const proto = maps.Map.prototype as unknown as Record<
-    string,
-    (...args: unknown[]) => unknown
-  >;
-  for (const method of OBSERVED_METHODS) {
+function observe(prototype: object, methods: string[], calls: string[]) {
+  const proto = prototype as Record<string, (...args: unknown[]) => unknown>;
+  for (const method of methods) {
     const original = proto[method];
     if (!original) continue;
     proto[method] = function (this: unknown, ...args: unknown[]) {
@@ -48,6 +62,14 @@ function observeMethods(maps: typeof naver.maps, calls: string[]) {
       return original.apply(this, args);
     };
   }
+}
+
+function KvoProbe({ observed }: { observed: Observed }) {
+  const map = useMap();
+  const zoom = useKVO<number>(map, 'zoom');
+  const center = useKVO<naver.maps.LatLng>(map, 'center');
+  observed.recordKvo(zoom, center.lat());
+  return null;
 }
 
 function controlCount(map: naver.maps.Map) {
@@ -83,11 +105,32 @@ function MapUnderTest({
       center={center}
       zoom={config.zoom ?? INITIAL_ZOOM}
       zoomControl={config.zoomControl}
+      {...(config.inlineOptions
+        ? {
+            padding: { top: 10, right: 10, bottom: 10, left: 10 },
+            zoomControlOptions: { position: 1 },
+          }
+        : {})}
       onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
       onCenterChanged={config.mode === 'controlled' ? setReported : undefined}
     >
+      <KvoProbe observed={observed} />
       {config.marker && (
-        <Marker position={toCoord(INITIAL_CENTER)} onClick={() => {}} />
+        <Marker
+          position={toCoord(INITIAL_CENTER)}
+          clickable={config.markerClickable}
+          onClick={() => observed.recordMarkerClick()}
+        />
+      )}
+      {config.polyline && <Polyline path={STABLE_PATH} />}
+      {config.infoWindow && (
+        <InfoWindow
+          open
+          content="info"
+          anchor={toCoord(INITIAL_CENTER)}
+          onOpen={() => observed.calls.push('infoWindowOpen')}
+          onClose={() => observed.calls.push('infoWindowClose')}
+        />
       )}
     </NaverMap>
   );
@@ -97,8 +140,21 @@ function MapUnderTest({
 export async function mountApp(host: HTMLElement, initial: AppConfig) {
   const ncpKeyId = initial.ncpKeyId ?? NCP_KEY_ID;
   const maps = await loadScript({ ncpKeyId, submodules: initial.submodules });
-  const observed: Observed = { calls: [], events: [], zoomReports: [] };
-  observeMethods(maps, observed.calls);
+  const observed: Observed = {
+    calls: [],
+    events: [],
+    zoomReports: [],
+    kvo: { zoom: 0, lat: 0 },
+    markerClicks: 0,
+    recordKvo(zoom, lat) {
+      observed.kvo = { zoom, lat };
+    },
+    recordMarkerClick() {
+      observed.markerClicks += 1;
+    },
+  };
+  observe(maps.Map.prototype, OBSERVED_METHODS, observed.calls);
+  observe(maps.Polyline.prototype, OBSERVED_SHAPE_METHODS, observed.calls);
 
   let map: naver.maps.Map | undefined;
   const onMap = (next: naver.maps.Map) => {
@@ -155,6 +211,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         zoomReports: observed.zoomReports.splice(0),
         controls: controlCount(map!),
         attached: map!.getPanes().overlayLayer.isConnected,
+        kvoZoom: observed.kvo.zoom,
+        kvoLat: observed.kvo.lat,
+        markerClicks: observed.markerClicks,
       };
     },
   };
