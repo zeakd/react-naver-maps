@@ -12,6 +12,10 @@ export type AppConfig = {
   submodules?: string[];
   /** 기본값은 app.tsx 의 NCP_KEY_ID */
   ncpKeyId?: string;
+  /** NaverMap 의 key. 바꾸면 지도를 다시 만든다. */
+  mapKey?: number;
+  /** 인라인 핸들러가 있는 Marker 를 함께 올린다. */
+  marker?: boolean;
 };
 
 export type Step =
@@ -33,6 +37,8 @@ export type TraceFrame = {
   zoomReports: number[];
   /** 지도에 붙은 컨트롤 수 */
   controls: number;
+  /** 지도 DOM 이 문서에 붙어 있는가 */
+  attached: boolean;
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */

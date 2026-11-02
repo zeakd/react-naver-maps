@@ -16,6 +16,13 @@ import type {
   EventHandlerProps,
   GroundOverlayEvent,
 } from './types/overlay-events.js';
+import {
+  sdkAlive,
+  addMapListener,
+  removeMapListener,
+  clearMapListeners,
+} from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /**
  * 이미지를 지도 위에 오버레이한다.
@@ -70,7 +77,8 @@ export function GroundOverlay({ ref, ...props }: GroundOverlayProps) {
     setOverlay(instance);
 
     return () => {
-      naver.maps?.Event?.clearInstanceListeners(instance);
+      if (!sdkAlive()) return;
+      clearMapListeners(instance);
       instance.setMap(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,29 +104,19 @@ function GroundOverlayInner({ overlay, ...props }: GroundOverlayInnerProps) {
   // UI events — SDK는 GROUND_DOMEVENTS(click/mousedown/mouseup/contextmenu)를 등록하고,
   // click 리스너가 연속 클릭을 합성 dblclick으로, contextmenu를 rightclick으로 발화한다.
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(overlay, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(overlay, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(overlay, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(overlay, 'mouseup', props.onMouseup));
     if (props.onRightclick)
-      listeners.push(
-        naver.maps.Event.addListener(overlay, 'rightclick', props.onRightclick),
-      );
+      listeners.push(addMapListener(overlay, 'rightclick', props.onRightclick));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     overlay,

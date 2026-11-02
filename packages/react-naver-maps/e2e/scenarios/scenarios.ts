@@ -2,6 +2,7 @@ import {
   calls,
   controlCount,
   fired,
+  mapAttached,
   noBacktrack,
   settlesAt,
   settlesAtZoom,
@@ -77,6 +78,15 @@ export const scenarios: Scenario[] = [
       { t: 'frames', n: 60 },
     ],
     expect: [settlesAt(A)],
+  },
+  {
+    name: 'key 로 다시 만든 지도가 화면에 남는다',
+    app: { mode: 'props', mapKey: 1 },
+    steps: [
+      { t: 'props', props: { mapKey: 2 } },
+      { t: 'frames', n: 30 },
+    ],
+    expect: [mapAttached()],
   },
   {
     name: 'controlled 드래그는 지도 메서드를 다시 부르지 않는다',

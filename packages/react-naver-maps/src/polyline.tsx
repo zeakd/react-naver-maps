@@ -9,6 +9,8 @@ import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 선을 그린다. path로 경로 좌표를 지정한다. */
 export interface PolylineProps
@@ -98,45 +100,27 @@ function PolylineInner({ polyline, ...props }: PolylineInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(polyline, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(polyline, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(polyline, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(polyline, 'mouseup', props.onMouseup));
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(polyline, 'mouseover', props.onMouseover));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(polyline, 'mouseout', props.onMouseout));
     if (props.onRightclick)
       listeners.push(
-        naver.maps.Event.addListener(
-          polyline,
-          'rightclick',
-          props.onRightclick,
-        ),
+        addMapListener(polyline, 'rightclick', props.onRightclick),
       );
     if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(polyline, 'mousemove', props.onMousemove),
-      );
+      listeners.push(addMapListener(polyline, 'mousemove', props.onMousemove));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     polyline,

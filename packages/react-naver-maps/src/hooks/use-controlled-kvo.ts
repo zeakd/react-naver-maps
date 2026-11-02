@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
+import { sdkAlive } from '../utils/sdk.js';
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -89,7 +90,7 @@ export function useControlledKVO(
       isFirstRef.current = false;
       return;
     }
-    if (value === undefined) return;
+    if (value === undefined || !sdkAlive()) return;
 
     // setter/getter 우선순위 (높은 순):
     //   1. 전용 setX/getX 메서드 — Map.setMapTypeId처럼 추가 부수효과 수행 (registry 전환 등)

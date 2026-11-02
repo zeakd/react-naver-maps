@@ -12,6 +12,13 @@ import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import {
+  sdkAlive,
+  addMapListener,
+  removeMapListener,
+  clearMapListeners,
+} from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /**
  * 네이버맵 InfoWindow를 선언적으로 제어한다.
@@ -99,8 +106,9 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
     setInfoWindow(instance);
 
     return () => {
+      if (!sdkAlive()) return;
       instance.close();
-      naver.maps?.Event?.clearInstanceListeners(instance);
+      clearMapListeners(instance);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -138,23 +146,19 @@ function InfoWindowInner({
   // 향후 코드 변경이나 SDK가 다른 곳에서 동기 발화하는 패턴을 추가했을 때 안전하도록 보수적으로
   // useLayoutEffect 사용. (fix-16, fix-13과 동일한 라이프사이클 이벤트 정책)
   useLayoutEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onOpen)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'open', props.onOpen),
-      );
+      listeners.push(addMapListener(infoWindow, 'open', props.onOpen));
     if (props.onClose)
-      listeners.push(
-        naver.maps.Event.addListener(infoWindow, 'close', props.onClose),
-      );
+      listeners.push(addMapListener(infoWindow, 'close', props.onClose));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [infoWindow, props.onOpen, props.onClose]);
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   useEffect(() => {
-    if (open === undefined) return;
+    if (open === undefined || !sdkAlive()) return;
     if (open) {
       if (props.anchor) {
         infoWindow.open(map, props.anchor);

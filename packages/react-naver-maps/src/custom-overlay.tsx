@@ -13,6 +13,7 @@ import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useStaticProp } from './hooks/use-static-prop.js';
+import { sdkAlive, clearMapListeners } from './utils/sdk.js';
 
 /**
  * React children을 지도 위 특정 좌표에 렌더링한다. Portal 기반.
@@ -128,6 +129,7 @@ export function CustomOverlay({
   );
 
   useLayoutEffect(() => {
+    if (!sdkAlive()) return;
     const OverlayViewClass = createOverlayViewClass(navermaps);
     const instance = new OverlayViewClass({ position, pane, anchor, zIndex });
     instance.setMap(map);
@@ -135,7 +137,8 @@ export function CustomOverlay({
     setOverlay(instance);
 
     return () => {
-      naver.maps?.Event?.clearInstanceListeners(instance);
+      if (!sdkAlive()) return;
+      clearMapListeners(instance);
       instance.setMap(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

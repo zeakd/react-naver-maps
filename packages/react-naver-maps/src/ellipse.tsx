@@ -9,6 +9,8 @@ import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 타원을 그린다. bounds로 영역을 지정한다. */
 export interface EllipseProps
@@ -83,41 +85,25 @@ function EllipseInner({ ellipse, ...props }: EllipseInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(ellipse, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(ellipse, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(ellipse, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(ellipse, 'mouseup', props.onMouseup));
     if (props.onRightclick)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'rightclick', props.onRightclick),
-      );
+      listeners.push(addMapListener(ellipse, 'rightclick', props.onRightclick));
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(ellipse, 'mouseover', props.onMouseover));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(ellipse, 'mouseout', props.onMouseout));
     if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(ellipse, 'mousemove', props.onMousemove),
-      );
+      listeners.push(addMapListener(ellipse, 'mousemove', props.onMousemove));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     ellipse,

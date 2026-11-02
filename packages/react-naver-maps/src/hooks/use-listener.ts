@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { addMapListener, removeMapListener } from '../utils/sdk.js';
 
 /**
  * 네이버맵 네이티브 이벤트를 React 콜백으로 연결한다.
@@ -22,12 +23,10 @@ export function useListener(
   useEffect(() => {
     if (!target || !listenerRef.current) return;
 
-    const handle = naver.maps.Event.addListener(
-      target,
-      eventName,
-      (...args: unknown[]) => listenerRef.current?.(...args),
+    const handle = addMapListener(target, eventName, (...args: unknown[]) =>
+      listenerRef.current?.(...args),
     );
-    return () => naver.maps.Event.removeListener(handle);
+    return () => removeMapListener(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, eventName, listener !== undefined]);
 }

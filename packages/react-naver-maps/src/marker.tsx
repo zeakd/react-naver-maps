@@ -8,6 +8,8 @@ import { useControlledKVO } from './hooks/use-controlled-kvo.js';
 import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { EventHandlerProps, MarkerEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 마커를 표시한다. NaverMap 내부에서 사용. */
 export interface MarkerProps extends EventHandlerProps<MarkerEvent> {
@@ -83,49 +85,29 @@ function MarkerInner({ marker, ...props }: MarkerInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(marker, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(marker, 'dblclick', props.onDblclick));
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(marker, 'mouseover', props.onMouseover));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(marker, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(marker, 'mouseup', props.onMouseup));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(marker, 'mouseout', props.onMouseout));
     if (props.onRightclick)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'rightclick', props.onRightclick),
-      );
+      listeners.push(addMapListener(marker, 'rightclick', props.onRightclick));
     if (props.onDragstart)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'dragstart', props.onDragstart),
-      );
+      listeners.push(addMapListener(marker, 'dragstart', props.onDragstart));
     if (props.onDrag)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'drag', props.onDrag),
-      );
+      listeners.push(addMapListener(marker, 'drag', props.onDrag));
     if (props.onDragend)
-      listeners.push(
-        naver.maps.Event.addListener(marker, 'dragend', props.onDragend),
-      );
+      listeners.push(addMapListener(marker, 'dragend', props.onDragend));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     marker,

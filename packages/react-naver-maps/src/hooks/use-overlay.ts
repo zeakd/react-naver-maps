@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
 import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { clearMapListeners, sdkAlive } from '../utils/sdk.js';
 
 /**
  * 네이버맵 오버레이 인스턴스를 React 생명주기에 연결한다.
@@ -38,12 +39,14 @@ export function useOverlay<T>(factory: () => T, ref?: Ref<T>): T | null {
   const instanceRef = useRef<T | null>(null);
 
   useLayoutEffect(() => {
+    if (!sdkAlive()) return;
     const inst = factory();
     instanceRef.current = inst;
     setInstance(inst);
 
     return () => {
-      naver.maps?.Event?.clearInstanceListeners(inst);
+      if (!sdkAlive()) return;
+      clearMapListeners(inst);
       (inst as { setMap?: (map: null) => void }).setMap?.(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

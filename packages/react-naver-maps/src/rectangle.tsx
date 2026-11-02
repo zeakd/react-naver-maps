@@ -9,6 +9,8 @@ import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 사각형을 그린다. bounds로 영역을 지정한다. */
 export interface RectangleProps
@@ -83,45 +85,27 @@ function RectangleInner({ rectangle, ...props }: RectangleInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(rectangle, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(rectangle, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(rectangle, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(rectangle, 'mouseup', props.onMouseup));
     if (props.onRightclick)
       listeners.push(
-        naver.maps.Event.addListener(
-          rectangle,
-          'rightclick',
-          props.onRightclick,
-        ),
+        addMapListener(rectangle, 'rightclick', props.onRightclick),
       );
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(rectangle, 'mouseover', props.onMouseover));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(rectangle, 'mouseout', props.onMouseout));
     if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(rectangle, 'mousemove', props.onMousemove),
-      );
+      listeners.push(addMapListener(rectangle, 'mousemove', props.onMousemove));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     rectangle,

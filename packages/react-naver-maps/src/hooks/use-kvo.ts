@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
+import { addMapListener, removeMapListener } from '../utils/sdk.js';
 
 /**
  * KVO 프로퍼티를 구독하여 변경 시 리렌더링한다. useSyncExternalStore 기반.
@@ -46,13 +47,13 @@ export function useKVO<T>(target: naver.maps.KVO, property: string): T {
     (callback: () => void) => {
       // 우선 옵션 KVO에 구독 (Map용). 없으면 본체에 구독.
       const subTarget = optionsTarget ?? target;
-      const listener = naver.maps.Event.addListener(
+      const listener = addMapListener(
         subTarget,
         `${property}_changed`,
         callback,
       );
       return () => {
-        naver.maps.Event.removeListener(listener);
+        removeMapListener(listener);
       };
     },
     [target, optionsTarget, property],

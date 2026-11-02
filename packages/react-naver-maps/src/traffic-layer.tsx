@@ -6,6 +6,7 @@ import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useStaticProp } from './hooks/use-static-prop.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import { sdkAlive, clearMapListeners } from './utils/sdk.js';
 
 /** 실시간 교통 레이어를 지도 위에 표시한다. */
 export interface TrafficLayerProps {
@@ -40,11 +41,13 @@ export function TrafficLayer({
   );
 
   useLayoutEffect(() => {
+    if (!sdkAlive()) return;
     const layer = new navermaps.TrafficLayer(omitUndefined({ interval }));
     layer.setMap(map);
     layerRef.current = layer;
     return () => {
-      naver.maps.Event.clearInstanceListeners(layer);
+      if (!sdkAlive()) return;
+      clearMapListeners(layer);
       layer.setMap(null);
     };
     // interval은 생성자 옵션으로만 전달되므로 deps에 포함하지 않는다.

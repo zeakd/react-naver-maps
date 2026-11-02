@@ -9,6 +9,8 @@ import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 원을 그린다. center와 radius로 위치/크기를 지정한다. */
 export interface CircleProps
@@ -87,41 +89,25 @@ function CircleInner({ circle, ...props }: CircleInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(circle, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(circle, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(circle, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(circle, 'mouseup', props.onMouseup));
     if (props.onRightclick)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'rightclick', props.onRightclick),
-      );
+      listeners.push(addMapListener(circle, 'rightclick', props.onRightclick));
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(circle, 'mouseover', props.onMouseover));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(circle, 'mouseout', props.onMouseout));
     if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(circle, 'mousemove', props.onMousemove),
-      );
+      listeners.push(addMapListener(circle, 'mousemove', props.onMousemove));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     circle,

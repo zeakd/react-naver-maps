@@ -9,6 +9,8 @@ import { useOverlay } from './hooks/use-overlay.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 지도 위에 다각형을 그린다. paths로 꼭짓점 배열을 지정한다. */
 export interface PolygonProps
@@ -88,41 +90,25 @@ function PolygonInner({ polygon, ...props }: PolygonInnerProps) {
 
   // UI events
   useEffect(() => {
-    const listeners: naver.maps.MapEventListener[] = [];
+    const listeners: MapListener[] = [];
     if (props.onClick)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'click', props.onClick),
-      );
+      listeners.push(addMapListener(polygon, 'click', props.onClick));
     if (props.onDblclick)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'dblclick', props.onDblclick),
-      );
+      listeners.push(addMapListener(polygon, 'dblclick', props.onDblclick));
     if (props.onMousedown)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'mousedown', props.onMousedown),
-      );
+      listeners.push(addMapListener(polygon, 'mousedown', props.onMousedown));
     if (props.onMouseup)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'mouseup', props.onMouseup),
-      );
+      listeners.push(addMapListener(polygon, 'mouseup', props.onMouseup));
     if (props.onMouseover)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'mouseover', props.onMouseover),
-      );
+      listeners.push(addMapListener(polygon, 'mouseover', props.onMouseover));
     if (props.onMouseout)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'mouseout', props.onMouseout),
-      );
+      listeners.push(addMapListener(polygon, 'mouseout', props.onMouseout));
     if (props.onRightclick)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'rightclick', props.onRightclick),
-      );
+      listeners.push(addMapListener(polygon, 'rightclick', props.onRightclick));
     if (props.onMousemove)
-      listeners.push(
-        naver.maps.Event.addListener(polygon, 'mousemove', props.onMousemove),
-      );
+      listeners.push(addMapListener(polygon, 'mousemove', props.onMousemove));
     return () => {
-      listeners.forEach((l) => naver.maps.Event.removeListener(l));
+      listeners.forEach((l) => removeMapListener(l));
     };
   }, [
     polygon,

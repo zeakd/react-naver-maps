@@ -41,6 +41,9 @@ function KvoProbe({ kvo, value }: { kvo: MockKVO; value: number }) {
   return null;
 }
 
+// setter 호출은 SDK 가 살아 있을 때만 일어난다 (utils/sdk.ts).
+vi.stubGlobal('naver', { maps: {} });
+
 describe('StrictMode + useControlledKVO', () => {
   test('더블 마운트 후 동일 값 rerender는 setter 미호출 (isFirstRef 정상 리셋)', () => {
     const kvo = new MockKVO();

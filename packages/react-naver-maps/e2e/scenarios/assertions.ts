@@ -99,3 +99,9 @@ export function fired(event: string, count?: number): Assertion {
       : `${event} ${actual.length}회, 기대 ${count}회`;
   };
 }
+
+/** 마지막 프레임에 지도 DOM 이 문서에 붙어 있다. */
+export function mapAttached(): Assertion {
+  return (trace) =>
+    trace.at(-1)!.attached ? null : '지도 DOM 이 문서에서 떨어졌다';
+}

@@ -19,6 +19,9 @@ class MockKVO {
   }
 }
 
+// setter 호출은 SDK 가 살아 있을 때만 일어난다 (utils/sdk.ts).
+vi.stubGlobal('naver', { maps: {} });
+
 describe('useControlledKVO', () => {
   let mockKVO: MockKVO;
 

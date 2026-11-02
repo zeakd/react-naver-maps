@@ -15,6 +15,13 @@ import { useStaticProp, isDev } from './hooks/use-static-prop.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import {
+  addMapListener,
+  sdkAlive,
+  removeMapListener,
+  clearMapListeners,
+} from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /** 네이버 지도를 렌더링한다. Container 내부에서 사용해야 한다. */
 export interface NaverMapProps {
@@ -180,6 +187,7 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
   const container = use(ContainerContext);
   const [map, setMap] = useState<naver.maps.Map | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
+  const mapElementRef = useRef<HTMLElement | null>(null);
   const pendingDestroyRef = useRef(false);
 
   // Map 생성: DOM commit 후 layout effect에서 수행 (paint 전)
@@ -194,6 +202,8 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
       throw new Error('NaverMap must be used within <Container>');
     }
 
+    if (!sdkAlive()) return;
+
     pendingDestroyRef.current = false;
     const instance = mapRef.current ?? createMap(container);
     mapRef.current = instance;
@@ -203,15 +213,24 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
       pendingDestroyRef.current = true;
       queueMicrotask(() => {
         if (!pendingDestroyRef.current || mapRef.current !== instance) return;
-        naver.maps?.Event?.clearInstanceListeners(instance);
-        instance.destroy();
+        clearMapListeners(instance);
+        if (sdkAlive()) instance.destroy();
+        mapElementRef.current?.remove();
+        mapElementRef.current = null;
         mapRef.current = null;
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function createMap(el: HTMLElement): naver.maps.Map {
+  function createMap(parent: HTMLElement): naver.maps.Map {
+    // SDK 의 destroy 는 지도 element 의 내용을 비운다. key 로 다시 만들면 새 지도가 옛 지도의
+    // destroy 보다 먼저 생기므로, element 를 나눠 쓰지 않도록 지도마다 자기 div 를 만든다.
+    const el = document.createElement('div');
+    el.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%';
+    parent.appendChild(el);
+    mapElementRef.current = el;
+
     // bounds가 있으면 center/zoom 대신 bounds로 초기화
     const initialBounds = props.bounds ?? props.defaultBounds;
 
@@ -351,6 +370,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       isFirstRef.current = false;
       return;
     }
+    if (!sdkAlive()) return;
 
     const prev = prevRef.current;
     const dirties: {
@@ -487,29 +507,29 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   // 라이프사이클 이벤트(init/idle/tilesloaded 등)는 SDK가 동기 또는 빠른 async로 발화.
   // useEffect(paint 후)는 1 프레임 늦어 init을 놓칠 수 있으므로 useLayoutEffect로 등록.
   useLayoutEffect(() => {
-    const add = naver.maps.Event.addListener;
-    const ls: naver.maps.MapEventListener[] = [];
+    const add = addMapListener;
+    const ls: MapListener[] = [];
     if (props.onInit) ls.push(add(map, 'init', props.onInit));
     if (props.onIdle) ls.push(add(map, 'idle', props.onIdle));
     if (props.onTilesloaded)
       ls.push(add(map, 'tilesloaded', props.onTilesloaded));
     return () => {
-      ls.forEach((l) => naver.maps.Event.removeListener(l));
+      ls.forEach((l) => removeMapListener(l));
     };
   }, [map, props.onInit, props.onIdle, props.onTilesloaded]);
 
   useLayoutEffect(() => {
-    const listener = naver.maps.Event.addListener(map, 'center_changed', () => {
+    const listener = addMapListener(map, 'center_changed', () => {
       requestedCenterRef.current = null;
     });
-    return () => naver.maps.Event.removeListener(listener);
+    return () => removeMapListener(listener);
   }, [map]);
 
   // Events
   const { onZoomChanged } = props;
   useEffect(() => {
-    const add = naver.maps.Event.addListener;
-    const ls: naver.maps.MapEventListener[] = [];
+    const add = addMapListener;
+    const ls: MapListener[] = [];
 
     // KVO changed
     if (props.onCenterChanged)
@@ -581,7 +601,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     if (props.onKeyup) ls.push(add(map, 'keyup', props.onKeyup));
 
     return () => {
-      ls.forEach((l) => naver.maps.Event.removeListener(l));
+      ls.forEach((l) => removeMapListener(l));
     };
   }, [
     map,
