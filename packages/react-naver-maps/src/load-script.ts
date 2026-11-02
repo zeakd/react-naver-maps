@@ -66,6 +66,29 @@ export function waitForJsContentLoaded(
   });
 }
 
+// 페이지가 먼저 넣은 SDK 의 서브모듈이 붙을 때까지 기다리는 최대 시간.
+const PRELOADED_SDK_GRACE_MS = 1000;
+
+/**
+ * 이 함수가 불리기 전에 이미 페이지에 있던 SDK 를 기다린다.
+ *
+ * SDK 는 window load 시점에 onJSContentLoaded 가 등록돼 있어야만 jsContentLoaded 를 켜고
+ * 콜백을 부른다. 페이지가 maps.js 를 직접 넣었고 load 가 이미 지났다면 콜백이 다시 오지 않을 수
+ * 있다. 서브모듈이 아직 붙는 중일 수도 있어 콜백을 먼저 기다리고, 오지 않으면 유예 뒤 끝낸다.
+ *
+ * @internal exported for tests
+ */
+export function waitForExistingSdk(
+  maps: typeof naver.maps,
+): Promise<typeof naver.maps> {
+  return new Promise((resolve) => {
+    waitForJsContentLoaded(maps).then(resolve);
+    if (document.readyState === 'complete') {
+      setTimeout(() => resolve(maps), PRELOADED_SDK_GRACE_MS);
+    }
+  });
+}
+
 export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
   if (typeof document === 'undefined') {
     return new Promise<typeof naver.maps>(() => {});
@@ -77,7 +100,7 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
 
   const promise = new Promise<typeof naver.maps>((resolve, reject) => {
     if (typeof naver !== 'undefined' && naver.maps) {
-      waitForJsContentLoaded(naver.maps).then(resolve);
+      waitForExistingSdk(naver.maps).then(resolve);
       return;
     }
 

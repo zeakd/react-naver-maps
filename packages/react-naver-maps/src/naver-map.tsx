@@ -333,6 +333,11 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   // - kvoEquals(map.getX(), prop) → 값이 같으면 skip (느린 경로)
   // =========================================================================
   const isFirstRef = useRef(true);
+  // 지도에 요청했지만 아직 반영되지 않은 center. panTo 는 duration 0 이어도 다음 프레임에
+  // 적용되므로, 그 사이 들어온 prop 은 getCenter() 가 아니라 이 값과 비교해야 한다.
+  const requestedCenterRef = useRef<
+    naver.maps.Coord | naver.maps.CoordLiteral | null
+  >(null);
   const prevRef = useRef({
     center: props.center,
     zoom: props.zoom,
@@ -356,8 +361,14 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     } = {};
 
     if (props.center !== undefined && props.center !== prev.center) {
-      if (!kvoEquals(map.getCenter(), props.center))
+      const atCenter = kvoEquals(map.getCenter(), props.center);
+      if (atCenter && requestedCenterRef.current) {
+        // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
+        map.stop();
+        requestedCenterRef.current = null;
+      } else if (!atCenter) {
         dirties.center = props.center;
+      }
     }
     if (props.zoom !== undefined && props.zoom !== prev.zoom) {
       if (map.getZoom() !== props.zoom) dirties.zoom = props.zoom;
@@ -381,6 +392,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     } else if (dirties.center && dirties.zoom) {
       // morph: center+zoom을 원자적으로 변경. CSS transform으로 시각적 줌 처리 후
       // 완료 시에만 KVO 일괄 발화. 개별 set보다 부드럽고 중간 상태 없음.
+      requestedCenterRef.current = dirties.center;
       map.morph(dirties.center, dirties.zoom);
     } else if (dirties.centerPoint) {
       map.setCenterPoint(dirties.centerPoint);
@@ -388,6 +400,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       // panTo 사용 이유: setCenter()는 _stopTransition()을 호출하여
       // 드래그 중 관성 패닝을 강제 중단. panTo는 트랜지션을 관리하면서 이동.
       // duration: 0으로 즉시 이동 (애니메이션 없이).
+      requestedCenterRef.current = dirties.center;
       map.panTo(dirties.center, { duration: 0 });
     } else if (dirties.zoom) {
       map.setZoom(dirties.zoom);
@@ -485,7 +498,15 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     };
   }, [map, props.onInit, props.onIdle, props.onTilesloaded]);
 
+  useLayoutEffect(() => {
+    const listener = naver.maps.Event.addListener(map, 'center_changed', () => {
+      requestedCenterRef.current = null;
+    });
+    return () => naver.maps.Event.removeListener(listener);
+  }, [map]);
+
   // Events
+  const { onZoomChanged } = props;
   useEffect(() => {
     const add = naver.maps.Event.addListener;
     const ls: naver.maps.MapEventListener[] = [];
@@ -493,8 +514,11 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     // KVO changed
     if (props.onCenterChanged)
       ls.push(add(map, 'center_changed', props.onCenterChanged));
-    if (props.onZoomChanged)
-      ls.push(add(map, 'zoom_changed', props.onZoomChanged));
+    // gl 서브모듈을 불러오면 SDK 내부 zoom 이 1 커져 이벤트 값과 getZoom() 이 다르다.
+    // getZoom() 이 사용자에게 보이는 값이므로 이 값을 넘긴다.
+    if (onZoomChanged) {
+      ls.push(add(map, 'zoom_changed', () => onZoomChanged(map.getZoom())));
+    }
     if (props.onBoundsChanged)
       ls.push(add(map, 'bounds_changed', props.onBoundsChanged));
     if (props.onMapTypeIdChanged)
@@ -563,7 +587,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     map,
     // KVO changed
     props.onCenterChanged,
-    props.onZoomChanged,
+    onZoomChanged,
     props.onBoundsChanged,
     props.onMapTypeIdChanged,
     props.onSizeChanged,

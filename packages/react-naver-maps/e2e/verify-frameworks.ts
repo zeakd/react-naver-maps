@@ -111,13 +111,11 @@ async function check(app: FixtureApp, browser: Browser, report: Report) {
     page.waitForResponse((r) => r.url().includes('/v3/auth'), {
       timeout: 20000,
     }),
-    page
-      .goto(url)
-      .then(() =>
-        page.waitForFunction(() => 'map' in window, undefined, {
-          timeout: 20000,
-        }),
-      ),
+    page.goto(url).then(() =>
+      page.waitForFunction(() => 'map' in window, undefined, {
+        timeout: 20000,
+      }),
+    ),
   ]);
   await page.waitForTimeout(AUTH_GRACE_MS);
   report.auth = !(await page.evaluate(
