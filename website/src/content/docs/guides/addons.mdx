@@ -1,0 +1,25 @@
+---
+title: Addons
+category: guides
+order: 8
+---
+
+`react-naver-maps` 는 네이버맵 SDK 를 React 로 옮긴다. SDK 에 없어서 라이브러리가 더한 기능은 `react-naver-maps/addons` 로 따로 제공한다.
+
+## useAutoResize
+
+SDK 는 window resize 만 듣는다. 패널을 접는 등으로 지도 영역만 달라지면 `useAutoResize` 로 지도 크기를 맞춘다.
+
+```tsx
+import { NaverMap, useMap } from 'react-naver-maps';
+import { useAutoResize } from 'react-naver-maps/addons';
+
+function AutoResize() {
+  useAutoResize(useMap());
+  return null;
+}
+
+<NaverMap>
+  <AutoResize />
+</NaverMap>;
+```

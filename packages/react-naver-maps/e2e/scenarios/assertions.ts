@@ -126,3 +126,11 @@ export function markerClicked(count: number): Assertion {
     return actual === count ? null : `Marker 클릭 ${actual}회, 기대 ${count}회`;
   };
 }
+
+/** 마지막 프레임에 지도 너비가 width 다. */
+export function mapWidth(width: number): Assertion {
+  return (trace) => {
+    const actual = trace.at(-1)!.mapWidth;
+    return actual === width ? null : `지도 너비 ${actual}, 기대 ${width}`;
+  };
+}

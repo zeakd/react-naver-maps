@@ -23,6 +23,9 @@ export async function runScenario(
       case 'wheel':
         await driver.wheel(step.x, step.y, step.deltaY);
         break;
+      case 'realtime':
+        await driver.realtime(step.ms);
+        break;
       case 'clickMarker':
         await driver.clickMarker();
         break;
