@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "check": "oxlint --ignore-path .gitignore --ignore-pattern 'website/public/0.1.0/**' && oxfmt --check --ignore-path .gitignore packages/react-naver-maps/src/ packages/astro-component-docs/src/ website/src/ && tsc -b"
+    "check": "oxlint --ignore-path .gitignore --ignore-pattern 'website/public/0.1.0/**' && oxfmt --check --ignore-path .gitignore packages/react-naver-maps/src/ packages/astro-component-docs/src/ website/src/ && tsc -b && pnpm --filter react-naver-maps run check:e2e"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

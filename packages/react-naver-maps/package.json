@@ -31,7 +31,7 @@
     "build": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:browser": "vitest run --config vitest.browser.config.ts",
+    "test:scenarios": "playwright test --config e2e/scenarios.config.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt .",
@@ -40,16 +40,17 @@
     "test:visual:update": "npx playwright test --config e2e/playwright.config.ts --update-snapshots",
     "test:visual:cache": "TILE_CACHE=update npx playwright test --config e2e/playwright.config.ts --update-snapshots",
     "test:visual:cached": "TILE_CACHE=use npx playwright test --config e2e/playwright.config.ts",
-    "check:package": "publint && attw --pack . --profile esm-only"
+    "check:package": "publint && attw --pack . --profile esm-only",
+    "check:e2e": "tsc -p e2e/tsconfig.json"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@playwright/test": "^1.64.1",
     "@testing-library/react": "^16.3.3",
     "@types/navermaps": "^3.9.2",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitest/browser-playwright": "^5.0.5",
     "happy-dom": "^21.0.4",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",

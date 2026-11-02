@@ -59,13 +59,14 @@ pnpm -r run build && pnpm -r run lint && pnpm -r run test   # CI 와 같은 검�
 
 ```bash
 cd packages/react-naver-maps
-pnpm test:browser        # smoke: 스크립트 로드·인증·지도 렌더 (Playwright Chromium)
+pnpm test:scenarios     # 실제 SDK 로 인증과 지도 동작을 프레임 단위로 검증
 pnpm test:visual:cached  # 문서 예제 지도 스크린샷 비교 (website dev 서버를 띄움)
 ```
 
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).
 
-- 인증 실패는 지도 DOM 으로는 드러나지 않아 smoke 가 `navermap_authFailure` 콜백으로 판정한다. 다른 키를 쓰려면 `VITE_NCP_KEY_ID` 로 넘긴다.
+- 시나리오는 `packages/react-naver-maps/e2e/scenarios/scenarios.ts` 에 있다. 가상 시계로 16ms 씩 넘겨 같은 시나리오는 같은 궤적을 낸다. 실패하면 `test-results/` 에 trace 와 영상이 남는다.
+- 인증 실패는 지도 DOM 으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
 - Node 버전은 `package.json` 의 `devEngines.runtime` 으로 고정한다. `pnpm` 으로 실행하는 명령은 이 버전으로 돈다.
 - Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다.
 
