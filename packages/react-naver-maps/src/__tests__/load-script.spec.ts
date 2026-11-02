@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { LoadOptions } from '../load-script.js';
 import {
   buildUrl,
   getKeyId,
   loadScript,
+  waitForExistingSdk,
   waitForJsContentLoaded,
 } from '../load-script.js';
 
@@ -159,5 +160,24 @@ describe('loadScript (통합)', () => {
     const a = loadScript({ ncpKeyId: 'loadScript-cache' });
     const b = loadScript({ ncpKeyId: 'loadScript-cache' });
     expect(a).toBe(b);
+  });
+});
+
+describe('waitForExistingSdk', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  test('load 가 지났고 콜백이 오지 않으면 유예 뒤 resolve', async () => {
+    const maps = { jsContentLoaded: false } as unknown as typeof naver.maps;
+    const promise = waitForExistingSdk(maps);
+    await vi.advanceTimersByTimeAsync(1000);
+    await expect(promise).resolves.toBe(maps);
+  });
+
+  test('유예 안에 콜백이 오면 바로 resolve', async () => {
+    const maps = { jsContentLoaded: false } as unknown as typeof naver.maps;
+    const promise = waitForExistingSdk(maps);
+    maps.onJSContentLoaded();
+    await expect(promise).resolves.toBe(maps);
   });
 });
