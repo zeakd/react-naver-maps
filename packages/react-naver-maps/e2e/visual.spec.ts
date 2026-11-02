@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupTileCache } from './tile-cache';
+import { setupTileCache } from './tile-cache.js';
 
 const TILE_LOAD_TIMEOUT = 5000;
 
