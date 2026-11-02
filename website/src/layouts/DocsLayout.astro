@@ -13,7 +13,7 @@ const { title, slug } = Astro.props;
 const allDocs = await getCollection('docs');
 const navigation = buildNavigation(
   allDocs.map((doc) => ({
-    slug: doc.slug,
+    slug: doc.id,
     data: doc.data,
   })),
 );

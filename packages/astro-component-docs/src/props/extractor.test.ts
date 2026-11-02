@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import { extractAllProps } from './extractor.js';
 import type { PackageConfig } from './types.js';
 import { resolve } from 'node:path';
