@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 import { useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { sdkAlive, clearMapListeners } from './utils/sdk.js';
 
 /** 거리뷰 레이어를 지도 위에 표시한다. */
 export interface StreetLayerProps {
@@ -16,11 +17,13 @@ export function StreetLayer({ ref }: StreetLayerProps) {
   const layerRef = useRef<naver.maps.StreetLayer | null>(null);
 
   useLayoutEffect(() => {
+    if (!sdkAlive()) return;
     const layer = new navermaps.StreetLayer();
     layer.setMap(map);
     layerRef.current = layer;
     return () => {
-      naver.maps.Event.clearInstanceListeners(layer);
+      if (!sdkAlive()) return;
+      clearMapListeners(layer);
       layer.setMap(null);
     };
   }, [navermaps, map]);

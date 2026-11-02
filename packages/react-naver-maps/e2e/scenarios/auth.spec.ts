@@ -36,3 +36,34 @@ test('Maps 키로 인증을 통과한다', async ({ page }) => {
 test('잘못된 키는 인증 실패로 판정한다', async ({ page }) => {
   expect(await authResult(page, 'invalid-key')).toBe(true);
 });
+
+test('인증 실패 뒤 재렌더와 언마운트에서 앱이 터지지 않는다', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.addInitScript(() => {
+    Object.assign(window, { navermap_authFailure: () => {} });
+  });
+  await page.goto('/');
+  await page.waitForFunction(() => window.mountApp !== undefined);
+  const response = page.waitForResponse((r) => r.url().includes('/v3/auth'));
+  await page.evaluate(async () => {
+    window.app = await window.mountApp(document.getElementById('host')!, {
+      mode: 'props',
+      ncpKeyId: 'invalid-key',
+      marker: true,
+    });
+  });
+  await response;
+  // SDK 는 실패 처리 1초 뒤 naver.maps 를 null 로 만든다.
+  await page.waitForFunction(() => window.naver?.maps === null, undefined, {
+    timeout: 10000,
+  });
+
+  await page.evaluate(() => {
+    window.app.setProps({ center: [37.57, 126.99], zoom: 12 });
+    window.app.setProps({ marker: false });
+  });
+  await page.evaluate(() => window.app.unmount());
+  await page.waitForTimeout(100);
+  expect(errors).toEqual([]);
+});

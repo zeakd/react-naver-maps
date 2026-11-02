@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
   Container,
+  Marker,
   NaverMap,
   NavermapsProvider,
 } from '../../src/react-naver-maps.js';
@@ -57,7 +58,7 @@ function controlCount(map: naver.maps.Map) {
 }
 
 function toCoord(ll: LL) {
-  return new naver.maps.LatLng(ll[0], ll[1]);
+  return { lat: ll[0], lng: ll[1] };
 }
 
 function MapUnderTest({
@@ -75,6 +76,7 @@ function MapUnderTest({
 
   return (
     <NaverMap
+      key={config.mapKey}
       ref={(map: naver.maps.Map | null) => {
         if (map) onMap(map);
       }}
@@ -83,7 +85,11 @@ function MapUnderTest({
       zoomControl={config.zoomControl}
       onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
       onCenterChanged={config.mode === 'controlled' ? setReported : undefined}
-    />
+    >
+      {config.marker && (
+        <Marker position={toCoord(INITIAL_CENTER)} onClick={() => {}} />
+      )}
+    </NaverMap>
   );
 }
 
@@ -131,6 +137,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ...decoded,
       );
     },
+    unmount() {
+      root.unmount();
+    },
     resetObserved() {
       observed.calls.length = 0;
       observed.events.length = 0;
@@ -145,6 +154,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         calls: observed.calls.splice(0),
         zoomReports: observed.zoomReports.splice(0),
         controls: controlCount(map!),
+        attached: map!.getPanes().overlayLayer.isConnected,
       };
     },
   };
