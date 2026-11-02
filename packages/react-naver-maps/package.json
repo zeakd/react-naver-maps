@@ -40,6 +40,7 @@
     "test:visual:update": "npx playwright test --config e2e/playwright.config.ts --update-snapshots",
     "test:visual:cache": "TILE_CACHE=update npx playwright test --config e2e/playwright.config.ts --update-snapshots",
     "test:visual:cached": "TILE_CACHE=use npx playwright test --config e2e/playwright.config.ts",
+    "verify:frameworks": "node e2e/verify-frameworks.ts",
     "check:package": "publint && attw --pack . --profile esm-only",
     "check:e2e": "tsc -p e2e/tsconfig.json"
   },

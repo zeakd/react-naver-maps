@@ -1,0 +1,16 @@
+{
+  "name": "fixture-astro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "start": "astro preview --port 4321 --ignore-lock"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.2",
+    "astro": "^7.4.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-naver-maps": "__TGZ__"
+  }
+}

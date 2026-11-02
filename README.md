@@ -61,6 +61,7 @@ pnpm -r run build && pnpm -r run lint && pnpm -r run test   # CI 와 같은 검�
 cd packages/react-naver-maps
 pnpm test:scenarios     # 실제 SDK 로 인증과 지도 동작을 프레임 단위로 검증
 pnpm test:visual:cached  # 문서 예제 지도 스크린샷 비교 (website dev 서버를 띄움)
+pnpm verify:frameworks  # 배포 형태 패키지를 Vite, Next, React Router, TanStack Start, Astro 에서 검증
 ```
 
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).

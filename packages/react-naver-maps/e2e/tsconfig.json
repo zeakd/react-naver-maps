@@ -9,8 +9,9 @@
     "tsBuildInfoFile": null,
     "rootDir": "..",
     "lib": ["es2023", "dom", "dom.iterable"],
-    "types": ["navermaps", "node"]
+    "types": ["navermaps", "node"],
+    "allowImportingTsExtensions": true
   },
   "include": ["."],
-  "exclude": []
+  "exclude": ["apps/*/**"]
 }
