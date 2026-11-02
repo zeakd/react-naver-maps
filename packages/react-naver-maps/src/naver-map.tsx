@@ -323,7 +323,6 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   //
   // 3. bounds → center+zoom → center → zoom 우선순위가 있어서
   //    단일 useLayoutEffect에서 통합 처리해야 함.
-  //    (v1 패턴: tmp/react-naver-maps/src/naver-map.tsx L346-377)
   //
   // dirty diff 전략 (v1 getDirtyKVOs 패턴):
   // - prevRef: 이전 렌더의 prop 참조를 저장

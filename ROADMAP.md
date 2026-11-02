@@ -39,7 +39,6 @@ React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
 - NaverMap center/zoom/bounds 전용 처리: morph/panTo/fitBounds 우선순위
 - 인스턴스 생성 useEffect → useLayoutEffect (빈 프레임 방지)
 - Container inner div absolute 배치 복원
-- 상세: `research/references/PERFORMANCE-ANALYSIS.md`
 
 ### 코드 품질 (2026-03-15)
 
