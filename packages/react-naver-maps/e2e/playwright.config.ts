@@ -16,6 +16,7 @@ const BASELINES = process.env.RNM_VISUAL_BASELINES
 
 export default defineConfig({
   testDir: '.',
+  testMatch: 'visual.spec.ts',
   timeout: 60000,
   snapshotPathTemplate: `${BASELINES}/{arg}{ext}`,
   use: {

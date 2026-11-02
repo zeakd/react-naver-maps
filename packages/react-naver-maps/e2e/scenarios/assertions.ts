@@ -105,3 +105,24 @@ export function mapAttached(): Assertion {
   return (trace) =>
     trace.at(-1)!.attached ? null : '지도 DOM 이 문서에서 떨어졌다';
 }
+
+/** 마지막 프레임에 useKVO 값이 지도와 같다. */
+export function kvoFollowsMap(): Assertion {
+  return (trace) => {
+    const last = trace.at(-1)!;
+    if (last.kvoZoom !== last.zoom) {
+      return `useKVO zoom ${last.kvoZoom}, 지도 ${last.zoom}`;
+    }
+    return Math.abs(last.kvoLat - last.center[0]) < EPSILON_DEG
+      ? null
+      : `useKVO 위도 ${last.kvoLat}, 지도 ${last.center[0]}`;
+  };
+}
+
+/** 마지막 프레임까지 Marker 클릭을 count 번 받았다. */
+export function markerClicked(count: number): Assertion {
+  return (trace) => {
+    const actual = trace.at(-1)!.markerClicks;
+    return actual === count ? null : `Marker 클릭 ${actual}회, 기대 ${count}회`;
+  };
+}

@@ -41,25 +41,27 @@ export function Marker({ ref, ...props }: MarkerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
 
-  const marker = useOverlay(
-    () =>
-      new navermaps.Marker(
-        omitUndefined({
-          map,
-          position: (props.position ?? props.defaultPosition)!,
-          icon: props.icon,
-          animation: props.animation,
-          shape: props.shape,
-          title: props.title,
-          cursor: props.cursor,
-          clickable: props.clickable,
-          draggable: props.draggable,
-          visible: props.visible,
-          zIndex: props.zIndex,
-        }),
-      ),
-    ref,
-  );
+  const marker = useOverlay(() => {
+    // SDK 는 지도에 붙을 때 clickable 이 true 인 Marker 에만 DOM 리스너를 단다.
+    // 나중에 clickable 을 켜도 이벤트가 오도록 켠 채로 만들고 곧바로 원하는 값으로 되돌린다.
+    const instance = new navermaps.Marker(
+      omitUndefined({
+        map,
+        position: (props.position ?? props.defaultPosition)!,
+        icon: props.icon,
+        animation: props.animation,
+        shape: props.shape,
+        title: props.title,
+        cursor: props.cursor,
+        clickable: true,
+        draggable: props.draggable,
+        visible: props.visible,
+        zIndex: props.zIndex,
+      }),
+    );
+    if (props.clickable === false) instance.setClickable(false);
+    return instance;
+  }, ref);
 
   if (!marker) return null;
 
