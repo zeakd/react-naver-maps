@@ -4,6 +4,7 @@ import {
   fired,
   kvoFollowsMap,
   mapAttached,
+  mapWidth,
   markerClicked,
   noBacktrack,
   settlesAt,
@@ -127,6 +128,16 @@ export const scenarios: Scenario[] = [
       { t: 'frames', n: 5 },
     ],
     expect: [markerClicked(1)],
+  },
+  {
+    name: 'useAutoResize 는 영역 크기를 따라간다',
+    app: { mode: 'props', autoResize: true },
+    steps: [
+      { t: 'props', props: { containerWidth: 400 } },
+      { t: 'realtime', ms: 200 },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [mapWidth(400)],
   },
   {
     name: 'controlled 드래그는 지도 메서드를 다시 부르지 않는다',

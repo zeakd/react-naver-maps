@@ -10,8 +10,9 @@ import {
   Polyline,
   useKVO,
   useMap,
-} from '../../src/react-naver-maps.js';
-import { loadScript } from '../../src/load-script.js';
+} from '../../src/core/react-naver-maps.js';
+import { loadScript } from '../../src/core/load-script.js';
+import { useAutoResize } from '../../src/addons/index.js';
 import type { AppConfig, LL, TraceFrame } from './types.js';
 
 // Maps 키. Web 서비스 URL 에 http://localhost:4321 이 등록되어 있다.
@@ -62,6 +63,11 @@ function observe(prototype: object, methods: string[], calls: string[]) {
       return original.apply(this, args);
     };
   }
+}
+
+function AutoResize() {
+  useAutoResize(useMap());
+  return null;
 }
 
 function KvoProbe({ observed }: { observed: Observed }) {
@@ -115,6 +121,7 @@ function MapUnderTest({
       onCenterChanged={config.mode === 'controlled' ? setReported : undefined}
     >
       <KvoProbe observed={observed} />
+      {config.autoResize && <AutoResize />}
       {config.marker && (
         <Marker
           position={toCoord(INITIAL_CENTER)}
@@ -170,7 +177,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   const render = () => {
     const tree = (
       <NavermapsProvider ncpKeyId={ncpKeyId} submodules={config.submodules}>
-        <Container style={{ width: '600px', height: '400px' }}>
+        <Container
+          style={{
+            width: `${config.containerWidth ?? 600}px`,
+            height: '400px',
+          }}
+        >
           <MapUnderTest config={config} observed={observed} onMap={onMap} />
         </Container>
       </NavermapsProvider>
@@ -211,6 +223,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         zoomReports: observed.zoomReports.splice(0),
         controls: controlCount(map!),
         attached: map!.getPanes().overlayLayer.isConnected,
+        mapWidth: map!.getSize().width,
         kvoZoom: observed.kvo.zoom,
         kvoLat: observed.kvo.lat,
         markerClicks: observed.markerClicks,
