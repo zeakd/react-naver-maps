@@ -54,7 +54,6 @@ export function kvoEquals(a: unknown, b: unknown): boolean {
  * - 17개 useControlledKVO × 매 프레임 = 심각한 퍼포먼스 저하
  *
  * 현재 구현은 KVO를 구독하지 않고, 렌더 시점에 target.get()으로 직접 읽어 비교한다.
- * (v1 패턴: tmp/react-naver-maps/src/naver-map.tsx getDirtyKVOs)
  *
  * ## useLayoutEffect를 쓰는 이유
  *

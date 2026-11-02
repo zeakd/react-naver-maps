@@ -1,1 +1,0 @@
-export { rehypeDocz } from './rehype';
