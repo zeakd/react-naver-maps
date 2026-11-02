@@ -5,23 +5,40 @@
     "suspicious": "warn",
     "perf": "warn"
   },
-  "plugins": ["react", "typescript", "unicorn", "import"],
+  "plugins": [
+    "react",
+    "typescript",
+    "unicorn",
+    "import"
+  ],
   "rules": {
     "typescript/no-explicit-any": "error",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "no-underscore-dangle": "off"
   },
   "settings": {
     "react": {
       "version": "19"
     }
   },
-  "ignorePatterns": ["dist/**", "node_modules/**"],
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**"
+  ],
   "overrides": [
     {
-      "files": ["**/*.spec.*", "**/*.test.*", "**/__tests__/**"],
-      "plugins": ["vitest"],
+      "files": [
+        "**/*.spec.*",
+        "**/*.test.*",
+        "**/__tests__/**"
+      ],
+      "plugins": [
+        "vitest"
+      ],
       "rules": {
-        "typescript/no-explicit-any": "off"
+        "typescript/no-explicit-any": "off",
+        "vitest/require-mock-type-parameters": "off",
+        "unicorn/consistent-function-scoping": "off"
       }
     }
   ]
