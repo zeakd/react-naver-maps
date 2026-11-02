@@ -16,11 +16,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
-      - uses: pnpm/action-setup@v5.0.0
-      - uses: actions/setup-node@v6.3.0
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: 24
+          node-version-file: package.json
           cache: pnpm
       # astro-component-docs의 test 스크립트가 bun 사용 (bun test src/)
       - uses: oven-sh/setup-bun@v2

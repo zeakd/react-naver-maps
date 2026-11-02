@@ -19,13 +19,13 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
 
-      - uses: pnpm/action-setup@v5.0.0
+      - uses: pnpm/action-setup@v6.1.0
 
-      - uses: actions/setup-node@v6.3.0
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: 24
+          node-version-file: package.json
           registry-url: https://registry.npmjs.org
           cache: pnpm
 
@@ -37,11 +37,11 @@ jobs:
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1.7.0
+        uses: changesets/action@v2.1.2
         with:
-          publish: pnpm changeset publish
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          publish-script: pnpm changeset publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
           HUSKY: '0'
 
@@ -49,7 +49,7 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         run: |
           TMPDIR=$(mktemp -d)
-          echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -c '.[]' | while read pkg; do
+          echo '${{ steps.changesets.outputs.published-packages }}' | jq -c '.[]' | while read pkg; do
             name=$(echo "$pkg" | jq -r '.name')
             version=$(echo "$pkg" | jq -r '.version')
             tag="${name}@${version}"

@@ -66,7 +66,8 @@ pnpm test:visual:cached  # 문서 예제 지도 스크린샷 비교 (website dev
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).
 
 - 인증 실패는 지도 DOM 으로는 드러나지 않아 smoke 가 `navermap_authFailure` 콜백으로 판정한다. 다른 키를 쓰려면 `VITE_NCP_KEY_ID` 로 넘긴다.
-- Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다. Node 26.8.1 에서는 압축 해제 단계에서 멈춘 적이 있어(2026-11) Node 24 로 설치했다.
+- Node 버전은 `package.json` 의 `devEngines.runtime` 으로 고정한다. `pnpm` 으로 실행하는 명령은 이 버전으로 돈다.
+- Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다.
 
 ## 라이선스
 
