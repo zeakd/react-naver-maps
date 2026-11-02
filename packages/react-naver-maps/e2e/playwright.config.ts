@@ -23,7 +23,9 @@ export default defineConfig({
     viewport: { width: 1378, height: 900 },
   },
   webServer: {
-    command: `pnpm dev --port ${PORT}`,
+    // Astro 는 AI 에이전트 환경에서 dev 서버를 스스로 백그라운드로 돌린다.
+    // --ignore-lock 이면 포그라운드로 돌아 Playwright 가 수명을 관리한다.
+    command: `pnpm dev --port ${PORT} --ignore-lock`,
     url: `http://localhost:${PORT}/react-naver-maps/`,
     cwd: '../../../website',
     reuseExistingServer: true,

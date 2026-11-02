@@ -18,10 +18,14 @@ export default function astroComponentDocs(
         const { remarkLiveCode } = await import('./remark/remark-live-code.js');
         const { vitePluginProps } = await import('./vite/vite-plugin-props.js');
 
+        const { unified } = await import('@astrojs/markdown-remark');
+
         updateConfig({
           markdown: {
-            rehypePlugins: [rehypeExample],
-            remarkPlugins: [remarkLiveCode],
+            processor: unified({
+              rehypePlugins: [rehypeExample],
+              remarkPlugins: [remarkLiveCode],
+            }),
           },
           vite: {
             plugins: [vitePluginProps(config)],
