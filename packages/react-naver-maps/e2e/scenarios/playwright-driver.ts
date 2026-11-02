@@ -10,7 +10,7 @@ declare global {
 }
 
 const FRAME_MS = 16;
-// 지도 초기화가 끝나고 타일이 자리 잡을 때까지 기다리는 시간. 실제 시간이다.
+// init 뒤 타일이 자리 잡을 때까지 기다리는 시간. 실제 시간이다.
 const SETTLE_REAL_MS = 1500;
 const SETTLE_VIRTUAL_MS = 3000;
 
@@ -33,7 +33,7 @@ export function createPlaywrightDriver(page: Page): ScenarioDriver {
           config,
         );
       }, app);
-      await page.waitForFunction(() => window.app.ready());
+      await page.waitForFunction(() => window.app.initialized());
       await page.waitForTimeout(SETTLE_REAL_MS);
       await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
       await page.clock.runFor(SETTLE_VIRTUAL_MS);
@@ -68,8 +68,8 @@ export function createPlaywrightDriver(page: Page): ScenarioDriver {
     async realtime(ms) {
       await page.waitForTimeout(ms);
     },
-    async clickMarker() {
-      // 지도 중앙의 Marker. 컨테이너 크기는 app.tsx 의 600x400.
+    async clickCenter() {
+      // Marker 는 좌표 위쪽에 그려지므로 중앙보다 조금 위를 누른다. 컨테이너는 600x400.
       await page.mouse.click(300, 190);
     },
     async wheel(x, y, deltaY) {

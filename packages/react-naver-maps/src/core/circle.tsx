@@ -11,6 +11,7 @@ import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
+import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 원을 그린다. center와 radius로 위치/크기를 지정한다. */
 export interface CircleProps
@@ -26,6 +27,7 @@ export interface CircleProps
   defaultRadius?: number;
 
   // Options
+  /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
   visible?: boolean;
   zIndex?: number;
@@ -50,7 +52,7 @@ export function Circle({ ref, ...props }: CircleProps) {
           strokeLineJoin: props.strokeLineJoin,
           fillColor: props.fillColor,
           fillOpacity: props.fillOpacity,
-          clickable: props.clickable,
+          clickable: shapeClickable(props),
           visible: props.visible,
           zIndex: props.zIndex,
         }),
@@ -84,7 +86,7 @@ function CircleInner({ circle, ...props }: CircleInnerProps) {
 
   // KVO sync - options
   useControlledKVO(circle, 'visible', props.visible);
-  useControlledKVO(circle, 'clickable', props.clickable);
+  useControlledKVO(circle, 'clickable', shapeClickable(props));
   useControlledKVO(circle, 'zIndex', props.zIndex);
 
   // UI events

@@ -26,8 +26,8 @@ export async function runScenario(
       case 'realtime':
         await driver.realtime(step.ms);
         break;
-      case 'clickMarker':
-        await driver.clickMarker();
+      case 'clickCenter':
+        await driver.clickCenter();
         break;
     }
   }

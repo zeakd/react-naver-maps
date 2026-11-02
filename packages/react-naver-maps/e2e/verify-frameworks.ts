@@ -67,10 +67,31 @@ async function portInUse() {
   }
 }
 
+// 시작할 때 포트가 비어 있음을 확인했으므로 지금 포트를 쥔 프로세스는 이 스크립트가 띄운 서버다.
+// Next 는 next-server 를 자기 프로세스 그룹으로 띄워 그룹 종료 신호가 닿지 않을 수 있다.
+function killPortHolders() {
+  try {
+    const pids = execFileSync('lsof', ['-ti', `tcp:${PORT}`, '-sTCP:LISTEN'], {
+      encoding: 'utf8',
+    });
+    for (const pid of pids.split('\n').filter(Boolean)) {
+      process.kill(Number(pid), 'SIGKILL');
+    }
+  } catch {
+    // lsof 는 대상이 없으면 실패로 끝난다.
+  }
+}
+
 async function waitForPortFree() {
+  const graceEnd = Date.now() + 2000;
   const deadline = Date.now() + 10000;
+  let forced = false;
   while (await portInUse()) {
     if (Date.now() > deadline) throw new Error(`포트 ${PORT} 이 비지 않았다`);
+    if (!forced && Date.now() > graceEnd) {
+      killPortHolders();
+      forced = true;
+    }
     await new Promise((r) => setTimeout(r, 200));
   }
 }

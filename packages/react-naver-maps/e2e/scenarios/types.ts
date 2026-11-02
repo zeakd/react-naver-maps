@@ -18,6 +18,10 @@ export type AppConfig = {
   marker?: boolean;
   /** Marker 의 clickable */
   markerClickable?: boolean;
+  /** onClick 만 있는 Circle 을 지도 중앙에 올린다. */
+  circle?: boolean;
+  /** Circle 의 clickable */
+  circleClickable?: boolean;
   /** 값이 그대로인 path 로 Polyline 을 함께 올린다. */
   polyline?: boolean;
   /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
@@ -38,8 +42,8 @@ export type Step =
   | { t: 'call'; method: string; args?: unknown[] }
   | { t: 'mouse'; kind: 'down' | 'move' | 'up'; x: number; y: number }
   | { t: 'wheel'; x: number; y: number; deltaY: number }
-  /** 지도 안의 Marker 를 실제 DOM 클릭으로 누른다. */
-  | { t: 'clickMarker' }
+  /** 지도 중앙을 실제 DOM 클릭으로 누른다. */
+  | { t: 'clickCenter' }
   /** 가상 시계로 돌지 않는 브라우저 일을 기다린다. ResizeObserver 등. */
   | { t: 'realtime'; ms: number };
 
@@ -65,6 +69,8 @@ export type TraceFrame = {
   kvoLat: number;
   /** 이 프레임까지 Marker 가 받은 클릭 수 */
   markerClicks: number;
+  /** 이 프레임까지 Circle 이 받은 클릭 수 */
+  circleClicks: number;
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */
@@ -88,6 +94,6 @@ export interface ScenarioDriver {
   call(method: string, args: unknown[]): Promise<void>;
   mouse(kind: 'down' | 'move' | 'up', x: number, y: number): Promise<void>;
   wheel(x: number, y: number, deltaY: number): Promise<void>;
-  clickMarker(): Promise<void>;
+  clickCenter(): Promise<void>;
   realtime(ms: number): Promise<void>;
 }

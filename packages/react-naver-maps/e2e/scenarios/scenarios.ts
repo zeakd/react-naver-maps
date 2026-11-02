@@ -1,5 +1,6 @@
 import {
   calls,
+  circleClicked,
   controlCount,
   fired,
   kvoFollowsMap,
@@ -124,7 +125,7 @@ export const scenarios: Scenario[] = [
     steps: [
       { t: 'props', props: { markerClickable: true } },
       { t: 'frames', n: 5 },
-      { t: 'clickMarker' },
+      { t: 'clickCenter' },
       { t: 'frames', n: 5 },
     ],
     expect: [markerClicked(1)],
@@ -138,6 +139,18 @@ export const scenarios: Scenario[] = [
       { t: 'frames', n: 5 },
     ],
     expect: [mapWidth(400)],
+  },
+  {
+    name: 'onClick 이 있는 도형은 clickable 없이도 클릭을 받는다',
+    app: { mode: 'props', circle: true },
+    steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
+    expect: [circleClicked(1), fired('click', 0)],
+  },
+  {
+    name: 'clickable={false} 를 명시한 도형은 클릭을 받지 않는다',
+    app: { mode: 'props', circle: true, circleClickable: false },
+    steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
+    expect: [circleClicked(0), fired('click', 1)],
   },
   {
     name: 'controlled 드래그는 지도 메서드를 다시 부르지 않는다',

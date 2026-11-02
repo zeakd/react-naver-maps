@@ -56,6 +56,17 @@ window.naver.maps.Event.removeListener(zoomListener);
 
 모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 각 컴포넌트에서 사용 가능한 이벤트는 API Reference를 참고하세요.
 
+### 도형의 clickable
+
+네이버맵 SDK 의 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)은 기본이 `clickable: false` 라서 포인터 이벤트를 버립니다. 이 라이브러리는 포인터 핸들러가 있으면 `clickable` 을 켭니다. 끄려면 `clickable={false}` 를 명시합니다.
+
+```tsx
+<Circle center={center} radius={300} fillOpacity={0.3} onClick={handleClick} />
+```
+
+- 켜진 도형을 누르면 지도의 `onClick` 은 호출되지 않습니다.
+- 채우기가 없는 도형은 선을 눌러야 이벤트가 옵니다. 안쪽도 누르게 하려면 `fillColor`, `fillOpacity` 를 지정합니다.
+
 ```tsx
 <Marker
   position={{ lat: 37.5, lng: 127.0 }}
