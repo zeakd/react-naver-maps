@@ -134,3 +134,11 @@ export function mapWidth(width: number): Assertion {
     return actual === width ? null : `지도 너비 ${actual}, 기대 ${width}`;
   };
 }
+
+/** 마지막 프레임까지 Circle 클릭을 count 번 받았다. */
+export function circleClicked(count: number): Assertion {
+  return (trace) => {
+    const actual = trace.at(-1)!.circleClicks;
+    return actual === count ? null : `Circle 클릭 ${actual}회, 기대 ${count}회`;
+  };
+}

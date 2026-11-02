@@ -2,6 +2,7 @@ import { StrictMode, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
+  Circle,
   Container,
   InfoWindow,
   Marker,
@@ -27,6 +28,7 @@ const EVENTS = [
   'idle',
   'dragstart',
   'dragend',
+  'click',
 ];
 const OBSERVED_METHODS = [
   'panTo',
@@ -49,6 +51,8 @@ type Observed = {
   zoomReports: number[];
   kvo: { zoom: number; lat: number };
   markerClicks: number;
+  circleClicks: number;
+  recordCircleClick: () => void;
   recordKvo: (zoom: number, lat: number) => void;
   recordMarkerClick: () => void;
 };
@@ -130,6 +134,16 @@ function MapUnderTest({
         />
       )}
       {config.polyline && <Polyline path={STABLE_PATH} />}
+      {config.circle && (
+        <Circle
+          center={toCoord(INITIAL_CENTER)}
+          radius={300}
+          fillColor="#007EEA"
+          fillOpacity={0.3}
+          clickable={config.circleClickable}
+          onClick={() => observed.recordCircleClick()}
+        />
+      )}
       {config.infoWindow && (
         <InfoWindow
           open
@@ -153,6 +167,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     zoomReports: [],
     kvo: { zoom: 0, lat: 0 },
     markerClicks: 0,
+    circleClicks: 0,
+    recordCircleClick() {
+      observed.circleClicks += 1;
+    },
     recordKvo(zoom, lat) {
       observed.kvo = { zoom, lat };
     },
@@ -227,6 +245,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         kvoZoom: observed.kvo.zoom,
         kvoLat: observed.kvo.lat,
         markerClicks: observed.markerClicks,
+        circleClicks: observed.circleClicks,
       };
     },
   };

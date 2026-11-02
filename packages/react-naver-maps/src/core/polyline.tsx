@@ -11,6 +11,7 @@ import type { StrokeStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
+import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 선을 그린다. path로 경로 좌표를 지정한다. */
 export interface PolylineProps
@@ -37,6 +38,7 @@ export interface PolylineProps
   simplifyLevel?: number;
 
   // Options
+  /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
   visible?: boolean;
   zIndex?: number;
@@ -63,7 +65,7 @@ export function Polyline({ ref, ...props }: PolylineProps) {
           endIcon: props.endIcon,
           endIconSize: props.endIconSize,
           simplifyLevel: props.simplifyLevel,
-          clickable: props.clickable,
+          clickable: shapeClickable(props),
           visible: props.visible,
           zIndex: props.zIndex,
         }),
@@ -94,7 +96,7 @@ function PolylineInner({ polyline, ...props }: PolylineInnerProps) {
   useControlledKVO(polyline, 'endIcon', props.endIcon);
   useControlledKVO(polyline, 'endIconSize', props.endIconSize);
   useControlledKVO(polyline, 'simplifyLevel', props.simplifyLevel);
-  useControlledKVO(polyline, 'clickable', props.clickable);
+  useControlledKVO(polyline, 'clickable', shapeClickable(props));
   useControlledKVO(polyline, 'visible', props.visible);
   useControlledKVO(polyline, 'zIndex', props.zIndex);
 

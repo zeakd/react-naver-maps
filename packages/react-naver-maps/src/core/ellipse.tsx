@@ -11,6 +11,7 @@ import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
+import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 타원을 그린다. bounds로 영역을 지정한다. */
 export interface EllipseProps
@@ -24,6 +25,7 @@ export interface EllipseProps
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
 
   // Options
+  /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
   visible?: boolean;
   zIndex?: number;
@@ -47,7 +49,7 @@ export function Ellipse({ ref, ...props }: EllipseProps) {
           strokeLineJoin: props.strokeLineJoin,
           fillColor: props.fillColor,
           fillOpacity: props.fillOpacity,
-          clickable: props.clickable,
+          clickable: shapeClickable(props),
           visible: props.visible,
           zIndex: props.zIndex,
         }),
@@ -80,7 +82,7 @@ function EllipseInner({ ellipse, ...props }: EllipseInnerProps) {
 
   // KVO sync - options
   useControlledKVO(ellipse, 'visible', props.visible);
-  useControlledKVO(ellipse, 'clickable', props.clickable);
+  useControlledKVO(ellipse, 'clickable', shapeClickable(props));
   useControlledKVO(ellipse, 'zIndex', props.zIndex);
 
   // UI events

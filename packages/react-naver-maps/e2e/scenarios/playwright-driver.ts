@@ -68,8 +68,8 @@ export function createPlaywrightDriver(page: Page): ScenarioDriver {
     async realtime(ms) {
       await page.waitForTimeout(ms);
     },
-    async clickMarker() {
-      // 지도 중앙의 Marker. 컨테이너 크기는 app.tsx 의 600x400.
+    async clickCenter() {
+      // Marker 는 좌표 위쪽에 그려지므로 중앙보다 조금 위를 누른다. 컨테이너는 600x400.
       await page.mouse.click(300, 190);
     },
     async wheel(x, y, deltaY) {
