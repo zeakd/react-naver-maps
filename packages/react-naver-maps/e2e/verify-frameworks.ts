@@ -45,6 +45,7 @@ function packTarball(dir: string) {
 function prepare(app: FixtureApp, tarball: string, root: string) {
   const dir = path.join(root, app.name);
   fs.cpSync(path.join(here, 'apps', app.name), dir, { recursive: true });
+  fs.mkdirSync(path.dirname(path.join(dir, app.mapCheck)), { recursive: true });
   fs.copyFileSync(
     path.join(here, 'apps/_shared/map-check.tsx'),
     path.join(dir, app.mapCheck),
