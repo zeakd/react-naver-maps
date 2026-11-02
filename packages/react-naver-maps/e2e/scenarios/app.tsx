@@ -182,9 +182,14 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   observe(maps.Polyline.prototype, OBSERVED_SHAPE_METHODS, observed.calls);
 
   let map: naver.maps.Map | undefined;
+  let initialized = false;
   const onMap = (next: naver.maps.Map) => {
     if (map === next) return;
     map = next;
+    initialized = false;
+    maps.Event.once(next, 'init', () => {
+      initialized = true;
+    });
     for (const event of EVENTS) {
       maps.Event.addListener(next, event, () => observed.events.push(event));
     }
@@ -211,6 +216,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
 
   return {
     ready: () => map !== undefined,
+    /** 스타일 메타데이터를 받아 지도가 init 까지 끝났는가 */
+    initialized: () => initialized,
     setProps(props: Partial<AppConfig>) {
       config = { ...config, ...props };
       flushSync(() => root.render(render()));
