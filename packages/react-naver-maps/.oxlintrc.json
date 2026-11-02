@@ -40,6 +40,14 @@
         "vitest/require-mock-type-parameters": "off",
         "unicorn/consistent-function-scoping": "off"
       }
+    },
+    {
+      "files": [
+        "e2e/**"
+      ],
+      "rules": {
+        "no-await-in-loop": "off"
+      }
     }
   ]
 }

@@ -45,3 +45,22 @@ jobs:
         with:
           name: scenarios-test-results
           path: packages/react-naver-maps/test-results
+
+  frameworks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter react-naver-maps run build
+      - run: pnpm --filter react-naver-maps exec playwright install --with-deps chromium
+      - run: pnpm --filter react-naver-maps run verify:frameworks
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: frameworks-report
+          path: packages/react-naver-maps/test-results/frameworks.json
