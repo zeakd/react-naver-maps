@@ -57,8 +57,7 @@ describe('useListener', () => {
 
     renderHook(() => useListener(target as any, 'click', undefined));
 
-    target._trigger('click');
-    // 에러 없이 정상 동작
+    expect(() => target._trigger('click')).not.toThrow();
   });
 
   test('unmount 시 removeListener 호출', () => {

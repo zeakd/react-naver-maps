@@ -171,5 +171,8 @@ describe('smoke', () => {
       },
       10000,
     );
+    expect(
+      rootContainer.querySelector('div[style*="100%"] > *'),
+    ).not.toBeNull();
   }, 15000);
 });

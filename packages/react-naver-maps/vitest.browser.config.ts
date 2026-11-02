@@ -1,3 +1,4 @@
+import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 // smoke.spec.tsx 전용 — 실제 naver maps SDK를 네트워크에서 로드하는 통합 테스트.
@@ -13,7 +14,7 @@ export default defineConfig({
     include: ['**/smoke.spec.tsx'],
     browser: {
       enabled: true,
-      provider: 'playwright',
+      provider: playwright({ launchOptions: { headless: true, devtools: false } }),
       headless: true,
       // Maps 키의 Web 서비스 URL 에 등록된 로컬 주소(http://localhost:4321)와 맞춘다.
       // 포트가 바뀌면 인증이 실패하므로 strictPort 로 다른 포트로 넘어가지 않게 한다.
@@ -21,15 +22,7 @@ export default defineConfig({
         port: 4321,
         strictPort: true,
       },
-      instances: [
-        {
-          browser: 'chromium',
-          launch: {
-            headless: true,
-            devtools: false,
-          },
-        },
-      ],
+      instances: [{ browser: 'chromium' }],
     },
   },
 });

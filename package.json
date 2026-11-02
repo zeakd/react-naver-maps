@@ -2,14 +2,15 @@
   "name": "react-naver-maps-workspace",
   "private": true,
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "check": "oxlint --ignore-path .gitignore --ignore-pattern 'website/public/0.1.0/**' && oxfmt --check --ignore-path .gitignore packages/react-naver-maps/src/ packages/astro-component-docs/src/ website/src/ && tsc -b"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
     "husky": "^9.1.7",
-    "oxfmt": "^0.36.0",
-    "oxlint": "^1.56.0",
-    "typescript": "6.0.1-rc"
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "typescript": "^7.0.2"
   },
   "packageManager": "pnpm@12.16.1",
   "devEngines": {
