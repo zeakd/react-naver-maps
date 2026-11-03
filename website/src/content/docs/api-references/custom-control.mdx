@@ -1,0 +1,33 @@
+---
+title: CustomControl
+category: api-references
+order: 11
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`CustomControl` 컴포넌트는 React children 을 지도의 컨트롤 자리에 그립니다. SDK 의 `naver.maps.CustomControl` 입니다.
+
+## 사용법
+
+```tsx
+import { CustomControl, useMap, useNavermaps } from 'react-naver-maps';
+
+function HomeControl() {
+  const navermaps = useNavermaps();
+  const map = useMap();
+  return (
+    <CustomControl position={navermaps.Position.TOP_RIGHT}>
+      <button onClick={() => map.setCenter({ lat: 37.5, lng: 127.0 })}>
+        처음 위치
+      </button>
+    </CustomControl>
+  );
+}
+```
+
+`position` 을 바꾸면 그 자리로 옮깁니다. 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 붙습니다.
+
+## Props
+
+<PropsTable of="CustomControl" package="react-naver-maps" />

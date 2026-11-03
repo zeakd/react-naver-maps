@@ -14,6 +14,8 @@ export type { InfoWindowProps } from './info-window.js';
 export { GroundOverlay } from './ground-overlay.js';
 export type { GroundOverlayProps } from './ground-overlay.js';
 export { CustomOverlay } from './custom-overlay.js';
+export { CustomControl } from './custom-control.js';
+export type { CustomControlProps } from './custom-control.js';
 export type { CustomOverlayProps } from './custom-overlay.js';
 export { Circle } from './circle.js';
 export type { CircleProps } from './circle.js';

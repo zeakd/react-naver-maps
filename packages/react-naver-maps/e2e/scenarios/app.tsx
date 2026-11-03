@@ -5,6 +5,7 @@ import {
   BicycleLayer,
   Circle,
   Container,
+  CustomControl,
   GroundOverlay,
   InfoWindow,
   loadScript,
@@ -59,6 +60,8 @@ type Observed = {
   recordMarker: (marker: naver.maps.Marker | null) => void;
   /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. */
   overlays: Record<string, { getMap(): unknown }>;
+  control: naver.maps.CustomControl | null;
+  recordControl: (o: naver.maps.CustomControl | null) => void;
   groundOverlays: Set<unknown>;
   recordGroundOverlay: (o: unknown) => void;
   recordOverlay: (name: string, o: { getMap(): unknown } | null) => void;
@@ -203,6 +206,16 @@ function MapUnderTest({
           />
         </Activity>
       )}
+      {config.customControlPosition !== undefined && (
+        <CustomControl
+          ref={(o: naver.maps.CustomControl | null) =>
+            observed.recordControl(o)
+          }
+          position={config.customControlPosition as naver.maps.Position}
+        >
+          <button type="button">처음 위치</button>
+        </CustomControl>
+      )}
       {config.bicycleLayer && (
         <BicycleLayer
           ref={(o: naver.maps.Layer | null) =>
@@ -275,6 +288,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     circleClicks: 0,
     marker: null,
     overlays: {},
+    control: null,
+    recordControl(o) {
+      if (o) observed.control = o;
+    },
     groundOverlays: new Set(),
     recordGroundOverlay(o) {
       if (o) observed.groundOverlays.add(o);
@@ -387,6 +404,17 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ),
         mapId,
         markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
+        customControlAt: (() => {
+          const el = observed.control?.getElement();
+          if (!el) return null;
+          for (const [pos, arr] of Object.entries(map!.controls ?? {})) {
+            const items =
+              (arr as { getArray?: () => unknown[] })?.getArray?.() ?? [];
+            if (items.includes(el)) return Number(pos);
+          }
+          return null;
+        })(),
+        customControlText: observed.control?.getElement().textContent ?? null,
         groundOverlays: observed.groundOverlays.size,
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)

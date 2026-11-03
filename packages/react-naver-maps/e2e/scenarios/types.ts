@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** CustomControl 을 이 자리(naver.maps.Position 값)에 버튼과 함께 올린다. */
+  customControlPosition?: number;
   /** BicycleLayer 를 올린다. overlaysOnMap 에 'bicycle' 로 나온다. */
   bicycleLayer?: boolean;
   /** GroundOverlay 를 이 url 로 올린다. bounds 는 렌더마다 새로 만든 같은 값이다. */
@@ -111,6 +113,10 @@ export type TraceFrame = {
   mapId: number;
   /** Marker 가 있으면 지금 지도에 붙어 있는가 */
   markerOnMap: boolean | null;
+  /** CustomControl 이 들어 있는 컨트롤 자리(Position 값). 없으면 null */
+  customControlAt: number | null;
+  /** CustomControl element 안에 그려진 버튼 글자 */
+  customControlText: string | null;
   /** 지금까지 만들어진 GroundOverlay 인스턴스 수 */
   groundOverlays: number;
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
