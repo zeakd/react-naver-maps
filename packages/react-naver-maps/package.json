@@ -29,6 +29,10 @@
     "./addons": {
       "types": "./dist/addons/index.d.ts",
       "default": "./dist/addons/index.js"
+    },
+    "./geocoder": {
+      "types": "./dist/geocoder/index.d.ts",
+      "default": "./dist/geocoder/index.js"
     }
   },
   "scripts": {

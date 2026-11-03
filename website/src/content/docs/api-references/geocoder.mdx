@@ -1,0 +1,39 @@
+---
+title: geocoder
+category: api-references
+order: 13
+---
+
+`react-naver-maps/geocoder` 는 SDK 의 geocoder 서브모듈(`naver.maps.Service`)을 Promise 로 씁니다. 화면이 없는 기능이라 컴포넌트가 아니라 함수입니다.
+
+```tsx
+<NavermapsProvider ncpKeyId="..." submodules={['geocoder']}>
+```
+
+## 사용법
+
+```tsx
+import { useNavermaps } from 'react-naver-maps';
+import { geocode, reverseGeocode } from 'react-naver-maps/geocoder';
+
+function Search({ query }: { query: string }) {
+  const navermaps = useNavermaps();
+  const { data } = useQuery({
+    queryKey: ['geocode', query],
+    queryFn: () => geocode(navermaps, { query }),
+  });
+  return <p>{data?.addresses[0]?.roadAddress}</p>;
+}
+
+const result = await reverseGeocode(navermaps, {
+  coords: { lat: 37.3595953, lng: 127.1053971 },
+  orders: 'roadaddr',
+});
+```
+
+- 응답의 `v2` 를 돌려줍니다. SDK 문서는 `result` 를 deprecated 로 둡니다.
+- 서비스가 OK 가 아닌 상태로 답하면 `GeocoderError`(`status`, `response`)로 reject 합니다.
+- `reverseGeocode` 의 `coords` 는 `{ lat, lng }` 리터럴도 받습니다. SDK 는 리터럴을 거절해서 `LatLng` 로 바꿔 넘깁니다.
+- 서브모듈을 불러오지 않고 부르면 불러오는 법을 담은 에러를 던집니다.
+
+요청 상태(로딩, 캐시, 재시도)는 앱의 몫입니다. 위 예처럼 TanStack Query 같은 도구에 그대로 넣을 수 있습니다.
