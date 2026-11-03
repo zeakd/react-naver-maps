@@ -24,12 +24,14 @@ function useControlledKVO(
 
 ## 동작 방식
 
-1. 첫 렌더는 skip (생성자에서 이미 적용)
-2. 이후 렌더마다 `target.get(property)`와 `value`를 비교
-3. 다르면 setter 호출 (`setPosition`, `setCenter` 등)
+1. 마운트 때는 setter 를 부르지 않고 SDK 가 가진 값을 기록한다 (생성자에서 이미 적용)
+2. 이후 렌더마다 `value` 가 마지막으로 맞춘 값과 다른지, SDK 값이 그 직후와 달라졌는지 본다
+3. 둘 중 하나라도 그렇고 SDK 값이 `value` 와 다르면 setter 를 부른다 (`setPosition`, `setOptions` 등)
 4. `value`가 `undefined`이면 동기화하지 않음 — uncontrolled 모드
 
-비교에는 `===` 후 `.equals()` (LatLng, LatLngBounds 등)를 사용합니다.
+그래서 사용자가 지도에서 바꾼 값(끌어 놓은 Marker 위치 등)은 다음 렌더에서 `value` 로 되돌아갑니다. SDK 가 값을 바꿔 저장하는 경우(`path` 를 KVOArray 로, `minZoom` 3 을 6 으로)에도 렌더마다 setter 를 부르지 않습니다.
+
+비교는 값으로 합니다. `equals` 가 있는 SDK 값(LatLng, Point, Bounds 등)은 `equals` 를, 배열은 원소마다, 객체는 키마다 비교합니다. DOM 노드와 함수는 참조로만 비교합니다. 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 사용 예
 

@@ -6,22 +6,19 @@ function capitalize(s: string): string {
 }
 
 /**
- * 네이버맵 KVO 값 비교.
+ * 네이버맵 KVO 값 비교. prop 과 SDK 가 가진 값을 값으로 비교한다.
  *
- * 비교 전략:
- * 1. === (참조 동일)
- * 2. .equals() (LatLng, LatLngBounds, Point 등 네이버맵 객체)
+ * - 참조가 같으면 같다.
+ * - `equals` 가 있는 SDK 값(LatLng, Point, Size, Bounds)은 그 `equals` 를 쓴다. 한쪽이 리터럴이어도 된다.
+ *   SDK 의 LatLng.equals 는 리터럴(`{ lat, lng }`)도 받는다(3.10.5 확인).
+ * - KVOArray(`getArray()` 가 있는 값)는 안의 배열로 바꿔 비교한다. SDK 는 path, paths 를 이렇게 감싸 저장한다.
+ * - 배열은 원소마다, 일반 객체와 SDK 의 값 객체(padding 의 trbl 등)는 키마다 이 함수로 비교한다.
+ * - DOM 노드와 함수는 참조로만 비교한다.
  *
- * 네이버맵 내부 equals 동작:
- * - LatLng.equals: Chebyshev 거리, epsilon 1e-9
- * - LatLngBounds.equals: 내부적으로 LatLng.equals 사용
- * - Point/Size.equals: loose equality (==)
- *
- * 일반 객체(padding, *ControlOptions)는 키별 얕은 비교를 한다.
- * 배열(paths, path)은 참조만 비교한다. SDK 는 배열을 감싸 저장하므로 현재 값과는 같아지지 않고,
- * 직전 prop 과 같은 참조면 건너뛴다 (useControlledKVO). 안정적인 참조를 전달해야 setter 를 피한다.
+ * 그래서 렌더마다 새로 만든 같은 값(인라인 배열, `anchor: new Point(...)` 가 든 icon)은 같다고 본다.
  */
 type Equatable = { equals: (v: unknown) => boolean };
+type KVOArrayLike = { getArray: () => unknown[] };
 
 function hasEquals(v: unknown): v is Equatable {
   return (
@@ -32,34 +29,63 @@ function hasEquals(v: unknown): v is Equatable {
   );
 }
 
-function isPlainObject(v: unknown): v is Record<string, unknown> {
+function isKVOArray(v: unknown): v is KVOArrayLike {
   return (
-    typeof v === 'object' &&
     v !== null &&
-    Object.getPrototypeOf(v) === Object.prototype
+    typeof v === 'object' &&
+    typeof (v as KVOArrayLike).getArray === 'function'
   );
 }
 
-function shallowEquals(
-  a: Record<string, unknown>,
-  b: Record<string, unknown>,
-): boolean {
-  const keys = Object.keys(a);
+/** 키마다 비교할 객체. DOM 노드, 배열, 함수는 아니다. */
+function isRecord(v: unknown): v is Record<string, unknown> {
   return (
-    keys.length === Object.keys(b).length &&
-    keys.every((key) => Object.is(a[key], b[key]))
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    typeof (v as { nodeType?: unknown }).nodeType !== 'number'
   );
 }
 
 export function kvoEquals(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;
+  if (isKVOArray(a)) return kvoEquals(a.getArray(), b);
+  if (isKVOArray(b)) return kvoEquals(a, b.getArray());
   // 양쪽 어느 쪽이든 equals가 있으면 시도. prev=literal, new=LatLng instance처럼 한쪽만
   // SDK 객체일 때(또는 그 반대) false negative를 막는다.
   if (hasEquals(a)) return a.equals(b);
   if (hasEquals(b)) return b.equals(a);
-  if (isPlainObject(a) && isPlainObject(b)) return shallowEquals(a, b);
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((x, i) => kvoEquals(x, b[i]));
+  }
+  if (isRecord(a) && isRecord(b)) {
+    const keys = Object.keys(a);
+    return (
+      keys.length === Object.keys(b).length &&
+      keys.every((key) => Object.hasOwn(b, key) && kvoEquals(a[key], b[key]))
+    );
+  }
   return false;
+}
+
+/**
+ * SDK 가 지금 가진 값을 나중에 비교할 수 있게 떠 둔다. SDK 가 같은 객체를 고쳐 쓰면
+ * (KVOArray 에 push 등) 참조만 들고 있어서는 바뀐 것을 알 수 없다.
+ */
+function snapshot(v: unknown): unknown {
+  if (isKVOArray(v)) return v.getArray().map(snapshot);
+  if (Array.isArray(v)) return v.map(snapshot);
+  if (hasEquals(v)) {
+    const clone = (v as { clone?: () => unknown }).clone;
+    return typeof clone === 'function' ? clone.call(v) : v;
+  }
+  if (isRecord(v)) {
+    return Object.fromEntries(
+      Object.entries(v).map(([k, x]) => [k, snapshot(x)]),
+    );
+  }
+  return v;
 }
 
 /**
@@ -75,7 +101,7 @@ export function kvoEquals(a: unknown, b: unknown): boolean {
  * - NaverMapInner 리렌더 → children(Marker, Circle 등) 전체 리렌더 전파
  * - 17개 useControlledKVO × 매 프레임 = 심각한 퍼포먼스 저하
  *
- * 현재 구현은 KVO를 구독하지 않고, 렌더 시점에 target.get()으로 직접 읽어 비교한다.
+ * 현재 구현은 KVO를 구독하지 않고, 렌더 시점에 SDK 값을 직접 읽어 비교한다.
  *
  * ## useLayoutEffect를 쓰는 이유
  *
@@ -88,10 +114,16 @@ export function kvoEquals(a: unknown, b: unknown): boolean {
  * deps 없이 매 렌더마다 실행한다. 의존 값이 외부 시스템(KVO)의 현재 상태이므로
  * React deps로 표현할 수 없다. KVO get()은 `return this[key]` 한 줄이라 무비용.
  *
- * ## 첫 렌더 skip 이유
+ * ## 첫 동기화
  *
  * 컴포넌트 생성자(new navermaps.Marker(options) 등)에서 이미 옵션이 적용된다.
- * 첫 렌더에서 다시 setter를 호출하면 중복 호출 + 불필요한 KVO 이벤트 발생.
+ * 마운트 때는 setter 를 부르지 않고 SDK 가 가진 값만 기록한다. 마운트 뒤에 처음 prop 이 생기면 맞춘다.
+ *
+ * ## 되돌림
+ *
+ * prop 을 준 값은 prop 이 기준이다. 사용자가 Marker 를 끌어 SDK 값이 바뀌면 다음 렌더에서
+ * prop 으로 되돌린다(0.3.0 과 같은 동작). 받아들이려면 앱이 이벤트(onDragend 등)로 상태를 갱신한다.
+ * prop 이 그대로이고 SDK 값도 마지막으로 맞춘 직후와 같으면 setter 를 부르지 않는다.
  *
  * ## 주의: NaverMap의 center/zoom/bounds에는 이 훅을 사용하지 않는다
  *
@@ -103,60 +135,84 @@ export function useControlledKVO(
   property: string,
   value?: unknown,
 ): void {
-  const isFirstRef = useRef(true);
-  const prevValueRef = useRef(value);
+  // 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. SDK 는 값을 바꿔 저장하기도 해서
+  // (path 를 KVOArray 로, minZoom 3 을 6 으로) prop 과 SDK 값을 바로 비교하면 영원히 다르다.
+  // 그래서 "SDK 값이 우리가 맞춘 직후와 달라졌는가" 로 바깥 변경(사용자 드래그 등)을 안다.
+  const syncedRef = useRef<{ prop: unknown; applied: unknown } | null>(null);
+  const mountedRef = useRef(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
-    if (isFirstRef.current) {
-      isFirstRef.current = false;
+    const mounting = !mountedRef.current;
+    mountedRef.current = true;
+    if (value === undefined || !sdkAlive()) return;
+    const io = accessors(target, property);
+    const synced = syncedRef.current;
+    const current = io.read();
+
+    if (synced === null) {
+      // 마운트 때는 생성자 옵션으로 이미 들어갔으므로 SDK 가 가진 값을 기록만 한다.
+      // SDK 가 값을 바꿔 저장했어도(minZoom 3 → 6) 다시 부르지 않는다.
+      // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
+      if (!mounting && !kvoEquals(current, value)) io.write(value);
+      syncedRef.current = { prop: value, applied: snapshot(io.read()) };
       return;
     }
-    // SDK 는 path, padding 등을 바꿔 저장해 현재 값과 영원히 같아지지 않는다.
-    // prop 이 그대로면 SDK 를 건드리지 않는다.
-    const unchanged = kvoEquals(prevValueRef.current, value);
-    prevValueRef.current = value;
-    if (unchanged) return;
-    if (value === undefined || !sdkAlive()) return;
 
-    // setter/getter 우선순위 (높은 순):
-    //   1. 전용 setX/getX 메서드 — Map.setMapTypeId처럼 추가 부수효과 수행 (registry 전환 등)
-    //   2. setOptions(key, value)/getOptions(key) — Map은 옵션을 _mapOptions(별도 KVO)에
-    //      저장하므로 이 경로를 통해서만 SDK가 보는 실제 값이 바뀐다. Marker도 동일 시그니처.
-    //   3. set(key, value)/get(key) — 자체 KVO 직접 접근 (위 둘 다 없을 때)
-    //
-    // setMapTypeId는 mapTypes.setSelectedTypeId를 호출해서 registry를 전환.
-    // setOptions로 mapTypeId를 바꾸면 mapOptions의 KVO만 갱신되고 registry는 안 바뀐다.
-    // 따라서 전용 setter 우선이 정답.
-    const setterName = `set${capitalize(property)}`;
-    const getterName = `get${capitalize(property)}`;
-    const t = target as unknown as Record<string, unknown>;
-    const hasSetter = typeof t[setterName] === 'function';
-    const hasGetter = typeof t[getterName] === 'function';
-    const hasOptions =
-      typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+    const propChanged = !kvoEquals(synced.prop, value);
+    const changedOutside = !kvoEquals(current, synced.applied);
+    if (!propChanged && !changedOutside) return;
 
-    // 주의: 읽기(getter/getOptions/get)와 쓰기(setter/setOptions/set) 경로를 독립적으로
-    // 선택한다. "전용 getter는 없지만 전용 setter는 있는" prop(예: Marker position —
-    // setPosition은 있고 getPosition은 없음)에서는 읽기는 getOptions/get, 쓰기는 setPosition을
-    // 탄다. 현재 SDK에서는 이들이 동일 KVO 슬롯을 보므로 결과가 일관되지만, 이는 SDK 구현이
-    // setX와 setOptions/set을 같은 슬롯에 라우팅한다는 전제에 의존한 정합성이다.
-    let current: unknown;
-    if (hasGetter) {
-      current = (t[getterName] as () => unknown)();
-    } else if (hasOptions) {
-      current = (t.getOptions as (key: string) => unknown)(property);
-    } else {
-      current = target.get(property);
-    }
-    if (kvoEquals(current, value)) return;
-
-    if (hasSetter) {
-      (t[setterName] as (v: unknown) => void)(value);
-    } else if (hasOptions) {
-      (t.setOptions as (key: string, value: unknown) => void)(property, value);
-    } else {
-      target.set(property, value);
-    }
+    // prop 이 바뀌었거나, 바깥에서 SDK 값을 바꿨으면 prop 으로 맞춘다(되돌림).
+    // 0.3.0 과 같은 동작이다. 바깥 변경을 받아들이려면 앱이 이벤트로 상태를 갱신해 prop 을 바꾼다.
+    if (!kvoEquals(current, value)) io.write(value);
+    syncedRef.current = { prop: value, applied: snapshot(io.read()) };
   });
+}
+
+/**
+ * setter/getter 우선순위 (높은 순):
+ *   1. 전용 setX/getX 메서드 — Map.setMapTypeId처럼 추가 부수효과 수행 (registry 전환 등)
+ *   2. setOptions(key, value)/getOptions(key) — Map은 옵션을 _mapOptions(별도 KVO)에
+ *      저장하므로 이 경로를 통해서만 SDK가 보는 실제 값이 바뀐다. Marker도 동일 시그니처.
+ *   3. set(key, value)/get(key) — 자체 KVO 직접 접근 (위 둘 다 없을 때)
+ *
+ * setMapTypeId는 mapTypes.setSelectedTypeId를 호출해서 registry를 전환.
+ * setOptions로 mapTypeId를 바꾸면 mapOptions의 KVO만 갱신되고 registry는 안 바뀐다.
+ * 따라서 전용 setter 우선이 정답.
+ *
+ * 읽기와 쓰기 경로는 따로 고른다. "전용 getter는 없지만 전용 setter는 있는" prop 에서는
+ * 읽기는 getOptions/get, 쓰기는 setX 를 탄다. 현재 SDK 에서는 같은 KVO 슬롯을 보므로 일관되지만,
+ * SDK 가 setX 와 setOptions/set 을 같은 슬롯에 라우팅한다는 전제에 의존한다.
+ */
+function accessors(target: naver.maps.KVO, property: string) {
+  const setterName = `set${capitalize(property)}`;
+  const getterName = `get${capitalize(property)}`;
+  const t = target as unknown as Record<string, unknown>;
+  const hasSetter = typeof t[setterName] === 'function';
+  const hasGetter = typeof t[getterName] === 'function';
+  const hasOptions =
+    typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+  return {
+    read(): unknown {
+      if (hasGetter) return (t[getterName] as () => unknown).call(target);
+      if (hasOptions)
+        return (t.getOptions as (key: string) => unknown).call(
+          target,
+          property,
+        );
+      return target.get(property);
+    },
+    write(value: unknown): void {
+      if (hasSetter)
+        (t[setterName] as (v: unknown) => void).call(target, value);
+      else if (hasOptions)
+        (t.setOptions as (key: string, value: unknown) => void).call(
+          target,
+          property,
+          value,
+        );
+      else target.set(property, value);
+    },
+  };
 }
