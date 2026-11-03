@@ -15,7 +15,7 @@ describe('Panorama', () => {
   });
 
   test('Container 밖에서 쓰면 알린다', () => {
-    navermaps = { Panorama: class {} };
+    navermaps = { Panorama: function SdkPanorama() {} };
     vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<Panorama />)).toThrow(/within <Container>/);
   });
