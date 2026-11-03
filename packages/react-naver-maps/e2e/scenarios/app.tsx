@@ -7,6 +7,7 @@ import {
   Container,
   CustomControl,
   GeoJson,
+  geocode,
   GroundOverlay,
   InfoWindow,
   loadScript,
@@ -14,6 +15,7 @@ import {
   NaverMap,
   NavermapsProvider,
   Polyline,
+  reverseGeocode,
   useAutoResize,
   useKVO,
   useMap,
@@ -413,6 +415,26 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     },
     unmount() {
       root.unmount();
+    },
+    /** geocoder 서브모듈로 주소를 찾아 첫 도로명 주소를 돌려준다. 실패하면 에러 메시지. */
+    async geocode(query: string): Promise<string> {
+      try {
+        const result = await geocode(maps, { query });
+        return result.addresses[0]?.roadAddress ?? '';
+      } catch (e) {
+        return `error: ${(e as Error).message}`;
+      }
+    },
+    async reverseGeocode(lat: number, lng: number): Promise<string> {
+      try {
+        const result = await reverseGeocode(maps, {
+          coords: { lat, lng },
+          orders: 'roadaddr',
+        });
+        return result.results[0]?.land?.name ?? '';
+      } catch (e) {
+        return `error: ${(e as Error).message}`;
+      }
     },
     resetObserved() {
       if (map) observe(map, OBSERVED_METHODS, observed.calls);
