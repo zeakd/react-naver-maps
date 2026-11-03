@@ -142,3 +142,65 @@ export function circleClicked(count: number): Assertion {
     return actual === count ? null : `Circle 클릭 ${actual}회, 기대 ${count}회`;
   };
 }
+
+/**
+ * from 프레임부터 to 프레임까지 경도가 한 방향으로만 움직인다. 드래그가 되돌려지거나
+ * 떨리면 방향이 바뀐다.
+ */
+export function oneWay(from = 0, to?: number): Assertion {
+  return (trace) => {
+    const end = Math.min(to ?? trace.length, trace.length);
+    let sign = 0;
+    for (let i = from + 1; i < end; i++) {
+      const d = trace[i].center[1] - trace[i - 1].center[1];
+      if (Math.abs(d) < EPSILON_DEG) continue;
+      const s = Math.sign(d);
+      if (sign !== 0 && s !== sign) {
+        return `프레임 ${i} 에서 경도 방향이 바뀌었다 (${trace[i - 1].center[1]} -> ${trace[i].center[1]})`;
+      }
+      sign = s;
+    }
+    return null;
+  };
+}
+
+/** from 프레임 뒤로 center 가 움직이지 않는다. */
+export function staysAfter(from: number): Assertion {
+  return (trace) => {
+    const base = trace[from]?.center;
+    if (!base) return `프레임 ${from} 이 없다`;
+    for (let i = from + 1; i < trace.length; i++) {
+      if (!near(trace[i].center, base)) {
+        return `프레임 ${i} 에서 움직였다 (${base} -> ${trace[i].center})`;
+      }
+    }
+    return null;
+  };
+}
+
+/** 마지막 프레임의 Marker 위치가 target 이다. */
+export function markerAt(target: LL): Assertion {
+  return (trace) => {
+    const p = trace.at(-1)!.markerPosition;
+    if (!p) return 'Marker 가 없다';
+    return near(p, target) ? null : `Marker 위치 ${p}, 기대 ${target}`;
+  };
+}
+
+/** 마지막 프레임의 Marker 위치가 target 이 아니다(사용자가 옮긴 자리에 있다). */
+export function markerMovedFrom(target: LL): Assertion {
+  return (trace) => {
+    const p = trace.at(-1)!.markerPosition;
+    if (!p) return 'Marker 가 없다';
+    return near(p, target) ? `Marker 가 ${target} 으로 돌아갔다` : null;
+  };
+}
+
+/** from 프레임부터 to 프레임 앞까지 지도 메서드 호출 횟수가 expected 와 같다. */
+export function callsIn(
+  from: number,
+  to: number,
+  expected: Record<string, number>,
+): Assertion {
+  return (trace) => calls(expected)(trace.slice(from, to));
+}
