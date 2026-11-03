@@ -132,6 +132,7 @@ export const scenarios: Scenario[] = [
   },
   {
     name: 'useAutoResize 는 영역 크기를 따라간다',
+    since: '0.4',
     app: { mode: 'props', autoResize: true },
     steps: [
       { t: 'props', props: { containerWidth: 400 } },

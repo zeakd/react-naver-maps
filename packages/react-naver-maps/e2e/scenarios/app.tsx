@@ -5,15 +5,15 @@ import {
   Circle,
   Container,
   InfoWindow,
+  loadScript,
   Marker,
   NaverMap,
   NavermapsProvider,
   Polyline,
+  useAutoResize,
   useKVO,
   useMap,
-} from '../../src/core/react-naver-maps.js';
-import { loadScript } from '../../src/core/load-script.js';
-import { useAutoResize } from '../../src/addons/index.js';
+} from './target.js';
 import type { AppConfig, LL, TraceFrame } from './types.js';
 
 // Maps 키. Web 서비스 URL 에 http://localhost:4321 이 등록되어 있다.

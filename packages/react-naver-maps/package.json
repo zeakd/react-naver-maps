@@ -36,6 +36,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:scenarios": "playwright test --config e2e/scenarios.config.ts",
+    "compare:scenarios": "node e2e/compare.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt .",
