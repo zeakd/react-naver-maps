@@ -273,3 +273,23 @@ export function groundOverlaysCreated(count: number): Assertion {
       : `GroundOverlay ${actual}개 생성, 기대 ${count}개`;
   };
 }
+
+/** at 프레임(음수면 끝에서부터)에 CustomControl 이 position 자리에 있다. null 이면 어디에도 없다. */
+export function customControlAt(position: number | null, at = -1): Assertion {
+  return (trace) => {
+    const f = trace.at(at)!;
+    return f.customControlAt === position
+      ? null
+      : `프레임 ${at < 0 ? trace.length + at : at} 에 CustomControl 자리 ${f.customControlAt}, 기대 ${position}`;
+  };
+}
+
+/** at 프레임(음수면 끝에서부터)에 CustomControl 안에 text 가 그려져 있다. */
+export function customControlText(text: string, at = -1): Assertion {
+  return (trace) => {
+    const actual = trace.at(at)!.customControlText;
+    return actual === text
+      ? null
+      : `CustomControl 글자 ${JSON.stringify(actual)}, 기대 ${JSON.stringify(text)}`;
+  };
+}
