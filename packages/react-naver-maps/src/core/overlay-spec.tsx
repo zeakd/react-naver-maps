@@ -5,7 +5,7 @@ import { useEffect, useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
-import { onMap, useSdkInstance } from './lifetime.js';
+import { onMap, onReadyMap, useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
@@ -41,6 +41,8 @@ export type OverlaySpec<P, T> = {
   afterCreate?: (instance: T, props: P) => void;
   /** 이 오버레이가 내는 포인터 이벤트. `on` + 이름 prop 으로 받는다. */
   events: readonly string[];
+  /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create 에 map 을 넣지 않는다. */
+  waitForReadyMap?: boolean;
 };
 
 type Overlay = naver.maps.KVO & {
@@ -62,12 +64,13 @@ export function defineOverlay<P extends object, T extends Overlay>(
     const props = rest as P;
     const navermaps = useNavermaps();
     const map = useMap();
+    const attachTo = spec.waitForReadyMap ? onReadyMap : onMap;
     const instance = useSdkInstance(
-      onMap(map, () => {
+      attachTo(map, () => {
         const created = spec.create(
           navermaps,
           omitUndefined({
-            map,
+            map: spec.waitForReadyMap ? undefined : map,
             ...pick(props, spec.options),
             ...spec.initial?.(props),
             ...spec.derived?.(props),

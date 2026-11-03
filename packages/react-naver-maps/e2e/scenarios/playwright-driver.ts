@@ -178,6 +178,28 @@ export function createPlaywrightDriver(
     async shot(name) {
       shots.push({ name, png: await page.screenshot() });
     },
+    async probe() {
+      // 지도(600x400, 화면 왼쪽 위) 가운데. 그림은 페이지의 canvas 로 풀어 센다(실제 시간).
+      const png = await page.screenshot({
+        clip: { x: 250, y: 150, width: 100, height: 100 },
+      });
+      return page.evaluate(async (b64) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let red = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i]! > 200 && data[i + 1]! < 80 && data[i + 2]! < 80) red++;
+        }
+        return red;
+      }, png.toString('base64'));
+    },
     async wheel(x, y, deltaY) {
       await input(() => page.mouse.move(x, y));
       await input(() => page.mouse.wheel(0, deltaY));

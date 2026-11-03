@@ -9,6 +9,7 @@ import {
   GeoJson,
   geocode,
   GroundOverlay,
+  HeatMap,
   InfoWindow,
   loadScript,
   Marker,
@@ -47,6 +48,12 @@ const OBSERVED_METHODS = [
 ];
 const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
 const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition'];
+// 지도 중앙 둘레의 점들([경도, 위도]).
+const HEAT_POINTS: naver.maps.PointArrayLiteral[] = Array.from(
+  { length: 30 },
+  (_, i) => [126.9784 + 0.001 * Math.cos(i), 37.5666 + 0.001 * Math.sin(i)],
+);
+
 // 지도 중앙(INITIAL_CENTER)을 덮는 사각형.
 const CENTER_SQUARE: naver.maps.GeoJSON = {
   type: 'Feature',
@@ -228,6 +235,16 @@ function MapUnderTest({
             onClick={() => observed.recordMarkerClick()}
           />
         </Activity>
+      )}
+      {config.heatMapOpacity !== undefined && (
+        <HeatMap
+          ref={(o: naver.maps.visualization.HeatMap | null) =>
+            observed.recordOverlay('heatMap', o)
+          }
+          data={HEAT_POINTS}
+          opacity={config.heatMapOpacity}
+          radius={20}
+        />
       )}
       {config.geoJsonFill && (
         <GeoJson
@@ -465,6 +482,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ),
         mapId,
         markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
+        heatMapOpacity:
+          (
+            observed.overlays.heatMap as unknown as {
+              getOptions?: (k: string) => number;
+            }
+          )?.getOptions?.('opacity') ?? null,
         dataFeatures: map!.data.getAllFeature().length,
         dataFillColor: (() => {
           const overlay = map!.data.getAllFeature()[0]?.getOverlays()[0] as

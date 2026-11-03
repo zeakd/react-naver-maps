@@ -1,6 +1,12 @@
 import { useInsertionEffect, useLayoutEffect, useRef, useState } from 'react';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
-import { clearMapListeners, sdkAlive } from './utils/sdk.js';
+import {
+  addMapListener,
+  clearMapListeners,
+  removeMapListener,
+  sdkAlive,
+} from './utils/sdk.js';
+import type { MapListener } from './utils/sdk.js';
 
 /**
  * SDK 인스턴스(지도, 오버레이, 레이어)를 React 수명에 맞추는 규칙. 컴포넌트마다 따로 두지 않고
@@ -102,6 +108,55 @@ export function onMap<T extends MapAttachable>(
     dispose: (instance) => {
       clearMapListeners(instance);
       instance.setMap(null);
+    },
+  };
+}
+
+type ReadyMap = naver.maps.Map & { isReady?: boolean };
+
+/**
+ * onMap 과 같되 지도가 준비(init)된 뒤에 붙인다. 준비 전에 붙이면 SDK 가 조용히 무시하는
+ * 인스턴스가 있다: CustomControl 은 setMap 을 거절하고(콘솔에 다시 하라고만 남김),
+ * visualization 의 HeatMap 은 붙지만 그리지 않는다(3.10.5 실측). create 는 지도에 붙이지 않은
+ * 인스턴스를 돌려준다.
+ */
+export function onReadyMap<T extends MapAttachable>(
+  map: naver.maps.Map,
+  create: () => T,
+): SdkInstanceSpec<T> {
+  const waits = new WeakMap<T, MapListener>();
+  const attach = (instance: T) => {
+    if ((map as ReadyMap).isReady) {
+      instance.setMap(map);
+      return;
+    }
+    waits.set(
+      instance,
+      addMapListener(map, 'init', () => {
+        waits.delete(instance);
+        instance.setMap(map);
+      }),
+    );
+  };
+  const detach = (instance: T) => {
+    const wait = waits.get(instance);
+    if (wait) {
+      removeMapListener(wait);
+      waits.delete(instance);
+    }
+    instance.setMap(null);
+  };
+  return {
+    create: () => {
+      const instance = create();
+      attach(instance);
+      return instance;
+    },
+    attach,
+    detach,
+    dispose: (instance) => {
+      detach(instance);
+      clearMapListeners(instance);
     },
   };
 }
