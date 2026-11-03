@@ -3,8 +3,14 @@ export type LL = [number, number];
 
 /** 시나리오가 올리는 앱의 설정. app.tsx 가 이 값으로 라이브러리를 렌더링한다. */
 export type AppConfig = {
-  /** props: center 를 그대로 내려준다. controlled: onCenterChanged 를 상태로 받아 되돌려준다. */
-  mode: 'props' | 'controlled';
+  /**
+   * center 를 내려주는 방식.
+   * - props: 설정의 center 를 렌더마다 새 객체로 내려준다. 상태를 갱신하지 않는다.
+   * - controlled: onCenterChanged 로 받은 값을 상태에 넣어 되돌려준다.
+   * - rounded: controlled 와 같되 위도·경도를 소수 넷째 자리로 반올림해 넣는다.
+   * - debounced: 마지막 onCenterChanged 300ms 뒤에 그 값을 상태에 넣는다.
+   */
+  mode: 'props' | 'controlled' | 'rounded' | 'debounced';
   center?: LL;
   zoom?: number;
   strict?: boolean;
@@ -18,12 +24,18 @@ export type AppConfig = {
   marker?: boolean;
   /** Marker 의 clickable */
   markerClickable?: boolean;
+  /** Marker 를 draggable 로 올린다. position 은 고정값이고 onDragend 로 상태를 갱신하지 않는다. */
+  markerDraggable?: boolean;
+  /** Marker icon 을 렌더마다 새로 만든 같은 값(content 문자열, anchor Point)으로 넘긴다. */
+  markerInlineIcon?: boolean;
   /** onClick 만 있는 Circle 을 지도 중앙에 올린다. */
   circle?: boolean;
   /** Circle 의 clickable */
   circleClickable?: boolean;
   /** 값이 그대로인 path 로 Polyline 을 함께 올린다. */
   polyline?: boolean;
+  /** polyline 의 path 를 렌더마다 새 배열(같은 좌표)로 넘긴다. */
+  polylineInline?: boolean;
   /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
   inlineOptions?: boolean;
   /** 값이 그대로인 인라인 anchor 로 열린 InfoWindow 를 함께 올린다. */
@@ -71,6 +83,8 @@ export type TraceFrame = {
   markerClicks: number;
   /** 이 프레임까지 Circle 이 받은 클릭 수 */
   circleClicks: number;
+  /** Marker 가 있으면 그 위치 */
+  markerPosition: LL | null;
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */

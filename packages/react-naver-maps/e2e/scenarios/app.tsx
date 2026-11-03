@@ -1,4 +1,4 @@
-import { StrictMode, useState } from 'react';
+import { StrictMode, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
@@ -40,6 +40,7 @@ const OBSERVED_METHODS = [
   'fitBounds',
 ];
 const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
+const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition'];
 const STABLE_PATH = [
   { lat: 37.56, lng: 126.97 },
   { lat: 37.57, lng: 126.98 },
@@ -52,6 +53,8 @@ type Observed = {
   kvo: { zoom: number; lat: number };
   markerClicks: number;
   circleClicks: number;
+  marker: naver.maps.Marker | null;
+  recordMarker: (marker: naver.maps.Marker | null) => void;
   recordCircleClick: () => void;
   recordKvo: (zoom: number, lat: number) => void;
   recordMarkerClick: () => void;
@@ -103,8 +106,30 @@ function MapUnderTest({
   onMap: (map: naver.maps.Map) => void;
 }) {
   const [reported, setReported] = useState<naver.maps.Coord | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const given = config.center ? toCoord(config.center) : null;
   const center = given ?? reported ?? toCoord(INITIAL_CENTER);
+  const onCenterChanged = (() => {
+    switch (config.mode) {
+      case 'controlled':
+        return setReported;
+      case 'rounded':
+        return (c: naver.maps.Coord) => {
+          const ll = c as naver.maps.LatLng;
+          setReported({
+            lat: Number(ll.lat().toFixed(4)),
+            lng: Number(ll.lng().toFixed(4)),
+          } as unknown as naver.maps.Coord);
+        };
+      case 'debounced':
+        return (c: naver.maps.Coord) => {
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          debounceRef.current = setTimeout(() => setReported(c), 300);
+        };
+      default:
+        return undefined;
+    }
+  })();
 
   return (
     <NaverMap
@@ -122,18 +147,39 @@ function MapUnderTest({
           }
         : {})}
       onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
-      onCenterChanged={config.mode === 'controlled' ? setReported : undefined}
+      onCenterChanged={onCenterChanged}
     >
       <KvoProbe observed={observed} />
       {config.autoResize && <AutoResize />}
       {config.marker && (
         <Marker
+          ref={(marker: naver.maps.Marker | null) => {
+            observed.recordMarker(marker);
+          }}
           position={toCoord(INITIAL_CENTER)}
           clickable={config.markerClickable}
+          draggable={config.markerDraggable}
+          {...(config.markerInlineIcon
+            ? {
+                icon: {
+                  content:
+                    '<div style="width:20px;height:20px;background:#f00"></div>',
+                  anchor: new naver.maps.Point(10, 10),
+                },
+              }
+            : {})}
           onClick={() => observed.recordMarkerClick()}
         />
       )}
-      {config.polyline && <Polyline path={STABLE_PATH} />}
+      {config.polyline && (
+        <Polyline
+          path={
+            config.polylineInline
+              ? STABLE_PATH.map((p) => ({ ...p }))
+              : STABLE_PATH
+          }
+        />
+      )}
       {config.circle && (
         <Circle
           center={toCoord(INITIAL_CENTER)}
@@ -168,6 +214,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     kvo: { zoom: 0, lat: 0 },
     markerClicks: 0,
     circleClicks: 0,
+    marker: null,
+    recordMarker(marker) {
+      observed.marker = marker;
+    },
     recordCircleClick() {
       observed.circleClicks += 1;
     },
@@ -180,6 +230,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   };
   observe(maps.Map.prototype, OBSERVED_METHODS, observed.calls);
   observe(maps.Polyline.prototype, OBSERVED_SHAPE_METHODS, observed.calls);
+  observe(maps.Marker.prototype, OBSERVED_MARKER_METHODS, observed.calls);
 
   let map: naver.maps.Map | undefined;
   let initialized = false;
@@ -253,6 +304,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         kvoLat: observed.kvo.lat,
         markerClicks: observed.markerClicks,
         circleClicks: observed.circleClicks,
+        markerPosition: observed.marker
+          ? (() => {
+              const p = observed.marker.getPosition() as naver.maps.LatLng;
+              return [p.lat(), p.lng()] as LL;
+            })()
+          : null,
       };
     },
   };

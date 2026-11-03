@@ -66,4 +66,10 @@ export const expectedDifferences: Record<
     fields: ['status', 'zoomReports'],
     reason: 'GL 의 내부 zoom 대신 getZoom() 을 보낸다 (#190)',
   },
+  // 고칠 차이. 소스가 0.3.0 보다 나빠진 것이라 고치면 이 항목을 지운다.
+  '드래그한 Marker 는 다시 렌더하면 position 으로 돌아간다': {
+    fields: ['status', 'calls', 'markerPosition'],
+    reason:
+      '#192 가 SDK 쪽 변경을 되돌리던 동작을 없앴다. 0.3.0 동작으로 되살린다',
+  },
 };
