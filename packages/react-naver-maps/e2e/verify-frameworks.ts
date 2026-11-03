@@ -2,6 +2,7 @@
 // 결과는 표로 출력하고 RNM_FRAMEWORK_REPORT 또는 test-results/frameworks.json 에 JSON 으로 쓴다.
 // 사용: pnpm verify:frameworks [앱 이름...]. Maps 키 때문에 앱을 localhost:4321 에서 하나씩 띄운다.
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
+import net from 'node:net';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -58,23 +59,38 @@ function prepare(app: FixtureApp, tarball: string, root: string) {
   return dir;
 }
 
+// fetch 는 keep-alive 연결을 다시 쓴다. 서버가 listen 을 멈춰도 남은 워커가 그 연결에 답해
+// 포트가 계속 쓰이는 것처럼 보였다(CI, next 뒤). 매번 새 TCP 연결로 listen 여부만 본다.
+function listening(host: string) {
+  return new Promise<boolean>((resolve) => {
+    const socket = net.connect({ port: PORT, host });
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', () => resolve(false));
+  });
+}
+
 async function portInUse() {
-  try {
-    await fetch(URL_BASE);
-    return true;
-  } catch {
-    return false;
-  }
+  const [v4, v6] = await Promise.all([
+    listening('127.0.0.1'),
+    listening('::1'),
+  ]);
+  return v4 || v6;
 }
 
 // 시작할 때 포트가 비어 있음을 확인했으므로 지금 포트를 쥔 프로세스는 이 스크립트가 띄운 서버다.
 // Next 는 next-server 를 자기 프로세스 그룹으로 띄워 그룹 종료 신호가 닿지 않을 수 있다.
+// listen 을 멈추고 연결만 쥔 워커도 정리한다. 이 스크립트 자신(연결의 반대편)은 뺀다.
 function portHolders(): number[] {
   try {
-    const out = execFileSync('lsof', ['-ti', `tcp:${PORT}`, '-sTCP:LISTEN'], {
+    const out = execFileSync('lsof', ['-ti', `tcp:${PORT}`], {
       encoding: 'utf8',
     });
-    return out.split('\n').filter(Boolean).map(Number);
+    return [...new Set(out.split('\n').filter(Boolean).map(Number))].filter(
+      (pid) => pid !== process.pid,
+    );
   } catch {
     // lsof 는 대상이 없으면 실패로 끝난다. lsof 가 없는 환경도 여기로 온다.
     return [];
