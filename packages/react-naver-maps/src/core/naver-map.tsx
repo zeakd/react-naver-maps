@@ -6,6 +6,7 @@ import {
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useReducer,
   useRef,
   useState,
 } from 'react';
@@ -353,6 +354,38 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   //   → 같은 값이 다시 내려옴 → skip → 불필요한 panTo 방지
   // - kvoEquals(map.getX(), prop) → 값이 같으면 skip (느린 경로)
   // =========================================================================
+  // 제스처 중 보류. 사용자가 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때(idle)까지 카메라 prop 을
+  // 지도에 넣지 않는다. 앱이 onCenterChanged 값을 가공해 되돌려주면(반올림 등) 드래그 중 panTo 가
+  // 지도를 그 값으로 끌어당겼다(래스터는 끌려가며, GL 은 거의 안 움직였다). 멈춘 뒤 마지막 prop 으로 맞춘다.
+  // 우리가 panTo 하지 않는 동안의 idle 은 관성이 끝났다는 뜻이다. GL 의 idle 은 벡터 타일을 다
+  // 받은 뒤라 네트워크만큼 늦을 수 있다.
+  const gestureRef = useRef<'none' | 'active' | 'settling'>('none');
+  const heldRef = useRef(false);
+  const [, resumeCamera] = useReducer((n: number) => n + 1, 0);
+  useLayoutEffect(() => {
+    const start = () => {
+      gestureRef.current = 'active';
+    };
+    const end = () => {
+      if (gestureRef.current === 'active') gestureRef.current = 'settling';
+    };
+    const listeners = [
+      addMapListener(map, 'dragstart', start),
+      addMapListener(map, 'pinchstart', start),
+      addMapListener(map, 'dragend', end),
+      addMapListener(map, 'pinchend', end),
+      addMapListener(map, 'idle', () => {
+        if (gestureRef.current !== 'settling') return;
+        gestureRef.current = 'none';
+        if (heldRef.current) {
+          heldRef.current = false;
+          resumeCamera();
+        }
+      }),
+    ];
+    return () => listeners.forEach((l) => removeMapListener(l));
+  }, [map]);
+
   const isFirstRef = useRef(true);
   // 지도에 요청했지만 아직 반영되지 않은 center. panTo 는 duration 0 이어도 다음 프레임에
   // 적용되므로, 그 사이 들어온 prop 은 getCenter() 가 아니라 이 값과 비교해야 한다.
@@ -383,7 +416,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     } = {};
 
     if (props.center !== undefined && !kvoEquals(props.center, prev.center)) {
-      const atCenter = kvoEquals(map.getCenter(), props.center);
+      const atCenter = sameOnScreen(map, map.getCenter(), props.center);
       if (atCenter && requestedCenterRef.current) {
         // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
         map.stop();
@@ -405,6 +438,12 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     ) {
       if (!kvoEquals(map.getCenterPoint(), props.centerPoint))
         dirties.centerPoint = props.centerPoint;
+    }
+
+    if (gestureRef.current !== 'none') {
+      // prevRef 를 그대로 두어 제스처가 끝난 뒤 다시 비교하게 한다.
+      if (Object.keys(dirties).length > 0) heldRef.current = true;
+      return;
     }
 
     // 우선순위 기반 setter — 순서가 중요함
@@ -656,4 +695,28 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   ]);
 
   return <>{children}</>;
+}
+
+/**
+ * 두 좌표가 지금 zoom 에서 화면 1px 안이면 같은 자리로 본다. 앱이 반올림해 되돌려준 center,
+ * SDK 가 저장하며 생기는 미세한 차이로 지도를 움직이지 않기 위해서다.
+ */
+function sameOnScreen(
+  map: naver.maps.Map,
+  a: naver.maps.Coord | naver.maps.CoordLiteral,
+  b: naver.maps.Coord | naver.maps.CoordLiteral,
+): boolean {
+  if (kvoEquals(a, b)) return true;
+  const projection = map.getProjection();
+  const toCoord = (c: naver.maps.Coord | naver.maps.CoordLiteral) => {
+    if (c instanceof naver.maps.LatLng || c instanceof naver.maps.Point)
+      return c;
+    // 배열 리터럴은 [경도, 위도] 순서다(PointArrayLiteral).
+    if (Array.isArray(c)) return new naver.maps.LatLng(c[1], c[0]);
+    const { lat, lng } = c as { lat: number; lng: number };
+    return new naver.maps.LatLng(lat, lng);
+  };
+  const pa = projection.fromCoordToOffset(toCoord(a));
+  const pb = projection.fromCoordToOffset(toCoord(b));
+  return Math.hypot(pa.x - pb.x, pa.y - pb.y) < 1;
 }

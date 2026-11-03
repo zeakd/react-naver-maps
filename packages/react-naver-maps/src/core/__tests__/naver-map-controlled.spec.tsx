@@ -66,6 +66,15 @@ class MockMap {
   getBounds() {
     return null;
   }
+  // 1px 판정(sameOnScreen)용. 좌표를 1e5 배 한 값을 화면 좌표로 본다.
+  getProjection() {
+    return {
+      fromCoordToOffset: (c: { x: number; y: number }) => ({
+        x: c.x * 1e5,
+        y: c.y * 1e5,
+      }),
+    };
+  }
 
   _listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
   _addListener(eventName: string, cb: (...args: unknown[]) => void) {
@@ -102,6 +111,19 @@ function setupNaverMock() {
 
   (globalThis as Record<string, unknown>).naver = {
     maps: {
+      // 실제 SDK 처럼 x 가 경도, y 가 위도다.
+      LatLng: class {
+        constructor(
+          public y: number,
+          public x: number,
+        ) {}
+      },
+      Point: class {
+        constructor(
+          public x: number,
+          public y: number,
+        ) {}
+      },
       Map: class extends MockMap {
         constructor(el: HTMLElement, options: Record<string, unknown> = {}) {
           super(el, options);
@@ -311,8 +333,10 @@ describe('NaverMap lifecycle events register via useLayoutEffect (fix-13)', () =
 
     const map = lastMapInstance!;
     expect(map._listeners.init).toHaveLength(1);
-    expect(map._listeners.idle).toHaveLength(1);
     expect(map._listeners.tilesloaded).toHaveLength(1);
+    // idle 에는 제스처 보류용 내부 리스너도 있다. onIdle 이 한 번만 불리는지 본다.
+    for (const cb of map._listeners.idle ?? []) cb();
+    expect(onIdle).toHaveBeenCalledTimes(1);
 
     // SDK init 발화 시뮬레이션
     map._listeners.init[0]();

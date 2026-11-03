@@ -76,9 +76,9 @@ export const expectedDifferences: Record<
   },
   'GL 지도에서 반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다':
     {
-      fields: ['kvoLat', 'center', 'calls'],
+      fields: ['status', 'kvoLat', 'center', 'calls'],
       reason:
-        'useKVO 가 지도를 따라간다 (#192). 반올림 값이 그대로면 center prop 을 값으로 비교해 panTo 하지 않는다',
+        'useKVO 가 지도를 따라간다 (#192). 드래그 중 들어온 center 는 멈춘 뒤 넣는다',
     },
   '핀치로 zoom 이 바뀌면 onZoomChanged 가 getZoom() 과 같다': {
     fields: ['kvoZoom'],
@@ -98,5 +98,19 @@ export const expectedDifferences: Record<
   '같은 값의 새 icon 객체로 다시 렌더해도 setIcon 을 부르지 않는다': {
     fields: ['status', 'calls'],
     reason: '중첩 객체 prop 을 키마다 값으로 비교한다',
+  },
+  // 제스처 중 보류. 사용자가 끄는 동안과 관성이 멈출 때까지 카메라 prop 을 넣지 않고 멈춘 뒤 맞춘다.
+  // 0.3.0 은 드래그 중에도 바로 panTo 했다.
+  '드래그 중 들어온 center prop 은 드래그가 끝나면 지도에 반영된다': {
+    fields: ['center', 'events', 'calls', 'kvoLat'],
+    reason: '드래그 중 들어온 center 는 멈춘 뒤 넣는다',
+  },
+  '반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다': {
+    fields: ['status', 'center', 'events', 'calls', 'kvoLat'],
+    reason: '드래그 중 들어온 center 는 멈춘 뒤 넣는다',
+  },
+  '터치로 끄는 중 반올림한 center 를 되돌려줘도 지도를 당기지 않는다': {
+    fields: ['status', 'center', 'events', 'calls', 'kvoLat'],
+    reason: '드래그 중 들어온 center 는 멈춘 뒤 넣는다',
   },
 };

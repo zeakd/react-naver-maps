@@ -278,7 +278,6 @@ export const scenarios: Scenario[] = [
   {
     // 드래그 프레임(0~15) 동안에는 prop 을 지도에 넣지 않는다. 놓은 뒤 맞추는 것은 허용한다.
     name: '반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다',
-    knownIssue: '제스처 중에도 바뀐 center prop 을 바로 panTo 한다',
     app: { mode: 'rounded' },
     steps: dragLeftAndRelease,
     expect: [
@@ -384,7 +383,6 @@ export const scenarios: Scenario[] = [
       reason:
         'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다',
     },
-    knownIssue: '제스처 중에도 바뀐 center prop 을 바로 panTo 한다',
     app: { mode: 'rounded', roundDigits: 3, submodules: ['gl'], gl: true },
     steps: dragLeftAndRelease,
     expect: [
@@ -407,7 +405,6 @@ export const scenarios: Scenario[] = [
   },
   {
     name: '터치로 끄는 중 반올림한 center 를 되돌려줘도 지도를 당기지 않는다',
-    knownIssue: '제스처 중에도 바뀐 center prop 을 바로 panTo 한다',
     app: { mode: 'rounded', touch: true },
     steps: touchDragLeftAndRelease,
     expect: [callsIn(0, 16, { panTo: 0, setCenter: 0, morph: 0 })],
@@ -415,6 +412,11 @@ export const scenarios: Scenario[] = [
   // 수명. 지도와 오버레이 인스턴스가 React 의 suspend, Activity 를 지나도 살아 있는지 본다.
   {
     name: '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다',
+    unstable: {
+      fields: ['controls'],
+      reason:
+        '다시 만든 지도의 init 이 스타일 메타데이터 응답을 기다려 컨트롤이 붙는 프레임이 실행마다 다르다',
+    },
     knownIssue:
       '지도 수명이 effect 에 묶여 suspend 로 숨겨지면 지도를 파괴하고 다시 만든다',
     app: { mode: 'props', marker: true },
