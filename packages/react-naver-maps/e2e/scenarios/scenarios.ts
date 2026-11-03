@@ -9,11 +9,13 @@ import {
   mapAttached,
   markerAt,
   markerMovedFrom,
+  markerOnMap,
   movedBy,
   mapWidth,
   markerClicked,
   noBacktrack,
   oneWay,
+  sameMap,
   settlesAt,
   settlesAtZoom,
   staysAfter,
@@ -414,5 +416,50 @@ export const scenarios: Scenario[] = [
     app: { mode: 'rounded', touch: true },
     steps: touchDragLeftAndRelease,
     expect: [callsIn(0, 16, { panTo: 0, setCenter: 0, morph: 0 })],
+  },
+  // 수명. 지도와 오버레이 인스턴스가 React 의 suspend, Activity 를 지나도 살아 있는지 본다.
+  {
+    name: '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다',
+    knownIssue:
+      '지도 수명이 effect 에 묶여 suspend 로 숨겨지면 지도를 파괴하고 다시 만든다',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { suspendKey: 1 } },
+      { t: 'frames', n: 30 },
+    ],
+    expect: [sameMap(), mapAttached(), markerOnMap(true), settlesAt(HOME)],
+  },
+  {
+    name: 'Activity 로 지도를 숨겼다 보이면 같은 지도가 같은 크기와 center 로 돌아온다',
+    knownIssue:
+      '지도 수명이 effect 에 묶여 Activity 로 숨기면 지도를 파괴하고 다시 만든다',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { mapActivity: 'visible' } },
+      { t: 'frames', n: 20 },
+    ],
+    expect: [
+      sameMap(),
+      mapAttached(),
+      mapWidth(600),
+      settlesAt(HOME),
+      markerOnMap(true),
+    ],
+  },
+  {
+    name: 'Activity 로 Marker 를 숨기면 지도에서 떨어지고 보이면 다시 붙는다',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { markerActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { markerActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerOnMap(false, 6), markerOnMap(true)],
   },
 ];

@@ -231,3 +231,24 @@ export function movedBy(minDeg: number, to?: number): Assertion {
     return d > minDeg ? null : `경도가 ${d} 만 움직였다 (기대 > ${minDeg})`;
   };
 }
+
+/** 모든 프레임에서 지도 인스턴스가 처음 프레임과 같다. */
+export function sameMap(): Assertion {
+  return (trace) => {
+    const first = trace[0]!.mapId;
+    const i = trace.findIndex((f) => f.mapId !== first);
+    return i === -1
+      ? null
+      : `프레임 ${i} 에서 지도 인스턴스가 바뀌었다 (${first} -> ${trace[i]!.mapId})`;
+  };
+}
+
+/** at 프레임(음수면 끝에서부터)에 Marker 가 지도에 붙어 있는지가 expected 다. */
+export function markerOnMap(expected: boolean, at = -1): Assertion {
+  return (trace) => {
+    const f = trace.at(at)!;
+    return f.markerOnMap === expected
+      ? null
+      : `프레임 ${at < 0 ? trace.length + at : at} 에 Marker 가 지도에 ${f.markerOnMap ? '붙어' : '안 붙어'} 있다 (기대 ${expected})`;
+  };
+}
