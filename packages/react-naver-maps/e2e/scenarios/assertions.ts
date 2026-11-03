@@ -293,3 +293,24 @@ export function customControlText(text: string, at = -1): Assertion {
       : `CustomControl 글자 ${JSON.stringify(actual)}, 기대 ${JSON.stringify(text)}`;
   };
 }
+
+/** at 프레임(음수면 끝에서부터)의 데이터 레이어 상태. */
+export function dataLayer(
+  expected: { features?: number; fillColor?: string | null; clicks?: number },
+  at = -1,
+): Assertion {
+  return (trace) => {
+    const f = trace.at(at)!;
+    const where = `프레임 ${at < 0 ? trace.length + at : at}`;
+    if (expected.features !== undefined && f.dataFeatures !== expected.features)
+      return `${where} feature ${f.dataFeatures}개, 기대 ${expected.features}개`;
+    if (
+      expected.fillColor !== undefined &&
+      f.dataFillColor !== expected.fillColor
+    )
+      return `${where} fillColor ${f.dataFillColor}, 기대 ${expected.fillColor}`;
+    if (expected.clicks !== undefined && f.geoJsonClicks !== expected.clicks)
+      return `${where} GeoJson 클릭 ${f.geoJsonClicks}회, 기대 ${expected.clicks}회`;
+    return null;
+  };
+}
