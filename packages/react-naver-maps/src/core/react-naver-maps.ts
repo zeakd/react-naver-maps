@@ -15,6 +15,13 @@ export { GroundOverlay } from './ground-overlay.js';
 export type { GroundOverlayProps } from './ground-overlay.js';
 export { CustomOverlay } from './custom-overlay.js';
 export { CustomControl } from './custom-control.js';
+export { GeoJson } from './geo-json.js';
+export type {
+  GeoJsonProps,
+  GeoJsonStyle,
+  DataPointerEvent,
+  DataEvent,
+} from './geo-json.js';
 export type { CustomControlProps } from './custom-control.js';
 export type { CustomOverlayProps } from './custom-overlay.js';
 export { Circle } from './circle.js';

@@ -6,6 +6,7 @@ import {
   Circle,
   Container,
   CustomControl,
+  GeoJson,
   GroundOverlay,
   InfoWindow,
   loadScript,
@@ -44,6 +45,24 @@ const OBSERVED_METHODS = [
 ];
 const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
 const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition'];
+// 지도 중앙(INITIAL_CENTER)을 덮는 사각형.
+const CENTER_SQUARE: naver.maps.GeoJSON = {
+  type: 'Feature',
+  properties: { id: 'center' },
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [126.97, 37.56],
+        [126.99, 37.56],
+        [126.99, 37.575],
+        [126.97, 37.575],
+        [126.97, 37.56],
+      ],
+    ],
+  },
+} as naver.maps.GeoJSON;
+
 const STABLE_PATH = [
   { lat: 37.56, lng: 126.97 },
   { lat: 37.57, lng: 126.98 },
@@ -60,6 +79,8 @@ type Observed = {
   recordMarker: (marker: naver.maps.Marker | null) => void;
   /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. */
   overlays: Record<string, { getMap(): unknown }>;
+  geoJsonClicks: number;
+  recordGeoJsonClick: () => void;
   control: naver.maps.CustomControl | null;
   recordControl: (o: naver.maps.CustomControl | null) => void;
   groundOverlays: Set<unknown>;
@@ -206,6 +227,20 @@ function MapUnderTest({
           />
         </Activity>
       )}
+      {config.geoJsonFill && (
+        <GeoJson
+          data={CENTER_SQUARE}
+          style={{
+            fillColor: config.geoJsonFill,
+            fillOpacity: 0.3,
+            clickable: true,
+          }}
+          onClick={(e) => {
+            if (e.feature?.getProperty('id') === 'center')
+              observed.recordGeoJsonClick();
+          }}
+        />
+      )}
       {config.customControlPosition !== undefined && (
         <CustomControl
           ref={(o: naver.maps.CustomControl | null) =>
@@ -288,6 +323,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     circleClicks: 0,
     marker: null,
     overlays: {},
+    geoJsonClicks: 0,
+    recordGeoJsonClick() {
+      observed.geoJsonClicks += 1;
+    },
     control: null,
     recordControl(o) {
       if (o) observed.control = o;
@@ -404,6 +443,16 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ),
         mapId,
         markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
+        dataFeatures: map!.data.getAllFeature().length,
+        dataFillColor: (() => {
+          const overlay = map!.data.getAllFeature()[0]?.getOverlays()[0] as
+            | { getOptions?: (k: string) => unknown }
+            | undefined;
+          return (
+            (overlay?.getOptions?.('fillColor') as string | undefined) ?? null
+          );
+        })(),
+        geoJsonClicks: observed.geoJsonClicks,
         customControlAt: (() => {
           const el = observed.control?.getElement();
           if (!el) return null;

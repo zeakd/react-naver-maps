@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** 지도 중앙을 덮는 다각형 하나를 GeoJson 으로 올린다. 값은 fillColor. */
+  geoJsonFill?: string;
   /** CustomControl 을 이 자리(naver.maps.Position 값)에 버튼과 함께 올린다. */
   customControlPosition?: number;
   /** BicycleLayer 를 올린다. overlaysOnMap 에 'bicycle' 로 나온다. */
@@ -113,6 +115,12 @@ export type TraceFrame = {
   mapId: number;
   /** Marker 가 있으면 지금 지도에 붙어 있는가 */
   markerOnMap: boolean | null;
+  /** 데이터 레이어의 feature 수 */
+  dataFeatures: number;
+  /** 첫 feature 의 첫 overlay fillColor */
+  dataFillColor: string | null;
+  /** 이 프레임까지 GeoJson onClick 이 feature 와 함께 받은 수 */
+  geoJsonClicks: number;
   /** CustomControl 이 들어 있는 컨트롤 자리(Position 값). 없으면 null */
   customControlAt: number | null;
   /** CustomControl element 안에 그려진 버튼 글자 */

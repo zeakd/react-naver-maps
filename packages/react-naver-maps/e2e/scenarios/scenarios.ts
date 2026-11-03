@@ -5,6 +5,7 @@ import {
   controlCount,
   customControlAt,
   customControlText,
+  dataLayer,
   fired,
   groundOverlaysCreated,
   idleAfter,
@@ -524,6 +525,25 @@ export const scenarios: Scenario[] = [
       customControlAt(3, 2),
       customControlAt(null),
       customControlText('처음 위치', 0),
+    ],
+  },
+  {
+    name: 'GeoJson 은 데이터 레이어에 feature 를 올리고 style 을 바꾸면 다시 칠하고 클릭에 feature 를 주고 언마운트하면 뺀다',
+    since: '0.4',
+    app: { mode: 'props', geoJsonFill: '#ff0000' },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { geoJsonFill: '#0000ff' } },
+      { t: 'frames', n: 2 },
+      { t: 'clickCenter' },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { geoJsonFill: undefined } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      dataLayer({ features: 1, fillColor: '#ff0000' }, 0),
+      dataLayer({ features: 1, fillColor: '#0000ff', clicks: 1 }, 5),
+      dataLayer({ features: 0 }),
     ],
   },
 ];
