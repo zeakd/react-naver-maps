@@ -8,13 +8,13 @@ import {
   useLayoutEffect,
   useReducer,
   useRef,
-  useState,
 } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useControlledKVO, kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useStaticProp, isDev } from './hooks/use-static-prop.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
+import { useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import {
   addMapListener,
@@ -186,43 +186,38 @@ export interface NaverMapProps {
 export function NaverMap({ ref, children, ...props }: NaverMapProps) {
   const navermaps = useNavermaps();
   const container = use(ContainerContext);
-  const [map, setMap] = useState<naver.maps.Map | null>(null);
-  const mapRef = useRef<naver.maps.Map | null>(null);
   const mapElementRef = useRef<HTMLElement | null>(null);
-  const pendingDestroyRef = useRef(false);
 
-  // Map 생성: DOM commit 후 layout effect에서 수행 (paint 전)
+  if (!container) {
+    throw new Error('NaverMap must be used within <Container>');
+  }
+
+  // 지도 수명은 lifetime.ts 규칙을 따른다. 숨길 때(Suspense 재중단, Activity hidden)는 지도
+  // element 만 숨기고 같은 지도를 둔다. 다시 보일 때 크기를 다시 잰다(숨긴 동안 영역이 바뀌었을 수 있다).
   //
-  // destroy 는 cleanup 에서 바로 하지 않고 microtask 로 미룬다. StrictMode(dev)는
-  // mount → cleanup → setup 을 같은 commit 안에서 동기로 실행하므로, 다시 실행된
-  // setup 이 예약을 취소하고 살아 있는 인스턴스를 재사용한다. 바로 destroy 하고
-  // 새로 만들면 gl 서브모듈에서 네이버 SDK 가 인증 실패로 표시한다 (#171).
-  // 실제 unmount 에서는 취소할 setup 이 없으므로 microtask 에서 destroy 된다.
-  useLayoutEffect(() => {
-    if (!container) {
-      throw new Error('NaverMap must be used within <Container>');
-    }
-
-    if (!sdkAlive()) return;
-
-    pendingDestroyRef.current = false;
-    const instance = mapRef.current ?? createMap(container);
-    mapRef.current = instance;
-    setMap(instance);
-
-    return () => {
-      pendingDestroyRef.current = true;
+  // destroy 는 진짜 언마운트에서만 하고 microtask 로 미룬다. 같은 commit 에서 자식 오버레이가
+  // 이 지도에서 떨어지는(setMap(null)) 정리가 지도 destroy 뒤에 오지 않게 한다.
+  // StrictMode 재실행에서는 버리지 않으므로 GL 에서 지도를 바로 다시 만들어 인증 실패로
+  // 표시되던 문제(#171)도 생기지 않는다.
+  const map = useSdkInstance<naver.maps.Map>({
+    create: () => createMap(container),
+    attach: (instance) => {
+      if (mapElementRef.current) mapElementRef.current.style.display = '';
+      instance.autoResize();
+    },
+    detach: () => {
+      if (mapElementRef.current) mapElementRef.current.style.display = 'none';
+    },
+    dispose: (instance) => {
+      const el = mapElementRef.current;
+      mapElementRef.current = null;
       queueMicrotask(() => {
-        if (!pendingDestroyRef.current || mapRef.current !== instance) return;
         clearMapListeners(instance);
         if (sdkAlive()) instance.destroy();
-        mapElementRef.current?.remove();
-        mapElementRef.current = null;
-        mapRef.current = null;
+        el?.remove();
       });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    },
+  });
 
   function createMap(parent: HTMLElement): naver.maps.Map {
     // SDK 의 destroy 는 지도 element 의 내용을 비운다. key 로 다시 만들면 새 지도가 옛 지도의
@@ -297,7 +292,7 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
     return instance;
   }
 
-  useImperativeHandle(ref, () => mapRef.current!);
+  useImperativeHandle(ref, () => map!, [map]);
 
   if (!map) return null;
 
@@ -708,15 +703,15 @@ function sameOnScreen(
 ): boolean {
   if (kvoEquals(a, b)) return true;
   const projection = map.getProjection();
-  const toCoord = (c: naver.maps.Coord | naver.maps.CoordLiteral) => {
-    if (c instanceof naver.maps.LatLng || c instanceof naver.maps.Point)
-      return c;
-    // 배열 리터럴은 [경도, 위도] 순서다(PointArrayLiteral).
-    if (Array.isArray(c)) return new naver.maps.LatLng(c[1], c[0]);
-    const { lat, lng } = c as { lat: number; lng: number };
-    return new naver.maps.LatLng(lat, lng);
-  };
   const pa = projection.fromCoordToOffset(toCoord(a));
   const pb = projection.fromCoordToOffset(toCoord(b));
   return Math.hypot(pa.x - pb.x, pa.y - pb.y) < 1;
+}
+
+function toCoord(c: naver.maps.Coord | naver.maps.CoordLiteral) {
+  if (c instanceof naver.maps.LatLng || c instanceof naver.maps.Point) return c;
+  // 배열 리터럴은 [경도, 위도] 순서다(PointArrayLiteral).
+  if (Array.isArray(c)) return new naver.maps.LatLng(c[1], c[0]);
+  const { lat, lng } = c as { lat: number; lng: number };
+  return new naver.maps.LatLng(lat, lng);
 }

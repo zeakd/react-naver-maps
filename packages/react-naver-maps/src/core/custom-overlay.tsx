@@ -1,19 +1,13 @@
 'use client';
 
 import type { Ref } from 'react';
-import {
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useImperativeHandle, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useStaticProp } from './hooks/use-static-prop.js';
-import { sdkAlive, clearMapListeners } from './utils/sdk.js';
+import { onMap, useSdkInstance } from './lifetime.js';
 
 /**
  * React children을 지도 위 특정 좌표에 렌더링한다. Portal 기반.
@@ -116,8 +110,6 @@ export function CustomOverlay({
 }: CustomOverlayProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const [overlay, setOverlay] = useState<ReactOverlayViewInstance | null>(null);
-  const overlayRef = useRef<ReactOverlayViewInstance | null>(null);
 
   // satisfies로 propName이 keyof CustomOverlayProps에 속함을 컴파일 시점에 강제.
   // 정책: static 호출이 1~2회이면 satisfies, 3회 이상이면 wrapper(useXStatic).
@@ -128,23 +120,16 @@ export function CustomOverlay({
     pane,
   );
 
-  useLayoutEffect(() => {
-    if (!sdkAlive()) return;
-    const OverlayViewClass = createOverlayViewClass(navermaps);
-    const instance = new OverlayViewClass({ position, pane, anchor, zIndex });
-    instance.setMap(map);
-    overlayRef.current = instance;
-    setOverlay(instance);
+  const overlay = useSdkInstance<ReactOverlayViewInstance>(
+    onMap(map, () => {
+      const OverlayViewClass = createOverlayViewClass(navermaps);
+      const instance = new OverlayViewClass({ position, pane, anchor, zIndex });
+      instance.setMap(map);
+      return instance;
+    }),
+  );
 
-    return () => {
-      if (!sdkAlive()) return;
-      clearMapListeners(instance);
-      instance.setMap(null);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useImperativeHandle(ref, () => overlayRef.current!);
+  useImperativeHandle(ref, () => overlay!, [overlay]);
 
   // 인라인 LatLng/Point 객체로 매 렌더 새 참조가 들어와도 LatLng.equals/Point.equals로
   // 실제 값이 같으면 setter를 건너뛴다. setPosition/setAnchor는 draw()를 호출하므로

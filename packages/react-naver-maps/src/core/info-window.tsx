@@ -1,13 +1,7 @@
 'use client';
 
 import type { Ref } from 'react';
-import {
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
@@ -20,6 +14,7 @@ import {
 } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
+import { useSdkInstance } from './lifetime.js';
 
 /**
  * 네이버맵 InfoWindow를 선언적으로 제어한다.
@@ -80,41 +75,36 @@ export interface InfoWindowProps {
 export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const [infoWindow, setInfoWindow] = useState<naver.maps.InfoWindow | null>(
-    null,
-  );
-  const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
 
-  useLayoutEffect(() => {
-    const instance = new navermaps.InfoWindow(
-      omitUndefined({
-        content,
-        position: props.position,
-        maxWidth: props.maxWidth,
-        backgroundColor: props.backgroundColor,
-        borderColor: props.borderColor,
-        borderWidth: props.borderWidth,
-        disableAutoPan: props.disableAutoPan,
-        disableAnchor: props.disableAnchor,
-        anchorSkew: props.anchorSkew,
-        anchorSize: props.anchorSize,
-        anchorColor: props.anchorColor,
-        pixelOffset: props.pixelOffset,
-        zIndex: props.zIndex,
-      }),
-    );
-    infoWindowRef.current = instance;
-    setInfoWindow(instance);
-
-    return () => {
-      if (!sdkAlive()) return;
+  // 수명은 lifetime.ts 규칙을 따른다. 숨길 때는 닫고, 다시 보일 때는 open prop 동기화가 다시 연다
+  // (InfoWindowInner 의 open effect 가 닫힌 것을 보고 연다).
+  const infoWindow = useSdkInstance<naver.maps.InfoWindow>({
+    create: () =>
+      new navermaps.InfoWindow(
+        omitUndefined({
+          content,
+          position: props.position,
+          maxWidth: props.maxWidth,
+          backgroundColor: props.backgroundColor,
+          borderColor: props.borderColor,
+          borderWidth: props.borderWidth,
+          disableAutoPan: props.disableAutoPan,
+          disableAnchor: props.disableAnchor,
+          anchorSkew: props.anchorSkew,
+          anchorSize: props.anchorSize,
+          anchorColor: props.anchorColor,
+          pixelOffset: props.pixelOffset,
+          zIndex: props.zIndex,
+        }),
+      ),
+    detach: (instance) => instance.close(),
+    dispose: (instance) => {
       instance.close();
       clearMapListeners(instance);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    },
+  });
 
-  useImperativeHandle(ref, () => infoWindowRef.current!);
+  useImperativeHandle(ref, () => infoWindow!, [infoWindow]);
 
   if (!infoWindow) return null;
 
@@ -164,8 +154,14 @@ function InfoWindowInner({
     if (open) {
       // 인라인 anchor 는 참조가 매번 달라도 값이 같으면 다시 열지 않는다.
       // open 은 close 와 open 이벤트를 다시 내고 autoPan 도 다시 돈다.
+      // 숨겼다 보이면(Activity 등) 닫혀 있으므로 다시 연다.
       const opened = openedRef.current;
-      if (opened && kvoEquals(opened.anchor, props.anchor)) return;
+      if (
+        opened &&
+        kvoEquals(opened.anchor, props.anchor) &&
+        infoWindow.getMap()
+      )
+        return;
       if (props.anchor) {
         infoWindow.open(map, props.anchor);
       } else {

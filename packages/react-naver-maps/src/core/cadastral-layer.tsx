@@ -1,10 +1,10 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import { useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
-import { sdkAlive, clearMapListeners } from './utils/sdk.js';
+import { onMap, useSdkInstance } from './lifetime.js';
 
 /** 지적도 레이어를 지도 위에 표시한다. */
 export interface CadastralLayerProps {
@@ -14,21 +14,16 @@ export interface CadastralLayerProps {
 export function CadastralLayer({ ref }: CadastralLayerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const layerRef = useRef<naver.maps.CadastralLayer | null>(null);
+  const layer = useSdkInstance(
+    onMap(map, () => {
+      const instance = new navermaps.CadastralLayer();
+      instance.setMap(map);
+      return instance;
+    }),
+    [map],
+  );
 
-  useLayoutEffect(() => {
-    if (!sdkAlive()) return;
-    const layer = new navermaps.CadastralLayer();
-    layer.setMap(map);
-    layerRef.current = layer;
-    return () => {
-      if (!sdkAlive()) return;
-      clearMapListeners(layer);
-      layer.setMap(null);
-    };
-  }, [navermaps, map]);
-
-  useImperativeHandle(ref, () => layerRef.current!);
+  useImperativeHandle(ref, () => layer!, [layer]);
 
   return null;
 }

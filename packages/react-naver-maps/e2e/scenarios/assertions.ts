@@ -252,3 +252,14 @@ export function markerOnMap(expected: boolean, at = -1): Assertion {
       : `프레임 ${at < 0 ? trace.length + at : at} 에 Marker 가 지도에 ${f.markerOnMap ? '붙어' : '안 붙어'} 있다 (기대 ${expected})`;
   };
 }
+
+/** at 프레임(음수면 끝에서부터)에 지도에 붙은 오버레이가 expected 다. */
+export function overlaysOnMap(expected: string[], at = -1): Assertion {
+  return (trace) => {
+    const f = trace.at(at)!;
+    const want = expected.toSorted();
+    return JSON.stringify(f.overlaysOnMap) === JSON.stringify(want)
+      ? null
+      : `프레임 ${at < 0 ? trace.length + at : at} 에 붙은 오버레이 ${JSON.stringify(f.overlaysOnMap)}, 기대 ${JSON.stringify(want)}`;
+  };
+}
