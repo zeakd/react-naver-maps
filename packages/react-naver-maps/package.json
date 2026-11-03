@@ -37,6 +37,10 @@
     "./visualization": {
       "types": "./dist/visualization/index.d.ts",
       "default": "./dist/visualization/index.js"
+    },
+    "./drawing": {
+      "types": "./dist/drawing/index.d.ts",
+      "default": "./dist/drawing/index.js"
     }
   },
   "scripts": {

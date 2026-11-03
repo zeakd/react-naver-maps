@@ -337,3 +337,16 @@ export function probedAtLeast(name: string, min: number): Assertion {
       : `${name} ${values.join(', ')}, 기대 ${min} 이상`;
   };
 }
+
+/** 마지막 프레임의 DrawingManager 상태. */
+export function drawn(expected: {
+  drawings: number;
+  added: number;
+}): Assertion {
+  return (trace) => {
+    const f = trace.at(-1)!;
+    return f.drawings === expected.drawings && f.drawingAdded === expected.added
+      ? null
+      : `그린 도형 ${f.drawings}개·onDrawingAdded ${f.drawingAdded}회, 기대 ${expected.drawings}개·${expected.added}회`;
+  };
+}

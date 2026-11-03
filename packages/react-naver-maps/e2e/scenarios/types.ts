@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** DrawingManager 를 이 drawingMode 로 올린다. submodules 에 'drawing' 이 있어야 한다. */
+  drawingMode?: number;
   /** HeatMap 을 이 opacity 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'heatMap'. */
   heatMapOpacity?: number;
   /** 지도 중앙을 덮는 다각형 하나를 GeoJson 으로 올린다. 값은 fillColor. */
@@ -122,6 +124,10 @@ export type TraceFrame = {
   mapId: number;
   /** Marker 가 있으면 지금 지도에 붙어 있는가 */
   markerOnMap: boolean | null;
+  /** DrawingManager 가 있으면 그린 도형 수(getDrawings) */
+  drawings: number | null;
+  /** 이 프레임까지 onDrawingAdded 를 받은 수 */
+  drawingAdded: number;
   /** 이 프레임 뒤에 잰 화면 값(probe 단계). 이름 → 값. */
   probes?: Record<string, number>;
   /** HeatMap 이 있으면 그 opacity(SDK 값) */

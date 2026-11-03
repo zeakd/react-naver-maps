@@ -6,6 +6,7 @@ import {
   Circle,
   Container,
   CustomControl,
+  DrawingManager,
   GeoJson,
   geocode,
   GroundOverlay,
@@ -90,6 +91,10 @@ type Observed = {
   overlays: Record<string, { getMap(): unknown }>;
   geoJsonClicks: number;
   recordGeoJsonClick: () => void;
+  drawingManager: naver.maps.drawing.DrawingManager | null;
+  recordDrawingManager: (o: naver.maps.drawing.DrawingManager | null) => void;
+  drawingAdded: number;
+  recordDrawingAdded: () => void;
   control: naver.maps.CustomControl | null;
   recordControl: (o: naver.maps.CustomControl | null) => void;
   groundOverlays: Set<unknown>;
@@ -236,6 +241,15 @@ function MapUnderTest({
           />
         </Activity>
       )}
+      {config.drawingMode !== undefined && (
+        <DrawingManager
+          ref={(o: naver.maps.drawing.DrawingManager | null) =>
+            observed.recordDrawingManager(o)
+          }
+          drawingMode={config.drawingMode as naver.maps.drawing.DrawingMode}
+          onDrawingAdded={() => observed.recordDrawingAdded()}
+        />
+      )}
       {config.heatMapOpacity !== undefined && (
         <HeatMap
           ref={(o: naver.maps.visualization.HeatMap | null) =>
@@ -342,6 +356,14 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     circleClicks: 0,
     marker: null,
     overlays: {},
+    drawingManager: null,
+    recordDrawingManager(o) {
+      if (o) observed.drawingManager = o;
+    },
+    drawingAdded: 0,
+    recordDrawingAdded() {
+      observed.drawingAdded += 1;
+    },
     geoJsonClicks: 0,
     recordGeoJsonClick() {
       observed.geoJsonClicks += 1;
@@ -488,6 +510,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
               getOptions?: (k: string) => number;
             }
           )?.getOptions?.('opacity') ?? null,
+        drawings: observed.drawingManager
+          ? Object.keys(observed.drawingManager.getDrawings() ?? {}).length
+          : null,
+        drawingAdded: observed.drawingAdded,
         dataFeatures: map!.data.getAllFeature().length,
         dataFillColor: (() => {
           const overlay = map!.data.getAllFeature()[0]?.getOverlays()[0] as
