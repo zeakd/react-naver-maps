@@ -7,6 +7,7 @@ export { useAutoResize } from '../../src/addons/index.js';
 export { geocode, reverseGeocode } from '../../src/geocoder/index.js';
 export { HeatMap } from '../../src/visualization/index.js';
 export { DrawingManager } from '../../src/drawing/index.js';
+export { Panorama } from '../../src/panorama/index.js';
 
 /** 검사 대상의 이름. 배포 버전으로 바꿔 끼우면 그 버전 문자열이 된다. */
 export const TARGET = 'source';
