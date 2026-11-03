@@ -59,17 +59,11 @@ function GeolocationMapContent() {
   };
 
   return (
-    <NaverMap
-      ref={mapRef}
-      defaultCenter={
-        new navermaps.LatLng(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng)
-      }
-      defaultZoom={10}
-    >
+    <NaverMap ref={mapRef} defaultCenter={FALLBACK_CENTER} defaultZoom={10}>
       {location.status !== 'pending' && (
         <InfoWindow
           open
-          position={new navermaps.LatLng(location.lat, location.lng)}
+          position={{ lat: location.lat, lng: location.lng }}
           content={renderContent()}
         />
       )}

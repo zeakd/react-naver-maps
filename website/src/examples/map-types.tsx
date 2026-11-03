@@ -3,7 +3,6 @@ import {
   NavermapsProvider,
   Container as MapDiv,
   NaverMap,
-  useNavermaps,
 } from 'react-naver-maps';
 
 const buttonStyle = (active: boolean) => ({
@@ -21,11 +20,9 @@ const buttonStyle = (active: boolean) => ({
 });
 
 function MapTypesMapContent({ mapTypeId }: { mapTypeId: string }) {
-  const navermaps = useNavermaps();
-
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
       defaultZoom={15}
       mapTypeId={mapTypeId}
     />

@@ -3,15 +3,12 @@ import {
   Container as MapDiv,
   NaverMap,
   CustomOverlay,
-  useNavermaps,
 } from 'react-naver-maps';
 
 function CustomOverlayMapContent() {
-  const navermaps = useNavermaps();
-
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultCenter={{ lat: 37.5666805, lng: 126.9784147 }}
       defaultZoom={15}
     >
       <CustomOverlay position={{ lat: 37.5666805, lng: 126.9784147 }}>
