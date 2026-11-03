@@ -1,3 +1,3 @@
-import { mountApp } from '../app.js';
+import { mountApp, mountPanorama } from '../app.js';
 
-Object.assign(window, { mountApp });
+Object.assign(window, { mountApp, mountPanorama });

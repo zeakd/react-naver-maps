@@ -41,6 +41,10 @@
     "./drawing": {
       "types": "./dist/drawing/index.d.ts",
       "default": "./dist/drawing/index.js"
+    },
+    "./panorama": {
+      "types": "./dist/panorama/index.d.ts",
+      "default": "./dist/panorama/index.js"
     }
   },
   "scripts": {
