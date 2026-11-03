@@ -18,7 +18,9 @@ function HomeControl() {
   const map = useMap();
   return (
     <CustomControl position={navermaps.Position.TOP_RIGHT}>
-      <button onClick={() => map.setCenter({ lat: 37.5, lng: 127.0 })}>처음 위치</button>
+      <button onClick={() => map.setCenter({ lat: 37.5, lng: 127.0 })}>
+        처음 위치
+      </button>
     </CustomControl>
   );
 }
