@@ -295,7 +295,6 @@ export const scenarios: Scenario[] = [
   },
   {
     name: '상태를 갱신하지 않아도 같은 center 로 다시 렌더하면 드래그한 자리에 머문다',
-    knownIssue: 'center 를 참조로 비교해 같은 값의 새 객체에도 panTo 한다',
     app: { mode: 'props' },
     steps: [...dragLeftAndRelease, ...rerender(1), { t: 'frames', n: 30 }],
     expect: [staysAfter(75), calls({ panTo: 0, setCenter: 0, morph: 0 })],
@@ -318,8 +317,6 @@ export const scenarios: Scenario[] = [
   },
   {
     name: '드래그한 Marker 는 다시 렌더하면 position 으로 돌아간다',
-    knownIssue:
-      '직전 prop 과만 비교해 SDK 쪽 변경을 되돌리지 않는다 (0.3.0 은 되돌렸다)',
     app: { mode: 'props', marker: true, markerDraggable: true },
     steps: [
       { t: 'frames', n: 5 },
@@ -338,14 +335,12 @@ export const scenarios: Scenario[] = [
   },
   {
     name: '같은 좌표의 새 path 배열로 다시 렌더해도 setPath 를 부르지 않는다',
-    knownIssue: '배열을 참조로 비교한다',
     app: { mode: 'props', polyline: true, polylineInline: true },
     steps: [...rerender(5), { t: 'frames', n: 5 }],
     expect: [calls({ setPath: 0 })],
   },
   {
     name: '같은 값의 새 icon 객체로 다시 렌더해도 setIcon 을 부르지 않는다',
-    knownIssue: '중첩 객체(anchor)를 참조로 비교한다',
     app: { mode: 'props', marker: true, markerInlineIcon: true },
     steps: [...rerender(5), { t: 'frames', n: 5 }],
     expect: [calls({ setIcon: 0 })],

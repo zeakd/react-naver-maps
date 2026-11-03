@@ -76,17 +76,27 @@ export const expectedDifferences: Record<
   },
   'GL 지도에서 반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다':
     {
-      fields: ['kvoLat'],
-      reason: 'useKVO 가 지도를 따라간다 (#192)',
+      fields: ['kvoLat', 'center', 'calls'],
+      reason:
+        'useKVO 가 지도를 따라간다 (#192). 반올림 값이 그대로면 center prop 을 값으로 비교해 panTo 하지 않는다',
     },
   '핀치로 zoom 이 바뀌면 onZoomChanged 가 getZoom() 과 같다': {
     fields: ['kvoZoom'],
     reason: 'useKVO 가 지도를 따라간다 (#192)',
   },
-  // 고칠 차이. 소스가 0.3.0 보다 나빠진 것이라 고치면 이 항목을 지운다.
-  '드래그한 Marker 는 다시 렌더하면 position 으로 돌아간다': {
-    fields: ['status', 'calls', 'markerPosition'],
-    reason:
-      '#192 가 SDK 쪽 변경을 되돌리던 동작을 없앴다. 0.3.0 동작으로 되살린다',
+  // 받는 값을 값으로 비교한다(배열은 원소마다, 객체는 키마다). 렌더마다 새로 만든 같은 값으로는
+  // SDK 를 부르지 않는다. 0.3.0 은 참조로 비교해 매 렌더 불렀다.
+  '상태를 갱신하지 않아도 같은 center 로 다시 렌더하면 드래그한 자리에 머문다':
+    {
+      fields: ['status', 'center', 'events', 'calls'],
+      reason: 'center prop 을 값으로 비교한다',
+    },
+  '같은 좌표의 새 path 배열로 다시 렌더해도 setPath 를 부르지 않는다': {
+    fields: ['status', 'calls'],
+    reason: '배열 prop 을 원소마다 값으로 비교한다',
+  },
+  '같은 값의 새 icon 객체로 다시 렌더해도 setIcon 을 부르지 않는다': {
+    fields: ['status', 'calls'],
+    reason: '중첩 객체 prop 을 키마다 값으로 비교한다',
   },
 };

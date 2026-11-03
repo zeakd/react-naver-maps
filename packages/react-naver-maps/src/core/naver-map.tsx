@@ -344,11 +344,13 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   //    단일 useLayoutEffect에서 통합 처리해야 함.
   //
   // dirty diff 전략 (v1 getDirtyKVOs 패턴):
-  // - prevRef: 이전 렌더의 prop 참조를 저장
-  // - prop === prev (참조 동일) → 사용자가 prop을 안 바꿈 → skip (빠른 경로)
+  // - prevRef: 이전 렌더의 prop 을 저장
+  // - prop 이 prev 와 값이 같음 → 사용자가 prop을 안 바꿈 → skip
+  //   렌더마다 새로 만든 같은 값(`center={{ lat, lng }}`)도 바뀌지 않은 것으로 본다.
+  //   카메라는 다른 prop 과 달리 바깥 변경(사용자 드래그)을 되돌리지 않는다. 0.3.0 부터 그렇다.
   //   이것은 controlled center + onCenterChanged 시 중요:
   //   사용자 드래그 → center_changed → onCenterChanged(coord) → setState(coord)
-  //   → 같은 참조가 다시 내려옴 → prevRef === prop → skip → 불필요한 panTo 방지
+  //   → 같은 값이 다시 내려옴 → skip → 불필요한 panTo 방지
   // - kvoEquals(map.getX(), prop) → 값이 같으면 skip (느린 경로)
   // =========================================================================
   const isFirstRef = useRef(true);
@@ -380,7 +382,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
     } = {};
 
-    if (props.center !== undefined && props.center !== prev.center) {
+    if (props.center !== undefined && !kvoEquals(props.center, prev.center)) {
       const atCenter = kvoEquals(map.getCenter(), props.center);
       if (atCenter && requestedCenterRef.current) {
         // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
@@ -393,13 +395,13 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     if (props.zoom !== undefined && props.zoom !== prev.zoom) {
       if (map.getZoom() !== props.zoom) dirties.zoom = props.zoom;
     }
-    if (props.bounds !== undefined && props.bounds !== prev.bounds) {
+    if (props.bounds !== undefined && !kvoEquals(props.bounds, prev.bounds)) {
       if (!kvoEquals(map.getBounds(), props.bounds))
         dirties.bounds = props.bounds;
     }
     if (
       props.centerPoint !== undefined &&
-      props.centerPoint !== prev.centerPoint
+      !kvoEquals(props.centerPoint, prev.centerPoint)
     ) {
       if (!kvoEquals(map.getCenterPoint(), props.centerPoint))
         dirties.centerPoint = props.centerPoint;

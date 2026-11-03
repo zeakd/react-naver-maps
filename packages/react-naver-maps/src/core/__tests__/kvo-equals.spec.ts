@@ -57,8 +57,31 @@ describe('kvoEquals', () => {
     expect(kvoEquals(instance, literal)).toBe(true);
   });
 
-  test('중첩 객체와 배열은 깊이 비교하지 않는다', () => {
-    expect(kvoEquals({ a: { b: 1 } }, { a: { b: 1 } })).toBe(false);
-    expect(kvoEquals([1], [1])).toBe(false);
+  test('중첩 객체와 배열은 값으로 비교한다', () => {
+    expect(kvoEquals({ a: { b: 1 } }, { a: { b: 1 } })).toBe(true);
+    expect(kvoEquals({ a: { b: 1 } }, { a: { b: 2 } })).toBe(false);
+    expect(kvoEquals([1, 2], [1, 2])).toBe(true);
+    expect(kvoEquals([1], [1, 2])).toBe(false);
+    expect(kvoEquals({ a: 1 }, { a: 1, b: undefined })).toBe(false);
+  });
+
+  test('KVOArray 는 안의 배열로 비교한다', () => {
+    const kvoArray = { getArray: () => [{ lat: 1, lng: 2 }] };
+    expect(kvoEquals(kvoArray, [{ lat: 1, lng: 2 }])).toBe(true);
+    expect(kvoEquals([{ lat: 1, lng: 2 }], kvoArray)).toBe(true);
+    expect(kvoEquals(kvoArray, [{ lat: 1, lng: 3 }])).toBe(false);
+  });
+
+  test('DOM 노드와 함수는 참조로만 비교한다', () => {
+    const a = document.createElement('div');
+    const b = document.createElement('div');
+    expect(kvoEquals(a, a)).toBe(true);
+    expect(kvoEquals(a, b)).toBe(false);
+    expect(
+      kvoEquals(
+        () => 1,
+        () => 1,
+      ),
+    ).toBe(false);
   });
 });
