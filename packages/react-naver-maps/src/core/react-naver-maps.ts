@@ -27,6 +27,8 @@ export { Polyline } from './polyline.js';
 export type { PolylineProps } from './polyline.js';
 export { CadastralLayer } from './cadastral-layer.js';
 export type { CadastralLayerProps } from './cadastral-layer.js';
+export { BicycleLayer } from './bicycle-layer.js';
+export type { BicycleLayerProps } from './bicycle-layer.js';
 export { StreetLayer } from './street-layer.js';
 export type { StreetLayerProps } from './street-layer.js';
 export { TrafficLayer } from './traffic-layer.js';
