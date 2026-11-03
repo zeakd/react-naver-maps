@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 import { describe, test, expect, vi } from 'vitest';
 
 // useNavermaps mock — Suspense 내부에서 동기적으로 mock 반환
@@ -10,6 +11,16 @@ vi.mock('../hooks/use-navermaps.js', () => ({
 import { Container } from '../container.js';
 
 describe('Container', () => {
+  test('ref 는 바깥 div 를 가리킨다', () => {
+    const ref = createRef<HTMLDivElement>();
+    const { container } = render(
+      <Container ref={ref} className="outer">
+        <div />
+      </Container>,
+    );
+    expect(ref.current).toBe(container.querySelector('.outer'));
+  });
+
   test('ReactNode children 렌더링', () => {
     render(
       <Container style={{ width: '100%', height: '400px' }}>

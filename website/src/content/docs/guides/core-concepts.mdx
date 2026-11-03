@@ -113,14 +113,16 @@ function MyMap() {
 
 ### 지원하는 컴포넌트
 
-| 컴포넌트            | Controlled                 | Uncontrolled                                    |
-| ------------------- | -------------------------- | ----------------------------------------------- |
-| NaverMap            | `center`, `zoom`, `bounds` | `defaultCenter`, `defaultZoom`, `defaultBounds` |
-| Marker              | `position`                 | `defaultPosition`                               |
-| Circle              | `center`, `radius`         | `defaultCenter`, `defaultRadius`                |
-| Rectangle / Ellipse | `bounds`                   | `defaultBounds`                                 |
-| Polygon             | `paths`                    | `defaultPaths`                                  |
-| Polyline            | `path`                     | `defaultPath`                                   |
+| 컴포넌트            | Controlled         | Uncontrolled                                    |
+| ------------------- | ------------------ | ----------------------------------------------- |
+| NaverMap            | `center`, `zoom`   | `defaultCenter`, `defaultZoom`, `defaultBounds` |
+| Marker              | `position`         | `defaultPosition`                               |
+| Circle              | `center`, `radius` | `defaultCenter`, `defaultRadius`                |
+| Rectangle / Ellipse | `bounds`           | `defaultBounds`                                 |
+| Polygon             | `paths`            | `defaultPaths`                                  |
+| Polyline            | `path`             | `defaultPath`                                   |
+
+NaverMap 의 controlled `bounds` 와 `centerPoint`, `defaultCenterPoint` 는 0.4 에서 deprecated 이고 다음 버전에서 없어집니다. 개발 모드에서 한 번 경고합니다. 처음 보여줄 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds()` 를 씁니다.
 
 ### 규칙
 
