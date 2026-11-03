@@ -51,7 +51,7 @@ function MapContent() {
   const navermaps = useNavermaps();
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
       defaultZoom={15}
     />
   );
@@ -65,7 +65,7 @@ function MyMap() {
   return (
     <Container style={{ width: '100%', height: '400px' }}>
       <NaverMap
-        defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+        defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
         defaultZoom={15}
       />
     </Container>
@@ -80,12 +80,13 @@ Container 밖에서 `useNavermaps()`를 호출하면 SSR 시 suspend를 잡을 S
 지도가 아닌 곳에서 `useNavermaps()`를 호출해야 한다면 직접 `<Suspense>`로 감싸야 합니다.
 
 ```tsx
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { NavermapsProvider, useNavermaps } from 'react-naver-maps';
 
 function CoordDisplay() {
   const navermaps = useNavermaps();
-  const coord = new navermaps.LatLng(37.5666, 126.9784);
+  // SDK 객체가 필요하면 렌더마다 만들지 않고 한 번만 만든다.
+  const [coord] = useState(() => new navermaps.LatLng(37.5666, 126.9784));
   return <p>{coord.toString()}</p>;
 }
 
@@ -109,7 +110,7 @@ function App() {
 <Container style={{ width: '100%', height: '400px' }}>
   {(navermaps) => (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
       defaultZoom={15}
     />
   )}

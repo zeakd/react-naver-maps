@@ -41,7 +41,7 @@ function MapOptionsMapContent({
 
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
       defaultZoom={13}
       draggable={interaction}
       pinchZoom={interaction}

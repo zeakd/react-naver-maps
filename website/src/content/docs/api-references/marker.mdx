@@ -14,7 +14,7 @@ import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 import { Marker, useNavermaps } from 'react-naver-maps';
 
 const navermaps = useNavermaps();
-<Marker position={new navermaps.LatLng(37.5, 127.0)} />;
+<Marker position={{ lat: 37.5, lng: 127.0 }} />;
 ```
 
 ## Props

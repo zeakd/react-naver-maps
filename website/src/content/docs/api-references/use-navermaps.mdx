@@ -17,11 +17,21 @@ function MapContent() {
   const navermaps = useNavermaps();
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
       defaultZoom={15}
+      defaultMapTypeId={navermaps.MapTypeId.HYBRID}
     />
   );
 }
+```
+
+## SDK 객체 만들기
+
+`useNavermaps()` 다음 줄부터 SDK 가 있으므로 `new navermaps.LatLng(...)` 를 쓸 수 있습니다. 다만 렌더마다 새로 만들면 참조가 매번 바뀌어 effect 의존성 등이 매번 다시 돕니다. 좌표는 `{ lat, lng }` 같은 일반 객체로 넘기고, SDK 객체가 꼭 필요하면 한 번만 만듭니다.
+
+```tsx
+const navermaps = useNavermaps();
+const [origin] = useState(() => new navermaps.LatLng(37.5666, 126.9784));
 ```
 
 ## Suspense와 함께 사용

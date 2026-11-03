@@ -83,11 +83,9 @@ function ClusterMap() {
 }
 
 function ClusterMapContent() {
-  const navermaps = useNavermaps();
-
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(36.2253017, 127.6460516)}
+      defaultCenter={{ lat: 36.2253017, lng: 127.6460516 }}
       defaultZoom={6}
     >
       <ClusterMap />

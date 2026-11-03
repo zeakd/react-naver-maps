@@ -66,10 +66,10 @@ function MyMap() {
   return (
     <MapDiv style={{ width: '100%', height: '400px' }}>
       <NaverMap
-        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+        defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
         defaultZoom={15}
       >
-        <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
+        <Marker position={{ lat: 37.3595704, lng: 127.105399 }} />
       </NaverMap>
     </MapDiv>
   );
