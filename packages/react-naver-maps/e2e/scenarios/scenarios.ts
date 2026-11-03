@@ -4,6 +4,7 @@ import {
   circleClicked,
   controlCount,
   fired,
+  groundOverlaysCreated,
   idleAfter,
   kvoFollowsMap,
   mapAttached,
@@ -472,5 +473,25 @@ export const scenarios: Scenario[] = [
       overlaysOnMap(['circle', 'infoWindow', 'polyline']),
       sameMap(),
     ],
+  },
+  {
+    name: '같은 값의 새 bounds 로 다시 렌더해도 GroundOverlay 를 다시 만들지 않고 url 이 바뀌면 만든다',
+    app: {
+      mode: 'props',
+      groundOverlayUrl: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
+    },
+    steps: [
+      ...rerender(3),
+      { t: 'frames', n: 2 },
+      {
+        t: 'props',
+        props: {
+          groundOverlayUrl:
+            'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACw=',
+        },
+      },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [groundOverlaysCreated(2)],
   },
 ];

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import {
   Circle,
   Container,
+  GroundOverlay,
   InfoWindow,
   loadScript,
   Marker,
@@ -57,6 +58,8 @@ type Observed = {
   recordMarker: (marker: naver.maps.Marker | null) => void;
   /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. */
   overlays: Record<string, { getMap(): unknown }>;
+  groundOverlays: Set<unknown>;
+  recordGroundOverlay: (o: unknown) => void;
   recordOverlay: (name: string, o: { getMap(): unknown } | null) => void;
   recordCircleClick: () => void;
   recordKvo: (zoom: number, lat: number) => void;
@@ -199,6 +202,15 @@ function MapUnderTest({
           />
         </Activity>
       )}
+      {config.groundOverlayUrl && (
+        <GroundOverlay
+          ref={(o: naver.maps.GroundOverlay | null) =>
+            observed.recordGroundOverlay(o)
+          }
+          url={config.groundOverlayUrl}
+          bounds={{ south: 37.56, west: 126.97, north: 37.57, east: 126.99 }}
+        />
+      )}
       <Activity mode={config.overlaysActivity ?? 'visible'}>
         {config.polyline && (
           <Polyline
@@ -255,6 +267,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     circleClicks: 0,
     marker: null,
     overlays: {},
+    groundOverlays: new Set(),
+    recordGroundOverlay(o) {
+      if (o) observed.groundOverlays.add(o);
+    },
     recordOverlay(name, o) {
       if (o) observed.overlays[name] = o;
     },
@@ -363,6 +379,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ),
         mapId,
         markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
+        groundOverlays: observed.groundOverlays.size,
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
