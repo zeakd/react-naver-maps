@@ -1,4 +1,4 @@
-import { StrictMode, useRef, useState } from 'react';
+import { Activity, StrictMode, use, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
@@ -103,6 +103,20 @@ function toCoord(ll: LL) {
   return { lat: ll[0], lng: ll[1] };
 }
 
+const suspensions = new Map<number, Promise<void>>();
+
+/** key 마다 한 번, 200ms(가상 시계) 동안 suspend 한다. */
+function Suspender({ k }: { k: number }) {
+  let p = suspensions.get(k);
+  if (!p) {
+    // 시뮬레이터에서도 가상 시계를 타도록 window 의 타이머를 쓴다.
+    p = new Promise<void>((resolve) => window.setTimeout(resolve, 200));
+    suspensions.set(k, p);
+  }
+  use(p);
+  return null;
+}
+
 function MapUnderTest({
   config,
   observed,
@@ -113,7 +127,7 @@ function MapUnderTest({
   onMap: (map: naver.maps.Map) => void;
 }) {
   const [reported, setReported] = useState<naver.maps.Coord | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceRef = useRef<number | null>(null);
   const given = config.center ? toCoord(config.center) : null;
   const center = given ?? reported ?? toCoord(INITIAL_CENTER);
   const onCenterChanged = (() => {
@@ -130,8 +144,8 @@ function MapUnderTest({
         };
       case 'debounced':
         return (c: naver.maps.Coord) => {
-          if (debounceRef.current) clearTimeout(debounceRef.current);
-          debounceRef.current = setTimeout(() => setReported(c), 300);
+          if (debounceRef.current) window.clearTimeout(debounceRef.current);
+          debounceRef.current = window.setTimeout(() => setReported(c), 300);
         };
       default:
         return undefined;
@@ -159,25 +173,28 @@ function MapUnderTest({
     >
       <KvoProbe observed={observed} />
       {config.autoResize && <AutoResize />}
+      {config.suspendKey !== undefined && <Suspender k={config.suspendKey} />}
       {config.marker && (
-        <Marker
-          ref={(marker: naver.maps.Marker | null) => {
-            observed.recordMarker(marker);
-          }}
-          position={toCoord(INITIAL_CENTER)}
-          clickable={config.markerClickable}
-          draggable={config.markerDraggable}
-          {...(config.markerInlineIcon
-            ? {
-                icon: {
-                  content:
-                    '<div style="width:20px;height:20px;background:#f00"></div>',
-                  anchor: new naver.maps.Point(10, 10),
-                },
-              }
-            : {})}
-          onClick={() => observed.recordMarkerClick()}
-        />
+        <Activity mode={config.markerActivity ?? 'visible'}>
+          <Marker
+            ref={(marker: naver.maps.Marker | null) => {
+              observed.recordMarker(marker);
+            }}
+            position={toCoord(INITIAL_CENTER)}
+            clickable={config.markerClickable}
+            draggable={config.markerDraggable}
+            {...(config.markerInlineIcon
+              ? {
+                  icon: {
+                    content:
+                      '<div style="width:20px;height:20px;background:#f00"></div>',
+                    anchor: new naver.maps.Point(10, 10),
+                  },
+                }
+              : {})}
+            onClick={() => observed.recordMarkerClick()}
+          />
+        </Activity>
       )}
       {config.polyline && (
         <Polyline
@@ -224,7 +241,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     circleClicks: 0,
     marker: null,
     recordMarker(marker) {
-      observed.marker = marker;
+      // ref 가 떨어져도(Activity 로 숨김, 언마운트) 마지막 인스턴스를 계속 본다.
+      if (marker) observed.marker = marker;
     },
     recordCircleClick() {
       observed.circleClicks += 1;
@@ -240,10 +258,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   observe(maps.Marker.prototype, OBSERVED_MARKER_METHODS, observed.calls);
 
   let map: naver.maps.Map | undefined;
+  let mapId = 0;
   let initialized = false;
   const onMap = (next: naver.maps.Map) => {
     if (map === next) return;
     map = next;
+    mapId += 1;
     // GL 서브모듈의 지도는 카메라 메서드를 자기 클래스에 따로 둔다. Map.prototype 을 감싸면
     // GL 에서 호출을 못 본다. 만든 인스턴스를 직접 감싼다.
     observe(next, OBSERVED_METHODS, observed.calls);
@@ -267,7 +287,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
             height: '400px',
           }}
         >
-          <MapUnderTest config={config} observed={observed} onMap={onMap} />
+          <Activity mode={config.mapActivity ?? 'visible'}>
+            <MapUnderTest config={config} observed={observed} onMap={onMap} />
+          </Activity>
         </Container>
       </NavermapsProvider>
     );
@@ -321,6 +343,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         renderMode: (map as unknown as { get(k: string): number }).get(
           'renderMode',
         ),
+        mapId,
+        markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
         markerPosition: observed.marker
           ? (() => {
               const p = observed.marker.getPosition() as naver.maps.LatLng;

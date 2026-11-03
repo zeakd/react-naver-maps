@@ -50,6 +50,12 @@ export type AppConfig = {
   containerWidth?: number;
   /** addons 의 useAutoResize 를 켠다. */
   autoResize?: boolean;
+  /** 값이 바뀌면 지도 안에서 200ms(가상 시계) 동안 suspend 하는 자식을 올린다. */
+  suspendKey?: number;
+  /** 지도(Container 안)를 Activity 로 감싼다. */
+  mapActivity?: 'visible' | 'hidden';
+  /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
+  markerActivity?: 'visible' | 'hidden';
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
@@ -95,6 +101,10 @@ export type TraceFrame = {
   circleClicks: number;
   /** Marker 가 있으면 그 위치 */
   markerPosition: LL | null;
+  /** 지금 지도 인스턴스의 번호. 새 인스턴스가 생기면 1 늘어난다. */
+  mapId: number;
+  /** Marker 가 있으면 지금 지도에 붙어 있는가 */
+  markerOnMap: boolean | null;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
 };
