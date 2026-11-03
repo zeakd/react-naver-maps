@@ -5,6 +5,7 @@ import {
   controlCount,
   customControlAt,
   customControlText,
+  drawn,
   dataLayer,
   fired,
   groundOverlaysCreated,
@@ -569,5 +570,13 @@ export const scenarios: Scenario[] = [
       heatMapOpacity(0.3, 63),
       overlaysOnMap([]),
     ],
+  },
+  {
+    // DrawingMode.MARKER 는 6. 지도를 한 번 누르면 Marker 하나를 그린다.
+    name: 'DrawingManager 로 마커 모드에서 지도를 누르면 도형이 생기고 onDrawingAdded 가 온다',
+    since: '0.4',
+    app: { mode: 'props', submodules: ['drawing'], drawingMode: 6 },
+    steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
+    expect: [drawn({ drawings: 1, added: 1 })],
   },
 ];
