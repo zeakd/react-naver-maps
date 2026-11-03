@@ -33,6 +33,10 @@
     "./geocoder": {
       "types": "./dist/geocoder/index.d.ts",
       "default": "./dist/geocoder/index.js"
+    },
+    "./visualization": {
+      "types": "./dist/visualization/index.d.ts",
+      "default": "./dist/visualization/index.js"
     }
   },
   "scripts": {

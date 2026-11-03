@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** HeatMap 을 이 opacity 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'heatMap'. */
+  heatMapOpacity?: number;
   /** 지도 중앙을 덮는 다각형 하나를 GeoJson 으로 올린다. 값은 fillColor. */
   geoJsonFill?: string;
   /** CustomControl 을 이 자리(naver.maps.Position 값)에 버튼과 함께 올린다. */
@@ -80,6 +82,11 @@ export type Step =
   | { t: 'clickCenter' }
   /** 터치. points 는 화면 좌표이고 end 는 모든 손가락을 뗀다. AppConfig.touch 가 있어야 한다. */
   | { t: 'touch'; kind: 'start' | 'move' | 'end'; points: [number, number][] }
+  /**
+   * 화면을 재서 바로 앞 프레임의 probes 에 넣는다. centerRed: 지도 가운데 100x100 의 진한 빨강
+   * 픽셀 수(HeatMap 가운데 색). SDK 가 붙였지만 그리지 않는 경우를 화면으로 잡는다.
+   */
+  | { t: 'probe'; name: 'centerRed' }
   /** 화면을 찍어 결과에 붙인다. 판정에는 쓰지 않는다. */
   | { t: 'shot'; name: string }
   /** 가상 시계로 돌지 않는 브라우저 일을 기다린다. ResizeObserver 등. */
@@ -115,6 +122,10 @@ export type TraceFrame = {
   mapId: number;
   /** Marker 가 있으면 지금 지도에 붙어 있는가 */
   markerOnMap: boolean | null;
+  /** 이 프레임 뒤에 잰 화면 값(probe 단계). 이름 → 값. */
+  probes?: Record<string, number>;
+  /** HeatMap 이 있으면 그 opacity(SDK 값) */
+  heatMapOpacity: number | null;
   /** 데이터 레이어의 feature 수 */
   dataFeatures: number;
   /** 첫 feature 의 첫 overlay fillColor */
@@ -170,5 +181,7 @@ export interface ScenarioDriver {
     points: [number, number][],
   ): Promise<void>;
   shot(name: string): Promise<void>;
+  /** 화면 값을 잰다. 지원하지 않으면 null. */
+  probe(name: 'centerRed'): Promise<number | null>;
   realtime(ms: number): Promise<void>;
 }

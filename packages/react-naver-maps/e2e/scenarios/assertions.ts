@@ -314,3 +314,26 @@ export function dataLayer(
     return null;
   };
 }
+
+/** at 프레임(음수면 끝에서부터)에 HeatMap opacity 가 expected 다. */
+export function heatMapOpacity(expected: number | null, at = -1): Assertion {
+  return (trace) => {
+    const actual = trace.at(at)!.heatMapOpacity;
+    return actual === expected
+      ? null
+      : `프레임 ${at < 0 ? trace.length + at : at} 에 HeatMap opacity ${actual}, 기대 ${expected}`;
+  };
+}
+
+/** probe 로 잰 값 name 이 min 이상인 프레임이 있다. */
+export function probedAtLeast(name: string, min: number): Assertion {
+  return (trace) => {
+    const values = trace
+      .map((f) => f.probes?.[name])
+      .filter((v) => v !== undefined);
+    if (values.length === 0) return `${name} 를 재지 않았다`;
+    return values.some((v) => v! >= min)
+      ? null
+      : `${name} ${values.join(', ')}, 기대 ${min} 이상`;
+  };
+}
