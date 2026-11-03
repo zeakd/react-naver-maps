@@ -126,6 +126,9 @@ function MyMap() {
 
 - **하나의 prop에 대해 controlled와 uncontrolled을 혼용하지 마세요.** `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
 - Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
+- 오버레이(Marker, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop 으로 되돌립니다. 예를 들어 `draggable` Marker 를 끌어 놓아도 `onDragend` 로 state 를 바꾸지 않으면 다시 렌더할 때 `position` 으로 돌아갑니다.
+- 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
+- prop 은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 컴포넌트 계층 구조
 
