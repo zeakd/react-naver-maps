@@ -60,15 +60,22 @@ type Observed = {
   recordMarkerClick: () => void;
 };
 
-function observe(prototype: object, methods: string[], calls: string[]) {
-  const proto = prototype as Record<string, (...args: unknown[]) => unknown>;
+const OBSERVED = Symbol('observed');
+
+/** target 의 메서드 호출을 calls 에 적는다. 이미 감싼 메서드는 다시 감싸지 않는다. */
+function observe(target: object, methods: string[], calls: string[]) {
+  const proto = target as Record<
+    string,
+    ((...args: unknown[]) => unknown) & { [OBSERVED]?: true }
+  >;
   for (const method of methods) {
     const original = proto[method];
-    if (!original) continue;
-    proto[method] = function (this: unknown, ...args: unknown[]) {
+    if (!original || original[OBSERVED]) continue;
+    const wrapped = function (this: unknown, ...args: unknown[]) {
       calls.push(method);
       return original.apply(this, args);
     };
+    proto[method] = Object.assign(wrapped, { [OBSERVED]: true as const });
   }
 }
 
@@ -117,8 +124,8 @@ function MapUnderTest({
         return (c: naver.maps.Coord) => {
           const ll = c as naver.maps.LatLng;
           setReported({
-            lat: Number(ll.lat().toFixed(4)),
-            lng: Number(ll.lng().toFixed(4)),
+            lat: Number(ll.lat().toFixed(config.roundDigits ?? 4)),
+            lng: Number(ll.lng().toFixed(config.roundDigits ?? 4)),
           } as unknown as naver.maps.Coord);
         };
       case 'debounced':
@@ -140,6 +147,7 @@ function MapUnderTest({
       center={center}
       zoom={config.zoom ?? INITIAL_ZOOM}
       zoomControl={config.zoomControl}
+      gl={config.gl}
       {...(config.inlineOptions
         ? {
             padding: { top: 10, right: 10, bottom: 10, left: 10 },
@@ -228,7 +236,6 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       observed.markerClicks += 1;
     },
   };
-  observe(maps.Map.prototype, OBSERVED_METHODS, observed.calls);
   observe(maps.Polyline.prototype, OBSERVED_SHAPE_METHODS, observed.calls);
   observe(maps.Marker.prototype, OBSERVED_MARKER_METHODS, observed.calls);
 
@@ -237,6 +244,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   const onMap = (next: naver.maps.Map) => {
     if (map === next) return;
     map = next;
+    // GL 서브모듈의 지도는 카메라 메서드를 자기 클래스에 따로 둔다. Map.prototype 을 감싸면
+    // GL 에서 호출을 못 본다. 만든 인스턴스를 직접 감싼다.
+    observe(next, OBSERVED_METHODS, observed.calls);
     initialized = false;
     maps.Event.once(next, 'init', () => {
       initialized = true;
@@ -285,11 +295,15 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       root.unmount();
     },
     resetObserved() {
+      if (map) observe(map, OBSERVED_METHODS, observed.calls);
       observed.calls.length = 0;
       observed.events.length = 0;
       observed.zoomReports.length = 0;
     },
     read(): TraceFrame {
+      // GL 서브모듈은 준비되면서 인스턴스 메서드를 새로 단다. 그러면 감싼 것이 사라지므로
+      // 읽을 때마다 다시 감싼다. 이번 프레임에 이미 바뀐 호출은 못 보지만 GL 준비는 mount 안에서 끝난다.
+      observe(map!, OBSERVED_METHODS, observed.calls);
       const center = map!.getCenter() as naver.maps.LatLng;
       return {
         center: [center.lat(), center.lng()],
@@ -304,6 +318,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         kvoLat: observed.kvo.lat,
         markerClicks: observed.markerClicks,
         circleClicks: observed.circleClicks,
+        renderMode: (map as unknown as { get(k: string): number }).get(
+          'renderMode',
+        ),
         markerPosition: observed.marker
           ? (() => {
               const p = observed.marker.getPosition() as naver.maps.LatLng;

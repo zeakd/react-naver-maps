@@ -4,10 +4,12 @@ import {
   circleClicked,
   controlCount,
   fired,
+  idleAfter,
   kvoFollowsMap,
   mapAttached,
   markerAt,
   markerMovedFrom,
+  movedBy,
   mapWidth,
   markerClicked,
   noBacktrack,
@@ -24,10 +26,55 @@ const B: LL = [37.56, 126.96];
 /** app.tsx 의 INITIAL_CENTER. Marker 도 여기 있다. */
 const HOME: LL = [37.5666, 126.9784];
 
-/** 지도를 왼쪽으로 끌고 놓은 뒤 관성이 끝날 때까지. 프레임 수는 1 + 15 + 60. */
+/**
+ * 지도를 왼쪽으로 끌고 놓은 뒤 관성이 끝날 때까지. 프레임 수는 1 + 15 + 60.
+ * 한 번에 7px 씩 민다. 10px 이면 zoom 15 에서 경도가 소수 넷째 자리에 딱 맞아 반올림해도
+ * 값이 같아진다(GL 에서 관찰).
+ */
 const dragLeftAndRelease: Step[] = [
-  ...drag(300, -10, 15),
-  { t: 'mouse', kind: 'up', x: 150, y: 200 },
+  ...drag(300, -7, 15),
+  { t: 'mouse', kind: 'up', x: 195, y: 200 },
+  { t: 'frames', n: 60 },
+];
+
+/**
+ * 한 손가락으로 왼쪽으로 끌고 뗀 뒤 60프레임. 프레임 수는 1 + 15 + 60.
+ * 처음 두 번의 touchmove 는 touch slop 안이라 페이지에 가지 않아 dragstart 는 프레임 3 에 온다.
+ */
+const touchDragLeftAndRelease: Step[] = [
+  { t: 'touch', kind: 'start', points: [[300, 200]] },
+  { t: 'frames', n: 1 },
+  ...Array.from({ length: 15 }, (_, i): Step[] => [
+    { t: 'touch', kind: 'move', points: [[300 - 7 * (i + 1), 200]] },
+    { t: 'frames', n: 1 },
+  ]).flat(),
+  { t: 'touch', kind: 'end', points: [] },
+  { t: 'frames', n: 60 },
+];
+
+/** 두 손가락을 벌린 뒤 60프레임. */
+const pinchOut: Step[] = [
+  {
+    t: 'touch',
+    kind: 'start',
+    points: [
+      [250, 200],
+      [350, 200],
+    ],
+  },
+  { t: 'frames', n: 1 },
+  ...Array.from({ length: 10 }, (_, i): Step[] => [
+    {
+      t: 'touch',
+      kind: 'move',
+      points: [
+        [250 - 8 * (i + 1), 200],
+        [350 + 8 * (i + 1), 200],
+      ],
+    },
+    { t: 'frames', n: 1 },
+  ]).flat(),
+  { t: 'touch', kind: 'end', points: [] },
   { t: 'frames', n: 60 },
 ];
 
@@ -235,6 +282,7 @@ export const scenarios: Scenario[] = [
     expect: [
       callsIn(0, 16, { panTo: 0, setCenter: 0, morph: 0 }),
       oneWay(0, 16),
+      movedBy(0.003, 15),
     ],
   },
   {
@@ -299,5 +347,72 @@ export const scenarios: Scenario[] = [
     app: { mode: 'props', marker: true, markerInlineIcon: true },
     steps: [...rerender(5), { t: 'frames', n: 5 }],
     expect: [calls({ setIcon: 0 })],
+  },
+  // GL 로 그릴 때. GPU 가 없어 SDK 가 래스터로 바꾸면 spec 이 건너뛴다.
+  {
+    name: 'GL 지도를 끌어 놓으면 움직임이 끝난 뒤 idle 이 한 번 온다',
+    unstable: {
+      fields: ['events'],
+      reason:
+        'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다',
+    },
+    app: { mode: 'controlled', submodules: ['gl'], gl: true },
+    steps: [
+      ...dragLeftAndRelease.slice(0, -1),
+      { t: 'shot', name: 'released' },
+      { t: 'frames', n: 60 },
+      { t: 'shot', name: 'settled' },
+    ],
+    expect: [fired('dragend', 1), idleAfter('dragend'), oneWay()],
+  },
+  {
+    name: 'GL 지도에서 zoom prop 을 바꾸면 그 zoom 이 되고 onZoomChanged 도 같다',
+    unstable: {
+      fields: ['events'],
+      reason:
+        'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다',
+    },
+    app: { mode: 'props', submodules: ['gl'], gl: true },
+    steps: [
+      { t: 'props', props: { zoom: 13 } },
+      { t: 'frames', n: 60 },
+    ],
+    expect: [settlesAtZoom(13), zoomReportsMatchMap()],
+  },
+  {
+    // GL 의 getCenter() 는 드래그 중 0.0002 도 단위로 움직여 넷째 자리 반올림으로는 값이 그대로다.
+    name: 'GL 지도에서 반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다',
+    unstable: {
+      fields: ['events'],
+      reason:
+        'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다',
+    },
+    knownIssue: '제스처 중에도 바뀐 center prop 을 바로 panTo 한다',
+    app: { mode: 'rounded', roundDigits: 3, submodules: ['gl'], gl: true },
+    steps: dragLeftAndRelease,
+    expect: [
+      callsIn(0, 16, { panTo: 0, setCenter: 0, morph: 0 }),
+      movedBy(0.002, 15),
+    ],
+  },
+  // 터치. 브라우저 터치 지원을 흉내 내고 CDP 로 손가락을 보낸다.
+  {
+    name: '터치로 끌어 놓으면 움직임이 끝난 뒤 idle 이 한 번 온다',
+    app: { mode: 'controlled', touch: true },
+    steps: touchDragLeftAndRelease,
+    expect: [fired('dragend', 1), idleAfter('dragend'), oneWay()],
+  },
+  {
+    name: '핀치로 zoom 이 바뀌면 onZoomChanged 가 getZoom() 과 같다',
+    app: { mode: 'controlled', touch: true },
+    steps: pinchOut,
+    expect: [zoomReportsMatchMap(), idleAfter('zoom_changed')],
+  },
+  {
+    name: '터치로 끄는 중 반올림한 center 를 되돌려줘도 지도를 당기지 않는다',
+    knownIssue: '제스처 중에도 바뀐 center prop 을 바로 panTo 한다',
+    app: { mode: 'rounded', touch: true },
+    steps: touchDragLeftAndRelease,
+    expect: [callsIn(0, 16, { panTo: 0, setCenter: 0, morph: 0 })],
   },
 ];
