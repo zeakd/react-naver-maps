@@ -366,7 +366,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
-          .sort(),
+          .toSorted(),
         markerPosition: observed.marker
           ? (() => {
               const p = observed.marker.getPosition() as naver.maps.LatLng;

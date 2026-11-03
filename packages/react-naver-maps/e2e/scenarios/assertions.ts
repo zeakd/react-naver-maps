@@ -257,7 +257,7 @@ export function markerOnMap(expected: boolean, at = -1): Assertion {
 export function overlaysOnMap(expected: string[], at = -1): Assertion {
   return (trace) => {
     const f = trace.at(at)!;
-    const want = [...expected].sort();
+    const want = expected.toSorted();
     return JSON.stringify(f.overlaysOnMap) === JSON.stringify(want)
       ? null
       : `프레임 ${at < 0 ? trace.length + at : at} 에 붙은 오버레이 ${JSON.stringify(f.overlaysOnMap)}, 기대 ${JSON.stringify(want)}`;
