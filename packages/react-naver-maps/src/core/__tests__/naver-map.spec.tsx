@@ -38,6 +38,16 @@ class MockMap {
     return this._bounds;
   }
 
+  // 1px 판정(sameOnScreen)용. 좌표를 1e5 배 한 값을 화면 좌표로 본다.
+  getProjection() {
+    return {
+      fromCoordToOffset: (c: any) => ({
+        x: (c.x ?? c.lng) * 1e5,
+        y: (c.y ?? c.lat) * 1e5,
+      }),
+    };
+  }
+
   _addListener(eventName: string, cb: any) {
     if (!this._listeners[eventName]) this._listeners[eventName] = [];
     this._listeners[eventName].push(cb);
@@ -64,6 +74,19 @@ function setupNaverMock() {
 
   (globalThis as any).naver = {
     maps: {
+      // 실제 SDK 처럼 x 가 경도, y 가 위도다.
+      LatLng: class {
+        constructor(
+          public y: number,
+          public x: number,
+        ) {}
+      },
+      Point: class {
+        constructor(
+          public x: number,
+          public y: number,
+        ) {}
+      },
       Map: class extends MockMap {
         constructor(el: HTMLElement, options: Record<string, any> = {}) {
           super(el, options);
