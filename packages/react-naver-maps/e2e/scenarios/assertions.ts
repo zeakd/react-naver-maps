@@ -263,3 +263,13 @@ export function overlaysOnMap(expected: string[], at = -1): Assertion {
       : `프레임 ${at < 0 ? trace.length + at : at} 에 붙은 오버레이 ${JSON.stringify(f.overlaysOnMap)}, 기대 ${JSON.stringify(want)}`;
   };
 }
+
+/** 마지막 프레임까지 만들어진 GroundOverlay 수가 count 다. */
+export function groundOverlaysCreated(count: number): Assertion {
+  return (trace) => {
+    const actual = trace.at(-1)!.groundOverlays;
+    return actual === count
+      ? null
+      : `GroundOverlay ${actual}개 생성, 기대 ${count}개`;
+  };
+}

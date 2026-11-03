@@ -134,4 +134,10 @@ export const expectedDifferences: Record<
       reason:
         '숨겼다 보여도 같은 오버레이를 다시 붙여 setter 를 다시 부르지 않는다',
     },
+  // 다시 만드는 기준(keys)을 값으로 비교한다. 0.3.0 은 렌더마다 새 bounds 객체로 다시 만들었다.
+  '같은 값의 새 bounds 로 다시 렌더해도 GroundOverlay 를 다시 만들지 않고 url 이 바뀌면 만든다':
+    {
+      fields: ['status', 'groundOverlays'],
+      reason: 'GroundOverlay 의 url, bounds 를 값으로 비교한다',
+    },
 };

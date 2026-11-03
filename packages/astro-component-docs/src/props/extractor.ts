@@ -86,7 +86,9 @@ function getComponentPropsType(decl: any): Type | undefined {
   // or const MyComponent = forwardRef<Ref, Props>(...)
   if (Node.isVariableDeclaration(decl)) {
     const initializer = decl.getInitializer();
-    if (!initializer) return undefined;
+    // .d.ts 의 `declare const X: { (props: P): ... }` 처럼 초기값이 없으면 타입의 호출 시그니처에서
+    // 첫 매개변수 타입을 읽는다. 컴포넌트를 만드는 함수(defineOverlay 등)의 결과가 이렇게 나온다.
+    if (!initializer) return firstParamOfCallSignature(decl);
 
     // Arrow function or function expression
     if (
@@ -98,8 +100,12 @@ function getComponentPropsType(decl: any): Type | undefined {
       return params[0].getType();
     }
 
-    // Call expression: forwardRef<Ref, Props>(...)
+    // Call expression: forwardRef<Ref, Props>(...), defineOverlay<Props, Instance>(...) 등.
+    // 만들어진 컴포넌트의 호출 시그니처에서 첫 매개변수 타입을 읽는다. 타입 인자 순서는
+    // 감싸는 함수마다 달라서 기대지 않는다.
     if (Node.isCallExpression(initializer)) {
+      const fromSignature = firstParamOfCallSignature(decl);
+      if (fromSignature) return fromSignature;
       const typeArgs = initializer.getTypeArguments();
       if (typeArgs.length >= 2) {
         return typeArgs[1].getType();
@@ -121,6 +127,12 @@ function getComponentPropsType(decl: any): Type | undefined {
   }
 
   return undefined;
+}
+
+function firstParamOfCallSignature(decl: any): Type | undefined {
+  const signature = decl.getType().getCallSignatures()[0];
+  const param = signature?.getParameters()[0];
+  return param ? param.getTypeAtLocation(decl) : undefined;
 }
 
 function extractPropsFromType(type: Type): PropInfo[] {

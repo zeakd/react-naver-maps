@@ -1,16 +1,10 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect } from 'react';
-import { useNavermaps } from './hooks/use-navermaps.js';
-import { useMap } from './hooks/use-map.js';
-import { useControlledKVO } from './hooks/use-controlled-kvo.js';
-import { useOverlay } from './hooks/use-overlay.js';
-import { omitUndefined } from './utils/omit-undefined.js';
+import { defineOverlay } from './overlay-spec.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
-import { addMapListener, removeMapListener } from './utils/sdk.js';
-import type { MapListener } from './utils/sdk.js';
+import { SHAPE_EVENTS } from './types/overlay-events.js';
 import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 타원을 그린다. bounds로 영역을 지정한다. */
@@ -31,93 +25,26 @@ export interface EllipseProps
   zIndex?: number;
 }
 
-export function Ellipse({ ref, ...props }: EllipseProps) {
-  const navermaps = useNavermaps();
-  const map = useMap();
-
-  const ellipse = useOverlay(
-    () =>
-      new navermaps.Ellipse(
-        omitUndefined({
-          map,
-          bounds: (props.bounds ?? props.defaultBounds)!,
-          strokeWeight: props.strokeWeight,
-          strokeOpacity: props.strokeOpacity,
-          strokeColor: props.strokeColor,
-          strokeStyle: props.strokeStyle,
-          strokeLineCap: props.strokeLineCap,
-          strokeLineJoin: props.strokeLineJoin,
-          fillColor: props.fillColor,
-          fillOpacity: props.fillOpacity,
-          clickable: shapeClickable(props),
-          visible: props.visible,
-          zIndex: props.zIndex,
-        }),
-      ),
-    ref,
-  );
-
-  if (!ellipse) return null;
-
-  return <EllipseInner ellipse={ellipse} {...props} />;
-}
-
-interface EllipseInnerProps extends Omit<EllipseProps, 'ref'> {
-  ellipse: naver.maps.Ellipse;
-}
-
-function EllipseInner({ ellipse, ...props }: EllipseInnerProps) {
-  // KVO sync - geometry
-  useControlledKVO(ellipse, 'bounds', props.bounds);
-
-  // KVO sync - style
-  useControlledKVO(ellipse, 'strokeWeight', props.strokeWeight);
-  useControlledKVO(ellipse, 'strokeOpacity', props.strokeOpacity);
-  useControlledKVO(ellipse, 'strokeColor', props.strokeColor);
-  useControlledKVO(ellipse, 'strokeStyle', props.strokeStyle);
-  useControlledKVO(ellipse, 'strokeLineCap', props.strokeLineCap);
-  useControlledKVO(ellipse, 'strokeLineJoin', props.strokeLineJoin);
-  useControlledKVO(ellipse, 'fillColor', props.fillColor);
-  useControlledKVO(ellipse, 'fillOpacity', props.fillOpacity);
-
-  // KVO sync - options
-  useControlledKVO(ellipse, 'visible', props.visible);
-  useControlledKVO(ellipse, 'clickable', shapeClickable(props));
-  useControlledKVO(ellipse, 'zIndex', props.zIndex);
-
-  // UI events
-  useEffect(() => {
-    const listeners: MapListener[] = [];
-    if (props.onClick)
-      listeners.push(addMapListener(ellipse, 'click', props.onClick));
-    if (props.onDblclick)
-      listeners.push(addMapListener(ellipse, 'dblclick', props.onDblclick));
-    if (props.onMousedown)
-      listeners.push(addMapListener(ellipse, 'mousedown', props.onMousedown));
-    if (props.onMouseup)
-      listeners.push(addMapListener(ellipse, 'mouseup', props.onMouseup));
-    if (props.onRightclick)
-      listeners.push(addMapListener(ellipse, 'rightclick', props.onRightclick));
-    if (props.onMouseover)
-      listeners.push(addMapListener(ellipse, 'mouseover', props.onMouseover));
-    if (props.onMouseout)
-      listeners.push(addMapListener(ellipse, 'mouseout', props.onMouseout));
-    if (props.onMousemove)
-      listeners.push(addMapListener(ellipse, 'mousemove', props.onMousemove));
-    return () => {
-      listeners.forEach((l) => removeMapListener(l));
-    };
-  }, [
-    ellipse,
-    props.onClick,
-    props.onDblclick,
-    props.onMousedown,
-    props.onMouseup,
-    props.onRightclick,
-    props.onMouseover,
-    props.onMouseout,
-    props.onMousemove,
-  ]);
-
-  return null;
-}
+export const Ellipse = defineOverlay<EllipseProps, naver.maps.Ellipse>(
+  'Ellipse',
+  {
+    create: (navermaps, options) =>
+      new navermaps.Ellipse(options as unknown as naver.maps.EllipseOptions),
+    options: [
+      'bounds',
+      'strokeWeight',
+      'strokeOpacity',
+      'strokeColor',
+      'strokeStyle',
+      'strokeLineCap',
+      'strokeLineJoin',
+      'fillColor',
+      'fillOpacity',
+      'visible',
+      'zIndex',
+    ],
+    initial: (props) => ({ bounds: props.bounds ?? props.defaultBounds }),
+    derived: (props) => ({ clickable: shapeClickable(props) }),
+    events: SHAPE_EVENTS,
+  },
+);

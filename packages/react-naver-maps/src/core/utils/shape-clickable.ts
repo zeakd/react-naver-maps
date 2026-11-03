@@ -1,15 +1,7 @@
 import type { EventHandlerProps, ShapeEvent } from '../types/overlay-events.js';
+import { SHAPE_EVENTS, eventProp } from '../types/overlay-events.js';
 
-const POINTER_HANDLERS = [
-  'onClick',
-  'onDblclick',
-  'onMousedown',
-  'onMouseup',
-  'onRightclick',
-  'onMouseover',
-  'onMouseout',
-  'onMousemove',
-] as const satisfies readonly (keyof EventHandlerProps<ShapeEvent>)[];
+const POINTER_HANDLERS = SHAPE_EVENTS.map(eventProp);
 
 /**
  * 도형의 clickable 값을 정한다.

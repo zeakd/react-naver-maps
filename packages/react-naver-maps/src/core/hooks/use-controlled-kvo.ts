@@ -135,39 +135,67 @@ export function useControlledKVO(
   property: string,
   value?: unknown,
 ): void {
-  // 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. SDK 는 값을 바꿔 저장하기도 해서
-  // (path 를 KVOArray 로, minZoom 3 을 6 으로) prop 과 SDK 값을 바로 비교하면 영원히 다르다.
-  // 그래서 "SDK 값이 우리가 맞춘 직후와 달라졌는가" 로 바깥 변경(사용자 드래그 등)을 안다.
-  const syncedRef = useRef<{ prop: unknown; applied: unknown } | null>(null);
+  useControlledProps(target, { [property]: value });
+}
+
+/** 한 prop 의 동기화 상태. 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. */
+type Synced = { prop: unknown; applied: unknown };
+
+/**
+ * 여러 prop 을 한 번에 동기화한다. 규칙은 useControlledKVO 와 같고 layout effect 하나로 돈다.
+ * values 의 키는 렌더마다 같아야 한다(컴포넌트마다 정해진 prop 목록).
+ *
+ * SDK 는 값을 바꿔 저장하기도 해서(path 를 KVOArray 로, minZoom 3 을 6 으로) prop 과 SDK 값을
+ * 바로 비교하면 영원히 다르다. 그래서 "SDK 값이 우리가 맞춘 직후와 달라졌는가" 로
+ * 바깥 변경(사용자 드래그 등)을 안다.
+ */
+export function useControlledProps(
+  target: naver.maps.KVO,
+  values: Record<string, unknown>,
+): void {
+  const syncedRef = useRef(new Map<string, Synced>());
   const mountedRef = useRef(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
     const mounting = !mountedRef.current;
     mountedRef.current = true;
-    if (value === undefined || !sdkAlive()) return;
-    const io = accessors(target, property);
-    const synced = syncedRef.current;
-    const current = io.read();
-
-    if (synced === null) {
-      // 마운트 때는 생성자 옵션으로 이미 들어갔으므로 SDK 가 가진 값을 기록만 한다.
-      // SDK 가 값을 바꿔 저장했어도(minZoom 3 → 6) 다시 부르지 않는다.
-      // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
-      if (!mounting && !kvoEquals(current, value)) io.write(value);
-      syncedRef.current = { prop: value, applied: snapshot(io.read()) };
-      return;
+    if (!sdkAlive()) return;
+    for (const [property, value] of Object.entries(values)) {
+      if (value === undefined) continue;
+      syncProp(syncedRef.current, target, property, value, mounting);
     }
-
-    const propChanged = !kvoEquals(synced.prop, value);
-    const changedOutside = !kvoEquals(current, synced.applied);
-    if (!propChanged && !changedOutside) return;
-
-    // prop 이 바뀌었거나, 바깥에서 SDK 값을 바꿨으면 prop 으로 맞춘다(되돌림).
-    // 0.3.0 과 같은 동작이다. 바깥 변경을 받아들이려면 앱이 이벤트로 상태를 갱신해 prop 을 바꾼다.
-    if (!kvoEquals(current, value)) io.write(value);
-    syncedRef.current = { prop: value, applied: snapshot(io.read()) };
   });
+}
+
+function syncProp(
+  states: Map<string, Synced>,
+  target: naver.maps.KVO,
+  property: string,
+  value: unknown,
+  mounting: boolean,
+): void {
+  const io = accessors(target, property);
+  const synced = states.get(property);
+  const current = io.read();
+
+  if (synced === undefined) {
+    // 마운트 때는 생성자 옵션으로 이미 들어갔으므로 SDK 가 가진 값을 기록만 한다.
+    // SDK 가 값을 바꿔 저장했어도(minZoom 3 → 6) 다시 부르지 않는다.
+    // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
+    if (!mounting && !kvoEquals(current, value)) io.write(value);
+    states.set(property, { prop: value, applied: snapshot(io.read()) });
+    return;
+  }
+
+  const propChanged = !kvoEquals(synced.prop, value);
+  const changedOutside = !kvoEquals(current, synced.applied);
+  if (!propChanged && !changedOutside) return;
+
+  // prop 이 바뀌었거나, 바깥에서 SDK 값을 바꿨으면 prop 으로 맞춘다(되돌림).
+  // 0.3.0 과 같은 동작이다. 바깥 변경을 받아들이려면 앱이 이벤트로 상태를 갱신해 prop 을 바꾼다.
+  if (!kvoEquals(current, value)) io.write(value);
+  states.set(property, { prop: value, applied: snapshot(io.read()) });
 }
 
 /**

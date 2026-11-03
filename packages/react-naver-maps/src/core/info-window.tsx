@@ -4,7 +4,7 @@ import type { Ref } from 'react';
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
-import { useControlledKVO } from './hooks/use-controlled-kvo.js';
+import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import {
   sdkAlive,
@@ -181,18 +181,20 @@ function InfoWindowInner({
 
   // 개별 옵션을 useControlledKVO로 처리 — equality 검사 후 변경된 키만 setOptions(key, val).
   // 객체 setOptions(obj) 일괄 호출은 deps 하나만 바뀌어도 모든 키 _changed 발화 + resize/draw → 폭주 위험.
-  useControlledKVO(infoWindow, 'position', props.position);
-  useControlledKVO(infoWindow, 'zIndex', props.zIndex);
-  useControlledKVO(infoWindow, 'maxWidth', props.maxWidth);
-  useControlledKVO(infoWindow, 'backgroundColor', props.backgroundColor);
-  useControlledKVO(infoWindow, 'borderColor', props.borderColor);
-  useControlledKVO(infoWindow, 'borderWidth', props.borderWidth);
-  useControlledKVO(infoWindow, 'disableAutoPan', props.disableAutoPan);
-  useControlledKVO(infoWindow, 'disableAnchor', props.disableAnchor);
-  useControlledKVO(infoWindow, 'anchorSkew', props.anchorSkew);
-  useControlledKVO(infoWindow, 'anchorSize', props.anchorSize);
-  useControlledKVO(infoWindow, 'anchorColor', props.anchorColor);
-  useControlledKVO(infoWindow, 'pixelOffset', props.pixelOffset);
+  useControlledProps(infoWindow, {
+    position: props.position,
+    zIndex: props.zIndex,
+    maxWidth: props.maxWidth,
+    backgroundColor: props.backgroundColor,
+    borderColor: props.borderColor,
+    borderWidth: props.borderWidth,
+    disableAutoPan: props.disableAutoPan,
+    disableAnchor: props.disableAnchor,
+    anchorSkew: props.anchorSkew,
+    anchorSize: props.anchorSize,
+    anchorColor: props.anchorColor,
+    pixelOffset: props.pixelOffset,
+  });
 
   return null;
 }
