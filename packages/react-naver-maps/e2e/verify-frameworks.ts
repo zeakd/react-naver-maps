@@ -69,29 +69,52 @@ async function portInUse() {
 
 // 시작할 때 포트가 비어 있음을 확인했으므로 지금 포트를 쥔 프로세스는 이 스크립트가 띄운 서버다.
 // Next 는 next-server 를 자기 프로세스 그룹으로 띄워 그룹 종료 신호가 닿지 않을 수 있다.
-function killPortHolders() {
+function portHolders(): number[] {
   try {
-    const pids = execFileSync('lsof', ['-ti', `tcp:${PORT}`, '-sTCP:LISTEN'], {
+    const out = execFileSync('lsof', ['-ti', `tcp:${PORT}`, '-sTCP:LISTEN'], {
       encoding: 'utf8',
     });
-    for (const pid of pids.split('\n').filter(Boolean)) {
-      process.kill(Number(pid), 'SIGKILL');
-    }
+    return out.split('\n').filter(Boolean).map(Number);
   } catch {
-    // lsof 는 대상이 없으면 실패로 끝난다.
+    // lsof 는 대상이 없으면 실패로 끝난다. lsof 가 없는 환경도 여기로 온다.
+    return [];
   }
+}
+
+function killPortHolders() {
+  for (const pid of portHolders()) {
+    try {
+      process.kill(pid, 'SIGKILL');
+    } catch {
+      // 그새 끝난 프로세스
+    }
+  }
+}
+
+/** 포트를 놓지 않을 때 원인을 볼 수 있게 누가 쥐고 있는지 적는다. */
+function describePort(): string {
+  for (const [cmd, args] of [
+    ['lsof', ['-nP', `-iTCP:${PORT}`]],
+    ['ss', ['-ltnp', `sport = :${PORT}`]],
+  ] as const) {
+    try {
+      return `${cmd}: ${execFileSync(cmd, [...args], { encoding: 'utf8' }).trim()}`;
+    } catch {
+      // 다음 도구로
+    }
+  }
+  return '포트를 쥔 프로세스를 찾지 못했다 (lsof, ss 실패)';
 }
 
 async function waitForPortFree() {
   const graceEnd = Date.now() + 2000;
-  const deadline = Date.now() + 10000;
-  let forced = false;
+  const deadline = Date.now() + 15000;
   while (await portInUse()) {
-    if (Date.now() > deadline) throw new Error(`포트 ${PORT} 이 비지 않았다`);
-    if (!forced && Date.now() > graceEnd) {
-      killPortHolders();
-      forced = true;
+    if (Date.now() > deadline) {
+      throw new Error(`포트 ${PORT} 이 비지 않았다. ${describePort()}`);
     }
+    // 한 번 죽여도 서버가 자식을 다시 띄우거나 늦게 뜬 프로세스가 있을 수 있어 매번 확인한다.
+    if (Date.now() > graceEnd) killPortHolders();
     await new Promise((r) => setTimeout(r, 200));
   }
 }
