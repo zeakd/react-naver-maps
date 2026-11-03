@@ -2,6 +2,7 @@ import { Activity, StrictMode, use, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
+  BicycleLayer,
   Circle,
   Container,
   GroundOverlay,
@@ -201,6 +202,13 @@ function MapUnderTest({
             onClick={() => observed.recordMarkerClick()}
           />
         </Activity>
+      )}
+      {config.bicycleLayer && (
+        <BicycleLayer
+          ref={(o: naver.maps.Layer | null) =>
+            observed.recordOverlay('bicycle', o)
+          }
+        />
       )}
       {config.groundOverlayUrl && (
         <GroundOverlay

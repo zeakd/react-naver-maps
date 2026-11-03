@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** BicycleLayer 를 올린다. overlaysOnMap 에 'bicycle' 로 나온다. */
+  bicycleLayer?: boolean;
   /** GroundOverlay 를 이 url 로 올린다. bounds 는 렌더마다 새로 만든 같은 값이다. */
   groundOverlayUrl?: string;
   /** Polyline, Circle, InfoWindow 를 함께 Activity 로 감싼다. */

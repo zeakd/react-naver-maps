@@ -494,4 +494,15 @@ export const scenarios: Scenario[] = [
     ],
     expect: [groundOverlaysCreated(2)],
   },
+  {
+    name: 'BicycleLayer 는 지도에 붙고 언마운트하면 떨어진다',
+    since: '0.4',
+    app: { mode: 'props', bicycleLayer: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { bicycleLayer: false } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [overlaysOnMap(['bicycle'], 0), overlaysOnMap([])],
+  },
 ];

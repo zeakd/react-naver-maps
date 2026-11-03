@@ -64,17 +64,48 @@ function prepareTarget(v: string): void {
     ]);
   }
   // 앱이 import 하는 이름(scenarios/target.ts)을 배포본에 맞춘다. 배포본에 없는 export 는
-  // 쓰면 바로 알 수 있게 던진다. 그런 시나리오는 since 로 건너뛴다.
+  // 쓰면 바로 알 수 있게 던지는 함수로 채운다. 그런 시나리오는 since 로 건너뛴다.
+  const entry = readFileSync(
+    join(dir, 'package', 'dist', 'react-naver-maps.js'),
+    'utf8',
+  );
+  const provided = new Set(
+    [...entry.matchAll(/export\s*\{([^}]*)\}/g)].flatMap((m) =>
+      m[1]!.split(',').map((n) =>
+        n
+          .trim()
+          .split(/\s+as\s+/)
+          .at(-1)!,
+      ),
+    ),
+  );
+  const missing = imported().filter(
+    (name) => !provided.has(name) && name !== 'loadScript',
+  );
   writeFileSync(
     join(dir, 'target.js'),
     [
       `export * from './package/dist/react-naver-maps.js';`,
       `export { loadScript } from './package/dist/load-script.js';`,
-      `export function useAutoResize() { throw new Error('${v} 에는 useAutoResize 가 없다'); }`,
+      ...missing.map(
+        (name) =>
+          `export function ${name}() { throw new Error('${v} 에는 ${name} 이 없다'); }`,
+      ),
       `export const TARGET = '${v}';`,
       '',
     ].join('\n'),
   );
+}
+
+/** 시나리오 앱(app.tsx)이 target 에서 import 하는 이름. */
+function imported(): string[] {
+  const app = readFileSync(join(here, 'scenarios', 'app.tsx'), 'utf8');
+  const block = app.match(/import\s*\{([^}]*)\}\s*from\s*'\.\/target\.js'/);
+  if (!block) throw new Error('app.tsx 에서 target import 를 찾지 못했다');
+  return block[1]!
+    .split(',')
+    .map((n) => n.trim())
+    .filter(Boolean);
 }
 
 function portInUse(): boolean {
