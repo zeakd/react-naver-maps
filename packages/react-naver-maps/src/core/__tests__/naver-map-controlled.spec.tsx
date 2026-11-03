@@ -37,6 +37,8 @@ class MockMap {
   fitBounds = vi.fn();
   setZoom = vi.fn();
   setCenter = vi.fn();
+  setCenterPoint = vi.fn();
+  getCenterPoint = vi.fn(() => null);
   destroy = vi.fn();
   autoResize = vi.fn();
   setMap = vi.fn();
@@ -486,5 +488,57 @@ describe('NaverMap logoControl one-way controlled (fix-15)', () => {
       String(c[0]).includes('logoControl=false'),
     );
     expect(calls).toHaveLength(1);
+  });
+});
+
+describe('NaverMap deprecated props', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => {
+    setupNaverMock();
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  const deprecationWarnings = (name: string) =>
+    warnSpy.mock.calls.filter((c) =>
+      String(c[0]).includes(`<NaverMap ${name}>`),
+    );
+
+  test('bounds, centerPoint, defaultCenterPoint 를 받으면 한 번씩 알린다', () => {
+    const bounds = { south: 37, west: 126, north: 38, east: 127 };
+    const { rerender } = render(
+      <Wrapper>
+        <NaverMap
+          bounds={bounds}
+          centerPoint={{ x: 1, y: 1 }}
+          defaultCenterPoint={{ x: 1, y: 1 }}
+        />
+      </Wrapper>,
+    );
+    rerender(
+      <Wrapper>
+        <NaverMap
+          bounds={{ ...bounds }}
+          centerPoint={{ x: 2, y: 2 }}
+          defaultCenterPoint={{ x: 1, y: 1 }}
+        />
+      </Wrapper>,
+    );
+    expect(deprecationWarnings('bounds')).toHaveLength(1);
+    expect(deprecationWarnings('centerPoint')).toHaveLength(1);
+    expect(deprecationWarnings('defaultCenterPoint')).toHaveLength(1);
+  });
+
+  test('쓰지 않으면 알리지 않는다', () => {
+    render(
+      <Wrapper>
+        <NaverMap
+          defaultBounds={{ south: 37, west: 126, north: 38, east: 127 }}
+        />
+      </Wrapper>,
+    );
+    expect(deprecationWarnings('bounds')).toHaveLength(0);
   });
 });

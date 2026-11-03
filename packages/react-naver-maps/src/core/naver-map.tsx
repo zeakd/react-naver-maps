@@ -32,9 +32,18 @@ export interface NaverMapProps {
   // Controlled KVO
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
   zoom?: number;
+  /**
+   * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. bounds 는 지도가 계산해 내는 값이라
+   * 맞춰도 prop 과 같아지지 않는다(`fitBounds` 는 정수 zoom 으로 맞춘다). 처음 영역은
+   * `defaultBounds`, 바꿀 때는 `map.fitBounds()`, 읽을 때는 `onBoundsChanged` 를 쓴다.
+   */
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
   mapTypeId?: naver.maps.MapTypeId;
   size?: naver.maps.Size | naver.maps.SizeLiteral;
+  /**
+   * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `center` 와 같은 중심을 세계 좌표로
+   * 나타낸 값이라 둘을 함께 제어하면 우선순위 규칙이 필요하다. `center` 를 쓴다.
+   */
   centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Uncontrolled defaults
@@ -43,6 +52,7 @@ export interface NaverMapProps {
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
   defaultMapTypeId?: naver.maps.MapTypeId;
   defaultSize?: naver.maps.Size | naver.maps.SizeLiteral;
+  /** @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `defaultCenter` 를 쓴다. */
   defaultCenterPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Static options (생성 시에만 적용)
@@ -494,6 +504,14 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     }
   }, [logoControlValue]);
 
+  useDeprecatedProp('bounds', props.bounds, 'defaultBounds 와 map.fitBounds()');
+  useDeprecatedProp('centerPoint', props.centerPoint, 'center');
+  useDeprecatedProp(
+    'defaultCenterPoint',
+    props.defaultCenterPoint,
+    'defaultCenter',
+  );
+
   // =========================================================================
   // 저주기 KVO: useControlledKVO 유지
   //
@@ -714,4 +732,22 @@ function toCoord(c: naver.maps.Coord | naver.maps.CoordLiteral) {
   if (Array.isArray(c)) return new naver.maps.LatLng(c[1], c[0]);
   const { lat, lng } = c as { lat: number; lng: number };
   return new naver.maps.LatLng(lat, lng);
+}
+
+/** 개발 모드에서 deprecated prop 을 처음 받았을 때 한 번 알린다. */
+function useDeprecatedProp(
+  name: keyof NaverMapProps,
+  value: unknown,
+  instead: string,
+): void {
+  const warnedRef = useRef(false);
+  const given = value !== undefined;
+  useEffect(() => {
+    if (!isDev || !given || warnedRef.current) return;
+    warnedRef.current = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[react-naver-maps] <NaverMap ${name}> 는 0.4 에서 deprecated 이고 다음 버전에서 없어집니다. ${instead} 를 쓰세요.`,
+    );
+  }, [name, given, instead]);
 }

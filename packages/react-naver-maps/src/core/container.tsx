@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 import { Suspense, useState } from 'react';
 import { ContainerContext } from './contexts/container.js';
 import { useNavermaps } from './hooks/use-navermaps.js';
@@ -17,6 +17,8 @@ const defaultInnerStyle: CSSProperties = {
 /**
  * 지도가 렌더링될 DOM 컨테이너. NaverMap의 부모로 사용한다.
  *
+ * props 는 바깥 div 의 것이다(`ref` 포함). 지도 옵션과 이벤트는 NaverMap 이 받는다.
+ *
  * children으로 ReactNode 또는 render function을 받을 수 있다.
  * render function 사용 시 navermaps 네임스페이스를 인자로 받아
  * 별도 컴포넌트 분리 없이 지도를 구성할 수 있다.
@@ -32,7 +34,7 @@ const defaultInnerStyle: CSSProperties = {
  * ```
  */
 export interface ContainerProps extends Omit<
-  ComponentPropsWithoutRef<'div'>,
+  ComponentProps<'div'>,
   'children'
 > {
   children: ReactNode | ((navermaps: typeof naver.maps) => ReactNode);
