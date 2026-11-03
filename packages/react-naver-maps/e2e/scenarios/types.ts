@@ -83,6 +83,11 @@ export type Scenario = {
   expect: Assertion[];
   /** 알려진 버그. 실패해야 통과로 친다. 고치면 지운다. */
   knownIssue?: string;
+  /**
+   * 이 시나리오가 쓰는 API 가 생긴 버전(`major.minor`). 비교 실행에서 이보다 오래된
+   * 배포본은 건너뛴다. 동작만 다른 경우에는 쓰지 않는다. 그 차이가 비교의 대상이다.
+   */
+  since?: string;
 };
 
 /** 시나리오를 실행하는 환경. 프레임을 직접 넘길 수 있어야 한다. */

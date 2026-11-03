@@ -52,21 +52,23 @@ function App() {
 
 ```bash
 pnpm install
-pnpm -r run build && pnpm -r run lint && pnpm -r run test   # CI 와 같은 검사 (SDK mock)
+pnpm check && pnpm -r run build && pnpm -r run test   # 단위 검사 (SDK mock)
 ```
 
-실제 네이버맵 SDK 를 불러오는 검사는 CI 에서 돌리지 않으므로 SDK 로딩·인증과 관련된 변경에서는 직접 돌린다. 둘 다 `http://localhost:4321` 에서 실행되며, 저장소의 Maps 키는 이 주소에서만 인증된다.
+실제 네이버맵 SDK 를 불러오는 검사는 `http://localhost:4321` 에서 실행된다. 저장소의 Maps 키는 이 주소에서만 인증되므로 한 번에 하나씩 돌린다. CI 는 `test:scenarios` 와 `verify:frameworks` 를 돌리고, 스크린샷 비교와 배포본 비교는 돌리지 않는다.
 
 ```bash
 cd packages/react-naver-maps
 pnpm test:scenarios     # 실제 SDK 로 인증과 지도 동작을 프레임 단위로 검증
 pnpm test:visual:cached  # 문서 예제 지도 스크린샷 비교 (website dev 서버를 띄움)
 pnpm verify:frameworks  # 배포 형태 패키지를 Vite, Next, React Router, TanStack Start, Astro 에서 검증
+pnpm compare:scenarios  # 같은 시나리오를 npm 0.3.0 과 소스에 돌려 동작 차이를 표로 낸다
 ```
 
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).
 
 - 시나리오는 `packages/react-naver-maps/e2e/scenarios/scenarios.ts` 에 있다. 가상 시계로 16ms 씩 넘겨 같은 시나리오는 같은 궤적을 낸다. 실패하면 `test-results/` 에 trace 와 영상이 남는다.
+- `compare:scenarios` 는 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 차이만 허용한다. 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
 - 인증 실패는 지도 DOM 으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
 - Node 버전은 `package.json` 의 `devEngines.runtime` 으로 고정한다. `pnpm` 으로 실행하는 명령은 이 버전으로 돈다.
 - Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다.

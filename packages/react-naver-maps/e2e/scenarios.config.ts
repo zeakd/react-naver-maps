@@ -14,10 +14,11 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: `pnpm exec vite e2e/scenarios/page --port ${PORT} --strictPort`,
+    command: `pnpm exec vite e2e/scenarios/page --config e2e/scenarios/vite.config.ts --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}/`,
     cwd: '..',
-    reuseExistingServer: true,
+    // 비교 실행은 대상마다 서버를 새로 띄워야 한다. 남은 서버를 쓰면 다른 대상을 검사하게 된다.
+    reuseExistingServer: !process.env.RNM_TARGET && !process.env.RNM_COMPARE,
     timeout: 30000,
   },
 });

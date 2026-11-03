@@ -1,2 +1,4 @@
 dist/
 node_modules/
+e2e/.targets/
+e2e/.compare/
