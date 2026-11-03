@@ -54,6 +54,8 @@ export type AppConfig = {
   suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
+  /** Polyline, Circle, InfoWindow 를 함께 Activity 로 감싼다. */
+  overlaysActivity?: 'visible' | 'hidden';
   /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
   markerActivity?: 'visible' | 'hidden';
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
@@ -105,6 +107,8 @@ export type TraceFrame = {
   mapId: number;
   /** Marker 가 있으면 지금 지도에 붙어 있는가 */
   markerOnMap: boolean | null;
+  /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
+  overlaysOnMap: string[];
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
 };

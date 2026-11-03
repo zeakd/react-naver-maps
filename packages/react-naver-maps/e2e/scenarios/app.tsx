@@ -55,6 +55,9 @@ type Observed = {
   circleClicks: number;
   marker: naver.maps.Marker | null;
   recordMarker: (marker: naver.maps.Marker | null) => void;
+  /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. */
+  overlays: Record<string, { getMap(): unknown }>;
+  recordOverlay: (name: string, o: { getMap(): unknown } | null) => void;
   recordCircleClick: () => void;
   recordKvo: (zoom: number, lat: number) => void;
   recordMarkerClick: () => void;
@@ -196,34 +199,45 @@ function MapUnderTest({
           />
         </Activity>
       )}
-      {config.polyline && (
-        <Polyline
-          path={
-            config.polylineInline
-              ? STABLE_PATH.map((p) => ({ ...p }))
-              : STABLE_PATH
-          }
-        />
-      )}
-      {config.circle && (
-        <Circle
-          center={toCoord(INITIAL_CENTER)}
-          radius={300}
-          fillColor="#007EEA"
-          fillOpacity={0.3}
-          clickable={config.circleClickable}
-          onClick={() => observed.recordCircleClick()}
-        />
-      )}
-      {config.infoWindow && (
-        <InfoWindow
-          open
-          content="info"
-          anchor={toCoord(INITIAL_CENTER)}
-          onOpen={() => observed.calls.push('infoWindowOpen')}
-          onClose={() => observed.calls.push('infoWindowClose')}
-        />
-      )}
+      <Activity mode={config.overlaysActivity ?? 'visible'}>
+        {config.polyline && (
+          <Polyline
+            ref={(o: naver.maps.Polyline | null) =>
+              observed.recordOverlay('polyline', o)
+            }
+            path={
+              config.polylineInline
+                ? STABLE_PATH.map((p) => ({ ...p }))
+                : STABLE_PATH
+            }
+          />
+        )}
+        {config.circle && (
+          <Circle
+            ref={(o: naver.maps.Circle | null) =>
+              observed.recordOverlay('circle', o)
+            }
+            center={toCoord(INITIAL_CENTER)}
+            radius={300}
+            fillColor="#007EEA"
+            fillOpacity={0.3}
+            clickable={config.circleClickable}
+            onClick={() => observed.recordCircleClick()}
+          />
+        )}
+        {config.infoWindow && (
+          <InfoWindow
+            ref={(o: naver.maps.InfoWindow | null) =>
+              observed.recordOverlay('infoWindow', o)
+            }
+            open
+            content="info"
+            anchor={toCoord(INITIAL_CENTER)}
+            onOpen={() => observed.calls.push('infoWindowOpen')}
+            onClose={() => observed.calls.push('infoWindowClose')}
+          />
+        )}
+      </Activity>
     </NaverMap>
   );
 }
@@ -240,6 +254,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     markerClicks: 0,
     circleClicks: 0,
     marker: null,
+    overlays: {},
+    recordOverlay(name, o) {
+      if (o) observed.overlays[name] = o;
+    },
     recordMarker(marker) {
       // ref 가 떨어져도(Activity 로 숨김, 언마운트) 마지막 인스턴스를 계속 본다.
       if (marker) observed.marker = marker;
@@ -345,6 +363,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         ),
         mapId,
         markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
+        overlaysOnMap: Object.entries(observed.overlays)
+          .filter(([, o]) => o.getMap() === map)
+          .map(([name]) => name)
+          .sort(),
         markerPosition: observed.marker
           ? (() => {
               const p = observed.marker.getPosition() as naver.maps.LatLng;

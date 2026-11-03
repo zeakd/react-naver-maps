@@ -113,4 +113,25 @@ export const expectedDifferences: Record<
     fields: ['status', 'center', 'events', 'calls', 'kvoLat'],
     reason: '드래그 중 들어온 center 는 멈춘 뒤 넣는다',
   },
+  // 수명. 숨겼다 보여도 같은 지도·오버레이 인스턴스를 쓴다(lifetime.ts). 0.3.0 은 숨길 때 버리고 새로 만들었다.
+  '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다': {
+    fields: ['status', 'attached', 'calls', 'mapId', 'markerOnMap'],
+    reason: '숨겼다 보여도 같은 지도를 쓴다',
+  },
+  'Activity 로 지도를 숨겼다 보이면 같은 지도가 같은 크기와 center 로 돌아온다':
+    {
+      fields: ['status', 'attached', 'calls', 'mapId', 'markerOnMap'],
+      reason: '숨겼다 보여도 같은 지도를 쓴다',
+    },
+  'Activity 로 Marker 를 숨기면 지도에서 떨어지고 보이면 다시 붙는다': {
+    fields: ['calls'],
+    reason:
+      '숨겼다 보여도 같은 Marker 를 다시 붙여 setter 를 다시 부르지 않는다',
+  },
+  'Activity 로 도형과 열린 InfoWindow 를 숨겼다 보이면 같은 지도에 다시 붙고 다시 열린다':
+    {
+      fields: ['calls'],
+      reason:
+        '숨겼다 보여도 같은 오버레이를 다시 붙여 setter 를 다시 부르지 않는다',
+    },
 };

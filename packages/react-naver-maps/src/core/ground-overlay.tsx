@@ -1,13 +1,7 @@
 'use client';
 
 import type { Ref } from 'react';
-import {
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useControlledKVO } from './hooks/use-controlled-kvo.js';
@@ -16,13 +10,9 @@ import type {
   EventHandlerProps,
   GroundOverlayEvent,
 } from './types/overlay-events.js';
-import {
-  sdkAlive,
-  addMapListener,
-  removeMapListener,
-  clearMapListeners,
-} from './utils/sdk.js';
+import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
+import { onMap, useSdkInstance } from './lifetime.js';
 
 /**
  * 이미지를 지도 위에 오버레이한다.
@@ -58,33 +48,26 @@ export interface GroundOverlayProps extends EventHandlerProps<GroundOverlayEvent
 export function GroundOverlay({ ref, ...props }: GroundOverlayProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const [overlay, setOverlay] = useState<naver.maps.GroundOverlay | null>(null);
-  const overlayRef = useRef<naver.maps.GroundOverlay | null>(null);
+  // url/bounds 가 바뀌면 다시 만든다(생성자 인자라 setter 가 없다). 값으로 비교한다.
+  const overlay = useSdkInstance(
+    onMap(
+      map,
+      () =>
+        new navermaps.GroundOverlay(
+          props.url,
+          props.bounds,
+          omitUndefined({
+            map,
+            opacity: props.opacity,
+            clickable: props.clickable,
+            crossOrigin: props.crossOrigin,
+          }),
+        ),
+    ),
+    [props.url, props.bounds],
+  );
 
-  // url/bounds 변경 시 인스턴스 재생성
-  useLayoutEffect(() => {
-    const instance = new navermaps.GroundOverlay(
-      props.url,
-      props.bounds,
-      omitUndefined({
-        map,
-        opacity: props.opacity,
-        clickable: props.clickable,
-        crossOrigin: props.crossOrigin,
-      }),
-    );
-    overlayRef.current = instance;
-    setOverlay(instance);
-
-    return () => {
-      if (!sdkAlive()) return;
-      clearMapListeners(instance);
-      instance.setMap(null);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.url, props.bounds]);
-
-  useImperativeHandle(ref, () => overlayRef.current!);
+  useImperativeHandle(ref, () => overlay!, [overlay]);
 
   if (!overlay) return null;
 

@@ -177,6 +177,7 @@ class MockMap {
   setZoom = vi.fn();
   setCenter = vi.fn();
   destroy = vi.fn();
+  autoResize = vi.fn();
   setMap = vi.fn();
   setSize = vi.fn();
   set = vi.fn();

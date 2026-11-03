@@ -1,12 +1,12 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import { useEffect, useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
 import { useStaticProp } from './hooks/use-static-prop.js';
 import { omitUndefined } from './utils/omit-undefined.js';
-import { sdkAlive, clearMapListeners } from './utils/sdk.js';
+import { onMap, useSdkInstance } from './lifetime.js';
 
 /** 실시간 교통 레이어를 지도 위에 표시한다. */
 export interface TrafficLayerProps {
@@ -29,7 +29,6 @@ export function TrafficLayer({
 }: TrafficLayerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const layerRef = useRef<naver.maps.TrafficLayer | null>(null);
 
   // satisfies로 propName이 keyof TrafficLayerProps에 속함을 컴파일 시점에 강제.
   // 정책: static 호출이 1~2회이면 satisfies, 3회 이상이면 wrapper(useXStatic).
@@ -40,23 +39,17 @@ export function TrafficLayer({
     interval,
   );
 
-  useLayoutEffect(() => {
-    if (!sdkAlive()) return;
-    const layer = new navermaps.TrafficLayer(omitUndefined({ interval }));
-    layer.setMap(map);
-    layerRef.current = layer;
-    return () => {
-      if (!sdkAlive()) return;
-      clearMapListeners(layer);
-      layer.setMap(null);
-    };
-    // interval은 생성자 옵션으로만 전달되므로 deps에 포함하지 않는다.
-    // interval 변경 시 재생성이 필요하면 React key로 제어한다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navermaps, map]);
+  // interval은 생성자 옵션으로만 전달된다. 바꾸려면 React key로 다시 만든다.
+  const layer = useSdkInstance(
+    onMap(map, () => {
+      const instance = new navermaps.TrafficLayer(omitUndefined({ interval }));
+      instance.setMap(map);
+      return instance;
+    }),
+    [map],
+  );
 
   useEffect(() => {
-    const layer = layerRef.current;
     if (!layer) return;
     // prop 미지정 시 SDK 기본값에 맡기고 호출하지 않는다.
     if (autoRefresh === undefined) return;
@@ -65,9 +58,9 @@ export function TrafficLayer({
     } else {
       layer.endAutoRefresh();
     }
-  }, [autoRefresh]);
+  }, [layer, autoRefresh]);
 
-  useImperativeHandle(ref, () => layerRef.current!);
+  useImperativeHandle(ref, () => layer!, [layer]);
 
   return null;
 }
