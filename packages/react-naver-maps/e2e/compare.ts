@@ -38,6 +38,8 @@ const version = own.find((a) => !a.startsWith('--')) ?? '0.3.0';
 type Outcome = {
   status: 'passed' | 'failed' | 'skipped' | 'missing';
   trace?: TraceFrame[];
+  /** 시나리오가 실행마다 달라질 수 있다고 적은 필드(Scenario.unstable). 비교에서 뺀다. */
+  unstable: string[];
   error?: string;
 };
 
@@ -102,6 +104,9 @@ function collect(suites: JsonSuite[], out: Map<string, Outcome>): void {
       const body = result.attachments?.find(
         (a) => a.name === 'trace.json',
       )?.body;
+      const unstable = result.attachments?.find(
+        (a) => a.name === 'unstable.json',
+      )?.body;
       out.set(spec.title, {
         status:
           result.status === 'passed' || result.status === 'skipped'
@@ -112,6 +117,11 @@ function collect(suites: JsonSuite[], out: Map<string, Outcome>): void {
               Buffer.from(body, 'base64').toString('utf8'),
             ) as TraceFrame[])
           : undefined,
+        unstable: unstable
+          ? (JSON.parse(
+              Buffer.from(unstable, 'base64').toString('utf8'),
+            ) as string[])
+          : [],
         error: result.errors?.[0]?.message?.split('\n')[0],
       });
     }
@@ -202,8 +212,8 @@ function compare(
 ): Row[] {
   const names = [...new Set([...base.keys(), ...head.keys()])];
   return names.map((name): Row => {
-    const a = base.get(name) ?? { status: 'missing' };
-    const b = head.get(name) ?? { status: 'missing' };
+    const a: Outcome = base.get(name) ?? { status: 'missing', unstable: [] };
+    const b: Outcome = head.get(name) ?? { status: 'missing', unstable: [] };
     if (a.status === 'skipped' || b.status === 'skipped') {
       return { name, kind: '건너뜀', detail: `${a.status} / ${b.status}` };
     }
@@ -211,8 +221,10 @@ function compare(
     if (a.status !== b.status)
       changed.set('status', `판정 ${a.status} → ${b.status}`);
     if (a.trace && b.trace) {
-      for (const [field, text] of differences(a.trace, b.trace))
-        changed.set(field, text);
+      const skip = new Set([...a.unstable, ...b.unstable]);
+      for (const [field, text] of differences(a.trace, b.trace)) {
+        if (!skip.has(field)) changed.set(field, text);
+      }
     } else if (a.trace || b.trace) {
       changed.set('trace', '한쪽에만 궤적이 있다');
     }

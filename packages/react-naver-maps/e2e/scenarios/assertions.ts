@@ -204,3 +204,30 @@ export function callsIn(
 ): Assertion {
   return (trace) => calls(expected)(trace.slice(from, to));
 }
+
+/** event 가 마지막으로 난 프레임 뒤에(같은 프레임 포함) idle 이 정확히 한 번 온다. */
+export function idleAfter(event: string): Assertion {
+  return (trace) => {
+    let at = -1;
+    trace.forEach((f, i) => {
+      if (f.events.includes(event)) at = i;
+    });
+    if (at === -1) return `${event} 가 없다`;
+    const idles = trace
+      .slice(at)
+      .flatMap((f) => f.events)
+      .filter((e) => e === 'idle').length;
+    return idles === 1
+      ? null
+      : `${event}(프레임 ${at}) 뒤 idle ${idles}회, 기대 1회`;
+  };
+}
+
+/** 처음 프레임과 to 프레임 사이에 경도가 minDeg 보다 많이 움직였다. 드래그가 먹혔는지 본다. */
+export function movedBy(minDeg: number, to?: number): Assertion {
+  return (trace) => {
+    const end = trace[Math.min(to ?? trace.length - 1, trace.length - 1)]!;
+    const d = Math.abs(end.center[1] - trace[0]!.center[1]);
+    return d > minDeg ? null : `경도가 ${d} 만 움직였다 (기대 > ${minDeg})`;
+  };
+}

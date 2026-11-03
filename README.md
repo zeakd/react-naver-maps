@@ -69,6 +69,8 @@ pnpm compare:scenarios  # 같은 시나리오를 npm 0.3.0 과 소스에 돌려 
 
 - 시나리오는 `packages/react-naver-maps/e2e/scenarios/scenarios.ts` 에 있다. 가상 시계로 16ms 씩 넘겨 같은 시나리오는 같은 궤적을 낸다. 실패하면 `test-results/` 에 trace 와 영상이 남는다.
 - `compare:scenarios` 는 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 차이만 허용한다. 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
+- GL 시나리오는 GPU 로 WebGL 을 쓸 수 있을 때만 GL 로 돈다. SDK 는 성능 경고가 있는 WebGL(소프트웨어 렌더)에서 래스터로 바꾸고, 그러면 시나리오를 건너뛴다. GPU 가 없는 CI 에서는 건너뛴다.
+- 터치는 Chrome 개발자 프로토콜로 손가락을 보낸다(`AppConfig.touch`).
 - 인증 실패는 지도 DOM 으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
 - Node 버전은 `package.json` 의 `devEngines.runtime` 으로 고정한다. `pnpm` 으로 실행하는 명령은 이 버전으로 돈다.
 - Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다.

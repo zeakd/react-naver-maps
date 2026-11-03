@@ -29,6 +29,12 @@ export async function runScenario(
       case 'clickCenter':
         await driver.clickCenter();
         break;
+      case 'touch':
+        await driver.touch(step.kind, step.points);
+        break;
+      case 'shot':
+        await driver.shot(step.name);
+        break;
     }
   }
   return trace;

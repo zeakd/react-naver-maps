@@ -16,6 +16,12 @@ export type AppConfig = {
   strict?: boolean;
   zoomControl?: boolean;
   submodules?: string[];
+  /** rounded 의 소수 자릿수. 기본 4. */
+  roundDigits?: number;
+  /** NaverMap 의 gl. submodules 에 'gl' 이 있어야 한다. */
+  gl?: boolean;
+  /** 터치 입력을 켠다(드라이버가 브라우저 터치 지원을 흉내 낸다). */
+  touch?: boolean;
   /** 기본값은 app.tsx 의 NCP_KEY_ID */
   ncpKeyId?: string;
   /** NaverMap 의 key. 바꾸면 지도를 다시 만든다. */
@@ -56,6 +62,10 @@ export type Step =
   | { t: 'wheel'; x: number; y: number; deltaY: number }
   /** 지도 중앙을 실제 DOM 클릭으로 누른다. */
   | { t: 'clickCenter' }
+  /** 터치. points 는 화면 좌표이고 end 는 모든 손가락을 뗀다. AppConfig.touch 가 있어야 한다. */
+  | { t: 'touch'; kind: 'start' | 'move' | 'end'; points: [number, number][] }
+  /** 화면을 찍어 결과에 붙인다. 판정에는 쓰지 않는다. */
+  | { t: 'shot'; name: string }
   /** 가상 시계로 돌지 않는 브라우저 일을 기다린다. ResizeObserver 등. */
   | { t: 'realtime'; ms: number };
 
@@ -85,6 +95,8 @@ export type TraceFrame = {
   circleClicks: number;
   /** Marker 가 있으면 그 위치 */
   markerPosition: LL | null;
+  /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
+  renderMode: number;
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */
@@ -97,6 +109,11 @@ export type Scenario = {
   expect: Assertion[];
   /** 알려진 버그. 실패해야 통과로 친다. 고치면 지운다. */
   knownIssue?: string;
+  /**
+   * 실행마다 값이 달라질 수 있는 trace 필드와 그 이유. 비교(`e2e/compare.ts`)에서 뺀다.
+   * 판정(expect)은 이 필드의 정확한 프레임에 기대지 않게 쓴다.
+   */
+  unstable?: { fields: (keyof TraceFrame)[]; reason: string };
   /**
    * 이 시나리오가 쓰는 API 가 생긴 버전(`major.minor`). 비교 실행에서 이보다 오래된
    * 배포본은 건너뛴다. 동작만 다른 경우에는 쓰지 않는다. 그 차이가 비교의 대상이다.
@@ -114,5 +131,10 @@ export interface ScenarioDriver {
   mouse(kind: 'down' | 'move' | 'up', x: number, y: number): Promise<void>;
   wheel(x: number, y: number, deltaY: number): Promise<void>;
   clickCenter(): Promise<void>;
+  touch(
+    kind: 'start' | 'move' | 'end',
+    points: [number, number][],
+  ): Promise<void>;
+  shot(name: string): Promise<void>;
   realtime(ms: number): Promise<void>;
 }

@@ -66,6 +66,23 @@ export const expectedDifferences: Record<
     fields: ['status', 'zoomReports'],
     reason: 'GL 의 내부 zoom 대신 getZoom() 을 보낸다 (#190)',
   },
+  'GL 지도를 끌어 놓으면 움직임이 끝난 뒤 idle 이 한 번 온다': {
+    fields: ['kvoLat'],
+    reason: 'useKVO 가 지도를 따라간다 (#192)',
+  },
+  'GL 지도에서 zoom prop 을 바꾸면 그 zoom 이 되고 onZoomChanged 도 같다': {
+    fields: ['kvoZoom'],
+    reason: 'useKVO 가 지도를 따라간다 (#192)',
+  },
+  'GL 지도에서 반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다':
+    {
+      fields: ['kvoLat'],
+      reason: 'useKVO 가 지도를 따라간다 (#192)',
+    },
+  '핀치로 zoom 이 바뀌면 onZoomChanged 가 getZoom() 과 같다': {
+    fields: ['kvoZoom'],
+    reason: 'useKVO 가 지도를 따라간다 (#192)',
+  },
   // 고칠 차이. 소스가 0.3.0 보다 나빠진 것이라 고치면 이 항목을 지운다.
   '드래그한 Marker 는 다시 렌더하면 position 으로 돌아간다': {
     fields: ['status', 'calls', 'markerPosition'],

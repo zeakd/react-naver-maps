@@ -12,6 +12,11 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     viewport: { width: 1024, height: 768 },
     video: 'retain-on-failure',
+    // GL 서브모듈은 성능 경고 없는 WebGL 에서만 GL 로 그린다. 기본 headless 는 소프트웨어 렌더라
+    // 래스터로 떨어지므로 GPU 를 쓰게 한다. GPU 가 없는 환경에서는 효과가 없다.
+    launchOptions: {
+      args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'],
+    },
   },
   webServer: {
     command: `pnpm exec vite e2e/scenarios/page --config e2e/scenarios/vite.config.ts --port ${PORT} --strictPort`,
