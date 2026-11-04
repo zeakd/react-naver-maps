@@ -463,8 +463,10 @@ export function followsProps(from = 0, maxPx = 2, maxZoom = 0.01): Assertion {
       if (px > maxPx) {
         return `프레임 ${i} 에서 center 가 prop 과 ${px.toFixed(1)}px 떨어졌다 (허용 ${maxPx}px)`;
       }
-      if (Math.abs(f.zoom - f.propZoom) > maxZoom) {
-        return `프레임 ${i} 에서 zoom ${f.zoom} 이 prop ${f.propZoom} 과 다르다 (허용 ${maxZoom})`;
+      // 래스터 지도는 실수 zoom 을 반올림해 쓴다(GL 은 renderMode 2). SDK 가 쓸 수 있는 zoom 과 비교한다.
+      const want = f.renderMode === 2 ? f.propZoom : Math.round(f.propZoom);
+      if (Math.abs(f.zoom - want) > maxZoom) {
+        return `프레임 ${i} 에서 zoom ${f.zoom} 이 prop ${f.propZoom}(지도가 쓸 값 ${want}) 과 다르다 (허용 ${maxZoom})`;
       }
     }
     return null;

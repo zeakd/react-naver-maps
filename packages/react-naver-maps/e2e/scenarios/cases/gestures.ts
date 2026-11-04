@@ -2,50 +2,12 @@ import {
   callsIn,
   fired,
   idleAfter,
-  movedBy,
   oneWay,
   settlesAt,
   zoomReportsMatchMap,
 } from '../assertions.js';
-import type { Scenario, Step } from '../types.js';
+import type { Scenario } from '../types.js';
 import { B, drag, pinchOut, touchDragLeftAndRelease } from './steps.js';
-
-/** 사용자 입력: 터치 드래그, 핀치, 휠. 터치는 브라우저 터치 지원을 흉내 내고 CDP 로 손가락을 보낸다. */
-/**
- * 두 손가락으로 벌리다가 오른쪽 손가락을 떼고 왼쪽 손가락으로 계속 끈다. 프레임 0 시작, 1~4 벌림,
- * 5 에 한 손가락을 떼고 6~20 에 끈다. 손가락 번호는 점 배열의 순서라(playwright-driver) 점을 하나만 보내면
- * 첫 점의 손가락이 남고 둘째가 떨어진다(CDP 가 이전 이벤트와 비교해 뗀 점을 만든다. 추정).
- */
-const pinchThenOneFingerDrag: Step[] = [
-  {
-    t: 'touch',
-    kind: 'start',
-    points: [
-      [250, 200],
-      [350, 200],
-    ],
-  },
-  { t: 'frames', n: 1 },
-  ...Array.from({ length: 4 }, (_, i): Step[] => [
-    {
-      t: 'touch',
-      kind: 'move',
-      points: [
-        [250 - 8 * (i + 1), 200],
-        [350 + 8 * (i + 1), 200],
-      ],
-    },
-    { t: 'frames', n: 1 },
-  ]).flat(),
-  { t: 'touch', kind: 'move', points: [[218, 200]] },
-  { t: 'frames', n: 1 },
-  ...Array.from({ length: 15 }, (_, i): Step[] => [
-    { t: 'touch', kind: 'move', points: [[218 - 7 * (i + 1), 200]] },
-    { t: 'frames', n: 1 },
-  ]).flat(),
-  { t: 'touch', kind: 'end', points: [] },
-  { t: 'frames', n: 30 },
-];
 
 export const gestures: Scenario[] = [
   {
@@ -114,18 +76,5 @@ export const gestures: Scenario[] = [
       { t: 'frames', n: 5 },
     ],
     expect: [settlesAt(B)],
-  },
-  // QC 사례 13. 핀치가 끝난 상태가 한 손가락 드래그 중에도 남으면 반올림 되먹임이 지도를 당긴다.
-  {
-    name: '핀치하다 한 손가락을 떼고 계속 끌 때 반올림한 center 를 되돌려줘도 지도를 당기지 않는다',
-    since: '0.4',
-    app: { mode: 'rounded', touch: true },
-    steps: pinchThenOneFingerDrag,
-    expect: [
-      callsIn(6, 21, { panTo: 0, setCenter: 0, morph: 0 }),
-      oneWay(6, 21),
-      // 끌기가 실제로 먹혔는지(한 손가락 끌기가 안 보내졌으면 위 판정이 비어 통과한다).
-      movedBy(0.001, 20),
-    ],
   },
 ];

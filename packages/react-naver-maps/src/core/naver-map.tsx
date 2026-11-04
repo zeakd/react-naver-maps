@@ -458,7 +458,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       }
     }
     if (props.zoom !== undefined && props.zoom !== prev.zoom) {
-      if (map.getZoom() !== props.zoom) dirties.zoom = props.zoom;
+      if (map.getZoom() !== sdkZoom(map, props.zoom)) dirties.zoom = props.zoom;
     }
     if (props.bounds !== undefined && !kvoEquals(props.bounds, prev.bounds)) {
       if (!kvoEquals(map.getBounds(), props.bounds))
@@ -583,6 +583,17 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   }, [map, onZoomChanged]);
 
   return <>{children}</>;
+}
+
+/**
+ * SDK 가 실제로 쓸 zoom. 래스터 지도는 실수 zoom 을 반올림한다(15.46 → 15, 15.52 → 16, 3.10.5 실측).
+ * GL(renderMode 2)은 실수 zoom 을 그대로 쓴다. 반올림해 같으면 zoom 은 바뀌지 않은 것이다. 그러지 않으면
+ * 실수 zoom 이 조금씩 바뀔 때마다 morph 를 골랐고 SDK 는 같은 정수 zoom 의 morph 를 center 째 무시했다.
+ */
+function sdkZoom(map: naver.maps.Map, zoom: number): number {
+  const glMode =
+    (map as unknown as { get(k: string): unknown }).get('renderMode') === 2;
+  return glMode ? zoom : Math.round(zoom);
 }
 
 /** 되울림으로 볼 보고값의 시간 범위와 개수. */

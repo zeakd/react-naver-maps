@@ -158,11 +158,30 @@ export const submodules: Scenario[] = [
     ],
   },
   // QC 사례 23. 문서상 지원하지 않는 조합이다(src/core/hooks/use-editable.ts 의 주석): editable 도형의 편집은
-  // SDK 의 path 배열을 제자리에서 고치고 이벤트를 내지 않아, controlled paths 를 렌더마다 다시 주면
-  // 편집이 되돌려질 수 있다. 되돌려지지 않는 것이 목표인지, 문서대로 defaultPath 만 지원하는지는 운전 세션이
-  // 정한다. 꼭짓점의 화면 자리는 앱의 pointOf(HOME 이 첫 꼭짓점)로 얻는다. 투영의 좌표 기준은 확인하지 못했다.
+  // 꼭짓점 끌기 대조군. 다음 시나리오의 되돌림이 하네스 끌기 실패가 아니라는 근거다.
   {
-    name: 'controlled paths 를 준 editable Polygon 의 꼭짓점을 끄는 동안 다시 렌더해도 편집이 끊기지 않는다',
+    name: 'defaultPaths 로 둔 editable Polygon 은 꼭짓점을 끄는 동안 다시 렌더해도 편집이 남는다',
+    since: '0.4',
+    app: { mode: 'props', submodules: ['drawing'], editablePolygon: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'mouseAt', kind: 'down', ll: HOME },
+      { t: 'frames', n: 1 },
+      ...Array.from({ length: 6 }, (_, i): Step[] => [
+        { t: 'mouseAt', kind: 'move', ll: HOME, dx: -6 * (i + 1) },
+        { t: 'props', props: { tick: i + 1 } },
+        { t: 'frames', n: 1 },
+      ]).flat(),
+      { t: 'mouseAt', kind: 'up', ll: HOME, dx: -36 },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ setPaths: 0 }), polygonFirstMovesLeft(0.0001), sameMap()],
+  },
+  // SDK 는 편집한 꼭짓점을 path 배열(KVOArray) 제자리에서 고치고 paths_changed 를 내지 않는다(3.10.5
+  // 실측, core/hooks/use-editable.ts). 그래서 controlled paths 는 앱이 되먹일 수 없고 다음 렌더가 prop
+  // 으로 되돌린다(값을 주고 onChange 없는 입력칸과 같다). 지원하지 않는 조합이라 개발 모드에서 경고한다.
+  {
+    name: 'controlled paths 를 준 editable Polygon 은 꼭짓점을 끌어도 다음 렌더에 prop 으로 되돌린다',
     since: '0.4',
     app: {
       mode: 'props',
@@ -182,6 +201,20 @@ export const submodules: Scenario[] = [
       { t: 'mouseAt', kind: 'up', ll: HOME, dx: -36 },
       { t: 'frames', n: 3 },
     ],
-    expect: [calls({ setPaths: 0 }), polygonFirstMovesLeft(0.0001), sameMap()],
+    expect: [
+      (trace) => {
+        const n = trace
+          .flatMap((f) => f.calls)
+          .filter((c) => c === 'setPaths').length;
+        return n > 0 ? null : 'setPaths 로 되돌리지 않았다';
+      },
+      (trace) => {
+        const p = trace.at(-1)!.polygonFirst;
+        return p && Math.abs(p[1] - HOME[1]) < 0.00001
+          ? null
+          : `마지막 첫 꼭짓점 ${p} 이 prop(${HOME}) 이 아니다`;
+      },
+      sameMap(),
+    ],
   },
 ];

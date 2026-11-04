@@ -95,8 +95,9 @@ export const reactLifecycle: Scenario[] = [
     ],
     expect: [
       infoWindowAlwaysOpen(),
-      // 프레임 사이에 닫혔다 열린 것도 잡는다.
-      calls({ markerInfoClose: 0 }),
+      // 새 anchor 로 open 하면 SDK 가 close 와 open 을 함께 낸다(피할 수 없다). key 를 두 번 바꿨으니
+      // 두 쌍까지다. 그보다 많으면 사이에 한 번 더 닫았다 연 것이다.
+      calls({ markerInfoClose: 2, markerInfoOpen: 2 }),
       infoWindowAtAnchor(),
       sameMap(),
     ],

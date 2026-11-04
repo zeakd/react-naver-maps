@@ -187,6 +187,23 @@ describe('Polygon', () => {
     delete (MockPolygon.prototype as any).setEditable;
   });
 
+  test('editable 과 controlled paths 를 함께 주면 개발 모드에서 한 번 경고한다', () => {
+    (globalThis as any).naver.maps.drawing = {};
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { rerender } = render(<Polygon paths={trianglePaths} editable />);
+    rerender(<Polygon paths={trianglePaths} editable />);
+    const editableWarnings = warn.mock.calls.filter((c) =>
+      String(c[0]).includes('editable paths'),
+    );
+    expect(editableWarnings).toHaveLength(1);
+    warn.mockClear();
+    render(<Polygon defaultPaths={trianglePaths} editable />);
+    expect(
+      warn.mock.calls.filter((c) => String(c[0]).includes('editable')),
+    ).toHaveLength(0);
+    warn.mockRestore();
+  });
+
   test('drawing 서브모듈 없이 editable 을 켜면 불러오는 법을 담아 던진다', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() =>

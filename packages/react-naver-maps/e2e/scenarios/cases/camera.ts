@@ -119,13 +119,20 @@ export const camera: Scenario[] = [
     ],
     expect: [settlesAt([37.5706, 126.9784]), settlesAtZoom(18)],
   },
-  // 사례 14. 매 프레임 바뀌는 prop 마다 morph 를 새로 시작하면 지도가 뒤처지거나 떨린다(추정).
-  // 실수 zoom 을 래스터 지도가 받아 주는지는 확인하지 못했다. 안 받으면 zoom 판정이 먼저 실패한다.
+  // 사례 14. 매 프레임 바뀌는 prop 을 매 프레임 따라야 한다. 래스터 지도는 실수 zoom 을 반올림해 쓰므로
+  // zoom 정수가 그대로인 동안(15.02 ~ 15.48, 프레임 2~25)은 center 만 바뀐 것이라 바로 옮긴다. 예전에는
+  // 실수 zoom 이 바뀔 때마다 morph 를 불렀고 SDK 는 같은 정수 zoom 의 morph 를 center 째 무시해 지도가
+  // 처음 자리에서 움직이지 않았다. 정수가 바뀌는 순간(15.5)의 morph 는 SDK 애니메이션이라 끝날 때까지
+  // 보고되는 center 가 늦다(SDK 는 morph 가 끝나야 KVO 를 낸다). 끝에서는 마지막 prop 에 닿는다.
   {
     name: 'center 와 zoom 을 매 프레임 함께 바꾸면 지도가 매 프레임 그 prop 을 따른다',
     since: '0.4',
     app: { mode: 'props' },
-    steps: [{ t: 'frames', n: 2 }, ...everyFrame],
-    expect: [followsProps()],
+    steps: [{ t: 'frames', n: 2 }, ...everyFrame, { t: 'frames', n: 90 }],
+    expect: [
+      (trace) => followsProps(2)(trace.slice(0, 26)),
+      settlesAt([HOME[0] + 0.00005 * 30, HOME[1] + 0.0002 * 30]),
+      settlesAtZoom(16),
+    ],
   },
 ];

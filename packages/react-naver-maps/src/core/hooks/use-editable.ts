@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { isDev } from './use-static-prop.js';
 import { useNavermaps } from './use-navermaps.js';
 import { requireSubmodule } from '../utils/submodule.js';
 
@@ -18,8 +19,19 @@ export function useEditable(
   shape: object,
   editable: boolean | undefined,
   usedBy: string,
+  /** 함께 준 controlled 꼭짓점 prop 이름(`path`, `paths`). 있으면 개발 모드에서 한 번 경고한다. */
+  controlledPathProp?: string,
 ): void {
   const navermaps = useNavermaps();
+  const warnedRef = useRef(false);
+  useEffect(() => {
+    if (!isDev || !editable || !controlledPathProp || warnedRef.current) return;
+    warnedRef.current = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[react-naver-maps] <${usedBy} editable ${controlledPathProp}={...} />: SDK 는 편집한 꼭짓점을 알리지 않아(${controlledPathProp}_changed 없음) 다음 렌더가 ${controlledPathProp} prop 으로 되돌린다. default${controlledPathProp[0]!.toUpperCase()}${controlledPathProp.slice(1)} 로 두고 결과는 ref 의 get${controlledPathProp[0]!.toUpperCase()}${controlledPathProp.slice(1)}() 로 읽는다.`,
+    );
+  }, [editable, controlledPathProp, usedBy]);
   if (editable) requireSubmodule(navermaps, 'drawing', `${usedBy} 의 editable`);
   const prev = useRef<boolean | undefined>(undefined);
   useLayoutEffect(() => {

@@ -42,7 +42,10 @@ function setupNaverMock() {
           if (event === 'init') initListeners.push(cb);
           return { event, cb };
         },
-        removeListener: vi.fn(),
+        removeListener: (listener: { cb: () => void }) => {
+          const i = initListeners.indexOf(listener.cb);
+          if (i >= 0) initListeners.splice(i, 1);
+        },
         clearInstanceListeners: vi.fn(),
       },
     },
@@ -74,6 +77,18 @@ describe('CustomControl', () => {
     mockMap.isReady = true;
     initListeners.forEach((cb) => cb());
     expect(lastControl.getMap()).toBe(mockMap);
+  });
+
+  test('init 전에 다시 렌더하고 내리면 init 뒤에도 붙지 않는다', () => {
+    const { rerender, unmount } = render(
+      <CustomControl position={1 as naver.maps.Position} />,
+    );
+    // 렌더마다 붙이는 규칙(spec)을 새로 만든다. 뗄 때는 최신 것을 쓴다.
+    rerender(<CustomControl position={3 as naver.maps.Position} />);
+    unmount();
+    mockMap.isReady = true;
+    initListeners.forEach((cb) => cb());
+    expect(lastControl.getMap()).toBe(null);
   });
 
   test('position 을 바꾸면 옮긴다', () => {
