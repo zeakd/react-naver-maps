@@ -1,0 +1,20 @@
+---
+title: 네이버 실시간 교통상황 레이어 표시하기
+category: tutorial-layer
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import TrafficTutorial3Example from '../../../examples/traffic-tutorial-3.tsx';
+
+실시간 교통정보 레이어를 켜고 끄며, 자동 새로고침을 정하는 예제입니다.
+
+<Example of={TrafficTutorial3Example} />
+
+## 설명
+
+`<TrafficLayer interval autoRefresh />` 입니다. `interval` 은 새로고침 주기(ms, 최소 5분)이고 생성 때만 적용됩니다. `autoRefresh` 는 SDK 의 `startAutoRefresh()`, `endAutoRefresh()` 를 대신합니다.
+
+레이어 켜짐과 자동 새로고침 체크는 모두 React state 입니다.
+
+> [네이버 공식 튜토리얼 - 네이버 실시간 교통상황 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-traffic.example.html)

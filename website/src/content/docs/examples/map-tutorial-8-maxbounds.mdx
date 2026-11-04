@@ -1,0 +1,20 @@
+---
+title: 지도 영역 제한하기
+category: tutorial-map
+order: 8
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTutorial8MaxBoundsExample from '../../../examples/map-tutorial-8-maxbounds.tsx';
+
+`minZoom` 과 `maxBounds` 로 지도를 독도 영역으로 제한하는 예제입니다.
+
+<Example of={MapTutorial8MaxBoundsExample} />
+
+## 설명
+
+`maxBounds`, `minZoom` 이 `NaverMap` prop 입니다. 경계는 `{ south, west, north, east }` 리터럴이라 `Marker`, `Rectangle` 에도 그대로 씁니다.
+
+줌 레벨은 `onZoomChanged` 로 받아 state 에 둡니다. 공식 예제는 중심을 정하지 않는데 여기서는 독도 가운데로 지정했습니다.
+
+> [네이버 공식 튜토리얼 - 지도 영역 제한하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-map-maxbounds.example.html)

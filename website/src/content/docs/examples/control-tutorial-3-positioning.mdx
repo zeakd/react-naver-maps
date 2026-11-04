@@ -1,0 +1,20 @@
+---
+title: 지도 컨트롤 위치 설정하기
+category: tutorial-control
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ControlTutorial3PositioningExample from '../../../examples/control-tutorial-3-positioning.tsx';
+
+지도 유형, 줌, 축척, 로고, 지도 데이터 컨트롤의 위치와 스타일을 정하는 예제입니다.
+
+<Example of={ControlTutorial3PositioningExample} />
+
+## 설명
+
+컨트롤마다 `*ControlOptions` prop(`mapTypeControlOptions`, `zoomControlOptions`, `scaleControlOptions`, `logoControlOptions`, `mapDataControlOptions`)에 `position` 과 `style` 을 줍니다.
+
+`navermaps.Position`, `navermaps.MapTypeControlStyle`, `navermaps.ZoomControlStyle` 상수는 `useNavermaps()` 에서 받습니다.
+
+> [네이버 공식 튜토리얼 - 지도 컨트롤 위치 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-control-positioning.example.html)

@@ -1,0 +1,20 @@
+---
+title: 네이버 라벨 레이어 표시하기
+category: tutorial-layer
+order: 5
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import LabelTutorial5Example from '../../../examples/label-tutorial-5.tsx';
+
+벡터 일반 지도에 지도 글자(라벨) 레이어를 켜고 끄는 예제입니다.
+
+<Example of={LabelTutorial5Example} />
+
+## 설명
+
+`<LabelLayer />` 는 벡터 지도에 얹는 레이어라서 `NaverMap` 의 `mapTypes` 에 `NaverStyleMapTypeOptions.getVectorMap()` 을 `normal` 로 등록합니다. 레지스트리는 `useMemo` 로 한 번만 만듭니다.
+
+켜고 끄는 것은 마운트로 합니다. 자세한 내용은 [LabelLayer](/api-references/label-layer) 를 보세요.
+
+> [네이버 공식 튜토리얼 - 네이버 라벨 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-label.example.html)

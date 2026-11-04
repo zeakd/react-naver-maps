@@ -1,0 +1,20 @@
+---
+title: 투영법과 타일의 크기를 동적으로 변경하기
+category: tutorial-maptype
+order: 4
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial4DynamicExample from '../../../examples/maptypes-tutorial-4-dynamic.tsx';
+
+네이버 지도와 OSM 두 지도 유형을 오가며 타일 크기를 바꿔 보는 예제입니다.
+
+<Example of={MapTypesTutorial4DynamicExample} />
+
+## 설명
+
+지도 유형 컨트롤(`mapTypeControlOptions`)로 투영법이 다른 두 유형을 전환합니다. 두 유형은 `useMemo` 로 한 번 만들어 레지스트리에 넣고 인스턴스도 따로 들고 있습니다.
+
+타일 크기는 선언적 prop 이 없어서 유형 인스턴스의 `getMapTypeOptions()`, `setMapTypeOptions()` 를 부른 뒤 `ref` 로 받은 지도에 `refresh(true)` 를 부릅니다(문서 원칙: SDK 메서드는 인스턴스에 직접).
+
+> [네이버 공식 튜토리얼 - 투영법과 타일의 크기를 동적으로 변경하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-maptypes-dynamic.example.html)

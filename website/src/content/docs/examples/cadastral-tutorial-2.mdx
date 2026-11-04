@@ -1,0 +1,20 @@
+---
+title: 네이버 지적도 레이어 표시하기
+category: tutorial-layer
+order: 2
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import CadastralTutorial2Example from '../../../examples/cadastral-tutorial-2.tsx';
+
+지도에 지적도 레이어를 켜고 끄는 예제입니다.
+
+<Example of={CadastralTutorial2Example} />
+
+## 설명
+
+`<CadastralLayer />` 를 렌더하면 켜지고 언마운트하면 꺼집니다. 켜짐 여부와 버튼 글자는 React state 에서 나옵니다.
+
+공식 예제가 `cadastralLayer_changed` 이벤트로 하던 버튼 갱신은 state 를 그대로 쓰므로 필요 없습니다.
+
+> [네이버 공식 튜토리얼 - 네이버 지적도 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-cadastral.example.html)

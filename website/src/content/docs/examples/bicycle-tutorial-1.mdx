@@ -1,0 +1,22 @@
+---
+title: 네이버 자전거 레이어 표시하기
+category: tutorial-layer
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import BicycleTutorial1Example from '../../../examples/bicycle-tutorial-1.tsx';
+
+지도에 자전거 도로 레이어를 켜고 끄는 예제입니다.
+
+<Example of={BicycleTutorial1Example} />
+
+## 설명
+
+`<BicycleLayer />` 를 렌더하면 레이어가 켜지고, 언마운트하면 꺼집니다. SDK 의 `new BicycleLayer()` 와 `setMap(map)`, `setMap(null)` 이 마운트 수명으로 바뀝니다.
+
+켜짐 여부는 React state(`bicycle`)가 갖습니다. 공식 예제가 `bicycleLayer_changed` 이벤트로 버튼 모양을 맞추던 부분은 state 를 그대로 쓰면 되어 필요 없습니다.
+
+지도 유형 컨트롤은 `mapTypeControl` 과 `mapTypeControlOptions` 로 정합니다. 스타일 상수는 `useNavermaps()` 가 주는 `navermaps.MapTypeControlStyle` 에서 받습니다.
+
+> [네이버 공식 튜토리얼 - 네이버 자전거 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-bicycle.example.html)
