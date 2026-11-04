@@ -10,8 +10,16 @@ import {
   useRef,
 } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
-import { useControlledKVO, kvoEquals } from './hooks/use-controlled-kvo.js';
-import { useStaticProp, isDev } from './hooks/use-static-prop.js';
+import { kvoEquals, useControlledProps } from './hooks/use-controlled-kvo.js';
+import { isDev, useStaticProps } from './hooks/use-static-prop.js';
+import {
+  MAP_EVENTS,
+  MAP_LIFECYCLE_EVENTS,
+  MAP_OPTION_PROPS,
+  MAP_STATIC_PROPS,
+  MAP_SYNCED_PROPS,
+} from './naver-map-options.js';
+import { useOverlayEvents } from './overlay-spec.js';
 import type {
   ControlOptionsProp,
   MapTypeControlOptionsProp,
@@ -30,7 +38,6 @@ import {
   removeMapListener,
   clearMapListeners,
 } from './utils/sdk.js';
-import type { MapListener } from './utils/sdk.js';
 
 /** 네이버 지도를 렌더링한다. Container 내부에서 사용해야 한다. */
 export interface NaverMapProps {
@@ -276,46 +283,10 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
         bounds: initialBounds,
         mapTypeId: props.mapTypeId ?? props.defaultMapTypeId,
         size: props.size ?? props.defaultSize,
-        minZoom: props.minZoom,
-        maxZoom: props.maxZoom,
-        cursor: props.cursor,
-        tilt: props.tilt,
-        rotation: props.rotation,
-        tileDuration: props.tileDuration,
-        background: props.background,
-        baseTileOpacity: props.baseTileOpacity,
-        draggable: props.draggable,
-        scrollWheel: props.scrollWheel,
-        pinchZoom: props.pinchZoom,
-        keyboardShortcuts: props.keyboardShortcuts,
-        disableDoubleClickZoom: props.disableDoubleClickZoom,
-        disableDoubleTapZoom: props.disableDoubleTapZoom,
-        disableTwoFingerTapZoom: props.disableTwoFingerTapZoom,
-        disableKineticPan: props.disableKineticPan,
-        tileTransition: props.tileTransition,
-        logoControl: props.logoControl,
-        logoControlOptions: props.logoControlOptions,
-        mapDataControl: props.mapDataControl,
-        mapDataControlOptions: props.mapDataControlOptions,
-        mapTypeControl: props.mapTypeControl,
-        mapTypeControlOptions: props.mapTypeControlOptions,
-        scaleControl: props.scaleControl,
-        scaleControlOptions: props.scaleControlOptions,
-        zoomControl: props.zoomControl,
-        zoomControlOptions: props.zoomControlOptions,
-        mapTypes: props.mapTypes,
-        maxBounds: props.maxBounds,
-        padding: props.padding,
-        resizeOrigin: props.resizeOrigin,
-        overlayZoomEffect: props.overlayZoomEffect,
-        tileSpare: props.tileSpare,
-        zoomOrigin: props.zoomOrigin,
-        blankTileImage: props.blankTileImage,
-        // Static (생성자에만 적용)
-        repeatX: props.repeatX,
-        gl: props.gl,
-        customStyleId: props.customStyleId,
-        useStyleMap: props.useStyleMap,
+        ...pick(
+          props,
+          MAP_OPTION_PROPS.map(([k]) => k),
+        ),
         // 옵션 타입은 공식 문서를 따라 @types 3.9.2 보다 넓다(types/sdk-options.ts). SDK 는 그대로 받는다.
       }) as unknown as naver.maps.MapOptions,
     );
@@ -345,20 +316,6 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
 
 interface NaverMapInnerProps extends Omit<NaverMapProps, 'ref'> {
   map: naver.maps.Map;
-}
-
-// keyof NaverMapProps로 propName 오타 방지 + value 타입 매칭 자동 추론.
-//
-// 정책: static prop 호출이 3회 이상이면 wrapper, 1~2회면 satisfies 패턴 사용.
-// - wrapper(이 파일, 5회 호출): 호출 사이트 짧고 일관 — `useNaverMapStatic('foo', x)`
-// - satisfies(CustomOverlay/TrafficLayer, 1회 호출): wrapper 추가 비용 회피 —
-//   `useStaticProp('Comp', 'foo' satisfies keyof Props, x)`
-// 둘 다 컴파일 시점에 propName 오타를 잡고 value 타입을 추론한다.
-function useNaverMapStatic<K extends keyof NaverMapProps>(
-  propName: K,
-  value: NaverMapProps[K],
-): void {
-  useStaticProp('NaverMap', propName, value);
 }
 
 function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
@@ -508,15 +465,8 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     };
   });
 
-  // Static props (마운트 시에만 적용 — 변경 시 dev에서 경고)
-  // wrapper로 keyof NaverMapProps 강제 → propName 오타 시 컴파일 에러
-  useNaverMapStatic('repeatX', props.repeatX);
-  useNaverMapStatic('gl', props.gl);
-  useNaverMapStatic('customStyleId', props.customStyleId);
-  // SDK 는 빈 타일 이미지를 생성자에서만 읽는다(바꿔도 반영되지 않는다).
-  useNaverMapStatic('blankTileImage', props.blankTileImage);
-  useNaverMapStatic('useStyleMap', props.useStyleMap);
-  useNaverMapStatic('tileDuration', props.tileDuration);
+  // 생성자만 읽는 prop. 바꾸면 개발 모드에서 경고한다.
+  useStaticProps('NaverMap', pick(props, MAP_STATIC_PROPS));
 
   // GL 은 gl 서브모듈을 불러야 하고 다른 서브모듈과 함께 쓰지 않는다(공식 문서 "GL 생성 및 기본 동작").
   const clientOptions = use(ClientOptionsContext);
@@ -561,64 +511,14 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     'defaultCenter',
   );
 
-  // =========================================================================
-  // 저주기 KVO: useControlledKVO 유지
-  //
-  // draggable, scrollWheel 등은 사용자가 UI 버튼으로 토글하는 정도.
-  // 드래그 중 변경되지 않으므로 useControlledKVO의 매 렌더 비교가 문제되지 않음.
-  // =========================================================================
-  useControlledKVO(map, 'mapTypeId', props.mapTypeId);
-  useControlledKVO(map, 'minZoom', props.minZoom);
-  useControlledKVO(map, 'maxZoom', props.maxZoom);
-  useControlledKVO(map, 'size', props.size);
-  useControlledKVO(map, 'cursor', props.cursor, { writeOnMount: ['cursor'] });
-  useControlledKVO(map, 'tilt', props.tilt);
-  useControlledKVO(map, 'rotation', props.rotation);
-  useControlledKVO(map, 'background', props.background);
-  useControlledKVO(map, 'baseTileOpacity', props.baseTileOpacity);
-  useControlledKVO(map, 'draggable', props.draggable);
-  useControlledKVO(map, 'scrollWheel', props.scrollWheel);
-  useControlledKVO(map, 'pinchZoom', props.pinchZoom);
-  useControlledKVO(map, 'keyboardShortcuts', props.keyboardShortcuts);
-  useControlledKVO(map, 'disableDoubleClickZoom', props.disableDoubleClickZoom);
-  useControlledKVO(map, 'disableDoubleTapZoom', props.disableDoubleTapZoom);
-  useControlledKVO(
-    map,
-    'disableTwoFingerTapZoom',
-    props.disableTwoFingerTapZoom,
-  );
-  useControlledKVO(map, 'disableKineticPan', props.disableKineticPan);
-  useControlledKVO(map, 'tileTransition', props.tileTransition);
-  useControlledKVO(map, 'logoControlOptions', props.logoControlOptions);
-  useControlledKVO(map, 'scaleControl', props.scaleControl);
-  useControlledKVO(map, 'scaleControlOptions', props.scaleControlOptions);
-  useControlledKVO(map, 'mapDataControl', props.mapDataControl);
-  useControlledKVO(map, 'mapDataControlOptions', props.mapDataControlOptions);
-  useControlledKVO(map, 'mapTypeControl', props.mapTypeControl);
-  useControlledKVO(map, 'mapTypeControlOptions', props.mapTypeControlOptions);
-  useControlledKVO(map, 'zoomControl', props.zoomControl);
-  useControlledKVO(map, 'zoomControlOptions', props.zoomControlOptions);
-  useControlledKVO(map, 'mapTypes', props.mapTypes);
-  useControlledKVO(map, 'maxBounds', props.maxBounds);
-  useControlledKVO(map, 'padding', props.padding);
-  useControlledKVO(map, 'resizeOrigin', props.resizeOrigin);
-  useControlledKVO(map, 'overlayZoomEffect', props.overlayZoomEffect);
-  useControlledKVO(map, 'tileSpare', props.tileSpare);
-  useControlledKVO(map, 'zoomOrigin', props.zoomOrigin);
+  // 카메라 밖 옵션. 바뀌면 맞추고 바깥 변경을 되돌린다(useControlledProps). 목록과 규칙은
+  // naver-map-options.ts. 생성자가 cursor 를 읽지 않아 마운트 때 다르면 맞춘다.
+  useControlledProps(map, pick(props, MAP_SYNCED_PROPS), {
+    writeOnMount: ['cursor'],
+  });
 
-  // 라이프사이클 이벤트(init/idle/tilesloaded 등)는 SDK가 동기 또는 빠른 async로 발화.
-  // useEffect(paint 후)는 1 프레임 늦어 init을 놓칠 수 있으므로 useLayoutEffect로 등록.
-  useLayoutEffect(() => {
-    const add = addMapListener;
-    const ls: MapListener[] = [];
-    if (props.onInit) ls.push(add(map, 'init', props.onInit));
-    if (props.onIdle) ls.push(add(map, 'idle', props.onIdle));
-    if (props.onTilesloaded)
-      ls.push(add(map, 'tilesloaded', props.onTilesloaded));
-    return () => {
-      ls.forEach((l) => removeMapListener(l));
-    };
-  }, [map, props.onInit, props.onIdle, props.onTilesloaded]);
+  // init, idle, tilesloaded 는 지도를 만들며 바로 온다. paint 뒤에 붙이면 init 을 놓칠 수 있다.
+  useOverlayEvents(map, props, MAP_LIFECYCLE_EVENTS, 'layout');
 
   useLayoutEffect(() => {
     const listener = addMapListener(map, 'center_changed', () => {
@@ -627,139 +527,17 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     return () => removeMapListener(listener);
   }, [map]);
 
-  // Events
+  useOverlayEvents(map, props, MAP_EVENTS);
+  // gl 서브모듈을 불러오면 SDK 내부 zoom 이 1 커져 이벤트 값과 getZoom() 이 다르다.
+  // getZoom() 이 사용자에게 보이는 값이므로 이 값을 넘긴다.
   const { onZoomChanged } = props;
   useEffect(() => {
-    const add = addMapListener;
-    const ls: MapListener[] = [];
-
-    // KVO changed
-    if (props.onCenterChanged)
-      ls.push(add(map, 'center_changed', props.onCenterChanged));
-    // gl 서브모듈을 불러오면 SDK 내부 zoom 이 1 커져 이벤트 값과 getZoom() 이 다르다.
-    // getZoom() 이 사용자에게 보이는 값이므로 이 값을 넘긴다.
-    if (onZoomChanged) {
-      ls.push(add(map, 'zoom_changed', () => onZoomChanged(map.getZoom())));
-    }
-    if (props.onBoundsChanged)
-      ls.push(add(map, 'bounds_changed', props.onBoundsChanged));
-    if (props.onMapTypeIdChanged)
-      ls.push(add(map, 'mapTypeId_changed', props.onMapTypeIdChanged));
-    if (props.onSizeChanged)
-      ls.push(add(map, 'size_changed', props.onSizeChanged));
-    if (props.onCenterPointChanged)
-      ls.push(add(map, 'centerPoint_changed', props.onCenterPointChanged));
-    if (props.onMapTypeChanged)
-      ls.push(add(map, 'mapType_changed', props.onMapTypeChanged));
-    if (props.onTiltChanged)
-      ls.push(add(map, 'tilt_changed', props.onTiltChanged));
-    if (props.onRotationChanged)
-      ls.push(add(map, 'rotation_changed', props.onRotationChanged));
-
-    // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect로 분리됨 — 누락 방지)
-    if (props.onPanning) ls.push(add(map, 'panning', props.onPanning));
-    if (props.onZoomstart) ls.push(add(map, 'zoomstart', props.onZoomstart));
-    if (props.onZoomend) ls.push(add(map, 'zoomend', props.onZoomend));
-    if (props.onZoom) ls.push(add(map, 'zoom', props.onZoom));
-    if (props.onZooming) ls.push(add(map, 'zooming', props.onZooming));
-    if (props.onResize) ls.push(add(map, 'resize', props.onResize));
-    if (props.onProjectionChanged)
-      ls.push(add(map, 'projection_changed', props.onProjectionChanged));
-    if (props.onAddLayer) ls.push(add(map, 'addLayer', props.onAddLayer));
-    if (props.onRemoveLayer)
-      ls.push(add(map, 'removeLayer', props.onRemoveLayer));
-
-    // 마우스
-    if (props.onClick) ls.push(add(map, 'click', props.onClick));
-    if (props.onDblclick) ls.push(add(map, 'dblclick', props.onDblclick));
-    if (props.onRightclick) ls.push(add(map, 'rightclick', props.onRightclick));
-    if (props.onMousedown) ls.push(add(map, 'mousedown', props.onMousedown));
-    if (props.onMouseup) ls.push(add(map, 'mouseup', props.onMouseup));
-    if (props.onMouseover) ls.push(add(map, 'mouseover', props.onMouseover));
-    if (props.onMouseout) ls.push(add(map, 'mouseout', props.onMouseout));
-    if (props.onMousemove) ls.push(add(map, 'mousemove', props.onMousemove));
-
-    // 드래그
-    if (props.onDragstart) ls.push(add(map, 'dragstart', props.onDragstart));
-    if (props.onDrag) ls.push(add(map, 'drag', props.onDrag));
-    if (props.onDragend) ls.push(add(map, 'dragend', props.onDragend));
-
-    // 터치
-    if (props.onTouchstart) ls.push(add(map, 'touchstart', props.onTouchstart));
-    if (props.onTouchmove) ls.push(add(map, 'touchmove', props.onTouchmove));
-    if (props.onTouchend) ls.push(add(map, 'touchend', props.onTouchend));
-
-    // 핀치
-    if (props.onPinchstart) ls.push(add(map, 'pinchstart', props.onPinchstart));
-    if (props.onPinch) ls.push(add(map, 'pinch', props.onPinch));
-    if (props.onPinchend) ls.push(add(map, 'pinchend', props.onPinchend));
-
-    // 모바일 탭
-    if (props.onTap) ls.push(add(map, 'tap', props.onTap));
-    if (props.onLongtap) ls.push(add(map, 'longtap', props.onLongtap));
-    if (props.onTwofingertap)
-      ls.push(add(map, 'twofingertap', props.onTwofingertap));
-    if (props.onDoubletap) ls.push(add(map, 'doubletap', props.onDoubletap));
-
-    // 키보드
-    if (props.onKeydown) ls.push(add(map, 'keydown', props.onKeydown));
-    if (props.onKeyup) ls.push(add(map, 'keyup', props.onKeyup));
-
-    return () => {
-      ls.forEach((l) => removeMapListener(l));
-    };
-  }, [
-    map,
-    // KVO changed
-    props.onCenterChanged,
-    onZoomChanged,
-    props.onBoundsChanged,
-    props.onMapTypeIdChanged,
-    props.onSizeChanged,
-    props.onCenterPointChanged,
-    props.onMapTypeChanged,
-    props.onTiltChanged,
-    props.onRotationChanged,
-    // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect deps로 분리됨)
-    props.onPanning,
-    props.onZoomstart,
-    props.onZoomend,
-    props.onZoom,
-    props.onZooming,
-    props.onResize,
-    props.onProjectionChanged,
-    props.onAddLayer,
-    props.onRemoveLayer,
-    // 마우스
-    props.onClick,
-    props.onDblclick,
-    props.onRightclick,
-    props.onMousedown,
-    props.onMouseup,
-    props.onMouseover,
-    props.onMouseout,
-    props.onMousemove,
-    // 드래그
-    props.onDragstart,
-    props.onDrag,
-    props.onDragend,
-    // 터치
-    props.onTouchstart,
-    props.onTouchmove,
-    props.onTouchend,
-    // 핀치
-    props.onPinchstart,
-    props.onPinch,
-    props.onPinchend,
-    // 모바일 탭
-    props.onTap,
-    props.onLongtap,
-    props.onTwofingertap,
-    props.onDoubletap,
-    // 키보드
-    props.onKeydown,
-    props.onKeyup,
-  ]);
+    if (!onZoomChanged) return;
+    const listener = addMapListener(map, 'zoom_changed', () =>
+      onZoomChanged(map.getZoom()),
+    );
+    return () => removeMapListener(listener);
+  }, [map, onZoomChanged]);
 
   return <>{children}</>;
 }
@@ -814,4 +592,10 @@ function useDeprecatedProp(
       `[react-naver-maps] <NaverMap ${name}> 는 0.4 에서 deprecated 이고 다음 버전에서 없어집니다. ${instead} 를 쓰세요.`,
     );
   }, [name, given, instead]);
+}
+
+/** props 에서 keys 의 값만 같은 순서로 모은다. */
+function pick(props: object, keys: readonly string[]): Record<string, unknown> {
+  const source = props as Record<string, unknown>;
+  return Object.fromEntries(keys.map((k) => [k, source[k]]));
 }
