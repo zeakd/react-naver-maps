@@ -134,6 +134,11 @@ export const reactLifecycle: Scenario[] = [
   },
   {
     name: 'morph 애니메이션 도중 key 로 지도를 다시 만들어도 에러가 없다',
+    unstable: {
+      fields: ['controls'],
+      reason:
+        '다시 만든 지도의 기본 컨트롤은 SDK 가 비동기로 붙여 그 프레임에 있을지가 실행마다 다르다',
+    },
     since: '0.4',
     app: { mode: 'props', mapKey: 1 },
     steps: [
@@ -158,6 +163,11 @@ export const reactLifecycle: Scenario[] = [
   },
   {
     name: '드래그를 놓은 직후 관성이 도는 중에 key 로 지도를 다시 만들어도 에러가 없다',
+    unstable: {
+      fields: ['controls'],
+      reason:
+        '다시 만든 지도의 기본 컨트롤은 SDK 가 비동기로 붙여 그 프레임에 있을지가 실행마다 다르다',
+    },
     since: '0.4',
     app: { mode: 'props', mapKey: 1 },
     steps: [
