@@ -53,7 +53,7 @@ function MapMovesMapContent() {
         <button
           style={buttonStyle}
           onClick={() => {
-            mapRef.current?.setZoom(6);
+            mapRef.current?.setZoom(6, true);
           }}
         >
           6레벨로 setZoom

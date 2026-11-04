@@ -31,22 +31,36 @@ const iconStyle = {
 } as const;
 
 const GREEN_FACTORY = { lat: 37.3595953, lng: 127.1053971 };
+// 공식 예제의 두 번째 컨트롤(map.controls[LEFT_CENTER])이 가는 곳. 경도가 조금 다르다.
+const GREEN_FACTORY_EAST = { lat: 37.3595953, lng: 127.1553971 };
 
 function HomeControl() {
   const navermaps = useNavermaps();
   const map = useMap();
 
   return (
-    <CustomControl position={navermaps.Position.TOP_LEFT}>
-      <button
-        type="button"
-        aria-label="NAVER 그린팩토리로 이동"
-        style={buttonStyle}
-        onClick={() => map.setCenter(GREEN_FACTORY)}
-      >
-        <span style={iconStyle} />
-      </button>
-    </CustomControl>
+    <>
+      <CustomControl position={navermaps.Position.TOP_LEFT}>
+        <button
+          type="button"
+          aria-label="NAVER 그린팩토리로 이동"
+          style={buttonStyle}
+          onClick={() => map.setCenter(GREEN_FACTORY)}
+        >
+          <span style={iconStyle} />
+        </button>
+      </CustomControl>
+      <CustomControl position={navermaps.Position.LEFT_CENTER}>
+        <button
+          type="button"
+          aria-label="NAVER 그린팩토리 동쪽으로 이동"
+          style={buttonStyle}
+          onClick={() => map.setCenter(GREEN_FACTORY_EAST)}
+        >
+          <span style={iconStyle} />
+        </button>
+      </CustomControl>
+    </>
   );
 }
 

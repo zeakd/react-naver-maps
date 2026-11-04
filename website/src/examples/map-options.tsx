@@ -55,10 +55,11 @@ function MapOptionsMapContent({
       scaleControl={controls}
       logoControl={controls}
       mapDataControl={controls}
-      zoomControl={true}
+      zoomControl={controls}
       zoomControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
       mapTypeControl={controls}
       minZoom={minZoom}
+      maxZoom={21}
     />
   );
 }
