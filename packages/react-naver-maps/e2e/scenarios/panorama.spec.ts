@@ -10,6 +10,7 @@ declare global {
         marker?: [number, number];
         infoWindow?: boolean;
         roundPanTo?: number;
+        povDelayMs?: number;
       },
     ) => Promise<{
       events(): string[];
@@ -108,7 +109,11 @@ test('Panorama 자식 Marker 와 InfoWindow 는 거리뷰가 준비된 뒤 거�
 });
 
 /** 거리뷰 가운데를 잡고 dx 만큼 끈다. 끄는 동안 pan 과 setPov 호출을 모은다. */
-async function dragPanorama(page: import('@playwright/test').Page, dx: number) {
+async function dragPanorama(
+  page: import('@playwright/test').Page,
+  dx: number,
+  settleMs = 1500,
+) {
   const box = (await page.locator('#host').boundingBox())!;
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
@@ -126,23 +131,31 @@ async function dragPanorama(page: import('@playwright/test').Page, dx: number) {
     );
   }
   await page.mouse.up();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(settleMs);
   return during;
 }
 
 async function openPanorama(
   page: import('@playwright/test').Page,
   roundPanTo?: number,
+  povDelayMs?: number,
 ) {
   await page.goto('/');
   await page.waitForFunction(() => window.mountPanorama !== undefined);
-  await page.evaluate(async (unit) => {
-    window.pano = await window.mountPanorama(document.getElementById('host')!, {
-      position: [37.5666, 126.9784],
-      pan: 0,
-      roundPanTo: unit,
-    });
-  }, roundPanTo);
+  await page.evaluate(
+    async ([unit, delay]) => {
+      window.pano = await window.mountPanorama(
+        document.getElementById('host')!,
+        {
+          position: [37.5666, 126.9784],
+          pan: 0,
+          roundPanTo: unit,
+          povDelayMs: delay,
+        },
+      );
+    },
+    [roundPanTo, povDelayMs] as const,
+  );
   await page.waitForFunction(
     () => window.pano.events().includes('init'),
     undefined,
@@ -181,4 +194,20 @@ test('반올림한 pov 를 되돌려줘도 Panorama 를 끄는 동안 setPov 를
   expect(calls[0]! % 10).toBe(0);
   expect(calls[0]).not.toBe(0);
   expect(after).toBe(calls[0]);
+});
+
+// QC 사례 24. 놓은 뒤 pov 를 늦게 되돌려주는 앱(300ms)에서, 놓자마자 다시 끌면 늦은 pov 가 두 번째 끄는
+// 동안(약 600ms) 도착한다. 그때 라이브러리가 setPov 를 부르면 손 밑의 거리뷰를 당긴다. 첫 번째 놓음이
+// 만든 setPov 는 지연 때문에 아직 불리지 않았으므로 두 번째 끄는 동안 setPov 는 0 이어야 한다.
+// 늦은 값은 두 번째 끌기가 끝난 뒤 맞춘다(마지막 두 단언. 맞추는 시점은 확인하지 못했다).
+test('pov 를 늦게 되돌려줘도 놓은 직후 다시 끄는 동안 Panorama 에 setPov 를 부르지 않는다', async ({
+  page,
+}) => {
+  await openPanorama(page, 10, 300);
+  await dragPanorama(page, -200, 0);
+  const during = await dragPanorama(page, -200);
+  expect(during.every((d) => d.calls === 0)).toBe(true);
+  const calls = await page.evaluate(() => window.pano.setPovCalls());
+  expect(calls.length).toBeGreaterThan(0);
+  expect(calls.every((pan) => pan % 10 === 0)).toBe(true);
 });

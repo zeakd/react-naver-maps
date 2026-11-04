@@ -27,6 +27,8 @@ export async function mountPanorama(
      * 앱). 없으면 pov 는 setPan 으로만 바뀐다.
      */
     roundPanTo?: number;
+    /** 반올림한 pan 을 pov prop 으로 되돌려주기까지의 지연(ms). 없으면 바로. */
+    povDelayMs?: number;
   },
 ) {
   const maps = await loadScript({
@@ -65,8 +67,12 @@ export async function mountPanorama(
               if (unit === undefined) return;
               const next = Math.round((pov.pan ?? 0) / unit) * unit;
               if (next === pan) return;
-              pan = next;
-              queueMicrotask(render);
+              const apply = () => {
+                pan = next;
+                render();
+              };
+              if (initial.povDelayMs) setTimeout(apply, initial.povDelayMs);
+              else queueMicrotask(apply);
             }}
             onInit={() => events.push('init')}
           >
