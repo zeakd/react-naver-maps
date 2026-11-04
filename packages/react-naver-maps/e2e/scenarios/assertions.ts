@@ -557,3 +557,69 @@ export function polygonFirstMovesLeft(minDeg: number): Assertion {
       : `꼭짓점이 ${moved} 만 옮겨졌다 (기대 >= ${minDeg})`;
   };
 }
+
+/**
+ * from 프레임부터 to 프레임 앞까지 모든 프레임에서 올린 오버레이마다 overlayDrift 가 maxPx 이하다.
+ * overlayDrift 가 null(지도에 없음)인 프레임은 건너뛰되, 범위 안에서 하나도 못 쟀으면 실패다.
+ */
+export function overlaysStayPut(
+  maxPx: number,
+  from = 0,
+  to?: number,
+): Assertion {
+  return (trace) => {
+    const end = Math.min(to ?? trace.length, trace.length);
+    let measured = 0;
+    for (let i = from; i < end; i++) {
+      for (const [name, px] of Object.entries(trace[i]!.overlayDrift)) {
+        if (px === null) continue;
+        measured++;
+        if (px > maxPx) {
+          return `프레임 ${i} 에서 ${name} 가 지도의 자기 좌표에서 ${px.toFixed(1)}px 벗어났다 (허용 ${maxPx}px)`;
+        }
+      }
+    }
+    return measured > 0 ? null : '오버레이 위치를 한 번도 재지 못했다';
+  };
+}
+
+/** 모든 프레임에서 두 번째 지도의 center 가 처음 프레임과 같다. */
+export function secondMapStaysPut(): Assertion {
+  return (trace) => {
+    const base = trace[0]!.secondCenter;
+    if (!base) return '두 번째 지도가 없다';
+    const i = trace.findIndex(
+      (f) => !f.secondCenter || !near(f.secondCenter, base),
+    );
+    return i === -1
+      ? null
+      : `프레임 ${i} 에서 두 번째 지도 center 가 ${trace[i]!.secondCenter} 로 바뀌었다 (처음 ${base})`;
+  };
+}
+
+/** 마지막 프레임에서 두 번째 지도의 center 가 target 이다. */
+export function secondSettlesAt(target: LL): Assertion {
+  return (trace) => {
+    const c = trace.at(-1)!.secondCenter;
+    if (!c) return '두 번째 지도가 없다';
+    return near(c, target)
+      ? null
+      : `마지막 두 번째 지도 center ${c} 가 ${target} 이 아니다`;
+  };
+}
+
+/** from 프레임부터 모든 프레임에서 첫 지도와 두 번째 지도의 InfoWindow 가 각자의 지도에 열려 있다. */
+export function infoWindowsOpenOnBothMaps(from = 0): Assertion {
+  return (trace) => {
+    for (let i = from; i < trace.length; i++) {
+      const f = trace[i]!;
+      if (!f.overlaysOnMap.includes('infoWindow')) {
+        return `프레임 ${i} 에서 첫 지도의 InfoWindow 가 닫혀 있다`;
+      }
+      if (f.secondInfoWindowOpen !== true) {
+        return `프레임 ${i} 에서 두 번째 지도의 InfoWindow 가 닫혀 있다 (${f.secondInfoWindowOpen})`;
+      }
+    }
+    return null;
+  };
+}

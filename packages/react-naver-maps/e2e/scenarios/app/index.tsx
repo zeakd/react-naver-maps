@@ -5,7 +5,6 @@ import {
   startTransition,
   useEffect,
   useLayoutEffect,
-  useRef,
   useState,
 } from 'react';
 import { flushSync } from 'react-dom';
@@ -17,6 +16,7 @@ import { createObserved, observe, type Observed } from './observe.js';
 import {
   Container,
   geocode,
+  InfoWindow,
   loadScript,
   NaverMap,
   NavermapsProvider,
@@ -82,6 +82,14 @@ function KvoProbe({ observed }: { observed: Observed }) {
   return null;
 }
 
+/** 지도의 center 를 [lat, lng] 로. 투영이 없는 사용자 지도 유형에서는 getCenter() 가 Point 라 [y, x]. */
+function centerOf(map: naver.maps.Map): LL {
+  const c = map.getCenter();
+  return 'lat' in c && typeof c.lat === 'function'
+    ? [c.lat(), (c as naver.maps.LatLng).lng()]
+    : [(c as naver.maps.Point).y, (c as naver.maps.Point).x];
+}
+
 /** 앱이 내려준 center 를 [lat, lng] 로. 리터럴과 LatLng 둘 다 받는다. */
 function coordToLL(c: naver.maps.Coord): LL {
   const o = c as unknown as {
@@ -132,6 +140,90 @@ function controlCount(map: naver.maps.Map) {
   return positions.reduce((sum, p) => sum + (p?.getLength?.() ?? 0), 0);
 }
 
+/** 마지막 값만 300ms 뒤에 적용하는 예약 함수. 타이머 id 는 timer 에 둔다. */
+function debouncer(timer: { id: number | null }) {
+  return (apply: () => void) => {
+    if (timer.id) window.clearTimeout(timer.id);
+    timer.id = window.setTimeout(apply, 300);
+  };
+}
+
+/**
+ * mode 에 따라 onCenterChanged 로 받은 값을 상태에 넣는 핸들러. props 면 없다(상태를 갱신하지 않는다).
+ * later 는 값마다 delayMs 뒤에 적용을 예약하고, debounce 는 마지막 값만 300ms 뒤에 적용한다.
+ */
+function centerReporter(
+  config: AppConfig,
+  setReported: (c: naver.maps.Coord) => void,
+  later: (apply: () => void) => void,
+  debounce: (apply: () => void) => void,
+): ((c: naver.maps.Coord) => void) | undefined {
+  switch (config.mode) {
+    case 'controlled':
+      return setReported;
+    case 'rounded':
+      return (c) => {
+        const ll = c as naver.maps.LatLng;
+        setReported({
+          lat: Number(ll.lat().toFixed(config.roundDigits ?? 4)),
+          lng: Number(ll.lng().toFixed(config.roundDigits ?? 4)),
+        } as unknown as naver.maps.Coord);
+      };
+    case 'debounced':
+      return (c) => debounce(() => setReported(c));
+    case 'delayed':
+      return (c) => later(() => setReported(c));
+    default:
+      return undefined;
+  }
+}
+
+/** 두 번째 지도(secondMap)의 인스턴스를 받는 통로. mountApp 이 만든다. */
+type Second = {
+  onMap(map: naver.maps.Map): void;
+  onInfoWindow(infoWindow: naver.maps.InfoWindow): void;
+};
+
+/**
+ * 첫 지도 옆의 두 번째 지도. 첫 지도와 같은 mode 로 center 를 되먹이고 자기 InfoWindow 하나를 연다.
+ * 첫 지도의 픽스처(FIXTURES)와 단계는 여기에 닿지 않는다.
+ */
+function SecondMap({ config, second }: { config: AppConfig; second: Second }) {
+  const [reported, setReported] = useState<naver.maps.Coord | null>(null);
+  const [debounceTimer] = useState<{ id: number | null }>({ id: null });
+  const [timers] = useState(() => new Set<number>());
+  useEffect(
+    () => () => {
+      for (const id of timers) window.clearTimeout(id);
+    },
+    [timers],
+  );
+  const later = (apply: () => void) => {
+    timers.add(window.setTimeout(apply, config.delayMs ?? 50));
+  };
+  const debounce = debouncer(debounceTimer);
+  const given = config.secondMapCenter ? toCoord(config.secondMapCenter) : null;
+  return (
+    <NaverMap
+      ref={(map: naver.maps.Map | null) => {
+        if (map) second.onMap(map);
+      }}
+      center={given ?? reported ?? toCoord(INITIAL_CENTER)}
+      zoom={config.zoom ?? INITIAL_ZOOM}
+      onCenterChanged={centerReporter(config, setReported, later, debounce)}
+    >
+      <InfoWindow
+        ref={(o: naver.maps.InfoWindow | null) => {
+          if (o) second.onInfoWindow(o);
+        }}
+        open
+        content="info-second"
+        anchor={toCoord(INITIAL_CENTER)}
+      />
+    </NaverMap>
+  );
+}
+
 function MapUnderTest({
   config,
   observed,
@@ -148,7 +240,7 @@ function MapUnderTest({
 }) {
   const [reported, setReported] = useState<naver.maps.Coord | null>(null);
   const [reportedZoom, setReportedZoom] = useState<number | null>(null);
-  const debounceRef = useRef<number | null>(null);
+  const [debounceTimer] = useState<{ id: number | null }>({ id: null });
   const [timers] = useState(() => new Set<number>());
   const delayMs = config.delayMs ?? 50;
   // 값마다 따로 예약한다(마지막 값만 남기는 debounced 와 다르다). 가상 시계가 결정적으로 돌린다.
@@ -181,29 +273,8 @@ function MapUnderTest({
     if (config.zoomMode === 'controlled') setReportedZoom(z);
     else if (config.zoomMode === 'delayed') later(() => setReportedZoom(z));
   };
-  const onCenterChanged = (() => {
-    switch (config.mode) {
-      case 'controlled':
-        return setReported;
-      case 'rounded':
-        return (c: naver.maps.Coord) => {
-          const ll = c as naver.maps.LatLng;
-          setReported({
-            lat: Number(ll.lat().toFixed(config.roundDigits ?? 4)),
-            lng: Number(ll.lng().toFixed(config.roundDigits ?? 4)),
-          } as unknown as naver.maps.Coord);
-        };
-      case 'debounced':
-        return (c: naver.maps.Coord) => {
-          if (debounceRef.current) window.clearTimeout(debounceRef.current);
-          debounceRef.current = window.setTimeout(() => setReported(c), 300);
-        };
-      case 'delayed':
-        return (c: naver.maps.Coord) => later(() => setReported(c));
-      default:
-        return undefined;
-    }
-  })();
+  const debounce = debouncer(debounceTimer);
+  const onCenterChanged = centerReporter(config, setReported, later, debounce);
 
   return (
     <NaverMap
@@ -261,6 +332,16 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   const observed = createObserved();
   const feedback = createFeedback();
   const probes = FIXTURES.map((fixture) => fixture.probe?.());
+  let secondMap: naver.maps.Map | null = null;
+  let secondInfoWindow: naver.maps.InfoWindow | null = null;
+  const second: Second = {
+    onMap: (next) => {
+      secondMap = next;
+    },
+    onInfoWindow: (next) => {
+      secondInfoWindow = next;
+    },
+  };
   FIXTURES.forEach((fixture, i) => fixture.setup?.(maps, probes[i], observed));
 
   let map: naver.maps.Map | undefined;
@@ -312,24 +393,31 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           authFailures += 1;
         }}
       >
-        <Container
-          style={{
-            width: `${config.containerWidth ?? 600}px`,
-            height: '400px',
-          }}
-        >
-          <Activity mode={config.mapActivity ?? 'visible'}>
-            {config.showMap !== false && (
-              <MapUnderTest
-                config={config}
-                observed={observed}
-                probes={probes}
-                feedback={feedback}
-                onMap={onMap}
-              />
-            )}
-          </Activity>
-        </Container>
+        <div style={config.secondMap ? { display: 'flex' } : undefined}>
+          <Container
+            style={{
+              width: `${config.containerWidth ?? 600}px`,
+              height: '400px',
+            }}
+          >
+            <Activity mode={config.mapActivity ?? 'visible'}>
+              {config.showMap !== false && (
+                <MapUnderTest
+                  config={config}
+                  observed={observed}
+                  probes={probes}
+                  feedback={feedback}
+                  onMap={onMap}
+                />
+              )}
+            </Activity>
+          </Container>
+          {config.secondMap && (
+            <Container style={{ width: '400px', height: '400px' }}>
+              <SecondMap config={config} second={second} />
+            </Container>
+          )}
+        </div>
       </NavermapsProvider>
     );
     return config.strict ? <StrictMode>{tree}</StrictMode> : tree;
@@ -417,12 +505,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       // GL 서브모듈은 준비되면서 인스턴스 메서드를 새로 단다. 그러면 감싼 것이 사라지므로
       // 읽을 때마다 다시 감싼다. 이번 프레임에 이미 바뀐 호출은 못 보지만 GL 준비는 mount 안에서 끝난다.
       observe(map!, OBSERVED_METHODS, observed.calls);
-      // 투영이 없는 사용자 지도 유형에서는 getCenter() 가 Point 다. 그때는 [y, x].
-      const c = map!.getCenter();
-      const center: LL =
-        'lat' in c && typeof c.lat === 'function'
-          ? [c.lat(), (c as naver.maps.LatLng).lng()]
-          : [(c as naver.maps.Point).y, (c as naver.maps.Point).x];
+      const center = centerOf(map!);
       const core: CoreFrame = {
         center,
         zoom: map!.getZoom(),
@@ -451,6 +534,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           return el.checkVisibility() && rect.width > 0 && rect.height > 0;
         })(),
         errors: observed.errors.splice(0),
+        secondCenter:
+          config.secondMap && secondMap ? centerOf(secondMap) : null,
+        secondInfoWindowOpen:
+          config.secondMap && secondInfoWindow && secondMap
+            ? secondInfoWindow.getMap() === secondMap
+            : null,
         mapCursor: (() => {
           const rect = map!.getElement().getBoundingClientRect();
           const el = document.elementFromPoint(

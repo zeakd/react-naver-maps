@@ -7,6 +7,7 @@ import { gl } from './cases/gl.js';
 import { layersData } from './cases/layers-data.js';
 import { lifecycle } from './cases/lifecycle.js';
 import { mapProps } from './cases/map-props.js';
+import { overlayMotion } from './cases/overlay-motion.js';
 import { overlays } from './cases/overlays.js';
 import { reactLifecycle } from './cases/react-lifecycle.js';
 import { submodules } from './cases/submodules.js';
@@ -26,6 +27,7 @@ export const scenarios: Scenario[] = [
   ...lifecycle,
   ...reactLifecycle,
   ...overlays,
+  ...overlayMotion,
   ...controls,
   ...layersData,
   ...submodules,

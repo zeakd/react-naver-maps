@@ -5,6 +5,7 @@ export {
   BicycleLayer,
   Circle,
   Container,
+  CustomOverlay,
   CustomControl,
   DotMap,
   DrawingManager,
