@@ -15,16 +15,19 @@ import {
 import type { MapListener } from './utils/sdk.js';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useSdkInstance } from './lifetime.js';
+import { useOverlayEvents } from './overlay-spec.js';
+import { changedProp } from './types/overlay-events.js';
+import type { ChangeHandlerProps } from './types/overlay-events.js';
 
 /**
  * 네이버맵 InfoWindow를 선언적으로 제어한다.
  *
  * ## 네이티브 API 충실 원칙
  *
- * content는 string만 지원한다. 네이버맵 InfoWindow는 내부적으로
+ * content는 SDK 와 같이 HTML 문자열 또는 HTML 요소다. 네이버맵 InfoWindow는 내부적으로
  * content를 파싱하여 사이즈 계산, autoPan, DOM 구조를 결정한다.
  * ReactNode를 Portal로 주입하면 이 파이프라인을 우회하게 되어
- * 네이티브 동작(사이즈 계산, autoPan 등)이 깨질 수 있다.
+ * 네이티브 동작(사이즈 계산, autoPan 등)이 깨질 수 있다. React 로 그리려면 CustomOverlay 를 쓴다.
  *
  * ## open/close 생명주기
  *
@@ -43,12 +46,26 @@ import { useSdkInstance } from './lifetime.js';
  * - cleanup이 setMap(null)이 아니라 close() (동일하지만 의미적 구분)
  * - open() 시 anchor 처리, position silent set, autoPan 등 추가 로직
  */
-export interface InfoWindowProps {
+export interface InfoWindowProps extends ChangeHandlerProps<{
+  anchorColor: string;
+  anchorSize: naver.maps.Size;
+  anchorSkew: boolean;
+  backgroundColor: string;
+  borderColor: string;
+  borderWidth: number;
+  content: HTMLElement;
+  disableAnchor: boolean;
+  disableAutoPan: boolean;
+  maxWidth: number;
+  pixelOffset: naver.maps.Point;
+  position: naver.maps.Coord;
+  zIndex: number;
+}> {
   ref?: Ref<naver.maps.InfoWindow>;
-  /** string content. 네이버맵 네이티브 content 파싱 파이프라인을 그대로 사용한다. */
-  content: string;
+  /** HTML 문자열 또는 HTML 요소. SDK 의 content 파싱을 그대로 쓴다. */
+  content: string | HTMLElement;
   /** 위치 (anchor 없을 때) */
-  position?: naver.maps.LatLng | naver.maps.LatLngLiteral;
+  position?: naver.maps.Coord | naver.maps.CoordLiteral;
   /** anchor (Marker ref 등). open(map, anchor)로 전달된다. */
   anchor?: naver.maps.Marker | naver.maps.Coord | naver.maps.CoordLiteral;
   /**
@@ -65,12 +82,30 @@ export interface InfoWindowProps {
   anchorSkew?: boolean;
   anchorSize?: naver.maps.Size | naver.maps.SizeLiteral;
   anchorColor?: string;
-  pixelOffset?: naver.maps.Point;
+  pixelOffset?: naver.maps.Point | naver.maps.PointLiteral;
+  /** 자동 이동(autoPan) 때 지도 가장자리와 띄울 여백. SDK 기본 (20, 20). @types 3.9.2 에 없다. */
+  autoPanPadding?: naver.maps.Point | naver.maps.PointLiteral;
   zIndex?: number;
-  // 이벤트
-  onOpen?: () => void;
-  onClose?: () => void;
+  // 이벤트. SDK 는 열고 닫힌 위치의 포인터 이벤트를 준다.
+  onOpen?: (e: naver.maps.PointerEvent) => void;
+  onClose?: (e: naver.maps.PointerEvent) => void;
 }
+
+const CHANGES = [
+  'anchorColor',
+  'anchorSize',
+  'anchorSkew',
+  'backgroundColor',
+  'borderColor',
+  'borderWidth',
+  'content',
+  'disableAnchor',
+  'disableAutoPan',
+  'maxWidth',
+  'pixelOffset',
+  'position',
+  'zIndex',
+].map((k) => [`${k}_changed`, changedProp(k)] as const);
 
 export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   const navermaps = useNavermaps();
@@ -94,8 +129,9 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
           anchorSize: props.anchorSize,
           anchorColor: props.anchorColor,
           pixelOffset: props.pixelOffset,
+          autoPanPadding: props.autoPanPadding,
           zIndex: props.zIndex,
-        }),
+        }) as unknown as naver.maps.InfoWindowOptions,
       ),
     detach: (instance) => instance.close(),
     dispose: (instance) => {
@@ -194,7 +230,10 @@ function InfoWindowInner({
     anchorSize: props.anchorSize,
     anchorColor: props.anchorColor,
     pixelOffset: props.pixelOffset,
+    autoPanPadding: props.autoPanPadding,
   });
+
+  useOverlayEvents(infoWindow, props, CHANGES);
 
   return null;
 }

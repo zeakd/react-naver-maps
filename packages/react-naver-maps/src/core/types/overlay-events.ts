@@ -69,3 +69,18 @@ export type EventHandlerProps<E extends string> = {
 export function eventProp<E extends string>(event: E): `on${Capitalize<E>}` {
   return `on${event.charAt(0).toUpperCase()}${event.slice(1)}` as `on${Capitalize<E>}`;
 }
+
+/**
+ * KVO 값 변경 이벤트(`position_changed` 등)의 prop. `position` → `onPositionChanged(value)`.
+ * SDK 는 바뀐 값을 인자로 준다(KVO, 3.10.5). M 은 키 → 값 타입(공식 문서 Events 의 인자 타입).
+ */
+export type ChangeHandlerProps<M> = {
+  [K in keyof M & string as `on${Capitalize<K>}Changed`]?: (
+    value: M[K],
+  ) => void;
+};
+
+/** `position` → `onPositionChanged`. ChangeHandlerProps 의 키와 같은 규칙이다. */
+export function changedProp(key: string): string {
+  return `on${key.charAt(0).toUpperCase()}${key.slice(1)}Changed`;
+}

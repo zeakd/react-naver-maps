@@ -9,7 +9,7 @@ import { onMap, onReadyMap, useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
-import { eventProp } from './types/overlay-events.js';
+import { changedProp, eventProp } from './types/overlay-events.js';
 import type { PointerEventHandler } from './types/overlay-events.js';
 
 /**
@@ -46,6 +46,13 @@ export type OverlaySpec<P, T> = {
   afterCreate?: (instance: T, props: P) => void;
   /** 이 오버레이가 내는 포인터 이벤트. `on` + 이름 prop 으로 받는다. */
   events: readonly string[];
+  /**
+   * 공식 문서 Events 에 있는 KVO 값 변경 이벤트의 키. `position` 이면 `position_changed` 를
+   * `onPositionChanged(value)` 로 받는다.
+   */
+  changes?: readonly string[];
+  /** 그 밖의 이벤트와 prop 이름. 예: Marker 의 `['icon_loaded', 'onIconLoaded']`. */
+  otherEvents?: readonly (readonly [event: string, prop: string])[];
   /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create 에 map 을 넣지 않는다. */
   waitForReadyMap?: boolean;
 };
@@ -115,27 +122,37 @@ function OverlayBindings<P extends object, T extends Overlay>({
     { changeOnly: spec.changeOnly },
   );
   useOverlayEvents(instance, props, spec.events);
+  useOverlayEvents(instance, props, [
+    ...(spec.changes ?? []).map(
+      (k) => [`${k}_changed`, changedProp(k)] as const,
+    ),
+    ...(spec.otherEvents ?? []),
+  ]);
   return null;
 }
 
 /**
- * 포인터 이벤트 prop 을 SDK 리스너로 붙인다. 핸들러가 바뀌면 그 묶음을 다시 붙인다.
- * events 는 렌더마다 같아야 한다.
+ * 이벤트 prop 을 SDK 리스너로 붙인다. 핸들러가 바뀌면 그 묶음을 다시 붙인다.
+ * 이름만 주면 prop 은 `on` + 이름(`click` → `onClick`), `[이벤트, prop]` 이면 그 prop 이다.
+ * events 는 렌더마다 같은 목록이어야 한다.
  */
 export function useOverlayEvents(
   target: object,
   props: object,
-  events: readonly string[],
+  events: readonly (string | readonly [event: string, prop: string])[],
 ): void {
-  const handlers = events.map(
-    (event) =>
-      (props as Record<string, unknown>)[eventProp(event)] as
+  const pairs = events.map((e) =>
+    typeof e === 'string' ? ([e, eventProp(e)] as const) : e,
+  );
+  const handlers = pairs.map(
+    ([, prop]) =>
+      (props as Record<string, unknown>)[prop] as
         | PointerEventHandler
         | undefined,
   );
   useEffect(() => {
     const listeners: MapListener[] = [];
-    events.forEach((event, i) => {
+    pairs.forEach(([event], i) => {
       const handler = handlers[i];
       if (handler) listeners.push(addMapListener(target, event, handler));
     });

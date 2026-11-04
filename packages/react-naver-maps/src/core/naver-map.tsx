@@ -12,6 +12,12 @@ import {
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useControlledKVO, kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useStaticProp, isDev } from './hooks/use-static-prop.js';
+import type {
+  ControlOptionsProp,
+  MapTypeControlOptionsProp,
+  MapTypeIdProp,
+  ZoomControlOptionsProp,
+} from './types/sdk-options.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
 import { useSdkInstance } from './lifetime.js';
@@ -38,7 +44,7 @@ export interface NaverMapProps {
    * `defaultBounds`, 바꿀 때는 `map.fitBounds()`, 읽을 때는 `onBoundsChanged` 를 쓴다.
    */
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
-  mapTypeId?: naver.maps.MapTypeId;
+  mapTypeId?: MapTypeIdProp;
   size?: naver.maps.Size | naver.maps.SizeLiteral;
   /**
    * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `center` 와 같은 중심을 세계 좌표로
@@ -50,7 +56,7 @@ export interface NaverMapProps {
   defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
   defaultZoom?: number;
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
-  defaultMapTypeId?: naver.maps.MapTypeId;
+  defaultMapTypeId?: MapTypeIdProp;
   defaultSize?: naver.maps.Size | naver.maps.SizeLiteral;
   /** @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `defaultCenter` 를 쓴다. */
   defaultCenterPoint?: naver.maps.Point | naver.maps.PointLiteral;
@@ -116,15 +122,15 @@ export interface NaverMapProps {
   disableTwoFingerTapZoom?: boolean;
   disableKineticPan?: boolean;
   tileTransition?: boolean;
-  logoControlOptions?: naver.maps.LogoControlOptions;
+  logoControlOptions?: ControlOptionsProp;
   mapDataControl?: boolean;
-  mapDataControlOptions?: naver.maps.MapDataControlOptions;
+  mapDataControlOptions?: ControlOptionsProp;
   mapTypeControl?: boolean;
-  mapTypeControlOptions?: naver.maps.MapTypeControlOptions;
+  mapTypeControlOptions?: MapTypeControlOptionsProp;
   scaleControl?: boolean;
-  scaleControlOptions?: naver.maps.ScaleControlOptions;
+  scaleControlOptions?: ControlOptionsProp;
   zoomControl?: boolean;
-  zoomControlOptions?: naver.maps.ZoomControlOptions;
+  zoomControlOptions?: ZoomControlOptionsProp;
   mapTypes?: naver.maps.MapTypeRegistry;
   maxBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
   padding?: naver.maps.padding;
@@ -138,7 +144,9 @@ export interface NaverMapProps {
   onCenterChanged?: (center: naver.maps.Coord) => void;
   onZoomChanged?: (zoom: number) => void;
   onBoundsChanged?: (bounds: naver.maps.Bounds) => void;
-  onMapTypeIdChanged?: (mapTypeId: naver.maps.MapTypeId) => void;
+  onMapTypeIdChanged?: (
+    mapTypeId: naver.maps.MapTypeId | (string & {}),
+  ) => void;
   onSizeChanged?: (value: naver.maps.Size) => void;
   onCenterPointChanged?: (value: naver.maps.Point) => void;
   onMapTypeChanged?: (value: naver.maps.MapType) => void;
@@ -149,12 +157,22 @@ export interface NaverMapProps {
   onInit?: () => void;
   onIdle?: () => void;
   onPanning?: () => void;
+  /** 줌 효과가 시작될 때(SDK `zoomstart`). */
+  onZoomstart?: () => void;
+  /** 줌 효과가 끝날 때(SDK `zoomend`). */
+  onZoomend?: () => void;
+  /** GL 에서 실수 줌 레벨이 바뀔 때마다(SDK `zoom`, GL 서브모듈 전용). */
+  onZoom?: () => void;
+  /**
+   * SDK 가 zoomstart 와 함께 내는 `zooming`. 공식 문서에는 없다. 0.3 과의 호환으로 둔다.
+   * 새 코드는 `onZoomstart` 를 쓴다.
+   */
   onZooming?: () => void;
   onTilesloaded?: () => void;
   onResize?: () => void;
   onProjectionChanged?: () => void;
-  onAddLayer?: () => void;
-  onRemoveLayer?: () => void;
+  onAddLayer?: (layer: naver.maps.Layer) => void;
+  onRemoveLayer?: (layername: string) => void;
 
   // 마우스 이벤트
   onClick?: (e: naver.maps.PointerEvent) => void;
@@ -188,9 +206,12 @@ export interface NaverMapProps {
   onDoubletap?: (e: naver.maps.PointerEvent) => void;
 
   // 키보드 이벤트
-  onKeydown?: (e: naver.maps.PointerEvent) => void;
-  onKeyup?: (e: naver.maps.PointerEvent) => void;
+  onKeydown?: (e: MapKeyboardEvent) => void;
+  onKeyup?: (e: MapKeyboardEvent) => void;
 }
+
+/** 지도 keydown, keyup 이벤트 인자. 공식 문서 Map Events(keyboardEvent). */
+export type MapKeyboardEvent = { keyboardEvent: KeyboardEvent };
 
 export function NaverMap({ ref, children, ...props }: NaverMapProps) {
   const navermaps = useNavermaps();
@@ -291,7 +312,8 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
         gl: props.gl,
         customStyleId: props.customStyleId,
         useStyleMap: props.useStyleMap,
-      }),
+        // 옵션 타입은 공식 문서를 따라 @types 3.9.2 보다 넓다(types/sdk-options.ts). SDK 는 그대로 받는다.
+      }) as unknown as naver.maps.MapOptions,
     );
     // centerPoint는 MapOptions에 정의되지 않으므로 생성 후 직접 설정
     const initialCenterPoint = props.centerPoint ?? props.defaultCenterPoint;
@@ -610,6 +632,9 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
 
     // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect로 분리됨 — 누락 방지)
     if (props.onPanning) ls.push(add(map, 'panning', props.onPanning));
+    if (props.onZoomstart) ls.push(add(map, 'zoomstart', props.onZoomstart));
+    if (props.onZoomend) ls.push(add(map, 'zoomend', props.onZoomend));
+    if (props.onZoom) ls.push(add(map, 'zoom', props.onZoom));
     if (props.onZooming) ls.push(add(map, 'zooming', props.onZooming));
     if (props.onResize) ls.push(add(map, 'resize', props.onResize));
     if (props.onProjectionChanged)
@@ -671,6 +696,9 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     props.onRotationChanged,
     // 라이프사이클 (init/idle/tilesloaded는 위 useLayoutEffect deps로 분리됨)
     props.onPanning,
+    props.onZoomstart,
+    props.onZoomend,
+    props.onZoom,
     props.onZooming,
     props.onResize,
     props.onProjectionChanged,

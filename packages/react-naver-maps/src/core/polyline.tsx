@@ -3,20 +3,37 @@
 import type { Ref } from 'react';
 import { defineOverlay } from './overlay-spec.js';
 import type { StrokeStyle } from './types/shape-style.js';
-import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import type {
+  ChangeHandlerProps,
+  EventHandlerProps,
+  ShapeEvent,
+} from './types/overlay-events.js';
 import { SHAPE_EVENTS } from './types/overlay-events.js';
 import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 선을 그린다. path로 경로 좌표를 지정한다. */
 export interface PolylineProps
-  extends StrokeStyle, EventHandlerProps<ShapeEvent> {
+  extends
+    StrokeStyle,
+    EventHandlerProps<ShapeEvent>,
+    ChangeHandlerProps<{
+      clickable: boolean;
+      visible: boolean;
+      zIndex: number;
+    }> {
   ref?: Ref<naver.maps.Polyline>;
 
   // Controlled
-  path?: naver.maps.ArrayOfCoords | naver.maps.ArrayOfCoordsLiteral;
+  path?:
+    | naver.maps.ArrayOfCoords
+    | naver.maps.KVOArrayOfCoords
+    | naver.maps.ArrayOfCoordsLiteral;
 
   // Uncontrolled
-  defaultPath?: naver.maps.ArrayOfCoords | naver.maps.ArrayOfCoordsLiteral;
+  defaultPath?:
+    | naver.maps.ArrayOfCoords
+    | naver.maps.KVOArrayOfCoords
+    | naver.maps.ArrayOfCoordsLiteral;
 
   // Polyline-specific
   startIcon?: naver.maps.PointingIcon;
@@ -62,5 +79,6 @@ export const Polyline = defineOverlay<PolylineProps, naver.maps.Polyline>(
     initial: (props) => ({ path: props.path ?? props.defaultPath }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
     events: SHAPE_EVENTS,
+    changes: ['clickable', 'visible', 'zIndex'],
   },
 );

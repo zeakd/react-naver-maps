@@ -14,9 +14,15 @@ import { onMap, useSdkInstance } from './lifetime.js';
  *
  * `pane`은 생성 시에만 적용된다. 런타임에 다른 pane으로 옮기려면 React `key`로 재마운트한다.
  */
+/** CustomOverlay 위치. LatLng, Point(지도 이벤트의 coord), 리터럴({lat,lng}, {x,y}, [경도, 위도]). */
+export type OverlayPosition =
+  | naver.maps.LatLng
+  | naver.maps.Point
+  | naver.maps.LatLngLiteral;
+
 export interface CustomOverlayProps {
   ref?: Ref<naver.maps.OverlayView>;
-  position: naver.maps.LatLng | naver.maps.LatLngLiteral;
+  position: OverlayPosition;
   children: React.ReactNode;
   /** 생성 시점에만 적용. 변경하려면 React `key`로 재마운트. */
   pane?: string;
@@ -31,12 +37,12 @@ type ReactOverlayViewInstance = InstanceType<
 function createOverlayViewClass(navermaps: typeof naver.maps) {
   class ReactOverlayView extends navermaps.OverlayView {
     private _containerElement: HTMLDivElement;
-    private _position: naver.maps.LatLng | naver.maps.LatLngLiteral;
+    private _position: OverlayPosition;
     private _pane: string;
     private _anchor: naver.maps.Point | undefined;
 
     constructor(options: {
-      position: naver.maps.LatLng | naver.maps.LatLngLiteral;
+      position: OverlayPosition;
       pane?: string;
       anchor?: naver.maps.Point;
       zIndex?: number;
@@ -62,10 +68,15 @@ function createOverlayViewClass(navermaps: typeof naver.maps) {
       const projection = this.getProjection();
       const position = this._position;
 
+      // 지도 이벤트의 e.coord 는 Point 일 수도 있다(Coord). 리터럴은 키로 구분한다.
       const coord =
-        position instanceof navermaps.LatLng
+        position instanceof navermaps.LatLng ||
+        position instanceof navermaps.Point
           ? position
-          : new navermaps.LatLng(position as naver.maps.LatLngLiteral);
+          : !Array.isArray(position) && 'x' in position
+            ? new navermaps.Point(position.x, position.y)
+            : // 0.3 과 같이 LatLng 리터럴과 [경도, 위도] 배열은 LatLng 생성자에 맡긴다.
+              new navermaps.LatLng(position as naver.maps.LatLngLiteral);
 
       const point = projection.fromCoordToOffset(coord);
       const anchorX = this._anchor?.x ?? 0;
@@ -82,7 +93,7 @@ function createOverlayViewClass(navermaps: typeof naver.maps) {
       return this._containerElement;
     }
 
-    setPosition(position: naver.maps.LatLng | naver.maps.LatLngLiteral) {
+    setPosition(position: OverlayPosition) {
       this._position = position;
       this.draw();
     }

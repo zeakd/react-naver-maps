@@ -238,4 +238,28 @@ describe('Marker 스펙 테스트', () => {
       expect(created!.options).not.toHaveProperty('title');
     });
   });
+
+  test('KVO 변경 이벤트는 onXChanged(값) 로, icon_loaded 는 onIconLoaded 로 받는다', async () => {
+    const onPositionChanged = vi.fn();
+    const onIconLoaded = vi.fn();
+    render(
+      <Wrapper>
+        <Marker
+          defaultPosition={{ lat: 37.5, lng: 127.0 }}
+          draggable
+          onPositionChanged={onPositionChanged}
+          onIconLoaded={onIconLoaded}
+        />
+      </Wrapper>,
+    );
+    await vi.waitFor(() =>
+      expect(mock.getLastInstance('Marker')).toBeDefined(),
+    );
+    const marker = mock.getLastInstance('Marker')!.instance as MockKVO;
+    // 사용자가 끌어 SDK 가 값을 바꾼 상황
+    marker.set('position', { lat: 37.6, lng: 127.1 });
+    expect(onPositionChanged).toHaveBeenCalledTimes(1);
+    marker._trigger('icon_loaded', marker);
+    expect(onIconLoaded).toHaveBeenCalledWith(marker);
+  });
 });
