@@ -93,11 +93,10 @@ function useMyOverlay(
 
 ## v1에서 변경된 점
 
-v1의 `<Overlay>`, `useListener()`, `<Listener>` 컴포넌트는 v2에서 제거되었습니다.
+v1의 `<Overlay>`, `<Listener>` 컴포넌트는 v2에서 제거되었습니다. 이벤트는 컴포넌트의 `on*` prop 으로 받고, prop 이 없는 이벤트는 [`useListener`](../api-references/use-listener) 로 구독합니다.
 
 | v1                                             | v2                                        |
 | ---------------------------------------------- | ----------------------------------------- |
 | `<Overlay element={marker} />`                 | `<Marker />` 컴포넌트 직접 사용           |
-| `useListener(target, 'click', handler)`        | `<Marker onClick={handler} />`            |
 | `<Listener type="click" listener={handler} />` | `onClick={handler}` prop                  |
 | 네이티브 인스턴스 수동 생성                    | `<CustomOverlay>` 또는 제공 컴포넌트 사용 |

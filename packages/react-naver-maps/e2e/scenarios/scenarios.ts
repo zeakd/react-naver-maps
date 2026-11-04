@@ -674,4 +674,15 @@ export const scenarios: Scenario[] = [
     expect: [dataLayer({ features: 1 }, 1), dataLayer({ features: 0 })],
     since: '0.4',
   },
+  {
+    // zoom prop 은 효과 없이 맞추므로(setZoom) 줌 효과가 없다. 사용자 휠 확대로 본다.
+    name: '휠로 확대하면 줌 효과의 시작과 끝에 onZoomstart, onZoomend 가 한 번씩 온다',
+    app: { mode: 'controlled' },
+    steps: [
+      { t: 'wheel', x: 300, y: 200, deltaY: -100 },
+      { t: 'frames', n: 60 },
+    ],
+    expect: [calls({ onZoomstart: 1, onZoomend: 1 })],
+    since: '0.4',
+  },
 ];

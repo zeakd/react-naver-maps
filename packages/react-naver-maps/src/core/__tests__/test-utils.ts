@@ -228,6 +228,12 @@ export function createMockNaverMaps() {
         }
       }
     },
+    Point: class MockPoint {
+      constructor(
+        public x: number,
+        public y: number,
+      ) {}
+    },
     Event,
   };
 

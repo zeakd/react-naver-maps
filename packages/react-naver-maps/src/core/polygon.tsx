@@ -3,20 +3,38 @@
 import type { Ref } from 'react';
 import { defineOverlay } from './overlay-spec.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
-import type { EventHandlerProps, ShapeEvent } from './types/overlay-events.js';
+import type {
+  ChangeHandlerProps,
+  EventHandlerProps,
+  ShapeEvent,
+} from './types/overlay-events.js';
 import { SHAPE_EVENTS } from './types/overlay-events.js';
 import { shapeClickable } from './utils/shape-clickable.js';
 
 /** 지도 위에 다각형을 그린다. paths로 꼭짓점 배열을 지정한다. */
 export interface PolygonProps
-  extends StrokeStyle, FillStyle, EventHandlerProps<ShapeEvent> {
+  extends
+    StrokeStyle,
+    FillStyle,
+    EventHandlerProps<ShapeEvent>,
+    ChangeHandlerProps<{
+      clickable: boolean;
+      visible: boolean;
+      zIndex: number;
+    }> {
   ref?: Ref<naver.maps.Polygon>;
 
   // Controlled
-  paths?: naver.maps.ArrayOfCoords[] | naver.maps.ArrayOfCoordsLiteral[];
+  paths?:
+    | naver.maps.ArrayOfCoords[]
+    | naver.maps.KVOArray<naver.maps.KVOArrayOfCoords>
+    | naver.maps.ArrayOfCoordsLiteral[];
 
   // Uncontrolled
-  defaultPaths?: naver.maps.ArrayOfCoords[] | naver.maps.ArrayOfCoordsLiteral[];
+  defaultPaths?:
+    | naver.maps.ArrayOfCoords[]
+    | naver.maps.KVOArray<naver.maps.KVOArrayOfCoords>
+    | naver.maps.ArrayOfCoordsLiteral[];
 
   /**
    * path 단순화 강도. 정수, 1 이상.
@@ -54,5 +72,6 @@ export const Polygon = defineOverlay<PolygonProps, naver.maps.Polygon>(
     initial: (props) => ({ paths: props.paths ?? props.defaultPaths }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
     events: SHAPE_EVENTS,
+    changes: ['clickable', 'visible', 'zIndex'],
   },
 );

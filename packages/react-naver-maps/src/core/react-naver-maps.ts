@@ -6,9 +6,15 @@ export type { NavermapsProviderProps } from './provider.js';
 export { Container } from './container.js';
 export type { ContainerProps } from './container.js';
 export { NaverMap } from './naver-map.js';
-export type { NaverMapProps } from './naver-map.js';
+export type { NaverMapProps, MapKeyboardEvent } from './naver-map.js';
+export type {
+  MapTypeIdProp,
+  ControlOptionsProp,
+  ZoomControlOptionsProp,
+  MapTypeControlOptionsProp,
+} from './types/sdk-options.js';
 export { Marker } from './marker.js';
-export type { MarkerProps } from './marker.js';
+export type { MarkerProps, MarkerIcon } from './marker.js';
 export { InfoWindow } from './info-window.js';
 export type { InfoWindowProps } from './info-window.js';
 export { GroundOverlay } from './ground-overlay.js';
@@ -28,7 +34,7 @@ export type { KmlProps } from './kml.js';
 export { Gpx } from './gpx.js';
 export type { GpxProps } from './gpx.js';
 export type { CustomControlProps } from './custom-control.js';
-export type { CustomOverlayProps } from './custom-overlay.js';
+export type { CustomOverlayProps, OverlayPosition } from './custom-overlay.js';
 export { Circle } from './circle.js';
 export type { CircleProps } from './circle.js';
 export { Rectangle } from './rectangle.js';

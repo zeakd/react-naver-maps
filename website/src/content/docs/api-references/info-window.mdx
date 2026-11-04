@@ -6,15 +6,17 @@ order: 3
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`InfoWindow` 컴포넌트는 정보 창을 표시합니다. 문자열 또는 React children을 content로 받습니다.
+`InfoWindow` 컴포넌트는 정보 창을 표시합니다. `content` 는 SDK 와 같이 HTML 문자열 또는 HTML 요소입니다. React 로 내용을 그리려면 [`CustomOverlay`](./custom-overlay) 를 씁니다.
 
 ## 사용법
 
 ```tsx
 import { InfoWindow } from 'react-naver-maps';
 
-<InfoWindow content="안녕하세요" position={{ lat: 37.5, lng: 127.0 }} />;
+<InfoWindow open content="안녕하세요" position={{ lat: 37.5, lng: 127.0 }} />;
 ```
+
+`open` 을 주면 그 값으로 열고 닫습니다. 주지 않으면 열리지 않고, ref 로 받은 인스턴스의 `open()`·`close()` 로 직접 다룹니다. 마커에 붙이려면 `anchor` 에 Marker 인스턴스를 줍니다.
 
 ## Props
 

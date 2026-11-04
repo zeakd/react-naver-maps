@@ -246,6 +246,8 @@ function MapUnderTest({
           }
         : {})}
       onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
+      onZoomstart={() => observed.calls.push('onZoomstart')}
+      onZoomend={() => observed.calls.push('onZoomend')}
       onCenterChanged={onCenterChanged}
     >
       <KvoProbe observed={observed} />
