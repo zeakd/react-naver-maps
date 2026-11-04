@@ -736,4 +736,21 @@ export const scenarios: Scenario[] = [
     expect: [overlaysOnMap(['flightSpot'], 3), overlaysOnMap([])],
     since: '0.4',
   },
+  {
+    name: 'HeatMap 은 공식 튜토리얼의 { weight, location } 데이터도 그린다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      submodules: ['visualization'],
+      heatMapOpacity: 0.6,
+      heatMapWeighted: true,
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'realtime', ms: 1500 },
+      { t: 'frames', n: 60 },
+      { t: 'probe', name: 'centerRed' },
+    ],
+    expect: [overlaysOnMap(['heatMap']), probedAtLeast('centerRed', 50)],
+  },
 ];

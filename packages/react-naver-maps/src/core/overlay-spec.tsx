@@ -44,6 +44,11 @@ export type OverlaySpec<P, T> = {
   derived?: (props: P) => Record<string, unknown>;
   /** 만든 직후 할 일. */
   afterCreate?: (instance: T, props: P) => void;
+  /**
+   * 표로 나타내지 못하는 동기화(인자 둘인 SDK 메서드 등). OverlayBindings 안에서 훅으로 부른다.
+   * 예: HeatMap 의 setColorMap(colorMap, inReverse).
+   */
+  sync?: (instance: T, props: P) => void;
   /** 이 오버레이가 내는 포인터 이벤트. `on` + 이름 prop 으로 받는다. */
   events: readonly string[];
   /**
@@ -133,6 +138,7 @@ function OverlayBindings<P extends object, T extends Overlay>({
     },
     { changeOnly: spec.changeOnly },
   );
+  spec.sync?.(instance, props);
   useOverlayEvents(instance, props, spec.events);
   useOverlayEvents(instance, props, [
     ...(spec.changes ?? []).map(

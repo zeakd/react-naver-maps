@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 import { useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { useStyleMapLayerWarning } from './hooks/use-style-map-layer-warning.js';
 import { onMap, useSdkInstance } from './lifetime.js';
 
 /** 거리뷰 레이어를 지도 위에 표시한다. */
@@ -14,6 +15,7 @@ export interface StreetLayerProps {
 export function StreetLayer({ ref }: StreetLayerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
+  useStyleMapLayerWarning(map, 'StreetLayer');
   const layer = useSdkInstance(
     onMap(map, () => {
       const instance = new navermaps.StreetLayer();

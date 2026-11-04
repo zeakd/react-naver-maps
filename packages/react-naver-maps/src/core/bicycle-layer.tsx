@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 import { useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { useStyleMapLayerWarning } from './hooks/use-style-map-layer-warning.js';
 import { onMap, useSdkInstance } from './lifetime.js';
 
 /** 자전거 도로 레이어를 지도 위에 표시한다. */
@@ -14,6 +15,7 @@ export interface BicycleLayerProps {
 export function BicycleLayer({ ref }: BicycleLayerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
+  useStyleMapLayerWarning(map, 'BicycleLayer');
   const layer = useSdkInstance(
     onMap(map, () => {
       // @types/navermaps(3.9.2)에 BicycleLayer 가 없다. SDK 와 공식 문서에는 있다(Layer 를 상속).

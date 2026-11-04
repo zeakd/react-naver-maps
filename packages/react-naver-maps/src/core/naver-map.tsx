@@ -21,6 +21,7 @@ import type {
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
 import { PanoramaHostContext } from './contexts/overlay-host.js';
+import { ClientOptionsContext } from './contexts/client-options.js';
 import { useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import {
@@ -514,6 +515,25 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useNaverMapStatic('blankTileImage', props.blankTileImage);
   useNaverMapStatic('useStyleMap', props.useStyleMap);
   useNaverMapStatic('tileDuration', props.tileDuration);
+
+  // GL 은 gl 서브모듈을 불러야 하고 다른 서브모듈과 함께 쓰지 않는다(공식 문서 "GL 생성 및 기본 동작").
+  const clientOptions = use(ClientOptionsContext);
+  const glWanted = props.gl;
+  useEffect(() => {
+    if (!isDev || !glWanted || !clientOptions) return;
+    const subs = clientOptions.submodules ?? [];
+    if (!subs.includes('gl')) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[react-naver-maps] NaverMap 의 gl 은 gl 서브모듈이 있어야 적용된다. <NavermapsProvider submodules={['gl']}> 로 불러온다.",
+      );
+    } else if (subs.length > 1) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[react-naver-maps] 공식 문서는 GL 서브모듈을 다른 서브모듈과 함께 쓰지 말라고 한다(지금: ${subs.join(', ')}).`,
+      );
+    }
+  }, [glWanted, clientOptions]);
 
   // logoControl은 일방향 controlled — SDK가 false를 거부 (setRefinedOption: value || true).
   // false 시도 시 안내. 한 인스턴스당 한 번만 출력하도록 ref로 보호 (toggle 시 폭주 방지).
