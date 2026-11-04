@@ -156,4 +156,15 @@ export const expectedDifferences: Record<
     fields: ['status', 'mapCursor'],
     reason: 'SDK 생성자가 cursor 옵션을 읽지 않아 마운트 때 맞춘다 (#215)',
   },
+  // 다시 붙인 Marker 의 클릭
+  'StrictMode 에서도 clickable 을 나중에 켠 Marker 가 클릭을 받는다': {
+    fields: ['status', 'markerClicks'],
+    reason:
+      'SDK 는 붙일 때 clickable 인 Marker 에만 리스너를 단다. 붙일 때마다 켠 채로 붙인다. 0.3.0 은 StrictMode 재실행 뒤 클릭을 못 받았다',
+  },
+  'Activity 로 숨겼다 보인 Marker 도 clickable 을 켜면 클릭을 받는다': {
+    fields: ['status', 'markerClicks', 'calls'],
+    reason:
+      '같은 이유. 0.3.0 은 다시 보일 때 Marker 를 새로 만들어(calls 의 setIcon 등) clickable 을 꺼진 채 붙였다',
+  },
 };

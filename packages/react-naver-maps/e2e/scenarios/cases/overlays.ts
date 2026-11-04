@@ -42,6 +42,34 @@ export const overlays: Scenario[] = [
     expect: [markerClicked(1)],
   },
   {
+    name: 'StrictMode 에서도 clickable 을 나중에 켠 Marker 가 클릭을 받는다',
+    app: { mode: 'props', strict: true, marker: true, markerClickable: false },
+    steps: [
+      { t: 'props', props: { markerClickable: true } },
+      { t: 'frames', n: 5 },
+      { t: 'clickCenter' },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerClicked(1)],
+  },
+  {
+    // SDK 는 지도에 붙일 때 clickable 인 Marker 에만 DOM 리스너를 단다. 다시 붙일 때도 그래야 한다.
+    name: 'Activity 로 숨겼다 보인 Marker 도 clickable 을 켜면 클릭을 받는다',
+    app: { mode: 'props', marker: true, markerClickable: false },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { markerActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { markerActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { markerClickable: true } },
+      { t: 'frames', n: 5 },
+      { t: 'clickCenter' },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerClicked(1)],
+  },
+  {
     name: 'onClick 이 있는 도형은 clickable 없이도 클릭을 받는다',
     app: { mode: 'props', circle: true },
     steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],

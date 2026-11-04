@@ -1,7 +1,11 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ReactNode } from 'react';
-import { createMockNaverMaps, type MockKVO } from './test-utils.js';
+import { StrictMode, type ReactNode } from 'react';
+import {
+  createMockNaverMaps,
+  MockKVO as MockKVOClass,
+  type MockKVO,
+} from './test-utils.js';
 
 // useNavermaps를 mock하여 스크립트 로딩 없이 테스트
 vi.mock('../hooks/use-navermaps.js', () => ({
@@ -33,22 +37,49 @@ describe('Marker 스펙 테스트', () => {
     mock.cleanup();
   });
 
-  test('마운트 시 Marker 인스턴스 생성 + map 포함', async () => {
+  test('마운트 시 Marker 를 만들어 지도에 붙인다', async () => {
     render(
       <Wrapper>
         <Marker position={{ lat: 37.5, lng: 127.0 }} />
       </Wrapper>,
     );
 
-    // useEffect 실행 대기
     await vi.waitFor(() => {
       const created = mock.getLastInstance('Marker');
       expect(created).toBeDefined();
       expect(created!.options).toMatchObject({
-        map: mockMap,
         position: { lat: 37.5, lng: 127.0 },
       });
+      expect(created!.instance.get('map')).toBe(mockMap);
     });
+  });
+
+  test('clickable 이 false 여도 붙일 때마다 켠 채로 붙이고 되돌린다', async () => {
+    // SDK 는 붙일 때 clickable 인 Marker 에만 DOM 리스너를 단다. StrictMode 는 마운트 직후
+    // 뗐다 다시 붙인다(숨겼다 보일 때와 같은 경로).
+    const attached: unknown[] = [];
+    const setMap = MockKVOClass.prototype.setMap;
+    MockKVOClass.prototype.setMap = function (this: MockKVO, m: unknown) {
+      if (m) attached.push(this.get('clickable'));
+      setMap.call(this, m);
+    };
+    try {
+      render(
+        <StrictMode>
+          <Wrapper>
+            <Marker position={{ lat: 37.5, lng: 127.0 }} clickable={false} />
+          </Wrapper>
+        </StrictMode>,
+      );
+      await vi.waitFor(() => {
+        const created = mock.getLastInstance('Marker')!;
+        expect(created.instance.get('map')).toBe(mockMap);
+        expect(created.instance.get('clickable')).toBe(false);
+      });
+      expect(attached).toEqual([true, true]);
+    } finally {
+      MockKVOClass.prototype.setMap = setMap;
+    }
   });
 
   test('defaultPosition으로 생성', async () => {

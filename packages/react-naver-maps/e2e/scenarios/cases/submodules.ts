@@ -42,6 +42,36 @@ export const submodules: Scenario[] = [
     expect: [drawn({ drawings: 1, added: 1 })],
   },
   {
+    // StrictMode 는 마운트 직후 effect 를 정리했다 다시 돌린다. 그 사이 SDK 가 되돌린 drawingMode 를
+    // 다시 렌더 없이도 맞춰야 한다.
+    name: 'StrictMode 에서도 DrawingManager 가 마커 모드로 그린다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      strict: true,
+      submodules: ['drawing'],
+      drawingMode: 6,
+    },
+    steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
+    expect: [drawn({ drawings: 1, added: 1 })],
+  },
+  {
+    // SDK 는 DrawingManager 를 지도에서 떼면 drawingMode 를 0(HAND)으로 되돌린다(3.10.5 실측).
+    name: 'Activity 로 숨겼다 보인 DrawingManager 도 마커 모드로 그린다',
+    since: '0.4',
+    app: { mode: 'props', submodules: ['drawing'], drawingMode: 6 },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { drawingActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { drawingActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+      { t: 'clickCenter' },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [drawn({ drawings: 1, added: 1 })],
+  },
+  {
     // 빨강으로 찍고 화면 가운데 빨강을 센다. 다른 색으로 바꾸면 빨강이 사라져야 한다.
     name: 'DotMap 은 visualization 서브모듈로 점을 그리고 fillColor 를 바꾸면 다시 칠하고 언마운트하면 떨어진다',
     since: '0.4',

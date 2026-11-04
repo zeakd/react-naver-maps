@@ -1,9 +1,12 @@
+import { Activity } from 'react';
 import { defineFixture } from '../fixture.js';
 import { DrawingManager } from '../target-imports.js';
 
 export type DrawingConfig = {
   /** DrawingManager 를 이 drawingMode 로 올린다. submodules 에 'drawing' 이 있어야 한다. */
   drawingMode?: number;
+  /** DrawingManager 를 Activity 로 감싼다. drawingMode 가 있어야 한다. */
+  drawingActivity?: 'visible' | 'hidden';
 };
 
 export type DrawingFrame = {
@@ -23,15 +26,17 @@ export const drawing = defineFixture<DrawingConfig, DrawingProbe, DrawingFrame>(
     probe: () => ({ manager: null, added: 0 }),
     render: (config, probe) =>
       config.drawingMode !== undefined && (
-        <DrawingManager
-          ref={(o: naver.maps.drawing.DrawingManager | null) => {
-            if (o) probe.manager = o;
-          }}
-          drawingMode={config.drawingMode as naver.maps.drawing.DrawingMode}
-          onDrawingAdded={() => {
-            probe.added += 1;
-          }}
-        />
+        <Activity mode={config.drawingActivity ?? 'visible'}>
+          <DrawingManager
+            ref={(o: naver.maps.drawing.DrawingManager | null) => {
+              if (o) probe.manager = o;
+            }}
+            drawingMode={config.drawingMode as naver.maps.drawing.DrawingMode}
+            onDrawingAdded={() => {
+              probe.added += 1;
+            }}
+          />
+        </Activity>
       ),
     read: (_map, probe) => ({
       drawings: probe.manager

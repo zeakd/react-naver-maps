@@ -80,12 +80,15 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
   panorama: true,
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,
-    // SDK 는 지도에 붙을 때 clickable 이 true 인 Marker 에만 DOM 리스너를 단다.
-    // 나중에 clickable 을 켜도 이벤트가 오도록 켠 채로 만들고 곧바로 원하는 값으로 되돌린다.
-    clickable: true,
   }),
-  afterCreate: (marker, props) => {
-    if (props.clickable === false) marker.setClickable(false);
+  // SDK 는 지도에 붙일 때 clickable 이 true 인 Marker 에만 DOM 리스너를 단다(3.10.5). 나중에 clickable 을
+  // 켜도 이벤트가 오도록 붙일 때마다(처음, 숨겼다 다시 보일 때, StrictMode 재실행) 켠 채로 붙이고
+  // 원래 값으로 되돌린다.
+  attachTo: (marker, host) => {
+    const clickable = marker.getClickable();
+    if (!clickable) marker.setClickable(true);
+    marker.setMap(host);
+    if (!clickable) marker.setClickable(false);
   },
   events: MARKER_EVENTS,
   changes: [

@@ -1,4 +1,10 @@
-import { useInsertionEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useInsertionEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
 import {
   addMapListener,
@@ -48,6 +54,10 @@ export function useSdkInstance<T>(
   keys: readonly unknown[] = [],
 ): T | null {
   const [instance, setInstance] = useState<T | null>(null);
+  // 다시 붙인 뒤 한 번 다시 렌더한다. SDK 는 떼고 붙이며 옵션을 되돌리기도 해서(DrawingManager 의
+  // drawingMode 가 HAND 로, 3.10.5 실측) 자식의 값 동기화가 다시 돌아 prop 으로 맞춰야 한다. StrictMode
+  // 재실행은 렌더 없이 effect 만 다시 돈다.
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
   const currentRef = useRef<{ instance: T; keys: readonly unknown[] } | null>(
     null,
   );
@@ -58,26 +68,32 @@ export function useSdkInstance<T>(
     specRef.current = spec;
   });
 
-  // keys 가 바뀔 때만 다시 돈다(배열을 그대로 deps 로 넘긴다). 값 비교는 안에서 한다.
+  // keys 를 값으로 안정화한다. 렌더마다 새로 만든 같은 값(인라인 bounds 등)이면 지난 배열을 그대로
+  // 써서 effect 가 다시 돌지 않게 한다. 그러지 않으면 렌더마다 떼었다 붙였다(setMap(null), setMap(map)).
+  const [stableKeys, setStableKeys] = useState(keys);
+  if (!kvoEquals(stableKeys, keys)) setStableKeys(keys);
+  // stableKeys 가 바뀔 때만 다시 돈다(배열을 그대로 deps 로 넘긴다). 그 밖에 effect 가 다시 도는 것은
+  // 숨겼다 보일 때와 StrictMode 재실행이다.
   // oxlint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
     if (!sdkAlive()) return;
     const current = currentRef.current;
     let next: T;
-    if (current && kvoEquals(current.keys, keys)) {
+    if (current && kvoEquals(current.keys, stableKeys)) {
       next = current.instance;
       specRef.current.attach?.(next);
+      rerender();
     } else {
       if (current) specRef.current.dispose(current.instance);
       next = specRef.current.create();
-      currentRef.current = { instance: next, keys };
+      currentRef.current = { instance: next, keys: stableKeys };
     }
     setInstance(next);
     return () => {
       if (sdkAlive()) specRef.current.detach(next);
     };
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, keys);
+  }, stableKeys);
 
   useInsertionEffect(
     () => () => {
@@ -94,13 +110,37 @@ export function useSdkInstance<T>(
 type MapAttachable = { setMap: (map: naver.maps.Map | null) => void };
 
 /**
- * 지도에 setMap 으로 붙는 인스턴스의 떼기·붙이기·버리기. create 는 지도에 붙인 채로 돌려준다.
+ * 인스턴스를 붙이는 방법. 없으면 `setMap(host)`. 붙일 때마다(처음, 숨겼다 다시 보일 때, StrictMode
+ * 재실행) 같은 방법을 쓴다. 이것을 주면 create 는 붙이지 않은 인스턴스를 돌려준다.
+ * 예: Marker 는 clickable 을 켠 채 붙여야 클릭을 받는다.
+ */
+export type AttachTo<T> = (instance: T, host: naver.maps.Map) => void;
+
+/**
+ * 지도에 setMap 으로 붙는 인스턴스의 떼기·붙이기·버리기. create 는 지도에 붙인 채로 돌려준다
+ * (attachTo 를 주면 붙이지 않은 채로 돌려주고 attachTo 로 붙인다).
  * 버릴 때는 사용자가 addListener 로 단 리스너도 지운다.
  */
 export function onMap<T extends MapAttachable>(
   map: naver.maps.Map,
   create: () => T,
+  attachTo?: AttachTo<T>,
 ): SdkInstanceSpec<T> {
+  if (attachTo) {
+    return {
+      create: () => {
+        const instance = create();
+        attachTo(instance, map);
+        return instance;
+      },
+      attach: (instance) => attachTo(instance, map),
+      detach: (instance) => instance.setMap(null),
+      dispose: (instance) => {
+        clearMapListeners(instance);
+        instance.setMap(null);
+      },
+    };
+  }
   return {
     create,
     attach: (instance) => instance.setMap(map),
@@ -123,8 +163,9 @@ type ReadyMap = naver.maps.Map & { isReady?: boolean };
 export function onReadyMap<T extends MapAttachable>(
   map: naver.maps.Map,
   create: () => T,
+  attachTo?: AttachTo<T>,
 ): SdkInstanceSpec<T> {
-  return onReadyHost(map, () => !!(map as ReadyMap).isReady, create);
+  return onReadyHost(map, () => !!(map as ReadyMap).isReady, create, attachTo);
 }
 
 /**
@@ -135,18 +176,19 @@ export function onReadyHost<T extends MapAttachable>(
   host: naver.maps.Map,
   isReady: () => boolean,
   create: () => T,
+  attachTo: AttachTo<T> = (instance, to) => instance.setMap(to),
 ): SdkInstanceSpec<T> {
   const waits = new WeakMap<T, MapListener>();
   const attach = (instance: T) => {
     if (isReady()) {
-      instance.setMap(host);
+      attachTo(instance, host);
       return;
     }
     waits.set(
       instance,
       addMapListener(host, 'init', () => {
         waits.delete(instance);
-        instance.setMap(host);
+        attachTo(instance, host);
       }),
     );
   };
