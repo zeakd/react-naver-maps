@@ -45,6 +45,10 @@ export type CoreConfig = {
   mapKey?: number;
   /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
   inlineOptions?: boolean;
+  /** zoomControlOptions 를 SDK 상수 이름으로 렌더마다 새 객체로 넘긴다(core/constants.ts). */
+  zoomControlOptionsNamed?: { position?: string; style?: string };
+  /** 지도 인스턴스의 setOptions 호출을 센다(mapSetOptionsCalls). 없으면 null. */
+  countMapSetOptions?: boolean;
   /** Container 너비. 기본값은 600 */
   containerWidth?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
@@ -126,6 +130,11 @@ export type TraceFrame = CoreFrame & FixtureFrame;
 export type CoreFrame = {
   center: LL;
   zoom: number;
+  /** 줌 컨트롤 자리와 모양의 SDK 상수 이름(getOptions 값을 SDK 표에서 거꾸로 찾음). 없으면 null. */
+  zoomControlPositionName: string | null;
+  zoomControlStyleName: string | null;
+  /** countMapSetOptions 일 때 이 프레임까지 누적한 지도 setOptions 호출 수. 아니면 null. */
+  mapSetOptionsCalls: number | null;
   /** 이 프레임에 발생한 지도 이벤트 */
   events: string[];
   /** 이 프레임에 호출된 지도 메서드 */

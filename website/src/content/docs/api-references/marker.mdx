@@ -40,10 +40,10 @@ const navermaps = useNavermaps();
 
 ## 애니메이션
 
-`animation` 은 바뀔 때만 적용합니다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지 않습니다. `null` 을 주면 BOUNCE 를 멈춥니다.
+`animation` 은 바뀔 때만 적용합니다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지 않습니다. `null` 을 주면 BOUNCE 를 멈춥니다. 이름(`'BOUNCE'`, `'DROP'`) 대신 SDK 상수(`navermaps.Animation.BOUNCE`)도 받습니다.
 
 ```tsx
-<Marker position={p} animation={bouncing ? navermaps.Animation.BOUNCE : null} />
+<Marker position={p} animation={bouncing ? 'BOUNCE' : null} />
 ```
 
 ## 위치 읽기

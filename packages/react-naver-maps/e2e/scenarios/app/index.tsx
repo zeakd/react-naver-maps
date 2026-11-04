@@ -24,7 +24,7 @@ import {
   useKVO,
   useMap,
 } from './target-imports.js';
-import type { Submodule } from '../target.js';
+import type { Submodule, ZoomControlOptionsProp } from '../target.js';
 
 // 앱 코드의 구성: 이 파일은 지도 본체(center 를 내려주는 방식, 카메라 관찰, 지도 이벤트)를 맡고,
 // 지도 안에 올리는 기능은 fixtures/ 의 픽스처가 렌더하고 읽는다.
@@ -298,6 +298,13 @@ function MapUnderTest({
             ),
           }
         : {})}
+      {...(config.zoomControlOptionsNamed
+        ? {
+            zoomControlOptions: {
+              ...config.zoomControlOptionsNamed,
+            } as ZoomControlOptionsProp,
+          }
+        : {})}
       {...(config.inlineOptions
         ? {
             padding: { top: 10, right: 10, bottom: 10, left: 10 },
@@ -347,6 +354,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   let map: naver.maps.Map | undefined;
   let mapId = 0;
   let initialized = false;
+  let mapSetOptionsCalls = 0;
   const onMap = (next: naver.maps.Map) => {
     if (map === next) return;
     map = next;
@@ -354,6 +362,15 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     // GL 서브모듈의 지도는 카메라 메서드를 자기 클래스에 따로 둔다. Map.prototype 을 감싸면
     // GL 에서 호출을 못 본다. 만든 인스턴스를 직접 감싼다.
     observe(next, OBSERVED_METHODS, observed.calls);
+    if (initial.countMapSetOptions) {
+      const original = next.setOptions.bind(next) as (...a: unknown[]) => void;
+      (
+        next as unknown as { setOptions: (...a: unknown[]) => void }
+      ).setOptions = (...a: unknown[]) => {
+        mapSetOptionsCalls += 1;
+        original(...a);
+      };
+    }
     initialized = false;
     maps.Event.once(next, 'init', () => {
       initialized = true;
@@ -509,6 +526,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       const core: CoreFrame = {
         center,
         zoom: map!.getZoom(),
+        ...zoomControlNames(maps, map!),
+        mapSetOptionsCalls: initial.countMapSetOptions
+          ? mapSetOptionsCalls
+          : null,
         events: observed.events.splice(0),
         calls: observed.calls.splice(0),
         propCalls: observed.propCalls.splice(0),
@@ -561,3 +582,21 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
 }
 
 export type MountedApp = Awaited<ReturnType<typeof mountApp>>;
+
+/** SDK 표에서 값의 이름을 거꾸로 찾는다. */
+function nameOf(table: object, value: unknown): string | null {
+  const hit = Object.entries(table).find(
+    ([k, v]) => v === value && !/^\d+$/.test(k),
+  );
+  return hit ? hit[0] : null;
+}
+
+function zoomControlNames(maps: typeof naver.maps, map: naver.maps.Map) {
+  const o = (map as unknown as { getOptions(k: string): unknown }).getOptions(
+    'zoomControlOptions',
+  ) as { position?: number; style?: number } | undefined;
+  return {
+    zoomControlPositionName: o ? nameOf(maps.Position, o.position) : null,
+    zoomControlStyleName: o ? nameOf(maps.ZoomControlStyle, o.style) : null,
+  };
+}

@@ -24,7 +24,7 @@ export type MarkerConfig = {
   /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
   markerActivity?: 'visible' | 'hidden';
   /** Marker 의 animation (naver.maps.Animation 값, null 은 끔). marker 가 있어야 한다. */
-  markerAnimation?: number | null;
+  markerAnimation?: number | string | null;
 };
 
 export type MarkerFrame = {

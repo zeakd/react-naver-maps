@@ -7,6 +7,8 @@ import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { onMap, onReadyHost, useSdkInstance } from './lifetime.js';
 import type { AttachTo } from './lifetime.js';
+import { resolveConstants } from './constants.js';
+import type { ConstantPaths } from './constants.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { pick } from './utils/pick.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
@@ -44,6 +46,8 @@ export type OverlaySpec<P, T> = {
   initial?: (props: P) => Record<string, unknown>;
   /** prop 에서 계산해 controlled 로 맞추는 값. */
   derived?: (props: P) => Record<string, unknown>;
+  /** 이름으로도 받는 SDK 상수 자리(core/constants.ts). 예: Marker 의 `animation: 'BOUNCE'`. */
+  constants?: ConstantPaths;
   /** 만든 직후 할 일. */
   afterCreate?: (instance: T, props: P) => void;
   /**
@@ -84,8 +88,8 @@ export function defineOverlay<P extends object, T extends Overlay>(
   spec: OverlaySpec<P, T>,
 ) {
   function OverlayComponent({ ref, ...rest }: P & { ref?: Ref<T> }) {
-    const props = rest as P;
     const navermaps = useNavermaps();
+    const props = resolveConstants(navermaps, rest as P, spec.constants, name);
     const host = useOverlayHost();
     if (host.kind === 'panorama' && !spec.panorama) {
       throw new Error(

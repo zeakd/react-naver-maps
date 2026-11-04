@@ -1,6 +1,7 @@
 'use client';
 
 import type { Ref } from 'react';
+import type { AnimationName } from './constants.js';
 import { defineOverlay } from './overlay-spec.js';
 import type {
   ChangeHandlerProps,
@@ -36,7 +37,7 @@ export interface MarkerProps
    * 바뀔 때만 적용한다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지
    * 않는다. null 을 주면 애니메이션을 멈춘다(BOUNCE 끄기).
    */
-  animation?: naver.maps.Animation | null;
+  animation?: AnimationName | null;
   shape?: naver.maps.MarkerShape;
   title?: string;
   cursor?: string;
@@ -77,6 +78,7 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
     'collisionBoxSize',
   ],
   changeOnly: ['animation'],
+  constants: { animation: (m) => m.Animation },
   panorama: true,
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,
