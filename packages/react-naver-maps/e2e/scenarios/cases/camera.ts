@@ -98,7 +98,7 @@ export const camera: Scenario[] = [
     expect: [settlesAtZoom(13), zoomReportsMatchMap()],
   },
 
-  // QC #3: 1px 허용을 지금 zoom 으로 재면 zoom 7 의 1px 안이 zoom 18 에서는 수천 px 이다.
+  // 1px 허용을 지금 zoom 으로 재면 zoom 7 의 1px 안이 zoom 18 에서는 수천 px 이다.
   {
     name: '가까운 center 와 큰 zoom 을 함께 바꾸면 그 center 가 가운데에 온다',
     app: { mode: 'props', zoom: 7 },
@@ -108,7 +108,7 @@ export const camera: Scenario[] = [
     ],
     expect: [settlesAt([37.5706, 126.9784]), settlesAtZoom(18)],
   },
-  // 사례 14. 매 프레임 바뀌는 prop 을 매 프레임 따라야 한다. 래스터 지도는 실수 zoom 을 반올림해 쓰므로
+  // 매 프레임 바뀌는 prop 을 매 프레임 따라야 한다. 래스터 지도는 실수 zoom 을 반올림해 쓰므로
   // zoom 정수가 그대로인 동안(15.02 ~ 15.48, 프레임 2~25)은 center 만 바뀐 것이라 바로 옮긴다. 예전에는
   // 실수 zoom 이 바뀔 때마다 morph 를 불렀고 SDK 는 같은 정수 zoom 의 morph 를 center 째 무시해 지도가
   // 처음 자리에서 움직이지 않았다. 정수가 바뀌는 순간(15.5)의 morph 는 SDK 애니메이션이라 끝날 때까지

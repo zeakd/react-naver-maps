@@ -199,7 +199,7 @@ export const expectedDifferences: Record<
     reason:
       '같은 이유. 0.3.0 은 다시 보일 때 Marker 를 새로 만들어(calls 의 setIcon 등) clickable 을 꺼진 채 붙였다',
   },
-  // QC 1묶음(research/qc-cases)
+  // 튐·React 수명 확인 사례에서 고친 것
   '가까운 center 와 큰 zoom 을 함께 바꾸면 그 center 가 가운데에 온다': {
     fields: ['kvoZoom', 'kvoLat'],
     reason:

@@ -145,7 +145,7 @@ export const overlays: Scenario[] = [
     expect: [calls({ setAnimation: 1 }), lastFrame('markerAnimation', null)],
   },
 
-  // QC #11: SDK 는 지도마다 InfoWindow 하나만 연다. 둘 다 open 이면 렌더마다 서로 닫고 열 수 있다.
+  // SDK 는 지도마다 InfoWindow 하나만 연다. 둘 다 open 이면 렌더마다 서로 닫고 열 수 있다.
   {
     name: '두 InfoWindow 를 열어 두고 다시 렌더해도 서로 닫고 열기를 반복하지 않는다',
     app: { mode: 'props', infoWindow: true, infoWindow2: true },

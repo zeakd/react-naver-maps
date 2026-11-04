@@ -17,7 +17,6 @@ import { B, drag } from './steps.js';
 /**
  * React 수명이 SDK 인스턴스에 미치는 영향: init 전에 내린 자식, key 로 다시 만든 anchor, transition 안의
  * suspend, 지도를 내리는 순간의 SDK 작업, 지도 안의 에러 경계.
- * 사례 번호는 projects/react-naver-maps/research/qc-cases/README.md 의 표를 따른다.
  */
 
 /** init 을 기다리지 않고 단계를 시작한다. */
@@ -34,7 +33,7 @@ const dragAndRelease: Step[] = [
 ];
 
 export const reactLifecycle: Scenario[] = [
-  // 사례 9. init 전에 올렸다 내린 자식이 init 뒤에 붙으면 안 된다.
+  // init 전에 올렸다 내린 자식이 init 뒤에 붙으면 안 된다.
   // 어느 요청이 init 을 막는지는 브라우저로 확인하지 못했다. 주소는 playwright-driver 의 STYLE_URL(추정).
   {
     name: 'init 전에 올렸다 내린 HeatMap 과 CustomControl 은 init 뒤에도 지도에 붙지 않는다',
@@ -81,7 +80,7 @@ export const reactLifecycle: Scenario[] = [
     expect: [overlaysOnMap(['heatMap']), customControlAt(1), sameMap()],
   },
 
-  // 사례 12. anchor Marker 를 새로 만들면 InfoWindow 가 새 Marker 위로 옮겨 가고 그 사이 닫히지 않는다.
+  // anchor Marker 를 새로 만들면 InfoWindow 가 새 Marker 위로 옮겨 가고 그 사이 닫히지 않는다.
   {
     name: 'anchor 로 쓰는 Marker 를 key 로 다시 만들어도 InfoWindow 가 닫히지 않고 새 Marker 위로 옮겨 간다',
     since: '0.4',
@@ -103,7 +102,7 @@ export const reactLifecycle: Scenario[] = [
     ],
   },
 
-  // 사례 16. transition 안에서 지도의 자식이 suspend 하면 Suspense 가 이미 보인 지도를 숨기면 안 된다.
+  // transition 안에서 지도의 자식이 suspend 하면 Suspense 가 이미 보인 지도를 숨기면 안 된다.
   {
     name: 'transition 안에서 지도 안 자식이 suspend 해도 지도가 숨지 않는다',
     since: '0.4',
@@ -117,7 +116,7 @@ export const reactLifecycle: Scenario[] = [
     expect: [mapVisible(), sameMap(), mapAttached()],
   },
 
-  // 사례 18. 지도를 내리는 순간 SDK 가 하던 작업(morph 애니메이션, 놓은 뒤 관성)이 destroy 된 지도를 건드리면
+  // 지도를 내리는 순간 SDK 가 하던 작업(morph 애니메이션, 놓은 뒤 관성)이 destroy 된 지도를 건드리면
   // 에러가 난다. 에러가 어디서 나는지는 추정(SDK 의 rAF)이라 에러의 유무만 본다.
   {
     name: 'morph 애니메이션 도중 지도를 내려도 에러가 없다',
@@ -178,7 +177,7 @@ export const reactLifecycle: Scenario[] = [
     expect: [noErrors(), mapAttached()],
   },
 
-  // 사례 19. 경계가 던진 에러를 잡아 대체 UI 를 보이고, 리셋하면 Marker 가 한 벌만 지도에 붙는다.
+  // 경계가 던진 에러를 잡아 대체 UI 를 보이고, 리셋하면 Marker 가 한 벌만 지도에 붙는다.
   // 허용하는 에러는 일부러 던진 것 하나뿐이다. React 가 경계에서 잡은 에러를 console.error 로 알리는지
   // window error 로 알리는지는 확인하지 못했다(추정: console.error). window error 로 오면 scenarios.spec 의
   // pageerror 검사가 먼저 실패한다.

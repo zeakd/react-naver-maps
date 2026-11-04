@@ -104,8 +104,8 @@ export interface NaverMapProps {
   useStyleMap?: boolean;
   /**
    * 타일 페이드 인 효과 지속 시간(ms). SDK 패턴: static.
-   * SDK에 `setTileDuration`/`tileDuration_changed`가 없고 타일 인스턴스 생성 시에만
-   * 읽히므로(maps.beautified.js:5568/5642/6468) 런타임 변경이 무시된다. 생성자에만 적용한다.
+   * SDK에 `setTileDuration`/`tileDuration_changed`가 없고 타일을 만들 때만 읽으므로
+   * (SDK 3.10.5) 런타임 변경이 무시된다. 생성자에만 적용한다.
    */
   tileDuration?: number;
 

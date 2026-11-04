@@ -97,7 +97,7 @@ export const lifecycle: Scenario[] = [
     ],
   },
 
-  // QC #15: 다시 보일 때 카메라 effect 가 크기를 다시 재기 전에 돈다.
+  // 다시 보일 때 카메라 effect 가 크기를 다시 재기 전에 돈다.
   {
     name: 'Activity 로 숨긴 동안 바꾼 center·zoom·크기가 보일 때 한 번에 맞는다',
     since: '0.4',
@@ -113,7 +113,7 @@ export const lifecycle: Scenario[] = [
     ],
     expect: [settlesAt(B), settlesAtZoom(12), mapWidth(400), sameMap()],
   },
-  // QC #17: 숨긴 채 제거한 Marker 는 다시 보여도 지도에 없다.
+  // 숨긴 채 제거한 Marker 는 다시 보여도 지도에 없다.
   {
     name: '숨긴 채 제거한 Marker 는 지도를 다시 보여도 붙지 않는다',
     since: '0.4',

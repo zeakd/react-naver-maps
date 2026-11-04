@@ -1,7 +1,7 @@
 /**
  * 오버레이별 이벤트 유니온 + 매핑 유틸리티 타입
  *
- * 근거: docs/references/navermaps-api.md
+ * 근거: 공식 API 문서 각 클래스의 Events(SDK 3.10.5).
  * 각 오버레이가 지원하는 포인터 이벤트를 타입 레벨에서 제한한다.
  */
 
@@ -37,11 +37,9 @@ export const MARKER_EVENTS = [
 export type MarkerEvent = (typeof MARKER_EVENTS)[number];
 
 /**
- * GroundOverlay: SDK가 GROUND_DOMEVENTS = ["click", "mousedown", "mouseup", "contextmenu"]를 등록한다.
- * click 리스너는 250ms·5px 이내 연속 클릭을 합성 dblclick으로 trigger하고,
- * contextmenu는 rightclick으로 매핑되어 발화한다.
- * mouseover/mouseout/mousemove는 별도 DOM 이벤트 배열이라 GroundOverlay가 바인딩하지 않는다.
- * 근거: maps.beautified.js:862 (GROUND_DOMEVENTS), :9014 (_getSingleClickType → "dblclick"), :275 (이벤트명 매핑 J: contextmenu→rightclick).
+ * GroundOverlay: SDK 는 DOM 의 click·mousedown·mouseup·contextmenu 만 받는다.
+ * 250ms·5px 안의 연속 클릭은 SDK 가 dblclick 으로 발화하고, contextmenu 는 rightclick 으로 발화한다.
+ * mouseover/mouseout/mousemove 는 발화하지 않는다(SDK 3.10.5 기준).
  */
 export const GROUND_OVERLAY_EVENTS = [
   'click',
