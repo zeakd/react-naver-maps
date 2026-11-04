@@ -1,5 +1,5 @@
-import { Activity } from 'react';
-import type { LL } from '../../types.js';
+import { Activity, useEffect, useState } from 'react';
+import type { CoreConfig, LL } from '../../types.js';
 import { INITIAL_CENTER, toCoord } from '../common.js';
 import { defineFixture } from '../fixture.js';
 import { observe } from '../observe.js';
@@ -16,6 +16,11 @@ export type MarkerConfig = {
   markerDraggable?: boolean;
   /** Marker icon 을 렌더마다 새로 만든 같은 값(content 문자열, anchor Point)으로 넘긴다. */
   markerInlineIcon?: boolean;
+  /**
+   * Marker 의 position 을 내려주는 방식. 기본 fixed 는 고정값이다.
+   * controlled 는 onPositionChanged 값을 상태에 넣어 되돌려주고, delayed 는 AppConfig.delayMs 뒤에 넣는다.
+   */
+  markerPositionMode?: 'fixed' | 'controlled' | 'delayed';
   /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
   markerActivity?: 'visible' | 'hidden';
   /** Marker 의 animation (naver.maps.Animation 값, null 은 끔). marker 가 있어야 한다. */
@@ -35,6 +40,73 @@ export type MarkerFrame = {
 
 type MarkerProbe = { marker: naver.maps.Marker | null; clicks: number };
 
+function markerElement(
+  config: MarkerConfig,
+  probe: MarkerProbe,
+  position: naver.maps.Coord | { lat: number; lng: number },
+  onPositionChanged?: (p: naver.maps.Coord) => void,
+) {
+  return (
+    <Marker
+      ref={(m: naver.maps.Marker | null) => {
+        // ref 가 떨어져도(Activity 로 숨김, 언마운트) 마지막 인스턴스를 계속 본다.
+        if (m) probe.marker = m;
+      }}
+      position={position}
+      clickable={config.markerClickable}
+      draggable={config.markerDraggable}
+      {...(config.markerAnimation !== undefined
+        ? {
+            animation: config.markerAnimation as naver.maps.Animation | null,
+          }
+        : {})}
+      {...(config.markerInlineIcon
+        ? {
+            icon: {
+              content:
+                '<div style="width:20px;height:20px;background:#f00"></div>',
+              anchor: new naver.maps.Point(10, 10),
+            },
+          }
+        : {})}
+      onClick={() => {
+        probe.clicks += 1;
+      }}
+      {...(onPositionChanged ? { onPositionChanged } : {})}
+    />
+  );
+}
+
+/** onPositionChanged 값을 상태에 넣어 position 으로 되돌려주는 Marker. delayed 면 값마다 delayMs 뒤. */
+function FeedbackMarker({
+  config,
+  probe,
+}: {
+  config: MarkerConfig & Pick<CoreConfig, 'delayMs'>;
+  probe: MarkerProbe;
+}) {
+  const [reported, setReported] = useState<naver.maps.Coord | null>(null);
+  const [timers] = useState(() => new Set<number>());
+  useEffect(
+    () => () => {
+      for (const id of timers) window.clearTimeout(id);
+    },
+    [timers],
+  );
+  const onPositionChanged = (p: naver.maps.Coord) => {
+    if (config.markerPositionMode === 'controlled') setReported(p);
+    else {
+      timers.add(window.setTimeout(() => setReported(p), config.delayMs ?? 50));
+    }
+  };
+  return markerElement(
+    config,
+    probe,
+    reported ?? toCoord(INITIAL_CENTER),
+    onPositionChanged,
+  );
+}
+
 export const marker = defineFixture<MarkerConfig, MarkerProbe, MarkerFrame>({
   probe: () => ({ marker: null, clicks: 0 }),
   setup: (maps, _probe, core) =>
@@ -42,33 +114,12 @@ export const marker = defineFixture<MarkerConfig, MarkerProbe, MarkerFrame>({
   render: (config, probe) =>
     config.marker && (
       <Activity mode={config.markerActivity ?? 'visible'}>
-        <Marker
-          ref={(m: naver.maps.Marker | null) => {
-            // ref 가 떨어져도(Activity 로 숨김, 언마운트) 마지막 인스턴스를 계속 본다.
-            if (m) probe.marker = m;
-          }}
-          position={toCoord(INITIAL_CENTER)}
-          clickable={config.markerClickable}
-          draggable={config.markerDraggable}
-          {...(config.markerAnimation !== undefined
-            ? {
-                animation:
-                  config.markerAnimation as naver.maps.Animation | null,
-              }
-            : {})}
-          {...(config.markerInlineIcon
-            ? {
-                icon: {
-                  content:
-                    '<div style="width:20px;height:20px;background:#f00"></div>',
-                  anchor: new naver.maps.Point(10, 10),
-                },
-              }
-            : {})}
-          onClick={() => {
-            probe.clicks += 1;
-          }}
-        />
+        {config.markerPositionMode === 'controlled' ||
+        config.markerPositionMode === 'delayed' ? (
+          <FeedbackMarker config={config} probe={probe} />
+        ) : (
+          markerElement(config, probe, toCoord(INITIAL_CENTER))
+        )}
       </Activity>
     ),
   read: (map, probe) => ({

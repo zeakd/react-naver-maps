@@ -17,8 +17,9 @@ export type CoreConfig = {
    * - controlled: onCenterChanged 로 받은 값을 상태에 넣어 되돌려준다.
    * - rounded: controlled 와 같되 위도·경도를 소수 넷째 자리로 반올림해 넣는다.
    * - debounced: 마지막 onCenterChanged 300ms 뒤에 그 값을 상태에 넣는다.
+   * - delayed: onCenterChanged 로 받은 값마다 delayMs 뒤에 그 값을 상태에 넣는다(값마다 따로 예약, 순서 유지).
    */
-  mode: 'props' | 'controlled' | 'rounded' | 'debounced';
+  mode: 'props' | 'controlled' | 'rounded' | 'debounced' | 'delayed';
   center?: LL;
   zoom?: number;
   strict?: boolean;
@@ -26,6 +27,14 @@ export type CoreConfig = {
   submodules?: string[];
   /** rounded 의 소수 자릿수. 기본 4. */
   roundDigits?: number;
+  /** delayed 방식(center·zoom·Marker position)이 값을 상태에 넣기까지의 지연(ms). 기본 50. */
+  delayMs?: number;
+  /**
+   * zoom 을 내려주는 방식. 기본 props 는 설정의 zoom 만 내려준다(없으면 INITIAL_ZOOM).
+   * controlled 는 onZoomChanged 값을 상태에 넣어 되돌려주고, delayed 는 delayMs 뒤에 넣는다.
+   * 설정의 zoom 이 있으면 그것이 우선한다(center 와 같은 규칙).
+   */
+  zoomMode?: 'props' | 'controlled' | 'delayed';
   /** NaverMap 의 gl. submodules 에 'gl' 이 있어야 한다. */
   gl?: boolean;
   /** 터치 입력을 켠다(드라이버가 브라우저 터치 지원을 흉내 낸다). */
@@ -58,6 +67,14 @@ export type Step =
   | { t: 'wheel'; x: number; y: number; deltaY: number }
   /** 지도 중앙을 실제 DOM 클릭으로 누른다. */
   | { t: 'clickCenter' }
+  /** 지도 중앙을 실제 DOM 더블클릭으로 누른다. */
+  | { t: 'dblclickCenter' }
+  /** 지도에 포커스를 두고 키를 누른다(Playwright 키 이름, 예: ArrowRight). */
+  /**
+   * 앱 상태(되먹임으로 받은 center·zoom)에 바로 쓴다. 설정의 center·zoom 과 달리 고정하지 않아
+   * 이후 되먹임이 덮을 수 있다.
+   */
+  | { t: 'setState'; center?: LL; zoom?: number }
   /** 터치. points 는 화면 좌표이고 end 는 모든 손가락을 뗀다. AppConfig.touch 가 있어야 한다. */
   | { t: 'touch'; kind: 'start' | 'move' | 'end'; points: [number, number][] }
   /**
@@ -88,6 +105,10 @@ export type CoreFrame = {
   propCalls: string[];
   /** 이 프레임에 onZoomChanged 로 받은 값 */
   zoomReports: number[];
+  /** 앱이 지도에 마지막으로 내려준 center prop. 아직 렌더 전이면 null. */
+  propCenter: LL | null;
+  /** 앱이 지도에 마지막으로 내려준 zoom prop. 아직 렌더 전이면 null. */
+  propZoom: number | null;
   /** 지도에 붙은 컨트롤 수 */
   controls: number;
   /** 지도 DOM 이 문서에 붙어 있는가 */
@@ -142,6 +163,8 @@ export interface ScenarioDriver {
   mouse(kind: 'down' | 'move' | 'up', x: number, y: number): Promise<void>;
   wheel(x: number, y: number, deltaY: number): Promise<void>;
   clickCenter(): Promise<void>;
+  dblclickCenter(): Promise<void>;
+  setState(state: { center?: LL; zoom?: number }): Promise<void>;
   touch(
     kind: 'start' | 'move' | 'end',
     points: [number, number][],

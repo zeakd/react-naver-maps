@@ -1,6 +1,7 @@
 import { camera } from './cases/camera.js';
 import { controlledCenter } from './cases/controlled-center.js';
 import { controls } from './cases/controls.js';
+import { feedback } from './cases/feedback.js';
 import { gestures } from './cases/gestures.js';
 import { gl } from './cases/gl.js';
 import { layersData } from './cases/layers-data.js';
@@ -18,6 +19,7 @@ export const scenarios: Scenario[] = [
   ...camera,
   ...mapProps,
   ...controlledCenter,
+  ...feedback,
   ...gestures,
   ...gl,
   ...lifecycle,

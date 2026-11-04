@@ -159,6 +159,13 @@ export function createPlaywrightDriver(
       await page.mouse.click(300, 190);
       await flush();
     },
+    async dblclickCenter() {
+      await input(() => page.mouse.dblclick(300, 200));
+    },
+    async setState(state) {
+      await page.evaluate((s) => window.app.setState(s), state);
+      await flush();
+    },
     async touch(kind, points) {
       if (!cdp) throw new Error('터치는 AppConfig.touch 가 있어야 한다');
       const type = (

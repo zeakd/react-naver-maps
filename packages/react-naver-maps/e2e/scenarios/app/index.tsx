@@ -1,4 +1,12 @@
-import { Activity, Fragment, StrictMode, useRef, useState } from 'react';
+import {
+  Activity,
+  Fragment,
+  StrictMode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import type { AppConfig, CoreFrame, LL, TraceFrame } from '../types.js';
@@ -73,6 +81,49 @@ function KvoProbe({ observed }: { observed: Observed }) {
   return null;
 }
 
+/** 앱이 내려준 center 를 [lat, lng] 로. 리터럴과 LatLng 둘 다 받는다. */
+function coordToLL(c: naver.maps.Coord): LL {
+  const o = c as unknown as {
+    lat: number | (() => number);
+    lng: number | (() => number);
+  };
+  return typeof o.lat === 'function'
+    ? [o.lat(), (o.lng as () => number)()]
+    : [o.lat, o.lng as number];
+}
+
+/** 앱이 지도에 내려준 값의 기록과, 단계가 앱 상태에 쓰는 통로. mountApp 이 만든다. */
+export type Feedback = {
+  /** 마지막으로 커밋된 렌더에서 내려준 center·zoom prop (TraceFrame.propCenter, propZoom) */
+  given(): { center: LL | null; zoom: number | null };
+  setGiven(center: LL, zoom: number): void;
+  /** 지도 본체가 올라와 있는 동안 상태에 쓰는 함수를 달고 뗀다. */
+  attach(write: ((state: { center?: LL; zoom?: number }) => void) | null): void;
+  write(state: { center?: LL; zoom?: number }): void;
+};
+
+function createFeedback(): Feedback {
+  const given: { center: LL | null; zoom: number | null } = {
+    center: null,
+    zoom: null,
+  };
+  let write: Parameters<Feedback['attach']>[0] = null;
+  return {
+    given: () => given,
+    setGiven(center, zoom) {
+      given.center = center;
+      given.zoom = zoom;
+    },
+    attach(next) {
+      write = next;
+    },
+    write(state) {
+      if (!write) throw new Error('지도 본체가 올라와 있지 않다');
+      write(state);
+    },
+  };
+}
+
 function controlCount(map: naver.maps.Map) {
   const positions = Object.values(map.controls ?? {}) as unknown as {
     getLength?: () => number;
@@ -84,18 +135,51 @@ function MapUnderTest({
   config,
   observed,
   probes,
+  feedback,
   onMap,
 }: {
   config: AppConfig;
   observed: Observed;
+  feedback: Feedback;
   /** FIXTURES 와 같은 순서의 픽스처별 관찰 상태 */
   probes: unknown[];
   onMap: (map: naver.maps.Map) => void;
 }) {
   const [reported, setReported] = useState<naver.maps.Coord | null>(null);
+  const [reportedZoom, setReportedZoom] = useState<number | null>(null);
   const debounceRef = useRef<number | null>(null);
+  const [timers] = useState(() => new Set<number>());
+  const delayMs = config.delayMs ?? 50;
+  // 값마다 따로 예약한다(마지막 값만 남기는 debounced 와 다르다). 가상 시계가 결정적으로 돌린다.
+  const later = (apply: () => void) => {
+    timers.add(window.setTimeout(apply, delayMs));
+  };
+  useEffect(() => {
+    feedback.attach((state) => {
+      flushSync(() => {
+        if (state.center)
+          setReported(toCoord(state.center) as unknown as naver.maps.Coord);
+        if (state.zoom !== undefined) setReportedZoom(state.zoom);
+      });
+    });
+    return () => {
+      feedback.attach(null);
+      for (const id of timers) window.clearTimeout(id);
+    };
+  }, [feedback, timers]);
   const given = config.center ? toCoord(config.center) : null;
   const center = given ?? reported ?? toCoord(INITIAL_CENTER);
+  const zoom = config.zoom ?? reportedZoom ?? INITIAL_ZOOM;
+  // 커밋마다 기록한다.
+  const givenCenter = coordToLL(center as unknown as naver.maps.Coord);
+  useLayoutEffect(() => {
+    feedback.setGiven(givenCenter, zoom);
+  });
+  const onZoomReported = (z: number) => {
+    observed.zoomReports.push(z);
+    if (config.zoomMode === 'controlled') setReportedZoom(z);
+    else if (config.zoomMode === 'delayed') later(() => setReportedZoom(z));
+  };
   const onCenterChanged = (() => {
     switch (config.mode) {
       case 'controlled':
@@ -113,6 +197,8 @@ function MapUnderTest({
           if (debounceRef.current) window.clearTimeout(debounceRef.current);
           debounceRef.current = window.setTimeout(() => setReported(c), 300);
         };
+      case 'delayed':
+        return (c: naver.maps.Coord) => later(() => setReported(c));
       default:
         return undefined;
     }
@@ -125,7 +211,7 @@ function MapUnderTest({
         if (map) onMap(map);
       }}
       center={center}
-      zoom={config.zoom ?? INITIAL_ZOOM}
+      zoom={zoom}
       zoomControl={config.zoomControl}
       gl={config.gl}
       cursor={config.mapCursor}
@@ -146,7 +232,7 @@ function MapUnderTest({
             zoomControlOptions: { position: 1 },
           }
         : {})}
-      onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
+      onZoomChanged={onZoomReported}
       onZoomstart={() => observed.propCalls.push('onZoomstart')}
       onZoomend={() => observed.propCalls.push('onZoomend')}
       onCenterChanged={onCenterChanged}
@@ -172,6 +258,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     submodules: initial.submodules as Submodule[] | undefined,
   });
   const observed = createObserved();
+  const feedback = createFeedback();
   const probes = FIXTURES.map((fixture) => fixture.probe?.());
   FIXTURES.forEach((fixture, i) => fixture.setup?.(maps, probes[i], observed));
 
@@ -217,6 +304,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
               config={config}
               observed={observed}
               probes={probes}
+              feedback={feedback}
               onMap={onMap}
             />
           </Activity>
@@ -237,6 +325,11 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       config = { ...config, ...props };
       flushSync(() => root.render(render()));
     },
+    /** 되먹임 상태(reported center·zoom)에 바로 쓴다. 이후 되먹임이 덮을 수 있다. */
+    setState(state: { center?: LL; zoom?: number }) {
+      feedback.write(state);
+    },
+    /** 키보드 단계를 위해 지도 요소에 포커스를 둔다. */
     call(method: string, args: unknown[]) {
       const decoded = args.map((a) =>
         Array.isArray(a) ? new maps.LatLng(a[0], a[1]) : a,
@@ -291,6 +384,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         calls: observed.calls.splice(0),
         propCalls: observed.propCalls.splice(0),
         zoomReports: observed.zoomReports.splice(0),
+        propCenter: feedback.given().center,
+        propZoom: feedback.given().zoom,
         controls: controlCount(map!),
         attached: map!.getPanes().overlayLayer.isConnected,
         mapWidth: map!.getSize().width,

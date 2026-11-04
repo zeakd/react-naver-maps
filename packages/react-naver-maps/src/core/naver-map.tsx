@@ -389,6 +389,31 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   const requestedCenterRef = useRef<
     naver.maps.Coord | naver.maps.CoordLiteral | null
   >(null);
+  // 지도가 최근에 보고한 center(onCenterChanged 로 앱에 간 값). 앱이 이 값을 늦게 되돌려주면
+  // (setTimeout, 비동기 store, transition) 지도가 이미 지나온 자리다. 그것을 새 목표로 보고 따라가면
+  // 지도가 뒤로 당겨지고, 그 이동이 다시 보고되어 늦게 돌아오며 멈추지 않고 흔들렸다(e2e "center 를
+  // 늦게 되돌려줘도"). 그래서 최근 보고값과 화면 1px 안인 prop 은 되울림으로 보고 따르지 않는다.
+  // 앱이 일부러 그 자리로 보내려면 2초 뒤에 같은 값을 주거나 map.panTo() 를 쓴다.
+  const reportedRef = useRef<{ at: number; coord: naver.maps.Coord }[]>([]);
+  const rememberReported = (coord: naver.maps.Coord) => {
+    const now = performance.now();
+    const list = reportedRef.current;
+    list.push({ at: now, coord });
+    while (list.length > ECHO_MAX || now - list[0]!.at > ECHO_WINDOW_MS) {
+      list.shift();
+    }
+  };
+  const isEcho = (
+    center: naver.maps.Coord | naver.maps.CoordLiteral,
+    zoom: number,
+  ) => {
+    const now = performance.now();
+    return reportedRef.current.some(
+      (r) =>
+        now - r.at <= ECHO_WINDOW_MS &&
+        sameOnScreen(map, r.coord, center, zoom),
+    );
+  };
   const prevRef = useRef({
     center: props.center,
     zoom: props.zoom,
@@ -428,7 +453,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
         // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
         map.stop();
         requestedCenterRef.current = null;
-      } else if (!atCenter) {
+      } else if (!atCenter && !isEcho(props.center, zoomForCheck)) {
         dirties.center = props.center;
       }
     }
@@ -540,6 +565,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useLayoutEffect(() => {
     const listener = addMapListener(map, 'center_changed', () => {
       requestedCenterRef.current = null;
+      rememberReported(map.getCenter());
     });
     return () => removeMapListener(listener);
   }, [map]);
@@ -558,6 +584,10 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
 
   return <>{children}</>;
 }
+
+/** 되울림으로 볼 보고값의 시간 범위와 개수. */
+const ECHO_WINDOW_MS = 2000;
+const ECHO_MAX = 240;
 
 /**
  * 두 좌표가 zoom 에서 화면 1px 안이면 같은 자리로 본다. 앱이 반올림해 되돌려준 center,
