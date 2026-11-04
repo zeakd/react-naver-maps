@@ -1,0 +1,24 @@
+---
+title: 오버레이의 이벤트
+category: tutorial-event
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import EventTutorial3OverlayExample from '../../../examples/event-tutorial-3-overlay.tsx';
+
+마커, 선, 도형, 사용자 오버레이의 이벤트를 쓰는 예제입니다. 마커를 누르면 정보 창이 열리고, 도형은 마우스에 반응합니다.
+
+<Example of={EventTutorial3OverlayExample} />
+
+## 설명
+
+오버레이 이벤트는 각 컴포넌트의 `on*` prop 입니다(`<Marker onClick>`, `<Polyline onMousedown onMouseup>`, `<Polygon onMouseover onMouseout>`, `<Rectangle onMousemove>`, `<Circle onDblclick>`). 이벤트가 바꾸던 선 굵기, 투명도, 반지름은 React state 이고 해당 prop 으로 넘깁니다.
+
+`setOptions` 와 `map.setCursor('pointer')` 는 state 와 `NaverMap` 의 `cursor` prop 이 됩니다. 정보 창은 열린 대상을 state 로 갖고 `<InfoWindow open anchor content />` 로 그립니다. 마커 `anchor` 는 `ref` 로 받은 Marker 입니다.
+
+`Ellipse` 의 `touchstart`, `touchend` 는 `on*` prop 이 없어 `useListener` 를 씁니다. 도형 이벤트에 touch 계열이 없고 터치 기기에서 실제로 오는지는 확인하지 못했습니다.
+
+공식 예제와 다른 점: `alert` 대신 지도 위 글자로 알리고, 핀 모양은 공식 페이지의 CSS 클래스(`cs_mapbridge` 등)가 없어 직접 그렸습니다. 원 크기 변화는 jQuery `animate` 대신 `requestAnimationFrame` 입니다.
+
+> [네이버 공식 튜토리얼 - 오버레이의 이벤트](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-event-overlay.example.html)
