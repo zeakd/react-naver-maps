@@ -31,7 +31,7 @@ export const mapProps: Scenario[] = [
     expect: [sameMap()],
   },
 
-  // SDK 상수를 이름으로 준다(core/constants.ts). 렌더마다 새 객체여도 이름을 값으로 바꾼 뒤 값으로
+  // SDK 상수를 이름으로 준다(sdk/constants.ts). 렌더마다 새 객체여도 이름을 값으로 바꾼 뒤 값으로
   // 비교하므로 setOptions 를 다시 부르지 않는다.
   {
     name: '컨트롤 옵션을 상수 이름으로 주면 그 자리와 모양이 되고 다시 렌더해도 setOptions 를 부르지 않는다',

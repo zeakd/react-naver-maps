@@ -3,22 +3,22 @@
 // SDK drawing 서브모듈(naver.maps.drawing)의 DrawingManager.
 // <NavermapsProvider submodules={['drawing']}> 로 불러야 한다.
 import type { Ref } from 'react';
-import { resolveConstants } from '../core/constants.js';
+import { resolveConstants } from '../sdk/constants.js';
 import type {
   ConstantPaths,
   DrawingModeName,
   DrawingStyleName,
   PositionName,
-} from '../core/constants.js';
+} from '../sdk/constants.js';
 import { useImperativeHandle } from 'react';
-import { useNavermaps } from '../core/hooks/use-navermaps.js';
-import { useMap } from '../core/hooks/use-map.js';
-import { useControlledProps } from '../core/hooks/use-controlled-kvo.js';
-import { useOverlayEvents } from '../core/overlay-spec.js';
-import { pick } from '../core/utils/pick.js';
-import { onReadyMap, useSdkInstance } from '../core/lifetime.js';
-import { omitUndefined } from '../core/utils/omit-undefined.js';
-import { requireSubmodule } from '../core/utils/submodule.js';
+import { useNavermaps } from '../hooks/use-navermaps.js';
+import { useMap } from '../hooks/use-map.js';
+import { useControlledProps } from '../binding/use-controlled-kvo.js';
+import { useOverlayEvents } from '../overlays/overlay-spec.js';
+import { pick } from '../binding/pick.js';
+import { onReadyMap, useSdkInstance } from '../binding/lifetime.js';
+import { omitUndefined } from '../binding/omit-undefined.js';
+import { requireSubmodule } from '../sdk/submodule.js';
 
 type Manager = naver.maps.drawing.DrawingManager;
 /**
@@ -82,7 +82,7 @@ export interface DrawingManagerProps {
   onDrawingModeChanged?: (mode: naver.maps.drawing.DrawingMode) => void;
 }
 
-/** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
+/** 이름으로도 받는 SDK 상수 자리(sdk/constants.ts). */
 const DRAWING_CONSTANTS: ConstantPaths = {
   drawingMode: 'drawing.DrawingMode',
   'drawingControl[]': 'drawing.DrawingMode',

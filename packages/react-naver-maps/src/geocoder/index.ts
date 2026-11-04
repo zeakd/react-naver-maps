@@ -1,6 +1,6 @@
 // SDK geocoder 서브모듈(naver.maps.Service)을 Promise 로 쓴다.
 // <NavermapsProvider submodules={['geocoder']}> 로 불러야 한다.
-import { requireSubmodule } from '../core/utils/submodule.js';
+import { requireSubmodule } from '../sdk/submodule.js';
 
 export type GeocodeOptions = naver.maps.Service.GeocodeServiceOptions;
 export type ReverseGeocodeOptions = naver.maps.Service.ReverseServiceOptions;

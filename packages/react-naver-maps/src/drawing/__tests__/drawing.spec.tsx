@@ -4,10 +4,10 @@ import { DrawingManager } from '../index.js';
 
 let navermaps: Record<string, any> = {};
 const map = { isReady: true };
-vi.mock('../../core/hooks/use-navermaps.js', () => ({
+vi.mock('../../hooks/use-navermaps.js', () => ({
   useNavermaps: () => navermaps,
 }));
-vi.mock('../../core/hooks/use-map.js', () => ({ useMap: () => map }));
+vi.mock('../../hooks/use-map.js', () => ({ useMap: () => map }));
 
 type Listener = { event: string; cb: (x: unknown) => void };
 let listeners: Listener[] = [];

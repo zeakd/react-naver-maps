@@ -46,7 +46,7 @@ export type CoreConfig = {
   mapKey?: number;
   /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
   inlineOptions?: boolean;
-  /** zoomControlOptions 를 SDK 상수 이름으로 렌더마다 새 객체로 넘긴다(core/constants.ts). */
+  /** zoomControlOptions 를 SDK 상수 이름으로 렌더마다 새 객체로 넘긴다(sdk/constants.ts). */
   zoomControlOptionsNamed?: { position?: string; style?: string };
   /** 지도 인스턴스의 setOptions 호출을 센다(mapSetOptionsCalls). 없으면 null. */
   countMapSetOptions?: boolean;

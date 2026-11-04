@@ -3,10 +3,10 @@ import { describe, test, expect, vi } from 'vitest';
 import { HeatMap, DotMap } from '../index.js';
 
 let navermaps: Record<string, unknown> = {};
-vi.mock('../../core/hooks/use-navermaps.js', () => ({
+vi.mock('../../hooks/use-navermaps.js', () => ({
   useNavermaps: () => navermaps,
 }));
-vi.mock('../../core/hooks/use-map.js', () => ({
+vi.mock('../../hooks/use-map.js', () => ({
   useMap: () => ({ isReady: true }),
 }));
 

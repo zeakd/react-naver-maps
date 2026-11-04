@@ -157,7 +157,7 @@ export const submodules: Scenario[] = [
       sameMap(),
     ],
   },
-  // 문서상 지원하지 않는 조합이다(src/core/hooks/use-editable.ts 의 주석): editable 도형의 편집은
+  // 문서상 지원하지 않는 조합이다(src/shapes/use-editable.ts 의 주석): editable 도형의 편집은
   // 꼭짓점 끌기 대조군. 다음 시나리오의 되돌림이 하네스 끌기 실패가 아니라는 근거다.
   {
     name: 'defaultPaths 로 둔 editable Polygon 은 꼭짓점을 끄는 동안 다시 렌더해도 편집이 남는다',
@@ -178,7 +178,7 @@ export const submodules: Scenario[] = [
     expect: [calls({ setPaths: 0 }), polygonFirstMovesLeft(0.0001), sameMap()],
   },
   // SDK 는 편집한 꼭짓점을 path 배열(KVOArray) 제자리에서 고치고 paths_changed 를 내지 않는다(3.10.5
-  // 실측, core/hooks/use-editable.ts). 그래서 controlled paths 는 앱이 되먹일 수 없고 다음 렌더가 prop
+  // 실측, shapes/use-editable.ts). 그래서 controlled paths 는 앱이 되먹일 수 없고 다음 렌더가 prop
   // 으로 되돌린다(값을 주고 onChange 없는 입력칸과 같다). 지원하지 않는 조합이라 개발 모드에서 경고한다.
   {
     name: 'controlled paths 를 준 editable Polygon 은 꼭짓점을 끌어도 다음 렌더에 prop 으로 되돌린다',

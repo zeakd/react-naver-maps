@@ -9,7 +9,7 @@ export type EditablePolygonConfig = {
   /**
    * editablePolygon 의 꼭짓점을 내려주는 방식. 기본 default 는 defaultPaths.
    * controlled 는 paths 로 렌더마다 새로 만든 같은 좌표의 배열을 준다. 문서상 지원하지 않는 조합이다
-   * (src/core/hooks/use-editable.ts 의 주석): 편집은 SDK 의 path 배열을 제자리에서 고치고 이벤트를 내지 않아
+   * (src/shapes/use-editable.ts 의 주석): 편집은 SDK 의 path 배열을 제자리에서 고치고 이벤트를 내지 않아
    * 다음 렌더가 prop 값으로 되돌릴 수 있다. setPaths 호출(calls)로 본다.
    */
   polygonPathsMode?: 'default' | 'controlled';

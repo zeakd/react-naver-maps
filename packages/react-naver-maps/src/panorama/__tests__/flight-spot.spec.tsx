@@ -5,10 +5,10 @@ import { FlightSpot } from '../index.js';
 let navermaps: Record<string, any> = {};
 let instances: any[] = [];
 
-vi.mock('../../core/hooks/use-navermaps.js', () => ({
+vi.mock('../../hooks/use-navermaps.js', () => ({
   useNavermaps: () => navermaps,
 }));
-vi.mock('../../core/hooks/use-map.js', () => ({
+vi.mock('../../hooks/use-map.js', () => ({
   useMap: () => ({ id: 'mock-map' }),
 }));
 

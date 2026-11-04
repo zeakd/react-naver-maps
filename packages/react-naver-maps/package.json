@@ -24,8 +24,8 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/core/react-naver-maps.d.ts",
-      "default": "./dist/core/react-naver-maps.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./addons": {
       "types": "./dist/addons/index.d.ts",

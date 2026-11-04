@@ -134,9 +134,19 @@ export function withTree<T>(sha: string, fn: (pkg: string) => T): T {
 }
 
 /**
+ * `scenarios/target.ts` 가 가져오는 소스 경로(확장자 없이) → 그 파일이 예전에 있던 경로. 기준선 커밋이
+ * 옮기기 전이면 거기서 찾는다(src/core 를 역할별 폴더로 나눈 변경).
+ */
+const PREVIOUS_PATHS: Record<string, string[]> = {
+  index: ['core/react-naver-maps'],
+  'sdk/load-script': ['core/load-script'],
+};
+
+/**
  * 시나리오 앱의 진입점(`scenarios/target.ts`)을 기준선 패키지로 바꾼 `target.js` 를 쓴다.
  * target.ts 의 `export … from '../../src/<경로>.js'` 마다 기준선의 `dist/<경로>.js` 를 쓴다.
- * 0.3 은 코어가 `dist/` 바로 아래에 있어 `core/` 를 떼고도 찾는다. 기준선에 없는 export 는
+ * 옮겨진 파일은 PREVIOUS_PATHS 의 옛 자리에서도 찾는다. 0.3 은 그 옛 자리에서 `core/` 를 뗀 곳이다.
+ * 기준선에 없는 export 는
  * 쓰면 바로 알 수 있게 던지는 함수로 채운다. 그런 시나리오는 since 로 건너뛴다.
  */
 function writeShim(dir: string, label: string, imports: string[]): void {
@@ -148,7 +158,8 @@ function writeShim(dir: string, label: string, imports: string[]): void {
     /export\s+(\*|\{[^}]*\})\s+from\s+'\.\.\/\.\.\/src\/([^']+)\.js'/g,
   )) {
     const [, what, path] = m as unknown as [string, string, string];
-    const file = [path, path.replace(/^core\//, '')]
+    const file = [path, ...(PREVIOUS_PATHS[path] ?? [])]
+      .flatMap((p) => [p, p.replace(/^core\//, '')])
       .map((p) => `${p}.js`)
       .find((p) => existsSync(join(dist, p)));
     if (!file) continue;

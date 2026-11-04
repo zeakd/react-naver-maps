@@ -4,9 +4,9 @@
 // <NavermapsProvider submodules={['visualization']}> 로 불러야 한다.
 import type { Ref } from 'react';
 import { useLayoutEffect, useRef } from 'react';
-import { useNavermaps } from '../core/hooks/use-navermaps.js';
-import { defineOverlay } from '../core/overlay-spec.js';
-import { requireSubmodule } from '../core/utils/submodule.js';
+import { useNavermaps } from '../hooks/use-navermaps.js';
+import { defineOverlay } from '../overlays/overlay-spec.js';
+import { requireSubmodule } from '../sdk/submodule.js';
 
 /**
  * 가중치가 있는 좌표 리터럴. 공식 튜토리얼의 `{ weight, location: [경도, 위도] }` 다.
