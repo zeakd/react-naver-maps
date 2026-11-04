@@ -31,10 +31,15 @@ async function authResult(page: Page, ncpKeyId?: string) {
 test('Maps 키로 인증을 통과한다', async ({ page }) => {
   expect(await authResult(page)).toBe(false);
   expect(await page.evaluate(() => window.app.ready())).toBe(true);
+  expect(await page.evaluate(() => window.app.authFailures())).toBe(0);
 });
 
-test('잘못된 키는 인증 실패로 판정한다', async ({ page }) => {
+test('잘못된 키는 인증 실패로 판정하고 onAuthFailure 를 한 번 부른다', async ({
+  page,
+}) => {
   expect(await authResult(page, 'invalid-key')).toBe(true);
+  // 페이지가 먼저 둔 전역 함수와 NavermapsProvider 의 onAuthFailure 가 함께 불린다.
+  expect(await page.evaluate(() => window.app.authFailures())).toBe(1);
 });
 
 test('인증 실패 뒤 재렌더와 언마운트에서 앱이 터지지 않는다', async ({

@@ -4,6 +4,7 @@ import {
   buildUrl,
   getKeyId,
   loadScript,
+  subscribeAuthFailure,
   waitForExistingSdk,
   waitForJsContentLoaded,
 } from '../load-script.js';
@@ -45,6 +46,48 @@ describe('buildUrl', () => {
   test('인증 키 파라미터는 URLSearchParams 통과 (특수문자 안전)', () => {
     const url = buildUrl({ ncpKeyId: 'a b+c' });
     expect(url).toContain('ncpKeyId=a+b%2Bc');
+  });
+});
+
+describe('language', () => {
+  test('language 를 주면 URL 에 붙는다', () => {
+    expect(buildUrl({ ncpKeyId: 'k', language: 'en' })).toContain(
+      '&language=en',
+    );
+    expect(buildUrl({ ncpKeyId: 'k' })).not.toContain('language');
+  });
+
+  test('언어가 다르면 다른 로드로 본다(캐시 키)', () => {
+    const a = loadScript({ ncpKeyId: 'lang-k', language: 'en' });
+    const b = loadScript({ ncpKeyId: 'lang-k', language: 'ja' });
+    expect(a).not.toBe(b);
+    // 테스트 환경은 스크립트를 실제로 불러오지 않는다.
+    a.catch(() => {});
+    b.catch(() => {});
+    document.head
+      .querySelectorAll('script[src*="lang-k"]')
+      .forEach((el) => el.remove());
+  });
+});
+
+describe('subscribeAuthFailure', () => {
+  test('SDK 가 전역 navermap_authFailure 를 부르면 구독자와 페이지가 먼저 둔 함수를 모두 부른다', () => {
+    const w = window as unknown as { navermap_authFailure?: () => void };
+    // 이 파일 안에서 훅이 이미 설치되었을 수 있어 감싼 함수를 직접 부른다.
+    const handler = vi.fn();
+    const off = subscribeAuthFailure(handler);
+    w.navermap_authFailure!();
+    expect(handler).toHaveBeenCalledTimes(1);
+    off();
+    w.navermap_authFailure!();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  test('이미 실패한 뒤 구독하면 곧바로 한 번 부른다', () => {
+    const late = vi.fn();
+    const off = subscribeAuthFailure(late);
+    expect(late).toHaveBeenCalledTimes(1);
+    off();
   });
 });
 

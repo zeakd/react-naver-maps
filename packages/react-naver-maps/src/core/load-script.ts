@@ -8,8 +8,22 @@
  */
 export type LoadOptions = {
   ncpKeyId: string;
-  submodules?: string[];
+  /** SDK 서브모듈. 공식 문서 "서브 모듈 시스템" 의 이름이다. */
+  submodules?: Submodule[];
+  /**
+   * 지도 언어(스크립트 URL 의 `language`). SDK 는 ko, en, zh, ja 를 받는다(공식 문서 "언어 설정하기").
+   * 한 페이지에서 SDK 는 한 번만 불러오므로 처음 불러온 언어를 쓴다.
+   */
+  language?: Language;
 };
+
+export type Submodule =
+  | 'panorama'
+  | 'geocoder'
+  | 'drawing'
+  | 'visualization'
+  | 'gl';
+export type Language = 'ko' | 'en' | 'zh' | 'ja';
 
 const REMOVED_KEY_OPTIONS = ['ncpClientId', 'govClientId', 'finClientId'];
 
@@ -38,12 +52,47 @@ export function buildUrl(options: LoadOptions): string {
     // 이름으로 취급해 `maps-{joined}%2C{...}.js` 에 요청 → 404 발생.
     url += `&submodules=${options.submodules.join(',')}`;
   }
+  if (options.language) url += `&language=${options.language}`;
   return url;
 }
 
 function cacheKey(options: LoadOptions): string {
   const sub = options.submodules?.toSorted().join(',') ?? '';
-  return `${getKeyId(options)}:${sub}`;
+  return `${getKeyId(options)}:${sub}:${options.language ?? ''}`;
+}
+
+// 인증 실패. SDK 는 실패하면 그때의 전역 window.navermap_authFailure 를 부른다(3.10.5 확인).
+// 전역 하나를 여러 구독자가 나눠 쓰게 한 번만 감싸고, 페이지가 먼저 둔 함수도 부른다.
+const authFailureHandlers = new Set<() => void>();
+let authFailed = false;
+let authHookInstalled = false;
+
+function installAuthFailureHook() {
+  if (authHookInstalled || typeof window === 'undefined') return;
+  authHookInstalled = true;
+  const w = window as unknown as { navermap_authFailure?: () => void };
+  const prev = w.navermap_authFailure;
+  w.navermap_authFailure = () => {
+    authFailed = true;
+    try {
+      prev?.();
+    } finally {
+      for (const handler of authFailureHandlers) handler();
+    }
+  };
+}
+
+/**
+ * 인증 실패를 구독한다. 이미 실패했으면 곧바로 한 번 부른다. 해제 함수를 돌려준다.
+ * NavermapsProvider 의 `onAuthFailure` 가 쓴다.
+ */
+export function subscribeAuthFailure(handler: () => void): () => void {
+  installAuthFailureHook();
+  authFailureHandlers.add(handler);
+  if (authFailed) handler();
+  return () => {
+    authFailureHandlers.delete(handler);
+  };
 }
 
 /** @internal exported for tests */
@@ -98,6 +147,7 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
   const existing = cache.get(key);
   if (existing) return existing;
 
+  installAuthFailureHook();
   const promise = new Promise<typeof naver.maps>((resolve, reject) => {
     if (typeof naver !== 'undefined' && naver.maps) {
       waitForExistingSdk(naver.maps).then(resolve);
