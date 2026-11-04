@@ -8,6 +8,9 @@ import {
   CustomControl,
   DotMap,
   DrawingManager,
+  FlightSpot,
+  LabelLayer,
+  Layer,
   GeoJson,
   Gpx,
   Kml,
@@ -96,6 +99,27 @@ function xml(text: string): Document {
   return doc;
 }
 
+// 타일마다 테두리 div 를 그리는 지도 유형. 한 번만 만든다.
+let tileGrid: naver.maps.MapType | null = null;
+function tileGridType(): naver.maps.MapType {
+  tileGrid ??= {
+    name: 'TileGrid',
+    minZoom: 0,
+    maxZoom: 22,
+    tileSize: new naver.maps.Size(256, 256),
+    projection: naver.maps.EPSG3857,
+    repeatX: true,
+    getTile: () => {
+      const el = document.createElement('div');
+      el.className = 'tile-grid';
+      el.style.cssText =
+        'width:256px;height:256px;border:1px solid red;box-sizing:border-box';
+      return el;
+    },
+  } as unknown as naver.maps.MapType;
+  return tileGrid;
+}
+
 const STABLE_PATH = [
   { lat: 37.56, lng: 126.97 },
   { lat: 37.57, lng: 126.98 },
@@ -121,6 +145,8 @@ type Observed = {
   control: naver.maps.CustomControl | null;
   recordControl: (o: naver.maps.CustomControl | null) => void;
   groundOverlays: Set<unknown>;
+  /** 지금까지 만들어진 Layer 인스턴스 */
+  layers: Set<unknown>;
   recordGroundOverlay: (o: unknown) => void;
   recordOverlay: (name: string, o: { getMap(): unknown } | null) => void;
   recordCircleClick: () => void;
@@ -336,6 +362,34 @@ function MapUnderTest({
           <button type="button">처음 위치</button>
         </CustomControl>
       )}
+      {config.labelLayer && (
+        <LabelLayer
+          ref={(o: naver.maps.Layer | null) =>
+            observed.recordOverlay('label', o)
+          }
+        />
+      )}
+      {config.tileGridZIndex !== undefined && (
+        <Layer
+          ref={(o: naver.maps.Layer | null) => {
+            observed.recordOverlay('tileGrid', o);
+            if (o) observed.layers.add(o);
+          }}
+          name="tileGrid"
+          mapTypes={tileGridType()}
+          zIndex={config.tileGridZIndex}
+        />
+      )}
+      {config.flightSpot && (
+        <FlightSpot
+          ref={(o: naver.maps.FlightSpot | null) =>
+            observed.recordOverlay(
+              'flightSpot',
+              o as unknown as { getMap(): unknown },
+            )
+          }
+        />
+      )}
       {config.bicycleLayer && (
         <BicycleLayer
           ref={(o: naver.maps.Layer | null) =>
@@ -428,6 +482,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       if (o) observed.control = o;
     },
     groundOverlays: new Set(),
+    layers: new Set(),
     recordGroundOverlay(o) {
       if (o) observed.groundOverlays.add(o);
     },
@@ -600,6 +655,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         })(),
         customControlText: observed.control?.getElement().textContent ?? null,
         groundOverlays: observed.groundOverlays.size,
+        layersCreated: observed.layers.size,
+        tileGridCells: document.querySelectorAll('.tile-grid').length,
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)

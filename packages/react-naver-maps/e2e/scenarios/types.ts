@@ -82,6 +82,12 @@ export type AppConfig = {
   kml?: 'point' | 'line';
   /** 작은 GPX 문서(트랙 하나)를 Gpx 로 올린다. */
   gpx?: boolean;
+  /** LabelLayer 를 올린다. overlaysOnMap 에 'label'. */
+  labelLayer?: boolean;
+  /** 타일 경계를 그리는 사용자 MapType 으로 Layer 를 올린다. overlaysOnMap 에 'tileGrid'. 값은 zIndex. */
+  tileGridZIndex?: number;
+  /** FlightSpot 을 올린다. submodules 에 'panorama' 가 있어야 한다. overlaysOnMap 에 'flightSpot'. */
+  flightSpot?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
@@ -156,6 +162,10 @@ export type TraceFrame = {
   customControlText: string | null;
   /** 지금까지 만들어진 GroundOverlay 인스턴스 수 */
   groundOverlays: number;
+  /** 지금까지 만들어진 Layer 인스턴스 수 */
+  layersCreated: number;
+  /** 문서에 있는 tileGrid 타일 div 수 */
+  tileGridCells: number;
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
   overlaysOnMap: string[];
   /** Marker 가 있으면 그 animation (SDK 값). 없으면 null */

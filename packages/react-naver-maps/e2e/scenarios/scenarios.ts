@@ -30,6 +30,7 @@ import {
   staysAfter,
   zoomReportsMatchMap,
   lastFrame,
+  frameAt,
 } from './assertions.js';
 import type { LL, Scenario, Step } from './types.js';
 
@@ -664,6 +665,42 @@ export const scenarios: Scenario[] = [
     since: '0.4',
   },
   {
+    name: 'LabelLayer 는 지도에 붙고 언마운트하면 떨어진다',
+    app: { mode: 'props', labelLayer: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { labelLayer: false } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [overlaysOnMap(['label'], 1), overlaysOnMap([])],
+    since: '0.4',
+  },
+  {
+    name: 'Layer 는 사용자 지도 유형의 타일을 그리고 같은 값으로 다시 렌더하면 그대로, zIndex 를 바꾸면 다시 만든다',
+    app: { mode: 'props', tileGridZIndex: 1 },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'realtime', ms: 300 },
+      { t: 'frames', n: 2 },
+      ...rerender(2),
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { tileGridZIndex: 2 } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { tileGridZIndex: undefined } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      // 프레임: 0-3 처음, 4-5 다시 렌더, 6-7 zIndex 2, 8-9 언마운트
+      overlaysOnMap(['tileGrid'], 3),
+      frameAt(3, 'tileGridCells', (v) => v > 0),
+      frameAt(5, 'layersCreated', (v) => v === 1),
+      frameAt(7, 'layersCreated', (v) => v === 2),
+      overlaysOnMap([]),
+      frameAt(9, 'tileGridCells', (v) => v === 0),
+    ],
+    since: '0.4',
+  },
+  {
     name: 'Gpx 는 GPX 트랙을 올리고 언마운트하면 뺀다',
     app: { mode: 'props', gpx: true },
     steps: [
@@ -683,6 +720,20 @@ export const scenarios: Scenario[] = [
       { t: 'frames', n: 60 },
     ],
     expect: [calls({ onZoomstart: 1, onZoomend: 1 })],
+    since: '0.4',
+  },
+  {
+    name: 'FlightSpot 은 panorama 서브모듈로 지도에 붙고 언마운트하면 떨어진다',
+    app: { mode: 'props', submodules: ['panorama'], flightSpot: true, zoom: 6 },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'realtime', ms: 1000 },
+      { t: 'frames', n: 2 },
+      { t: 'shot', name: 'flightspot' },
+      { t: 'props', props: { flightSpot: false } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [overlaysOnMap(['flightSpot'], 3), overlaysOnMap([])],
     since: '0.4',
   },
 ];

@@ -380,3 +380,17 @@ export function lastFrame<K extends keyof TraceFrame>(
       : `마지막 프레임 ${String(field)}: ${JSON.stringify(actual)}, 기대 ${JSON.stringify(value)}`;
   };
 }
+
+/** at 번째 프레임의 숫자 field 가 ok 를 만족한다. */
+export function frameAt<K extends keyof TraceFrame>(
+  at: number,
+  field: K,
+  ok: (v: TraceFrame[K]) => boolean,
+): Assertion {
+  return (trace) => {
+    const v = trace[at]?.[field];
+    return v !== undefined && ok(v as TraceFrame[K])
+      ? null
+      : `프레임 ${at} ${String(field)}: ${JSON.stringify(v)}`;
+  };
+}
