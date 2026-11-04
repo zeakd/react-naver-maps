@@ -15,6 +15,13 @@ export type OverlayDriftFrame = {
    * 늦게 그린다면(추정) 이 값이 더 작다. 첫 프레임은 null.
    */
   overlayDriftPrev: Record<string, number | null>;
+  /**
+   * 오버레이 기준점 - Marker 기준점(화면 px, 둘 다 element 에서 잰다). 래스터는 타일과 오버레이를 한
+   * pane 에 넣고 끄는 동안 pane 을 통째로 옮겨, fromCoordToOffset 기준의 overlayDrift 는 끈 거리만큼
+   * 커진다(측정 기준의 차이, 2026-11-05 실행). Marker 는 SDK 가 그리므로 이 차이가 처음과 같으면
+   * 오버레이가 지도와 함께 움직인 것이다. marker 가 없으면 빈 객체.
+   */
+  overlayOffsetFromMarker: Record<string, [number, number] | null>;
 };
 
 type Probe = {
@@ -32,6 +39,9 @@ export const overlayDrift = defineFixture<object, Probe, OverlayDriftFrame>({
     const mapRect = map.getElement().getBoundingClientRect();
     const projection = map.getProjection();
     const drift: Record<string, number | null> = {};
+    const offsets: Record<string, [number, number] | null> = {};
+    const markerScreen =
+      (core.anchors as Record<string, OverlayAnchor>).marker?.screen() ?? null;
     const driftPrev: Record<string, number | null> = {};
     for (const [name, anchor] of Object.entries(core.anchors) as [
       string,
@@ -42,6 +52,12 @@ export const overlayDrift = defineFixture<object, Probe, OverlayDriftFrame>({
       if (!coord || !screen) {
         drift[name] = driftPrev[name] = null;
         continue;
+      }
+      if (markerScreen && name !== 'marker') {
+        offsets[name] = [
+          screen[0] - markerScreen[0],
+          screen[1] - markerScreen[1],
+        ];
       }
       const p = projection.fromCoordToOffset(coord) as naver.maps.Point;
       const mapPoint: [number, number] = [p.x, p.y];
@@ -60,6 +76,10 @@ export const overlayDrift = defineFixture<object, Probe, OverlayDriftFrame>({
         : null;
       probe.prev[name] = mapPoint;
     }
-    return { overlayDrift: drift, overlayDriftPrev: driftPrev };
+    return {
+      overlayDrift: drift,
+      overlayDriftPrev: driftPrev,
+      overlayOffsetFromMarker: offsets,
+    };
   },
 });

@@ -566,13 +566,15 @@ export function overlaysStayPut(
   maxPx: number,
   from = 0,
   to?: number,
+  only?: string[],
 ): Assertion {
   return (trace) => {
+    const start = from < 0 ? trace.length + from : from;
     const end = Math.min(to ?? trace.length, trace.length);
     let measured = 0;
-    for (let i = from; i < end; i++) {
+    for (let i = start; i < end; i++) {
       for (const [name, px] of Object.entries(trace[i]!.overlayDrift)) {
-        if (px === null) continue;
+        if (px === null || (only && !only.includes(name))) continue;
         measured++;
         if (px > maxPx) {
           return `프레임 ${i} 에서 ${name} 가 지도의 자기 좌표에서 ${px.toFixed(1)}px 벗어났다 (허용 ${maxPx}px)`;
@@ -580,6 +582,38 @@ export function overlaysStayPut(
       }
     }
     return measured > 0 ? null : '오버레이 위치를 한 번도 재지 못했다';
+  };
+}
+
+/**
+ * 오버레이가 Marker(SDK 가 그린다)와 함께 움직인다: overlayOffsetFromMarker 가 첫 프레임과 maxPx 안이다.
+ * frames 'last' 는 마지막 프레임만 본다. 래스터 줌 애니메이션은 pane 에 확대 변환을 걸어 기준점 사이
+ * 거리도 함께 늘어나므로, 줌 시나리오는 멈춘 뒤만 본다.
+ */
+export function overlaysMoveWithMarker(
+  maxPx: number,
+  frames: 'all' | 'last' = 'all',
+  only?: string[],
+): Assertion {
+  return (trace) => {
+    const base = trace[0]!.overlayOffsetFromMarker;
+    const names = Object.keys(base).filter(
+      (n) => base[n] && (!only || only.includes(n)),
+    );
+    if (names.length === 0) return 'Marker 와의 간격을 재지 못했다';
+    const from = frames === 'last' ? trace.length - 1 : 0;
+    for (let i = from; i < trace.length; i++) {
+      for (const name of names) {
+        const a = base[name]!;
+        const b = trace[i]!.overlayOffsetFromMarker[name];
+        if (!b) return `프레임 ${i} 에 ${name} 가 없다`;
+        const d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        if (d > maxPx) {
+          return `프레임 ${i} 에서 ${name} 가 Marker 에 비해 ${d.toFixed(1)}px 어긋났다 (허용 ${maxPx}px)`;
+        }
+      }
+    }
+    return null;
   };
 }
 
