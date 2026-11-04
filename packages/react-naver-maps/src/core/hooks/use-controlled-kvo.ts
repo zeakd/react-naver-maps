@@ -13,7 +13,7 @@ function capitalize(s: string): string {
  *   SDK 의 LatLng.equals 는 리터럴(`{ lat, lng }`)도 받는다(3.10.5 확인).
  * - KVOArray(`getArray()` 가 있는 값)는 안의 배열로 바꿔 비교한다. SDK 는 path, paths 를 이렇게 감싸 저장한다.
  * - 배열은 원소마다, 일반 객체와 SDK 의 값 객체(padding 의 trbl 등)는 키마다 이 함수로 비교한다.
- * - DOM 노드와 함수는 참조로만 비교한다.
+ * - DOM 노드, 함수, KVO 객체(MapTypeRegistry, 앵커로 쓰는 Marker 등)는 참조로만 비교한다.
  *
  * 그래서 렌더마다 새로 만든 같은 값(인라인 배열, `anchor: new Point(...)` 가 든 icon)은 같다고 본다.
  */
@@ -37,13 +37,27 @@ function isKVOArray(v: unknown): v is KVOArrayLike {
   );
 }
 
-/** 키마다 비교할 객체. DOM 노드, 배열, 함수는 아니다. */
+/**
+ * SDK 의 KVO 객체(MapTypeRegistry, Marker 등). 값이 아니라 정체가 있는 객체라 참조로만 비교한다.
+ * 키마다 훑으면 지도·리스너로 이어진 순환 참조를 끝없이 따라간다(3.10.5 MapTypeRegistry 로 확인).
+ * KVOArray 는 이보다 먼저 안의 배열로 비교한다.
+ */
+function isKVOInstance(v: unknown): boolean {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof (v as { bindTo?: unknown }).bindTo === 'function'
+  );
+}
+
+/** 키마다 비교할 객체. DOM 노드, 배열, 함수, KVO 객체는 아니다. */
 function isRecord(v: unknown): v is Record<string, unknown> {
   return (
     typeof v === 'object' &&
     v !== null &&
     !Array.isArray(v) &&
-    typeof (v as { nodeType?: unknown }).nodeType !== 'number'
+    typeof (v as { nodeType?: unknown }).nodeType !== 'number' &&
+    !isKVOInstance(v)
   );
 }
 
@@ -134,8 +148,9 @@ export function useControlledKVO(
   target: naver.maps.KVO,
   property: string,
   value?: unknown,
+  rules?: SyncRules,
 ): void {
-  useControlledProps(target, { [property]: value });
+  useControlledProps(target, { [property]: value }, rules);
 }
 
 /** 한 prop 의 동기화 상태. 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. */
@@ -149,9 +164,23 @@ type Synced = { prop: unknown; applied: unknown };
  * 바로 비교하면 영원히 다르다. 그래서 "SDK 값이 우리가 맞춘 직후와 달라졌는가" 로
  * 바깥 변경(사용자 드래그 등)을 안다.
  */
+/**
+ * prop 마다 다른 규칙. 둘 다 SDK 가 그 값을 다루는 방식이 다른 prop 에만 쓴다.
+ *
+ * - `changeOnly`: prop 이 바뀔 때만 맞추고 바깥 변경을 되돌리지 않는다. SDK 가 스스로 값을
+ *   되돌리는 일회성 값(Marker 의 animation: DROP 이 끝나면 SDK 가 null 로 바꾼다)에 쓴다.
+ * - `writeOnMount`: 마운트 때 생성자 옵션으로 들어가지 않는 값. 마운트 때 SDK 값과 다르면 맞춘다
+ *   (NaverMap 의 cursor: 생성자가 cursor 옵션을 읽지 않고 "open" 으로 둔다).
+ */
+export type SyncRules = {
+  changeOnly?: readonly string[];
+  writeOnMount?: readonly string[];
+};
+
 export function useControlledProps(
   target: naver.maps.KVO,
   values: Record<string, unknown>,
+  rules: SyncRules = {},
 ): void {
   const syncedRef = useRef(new Map<string, Synced>());
   const mountedRef = useRef(false);
@@ -163,7 +192,11 @@ export function useControlledProps(
     if (!sdkAlive()) return;
     for (const [property, value] of Object.entries(values)) {
       if (value === undefined) continue;
-      syncProp(syncedRef.current, target, property, value, mounting);
+      syncProp(syncedRef.current, target, property, value, {
+        mounting,
+        changeOnly: rules.changeOnly?.includes(property) ?? false,
+        writeOnMount: rules.writeOnMount?.includes(property) ?? false,
+      });
     }
   });
 }
@@ -173,7 +206,7 @@ function syncProp(
   target: naver.maps.KVO,
   property: string,
   value: unknown,
-  mounting: boolean,
+  rule: { mounting: boolean; changeOnly: boolean; writeOnMount: boolean },
 ): void {
   const io = accessors(target, property);
   const synced = states.get(property);
@@ -183,13 +216,15 @@ function syncProp(
     // 마운트 때는 생성자 옵션으로 이미 들어갔으므로 SDK 가 가진 값을 기록만 한다.
     // SDK 가 값을 바꿔 저장했어도(minZoom 3 → 6) 다시 부르지 않는다.
     // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
-    if (!mounting && !kvoEquals(current, value)) io.write(value);
+    if ((!rule.mounting || rule.writeOnMount) && !kvoEquals(current, value))
+      io.write(value);
     states.set(property, { prop: value, applied: snapshot(io.read()) });
     return;
   }
 
   const propChanged = !kvoEquals(synced.prop, value);
-  const changedOutside = !kvoEquals(current, synced.applied);
+  const changedOutside =
+    !rule.changeOnly && !kvoEquals(current, synced.applied);
   if (!propChanged && !changedOutside) return;
 
   // prop 이 바뀌었거나, 바깥에서 SDK 값을 바꿨으면 prop 으로 맞춘다(되돌림).

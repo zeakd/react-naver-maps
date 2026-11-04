@@ -97,9 +97,8 @@ export interface NaverMapProps {
   // Controlled options (런타임 변경 가능)
   /**
    * 커서 스타일. SDK 패턴: controlled (`setCursor`/`getCursor`).
-   * 주의: SDK가 드래그 중 손 커서("open"/"closed")로 자체 토글하고 초기화 시
-   * `setCursor("open")`을 호출하므로(map-view.js), controlled 값과 상호 덮어쓰기될 수 있다.
-   * `draggable={false}`처럼 드래그가 없는 경우에 안정적으로 동작한다.
+   * SDK 생성자는 cursor 옵션을 읽지 않고 "open"(손)으로 두므로 마운트 때 한 번 맞춘다.
+   * SDK 는 드래그 중 커서가 "open"/"closed" 일 때만 둘을 오간다. 다른 값(crosshair 등)은 그대로 둔다.
    */
   cursor?: string;
   /** 지도 기울기(GL 모드). SDK 패턴: controlled (`setTilt`/`getTilt`, `tilt_changed`). */
@@ -485,6 +484,8 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useNaverMapStatic('repeatX', props.repeatX);
   useNaverMapStatic('gl', props.gl);
   useNaverMapStatic('customStyleId', props.customStyleId);
+  // SDK 는 빈 타일 이미지를 생성자에서만 읽는다(바꿔도 반영되지 않는다).
+  useNaverMapStatic('blankTileImage', props.blankTileImage);
   useNaverMapStatic('useStyleMap', props.useStyleMap);
   useNaverMapStatic('tileDuration', props.tileDuration);
 
@@ -522,7 +523,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useControlledKVO(map, 'minZoom', props.minZoom);
   useControlledKVO(map, 'maxZoom', props.maxZoom);
   useControlledKVO(map, 'size', props.size);
-  useControlledKVO(map, 'cursor', props.cursor);
+  useControlledKVO(map, 'cursor', props.cursor, { writeOnMount: ['cursor'] });
   useControlledKVO(map, 'tilt', props.tilt);
   useControlledKVO(map, 'rotation', props.rotation);
   useControlledKVO(map, 'background', props.background);
@@ -556,7 +557,6 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useControlledKVO(map, 'overlayZoomEffect', props.overlayZoomEffect);
   useControlledKVO(map, 'tileSpare', props.tileSpare);
   useControlledKVO(map, 'zoomOrigin', props.zoomOrigin);
-  useControlledKVO(map, 'blankTileImage', props.blankTileImage);
 
   // 라이프사이클 이벤트(init/idle/tilesloaded 등)는 SDK가 동기 또는 빠른 async로 발화.
   // useEffect(paint 후)는 1 프레임 늦어 init을 놓칠 수 있으므로 useLayoutEffect로 등록.

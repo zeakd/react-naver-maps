@@ -113,4 +113,51 @@ describe('useControlledKVO', () => {
 
     expect(spy).toHaveBeenCalledWith(anotherValue);
   });
+
+  test('changeOnly: SDK 가 스스로 바꾼 값은 되돌리지 않고 prop 이 바뀔 때만 맞춘다', () => {
+    // Marker animation: DROP 이 끝나면 SDK 가 null 로 바꾼다.
+    const target = Object.assign(new MockKVO({ animation: 2 }), {
+      setAnimation(v: unknown) {
+        target.set('animation', v);
+      },
+    });
+    const spy = vi.spyOn(target, 'setAnimation');
+    const { rerender } = renderHook(
+      ({ value }) =>
+        useControlledKVO(
+          target as unknown as naver.maps.KVO,
+          'animation',
+          value,
+          { changeOnly: ['animation'] },
+        ),
+      { initialProps: { value: 2 as unknown } },
+    );
+    target.set('animation', null);
+    rerender({ value: 2 });
+    expect(spy).not.toHaveBeenCalled();
+    rerender({ value: 1 });
+    expect(spy).toHaveBeenCalledWith(1);
+    rerender({ value: null });
+    expect(spy).toHaveBeenLastCalledWith(null);
+  });
+
+  test('writeOnMount: 생성자가 읽지 않는 값은 마운트 때 맞춘다', () => {
+    const target = Object.assign(new MockKVO({ cursor: 'open' }), {
+      setCursor(v: unknown) {
+        target.set('cursor', v);
+      },
+    });
+    const spy = vi.spyOn(target, 'setCursor');
+    renderHook(() =>
+      useControlledKVO(
+        target as unknown as naver.maps.KVO,
+        'cursor',
+        'crosshair',
+        {
+          writeOnMount: ['cursor'],
+        },
+      ),
+    );
+    expect(spy).toHaveBeenCalledWith('crosshair');
+  });
 });

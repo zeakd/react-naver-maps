@@ -18,9 +18,18 @@ export const SHAPE_EVENTS = [
 ] as const;
 export type ShapeEvent = (typeof SHAPE_EVENTS)[number];
 
-/** Marker: Shape + drag 계열 */
+/**
+ * Marker: Shape 에서 mousemove 를 뺀 것 + drag 계열. SDK 마커는 mousemove DOM 리스너를 달지 않는다
+ * (3.10.5). 문서의 touchstart, touchend 는 SDK 가 mousedown, mouseup 으로 바꿔 내므로 없다.
+ */
 export const MARKER_EVENTS = [
-  ...SHAPE_EVENTS,
+  'click',
+  'dblclick',
+  'mousedown',
+  'mouseup',
+  'rightclick',
+  'mouseover',
+  'mouseout',
   'dragstart',
   'drag',
   'dragend',

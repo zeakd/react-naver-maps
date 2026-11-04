@@ -19,13 +19,12 @@ function InfoWindowMapContent() {
         position={{ lat: 37.5666805, lng: 126.9784147 }}
         onClick={() => setOpen((prev) => !prev)}
       />
-      {open && (
-        <InfoWindow
-          content="서울시청"
-          position={{ lat: 37.5666805, lng: 126.9784147 }}
-          onClose={() => setOpen(false)}
-        />
-      )}
+      <InfoWindow
+        open={open}
+        content="서울시청"
+        position={{ lat: 37.5666805, lng: 126.9784147 }}
+        onClose={() => setOpen(false)}
+      />
     </NaverMap>
   );
 }

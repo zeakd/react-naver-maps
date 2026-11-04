@@ -84,4 +84,16 @@ describe('kvoEquals', () => {
       ),
     ).toBe(false);
   });
+
+  test('KVO 객체(bindTo 가 있는 SDK 객체)는 참조로만 비교한다', () => {
+    // MapTypeRegistry 처럼 지도로 이어진 순환 참조가 있어도 훑지 않는다.
+    const make = () => {
+      const o: Record<string, unknown> = { bindTo() {}, name: 'normal' };
+      o.self = o;
+      return o;
+    };
+    const a = make();
+    expect(kvoEquals(a, a)).toBe(true);
+    expect(kvoEquals(a, make())).toBe(false);
+  });
 });

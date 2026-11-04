@@ -29,6 +29,7 @@ import {
   settlesAtZoom,
   staysAfter,
   zoomReportsMatchMap,
+  lastFrame,
 } from './assertions.js';
 import type { LL, Scenario, Step } from './types.js';
 
@@ -609,5 +610,36 @@ export const scenarios: Scenario[] = [
       probedAt('centerRed', 1, (v) => v < 10),
       overlaysOnMap([]),
     ],
+  },
+  // 공식 문서 전수 대조(2026-11-04)에서 나온 동작
+  {
+    name: 'DROP 이 끝난 Marker 를 다시 렌더해도 다시 떨어지지 않는다',
+    app: { mode: 'props', marker: true, markerAnimation: 2 },
+    steps: [{ t: 'frames', n: 90 }, ...rerender(3), { t: 'frames', n: 5 }],
+    expect: [calls({ setAnimation: 0 }), lastFrame('markerAnimation', null)],
+  },
+  {
+    name: 'animation 을 null 로 바꾸면 BOUNCE 가 멈춘다',
+    app: { mode: 'props', marker: true, markerAnimation: 1 },
+    steps: [
+      { t: 'frames', n: 10 },
+      { t: 'props', props: { markerAnimation: null } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [calls({ setAnimation: 1 }), lastFrame('markerAnimation', null)],
+  },
+  {
+    name: 'cursor 를 주고 올리면 지도 위 커서가 그 값이다',
+    app: { mode: 'props', mapCursor: 'crosshair' },
+    steps: [{ t: 'frames', n: 2 }],
+    expect: [lastFrame('mapCursor', 'crosshair')],
+  },
+  {
+    // KVO 객체는 참조로 비교한다. 예전에는 키마다 훑다가 순환 참조로 스택이 넘쳤다.
+    // 렌더마다 새로 만들면 새 값이라 매번 넣는다(앱은 useMemo 로 한 번 만든다).
+    name: '렌더마다 새 MapTypeRegistry 를 넘겨도 에러 없이 같은 지도로 남는다',
+    app: { mode: 'props', mapTypesInline: true },
+    steps: [...rerender(3), { t: 'frames', n: 3 }],
+    expect: [sameMap()],
   },
 ];

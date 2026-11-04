@@ -29,6 +29,9 @@ for (const scenario of scenarios) {
         ).newPage()
       : defaultPage;
     const shots: Shot[] = [];
+    // 앱이 던진 에러(렌더 중 예외 등)는 궤적이 맞아도 실패다.
+    const pageErrors: string[] = [];
+    page.on('pageerror', (e) => pageErrors.push(e.message));
     const trace = await runScenario(
       createPlaywrightDriver(page, shots),
       scenario,
@@ -55,6 +58,7 @@ for (const scenario of scenarios) {
       !!scenario.app.gl && trace[0]?.renderMode !== 2,
       'WebGL 을 쓸 수 없어 SDK 가 래스터로 그렸다',
     );
+    expect(pageErrors).toEqual([]);
     expect(violations(scenario, trace)).toEqual([]);
   });
 }
