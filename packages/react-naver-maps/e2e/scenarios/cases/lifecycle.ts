@@ -1,4 +1,5 @@
 import {
+  controlCount,
   mapAttached,
   markerOnMap,
   mapWidth,
@@ -9,9 +10,24 @@ import {
 import type { Scenario } from '../types.js';
 import { HOME } from './steps.js';
 
-/** 수명: suspend, Activity. */
+/** 수명: 지도와 인스턴스가 key, StrictMode, suspend, Activity 를 지나도 살아 있는지. */
 export const lifecycle: Scenario[] = [
-  // 수명. 지도와 오버레이 인스턴스가 React 의 suspend, Activity 를 지나도 살아 있는지 본다.
+  {
+    name: 'key 로 다시 만든 지도가 화면에 남는다',
+    app: { mode: 'props', mapKey: 1 },
+    steps: [
+      { t: 'props', props: { mapKey: 2 } },
+      { t: 'frames', n: 30 },
+    ],
+    expect: [mapAttached()],
+  },
+  {
+    // SDK 기본 컨트롤 3개 + 줌 컨트롤. StrictMode 밖에서도 4개다.
+    name: 'StrictMode 에서 컨트롤이 두 벌 생기지 않는다',
+    app: { mode: 'props', strict: true, zoomControl: true },
+    steps: [{ t: 'frames', n: 10 }],
+    expect: [controlCount(4)],
+  },
   {
     name: '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다',
     unstable: {

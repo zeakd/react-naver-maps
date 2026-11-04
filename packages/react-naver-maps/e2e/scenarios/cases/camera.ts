@@ -1,15 +1,15 @@
 import {
   calls,
   kvoFollowsMap,
-  mapAttached,
   noBacktrack,
   settlesAt,
   settlesAtZoom,
+  zoomReportsMatchMap,
 } from '../assertions.js';
 import type { Scenario } from '../types.js';
 import { A, B } from './steps.js';
 
-/** 카메라: center·zoom prop 과 지도 메서드 호출, KVO. */
+/** 카메라: center·zoom prop 과 지도 메서드 호출, KVO, onZoomChanged 보고. */
 export const camera: Scenario[] = [
   {
     name: 'center prop 변경은 setCenter 를 쓰지 않는다',
@@ -66,15 +66,6 @@ export const camera: Scenario[] = [
     expect: [settlesAt(A)],
   },
   {
-    name: 'key 로 다시 만든 지도가 화면에 남는다',
-    app: { mode: 'props', mapKey: 1 },
-    steps: [
-      { t: 'props', props: { mapKey: 2 } },
-      { t: 'frames', n: 30 },
-    ],
-    expect: [mapAttached()],
-  },
-  {
     name: 'useKVO 는 지도 이동과 줌을 따라간다',
     app: { mode: 'props' },
     steps: [
@@ -82,5 +73,23 @@ export const camera: Scenario[] = [
       { t: 'frames', n: 90 },
     ],
     expect: [settlesAt(A), kvoFollowsMap()],
+  },
+  {
+    name: 'gl 없으면 onZoomChanged 값은 getZoom() 과 같다',
+    app: { mode: 'props' },
+    steps: [
+      { t: 'props', props: { zoom: 13 } },
+      { t: 'frames', n: 60 },
+    ],
+    expect: [settlesAtZoom(13), zoomReportsMatchMap()],
+  },
+  {
+    name: 'gl 서브모듈을 불러도 onZoomChanged 값은 getZoom() 과 같다',
+    app: { mode: 'props', submodules: ['gl'] },
+    steps: [
+      { t: 'props', props: { zoom: 13 } },
+      { t: 'frames', n: 60 },
+    ],
+    expect: [settlesAtZoom(13), zoomReportsMatchMap()],
   },
 ];

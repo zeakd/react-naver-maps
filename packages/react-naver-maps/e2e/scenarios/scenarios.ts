@@ -1,26 +1,28 @@
 import { camera } from './cases/camera.js';
-import { controlled } from './cases/controlled.js';
-import { docsAudit } from './cases/docs-audit.js';
+import { controlledCenter } from './cases/controlled-center.js';
+import { controls } from './cases/controls.js';
+import { gestures } from './cases/gestures.js';
 import { gl } from './cases/gl.js';
+import { layersData } from './cases/layers-data.js';
 import { lifecycle } from './cases/lifecycle.js';
+import { mapProps } from './cases/map-props.js';
 import { overlays } from './cases/overlays.js';
-import { stability } from './cases/stability.js';
-import { stateDrift } from './cases/state-drift.js';
-import { touch } from './cases/touch.js';
+import { submodules } from './cases/submodules.js';
 import type { Scenario } from './types.js';
 
 /**
- * 실행 순서가 곧 이 배열의 순서다(비교 결과의 순서도 같다). 영역별 파일을 이어 붙이므로
- * 파일 안 순서와 파일 순서를 바꾸지 않는다. 새 시나리오는 맞는 cases/ 파일 끝에 더한다.
+ * 영역별 cases/ 파일을 모은다. 비교 실행기는 시나리오를 이름으로 맞추고 각 시나리오는 새 페이지에서
+ * 돌므로 순서에 기대지 않는다. 새 시나리오는 영역에 맞는 cases/ 파일에 더한다(이름은 유일해야 한다).
  */
 export const scenarios: Scenario[] = [
   ...camera,
-  ...stability,
-  ...controlled,
-  ...stateDrift,
+  ...mapProps,
+  ...controlledCenter,
+  ...gestures,
   ...gl,
-  ...touch,
   ...lifecycle,
   ...overlays,
-  ...docsAudit,
+  ...controls,
+  ...layersData,
+  ...submodules,
 ];

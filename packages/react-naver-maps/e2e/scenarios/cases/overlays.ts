@@ -1,146 +1,118 @@
 import {
-  customControlAt,
-  customControlText,
-  drawn,
-  dataLayer,
-  groundOverlaysCreated,
-  heatMapOpacity,
-  probedAt,
-  probedAtLeast,
-  overlaysOnMap,
+  calls,
+  circleClicked,
+  fired,
+  markerAt,
+  markerMovedFrom,
+  markerClicked,
+  lastFrame,
 } from '../assertions.js';
-import type { Scenario } from '../types.js';
-import { rerender } from './steps.js';
+import type { Scenario, Step } from '../types.js';
+import { HOME, rerender } from './steps.js';
 
-/** 오버레이·레이어·시각화 컴포넌트. */
+/** Marker, 도형, InfoWindow: 같은 값 재렌더, 클릭, 드래그, animation. */
 export const overlays: Scenario[] = [
   {
-    name: '같은 값의 새 bounds 로 다시 렌더해도 GroundOverlay 를 다시 만들지 않고 url 이 바뀌면 만든다',
-    app: {
-      mode: 'props',
-      groundOverlayUrl: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
-    },
+    name: '값이 그대로면 재렌더해도 setter 를 부르지 않는다',
+    app: { mode: 'props', polyline: true, inlineOptions: true },
     steps: [
-      ...rerender(3),
-      { t: 'frames', n: 2 },
-      {
-        t: 'props',
-        props: {
-          groundOverlayUrl:
-            'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACw=',
-        },
-      },
-      { t: 'frames', n: 2 },
+      ...[1, 2, 3, 4, 5].map((tick): Step => ({ t: 'props', props: { tick } })),
+      { t: 'frames', n: 5 },
     ],
-    expect: [groundOverlaysCreated(2)],
+    expect: [calls({ setPath: 0, setOptions: 0 })],
   },
   {
-    name: 'BicycleLayer 는 지도에 붙고 언마운트하면 떨어진다',
-    since: '0.4',
-    app: { mode: 'props', bicycleLayer: true },
+    name: '인라인 anchor 로 재렌더해도 InfoWindow 를 다시 열지 않는다',
+    app: { mode: 'props', infoWindow: true },
     steps: [
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { bicycleLayer: false } },
-      { t: 'frames', n: 2 },
+      ...[1, 2, 3].map((tick): Step => ({ t: 'props', props: { tick } })),
+      { t: 'frames', n: 5 },
     ],
-    expect: [overlaysOnMap(['bicycle'], 0), overlaysOnMap([])],
+    expect: [calls({ infoWindowOpen: 0, infoWindowClose: 0 })],
   },
   {
-    // Position: TOP_LEFT 1, TOP_RIGHT 3. 지도와 함께 마운트해 init 전에 붙이는 경우도 지난다.
-    name: 'CustomControl 은 React 내용을 컨트롤 자리에 그리고 position 을 바꾸면 옮기고 언마운트하면 뺀다',
-    since: '0.4',
-    app: { mode: 'props', customControlPosition: 1 },
+    name: 'clickable 을 나중에 켠 Marker 도 클릭을 받는다',
+    app: { mode: 'props', marker: true, markerClickable: false },
     steps: [
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { customControlPosition: 3 } },
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { customControlPosition: undefined } },
-      { t: 'frames', n: 2 },
-    ],
-    expect: [
-      customControlAt(1, 0),
-      customControlAt(3, 2),
-      customControlAt(null),
-      customControlText('처음 위치', 0),
-    ],
-  },
-  {
-    name: 'GeoJson 은 데이터 레이어에 feature 를 올리고 style 을 바꾸면 다시 칠하고 클릭에 feature 를 주고 언마운트하면 뺀다',
-    since: '0.4',
-    app: { mode: 'props', geoJsonFill: '#ff0000' },
-    steps: [
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { geoJsonFill: '#0000ff' } },
-      { t: 'frames', n: 2 },
+      { t: 'props', props: { markerClickable: true } },
+      { t: 'frames', n: 5 },
       { t: 'clickCenter' },
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { geoJsonFill: undefined } },
-      { t: 'frames', n: 2 },
+      { t: 'frames', n: 5 },
     ],
-    expect: [
-      dataLayer({ features: 1, fillColor: '#ff0000' }, 0),
-      dataLayer({ features: 1, fillColor: '#0000ff', clicks: 1 }, 5),
-      dataLayer({ features: 0 }),
-    ],
+    expect: [markerClicked(1)],
   },
   {
-    name: 'HeatMap 은 visualization 서브모듈로 지도에 붙고 opacity 를 바꾸면 따르고 언마운트하면 떨어진다',
-    since: '0.4',
-    app: { mode: 'props', submodules: ['visualization'], heatMapOpacity: 0.6 },
-    steps: [
-      { t: 'frames', n: 2 },
-      { t: 'realtime', ms: 1500 },
-      { t: 'frames', n: 60 },
-      { t: 'shot', name: 'heatmap' },
-      { t: 'probe', name: 'centerRed' },
-      { t: 'props', props: { heatMapOpacity: 0.3 } },
-      { t: 'frames', n: 2 },
-      { t: 'props', props: { heatMapOpacity: undefined } },
-      { t: 'frames', n: 2 },
-    ],
-    expect: [
-      overlaysOnMap(['heatMap'], 0),
-      probedAtLeast('centerRed', 50),
-      heatMapOpacity(0.3, 63),
-      overlaysOnMap([]),
-    ],
-  },
-  {
-    // DrawingMode.MARKER 는 6. 지도를 한 번 누르면 Marker 하나를 그린다.
-    name: 'DrawingManager 로 마커 모드에서 지도를 누르면 도형이 생기고 onDrawingAdded 가 온다',
-    since: '0.4',
-    app: { mode: 'props', submodules: ['drawing'], drawingMode: 6 },
+    name: 'onClick 이 있는 도형은 clickable 없이도 클릭을 받는다',
+    app: { mode: 'props', circle: true },
     steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
-    expect: [drawn({ drawings: 1, added: 1 })],
+    expect: [circleClicked(1), fired('click', 0)],
   },
   {
-    // 빨강으로 찍고 화면 가운데 빨강을 센다. 다른 색으로 바꾸면 빨강이 사라져야 한다.
-    name: 'DotMap 은 visualization 서브모듈로 점을 그리고 fillColor 를 바꾸면 다시 칠하고 언마운트하면 떨어진다',
-    since: '0.4',
-    app: {
-      mode: 'props',
-      submodules: ['visualization'],
-      dotMapFill: '#ff0000',
-    },
+    name: 'clickable={false} 를 명시한 도형은 클릭을 받지 않는다',
+    app: { mode: 'props', circle: true, circleClickable: false },
+    steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
+    expect: [circleClicked(0), fired('click', 1)],
+  },
+  {
+    name: '드래그한 Marker 는 다시 렌더하기 전까지 옮긴 자리에 있다',
+    app: { mode: 'props', marker: true, markerDraggable: true },
     steps: [
-      { t: 'frames', n: 2 },
-      { t: 'realtime', ms: 1500 },
-      { t: 'frames', n: 30 },
-      { t: 'shot', name: 'dotmap-red' },
-      { t: 'probe', name: 'centerRed' },
-      { t: 'props', props: { dotMapFill: '#0000ff' } },
-      { t: 'realtime', ms: 1000 },
-      { t: 'frames', n: 30 },
-      { t: 'shot', name: 'dotmap-blue' },
-      { t: 'probe', name: 'centerRed' },
-      { t: 'props', props: { dotMapFill: undefined } },
-      { t: 'frames', n: 2 },
+      { t: 'frames', n: 5 },
+      { t: 'mouse', kind: 'down', x: 300, y: 190 },
+      { t: 'frames', n: 1 },
+      ...[1, 2, 3, 4, 5, 6].flatMap((i): Step[] => [
+        { t: 'mouse', kind: 'move', x: 300 + i * 10, y: 190 },
+        { t: 'frames', n: 1 },
+      ]),
+      { t: 'mouse', kind: 'up', x: 360, y: 190 },
+      { t: 'frames', n: 5 },
     ],
-    expect: [
-      overlaysOnMap(['dotMap'], 0),
-      probedAt('centerRed', 0, (v) => v >= 50),
-      probedAt('centerRed', 1, (v) => v < 10),
-      overlaysOnMap([]),
+    expect: [markerMovedFrom(HOME), calls({ panTo: 0, setCenter: 0 })],
+  },
+  {
+    name: '드래그한 Marker 는 다시 렌더하면 position 으로 돌아간다',
+    app: { mode: 'props', marker: true, markerDraggable: true },
+    steps: [
+      { t: 'frames', n: 5 },
+      { t: 'mouse', kind: 'down', x: 300, y: 190 },
+      { t: 'frames', n: 1 },
+      ...[1, 2, 3, 4, 5, 6].flatMap((i): Step[] => [
+        { t: 'mouse', kind: 'move', x: 300 + i * 10, y: 190 },
+        { t: 'frames', n: 1 },
+      ]),
+      { t: 'mouse', kind: 'up', x: 360, y: 190 },
+      { t: 'frames', n: 5 },
+      ...rerender(1),
+      { t: 'frames', n: 5 },
     ],
+    expect: [markerAt(HOME)],
+  },
+  {
+    name: '같은 좌표의 새 path 배열로 다시 렌더해도 setPath 를 부르지 않는다',
+    app: { mode: 'props', polyline: true, polylineInline: true },
+    steps: [...rerender(5), { t: 'frames', n: 5 }],
+    expect: [calls({ setPath: 0 })],
+  },
+  {
+    name: '같은 값의 새 icon 객체로 다시 렌더해도 setIcon 을 부르지 않는다',
+    app: { mode: 'props', marker: true, markerInlineIcon: true },
+    steps: [...rerender(5), { t: 'frames', n: 5 }],
+    expect: [calls({ setIcon: 0 })],
+  },
+  {
+    name: 'DROP 이 끝난 Marker 를 다시 렌더해도 다시 떨어지지 않는다',
+    app: { mode: 'props', marker: true, markerAnimation: 2 },
+    steps: [{ t: 'frames', n: 90 }, ...rerender(3), { t: 'frames', n: 5 }],
+    expect: [calls({ setAnimation: 0 }), lastFrame('markerAnimation', null)],
+  },
+  {
+    name: 'animation 을 null 로 바꾸면 BOUNCE 가 멈춘다',
+    app: { mode: 'props', marker: true, markerAnimation: 1 },
+    steps: [
+      { t: 'frames', n: 10 },
+      { t: 'props', props: { markerAnimation: null } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [calls({ setAnimation: 1 }), lastFrame('markerAnimation', null)],
   },
 ];

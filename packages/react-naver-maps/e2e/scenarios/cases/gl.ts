@@ -10,9 +10,8 @@ import {
 import type { Scenario } from '../types.js';
 import { dragLeftAndRelease } from './steps.js';
 
-/** GL 로 그릴 때. */
+/** GL 로 그릴 때. GPU 가 없어 SDK 가 래스터로 바꾸면 spec 이 건너뛴다. */
 export const gl: Scenario[] = [
-  // GL 로 그릴 때. GPU 가 없어 SDK 가 래스터로 바꾸면 spec 이 건너뛴다.
   {
     name: 'GL 지도를 끌어 놓으면 움직임이 끝난 뒤 idle 이 한 번 온다',
     unstable: {
