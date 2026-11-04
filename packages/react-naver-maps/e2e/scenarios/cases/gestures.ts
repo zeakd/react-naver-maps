@@ -3,10 +3,11 @@ import {
   fired,
   idleAfter,
   oneWay,
+  settlesAt,
   zoomReportsMatchMap,
 } from '../assertions.js';
 import type { Scenario } from '../types.js';
-import { pinchOut, touchDragLeftAndRelease } from './steps.js';
+import { B, drag, pinchOut, touchDragLeftAndRelease } from './steps.js';
 
 /** 사용자 입력: 터치 드래그, 핀치, 휠. 터치는 브라우저 터치 지원을 흉내 내고 CDP 로 손가락을 보낸다. */
 export const gestures: Scenario[] = [
@@ -46,5 +47,35 @@ export const gestures: Scenario[] = [
       },
     ],
     since: '0.4',
+  },
+
+  // QC(research/qc-cases #1): 숨길 때 제스처 상태가 남으면 그 뒤 카메라 prop 을 계속 보류한다.
+  {
+    name: '드래그 중 Activity 로 지도를 숨겼다 보이면 그 뒤 center prop 이 반영된다',
+    since: '0.4',
+    app: { mode: 'props' },
+    steps: [
+      ...drag(300, -7, 5),
+      { t: 'props', props: { mapActivity: 'hidden' } },
+      { t: 'mouse', kind: 'up', x: 265, y: 200 },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { mapActivity: 'visible' } },
+      { t: 'frames', n: 30 },
+      { t: 'props', props: { center: B } },
+      { t: 'frames', n: 30 },
+    ],
+    expect: [settlesAt(B)],
+  },
+  // QC #2: 움직이지 않은 클릭 뒤 제스처 상태가 'settling' 에 멈추면 카메라 prop 을 보류한다.
+  {
+    name: '누르고 움직이지 않고 떼도 다음 center prop 이 곧장 반영된다',
+    app: { mode: 'props' },
+    steps: [
+      { t: 'clickCenter' },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { center: B } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [settlesAt(B)],
   },
 ];

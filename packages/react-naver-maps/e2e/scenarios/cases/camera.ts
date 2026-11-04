@@ -92,4 +92,15 @@ export const camera: Scenario[] = [
     ],
     expect: [settlesAtZoom(13), zoomReportsMatchMap()],
   },
+
+  // QC #3: 1px 허용을 지금 zoom 으로 재면 zoom 7 의 1px 안이 zoom 18 에서는 수천 px 이다.
+  {
+    name: '가까운 center 와 큰 zoom 을 함께 바꾸면 그 center 가 가운데에 온다',
+    app: { mode: 'props', zoom: 7 },
+    steps: [
+      { t: 'props', props: { center: [37.5706, 126.9784], zoom: 18 } },
+      { t: 'frames', n: 90 },
+    ],
+    expect: [settlesAt([37.5706, 126.9784]), settlesAtZoom(18)],
+  },
 ];

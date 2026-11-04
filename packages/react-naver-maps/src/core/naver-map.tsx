@@ -374,7 +374,13 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
         }
       }),
     ];
-    return () => listeners.forEach((l) => removeMapListener(l));
+    return () => {
+      listeners.forEach((l) => removeMapListener(l));
+      // 숨길 때(Activity hidden, Suspense 재중단)도 여기로 온다. 리스너를 뗀 동안에는 제스처가
+      // 끝나는 것을 못 보므로 제스처 상태를 비운다. 남겨 두면 다시 보인 뒤 카메라 prop 을 계속
+      // 보류한다. 보류한 prop 은 다시 붙인 뒤의 렌더(lifetime.ts)가 맞춘다.
+      gestureRef.current = 'none';
+    };
   }, [map]);
 
   const isFirstRef = useRef(true);
@@ -407,7 +413,17 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     } = {};
 
     if (props.center !== undefined && !kvoEquals(props.center, prev.center)) {
-      const atCenter = sameOnScreen(map, map.getCenter(), props.center);
+      // zoom 도 바뀌면 더 큰 zoom 에서 잰다. zoom 7 의 1px 은 zoom 18 에서 2048px 이다.
+      const zoomForCheck =
+        props.zoom !== undefined && props.zoom !== prev.zoom
+          ? Math.max(map.getZoom(), props.zoom)
+          : map.getZoom();
+      const atCenter = sameOnScreen(
+        map,
+        map.getCenter(),
+        props.center,
+        zoomForCheck,
+      );
       if (atCenter && requestedCenterRef.current) {
         // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
         map.stop();
@@ -544,19 +560,22 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
 }
 
 /**
- * 두 좌표가 지금 zoom 에서 화면 1px 안이면 같은 자리로 본다. 앱이 반올림해 되돌려준 center,
+ * 두 좌표가 zoom 에서 화면 1px 안이면 같은 자리로 본다. 앱이 반올림해 되돌려준 center,
  * SDK 가 저장하며 생기는 미세한 차이로 지도를 움직이지 않기 위해서다.
  */
 function sameOnScreen(
   map: naver.maps.Map,
   a: naver.maps.Coord | naver.maps.CoordLiteral,
   b: naver.maps.Coord | naver.maps.CoordLiteral,
+  zoom: number,
 ): boolean {
   if (kvoEquals(a, b)) return true;
   const projection = map.getProjection();
   const pa = projection.fromCoordToOffset(toCoord(a));
   const pb = projection.fromCoordToOffset(toCoord(b));
-  return Math.hypot(pa.x - pb.x, pa.y - pb.y) < 1;
+  // 화면 좌표는 지금 zoom 의 것이다. zoom 이 1 크면 거리가 두 배다.
+  const scale = 2 ** (zoom - map.getZoom());
+  return Math.hypot(pa.x - pb.x, pa.y - pb.y) * scale < 1;
 }
 
 /** 좌표 리터럴을 SDK 객체로. `{ lat, lng }` 와 `[경도, 위도]` 는 LatLng, `{ x, y }` 는 Point. */

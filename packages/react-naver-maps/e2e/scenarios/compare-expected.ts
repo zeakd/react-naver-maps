@@ -167,4 +167,19 @@ export const expectedDifferences: Record<
     reason:
       '같은 이유. 0.3.0 은 다시 보일 때 Marker 를 새로 만들어(calls 의 setIcon 등) clickable 을 꺼진 채 붙였다',
   },
+  // QC 1묶음(research/qc-cases)
+  '가까운 center 와 큰 zoom 을 함께 바꾸면 그 center 가 가운데에 온다': {
+    fields: ['kvoZoom', 'kvoLat'],
+    reason:
+      'useKVO 가 지도를 따라간다 (#192). 0.3.0 은 이 경우 바르게 morph 했다. 0.4 의 1px 허용이 지금 zoom 으로 재던 회귀를 고쳤다',
+  },
+  '누르고 움직이지 않고 떼도 다음 center prop 이 곧장 반영된다': {
+    fields: ['kvoLat'],
+    reason: 'useKVO 가 지도를 따라간다 (#192)',
+  },
+  '두 InfoWindow 를 열어 두고 다시 렌더해도 서로 닫고 열기를 반복하지 않는다': {
+    fields: ['status', 'calls'],
+    reason:
+      '인라인 anchor 를 값으로 비교해 렌더마다 다시 열지 않는다. 0.3.0 은 SDK 가 닫은 쪽을 렌더마다 다시 열어 둘이 번갈아 닫혔다',
+  },
 };

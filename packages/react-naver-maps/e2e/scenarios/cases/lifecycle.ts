@@ -6,9 +6,10 @@ import {
   overlaysOnMap,
   sameMap,
   settlesAt,
+  settlesAtZoom,
 } from '../assertions.js';
 import type { Scenario } from '../types.js';
-import { HOME } from './steps.js';
+import { B, HOME } from './steps.js';
 
 /** 수명: 지도와 인스턴스가 key, StrictMode, suspend, Activity 를 지나도 살아 있는지. */
 export const lifecycle: Scenario[] = [
@@ -94,5 +95,40 @@ export const lifecycle: Scenario[] = [
       overlaysOnMap(['circle', 'infoWindow', 'polyline']),
       sameMap(),
     ],
+  },
+
+  // QC #15: 다시 보일 때 카메라 effect 가 크기를 다시 재기 전에 돈다.
+  {
+    name: 'Activity 로 숨긴 동안 바꾼 center·zoom·크기가 보일 때 한 번에 맞는다',
+    since: '0.4',
+    app: { mode: 'props' },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { center: B, zoom: 12, containerWidth: 400 } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'visible' } },
+      { t: 'frames', n: 60 },
+    ],
+    expect: [settlesAt(B), settlesAtZoom(12), mapWidth(400), sameMap()],
+  },
+  // QC #17: 숨긴 채 제거한 Marker 는 다시 보여도 지도에 없다.
+  {
+    name: '숨긴 채 제거한 Marker 는 지도를 다시 보여도 붙지 않는다',
+    since: '0.4',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { markerActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { marker: false } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerOnMap(false)],
   },
 ];
