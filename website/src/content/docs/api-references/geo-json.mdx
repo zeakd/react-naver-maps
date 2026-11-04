@@ -6,7 +6,7 @@ order: 12
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`GeoJson` 컴포넌트는 GeoJSON 을 지도의 데이터 레이어(`map.data`)에 올립니다. SDK 의 `naver.maps.Data.addGeoJson` 입니다.
+`GeoJson`, `Kml`, `Gpx` 컴포넌트는 GeoJSON, KML, GPX 를 지도의 데이터 레이어(`map.data`)에 올립니다. SDK 의 `naver.maps.Data.addGeoJson`, `addKml`, `addGpx` 입니다. 셋은 `data` 의 형식만 다르고 `style`, `autoStyle`, 이벤트는 같습니다.
 
 ## 사용법
 
@@ -27,8 +27,67 @@ import { GeoJson } from 'react-naver-maps';
 - `autoStyle` 을 켜면 GeoJSON `properties` 의 스타일 값을 씁니다.
 - `data` 가 값으로 바뀌면 이전 feature 를 빼고 새로 올립니다. GeoJSON 에 `bbox` 가 있으면 SDK 가 그 영역으로 지도를 맞춥니다.
 
+- `onPropertyChanged` 는 이 컴포넌트가 올린 feature 에서 `feature.setProperty` 로 속성이 바뀔 때 받습니다. 인자는 `{ feature, name, oldValue, newValue }` 입니다. `addfeature`, `removefeature` 는 라이브러리가 직접 일으키는 일이라 prop 이 없습니다.
+
 지도마다 데이터 레이어는 하나라서 `style` 을 컴포넌트마다 나누려고 `map.data.setStyle` 은 라이브러리가 씁니다. `GeoJson` 과 함께 `map.data.setStyle` 을 직접 부르면 덮어씁니다.
+
+## style 함수와 hover
+
+`style` 함수의 참조가 바뀌면 이 컴포넌트가 올린 레이어 전체를 다시 스타일합니다(SDK 가 `setStyle` 때 모든 feature 에 스타일을 다시 매깁니다). 인라인 화살표 함수는 부모가 렌더될 때마다 참조가 바뀌므로 feature 가 많으면 느려집니다. `style` 함수는 컴포넌트 밖에 두거나 `useCallback` 으로 고정하세요.
+
+```tsx
+const regionStyle = (feature: naver.maps.Feature) => ({
+  fillColor: feature.getProperty('color'),
+});
+
+<GeoJson data={regions} style={regionStyle} />;
+```
+
+hover 강조는 상태로 `style` 을 바꾸지 말고 ref 로 얻은 `map.data` 의 `overrideStyle`/`revertStyle` 을 쓰는 편이 가볍습니다.
+
+```tsx
+const map = useMap();
+<GeoJson
+  data={regions}
+  style={regionStyle}
+  onMouseover={(e) => map.data.overrideStyle(e.feature, { strokeWeight: 4 })}
+  onMouseout={(e) => map.data.revertStyle(e.feature)}
+/>;
+```
+
+- `overrideStyle` 의 값은 레이어 전체에 하나뿐이라 마지막 호출이 이깁니다.
+- `style` 함수 참조가 바뀌어 다시 스타일하면 `overrideStyle` 로 칠한 것이 덮입니다. 위처럼 `style` 을 고정해 두세요.
+- `style` 이 없는 GeoJson 만 있으면 라이브러리가 레이어에 스타일을 걸지 않아 `revertStyle` 이 되돌릴 것이 없습니다.
+
+## KML, GPX
+
+```tsx
+import { Kml, Gpx } from 'react-naver-maps';
+
+const kml = new DOMParser().parseFromString(kmlText, 'text/xml');
+
+<NaverMap>
+  <Kml data={kml} style={{ strokeColor: '#e11' }} />
+  <Gpx data={gpxDocument} onClick={(e) => select(e.feature)} />
+</NaverMap>;
+```
+
+- `data` 는 `Document` 입니다. SDK 가 XML `Document` 만 받으므로 문자열은 받지 않습니다. `DOMParser` 로 만들어 넘기세요.
+- `Document` 참조가 바뀌면 이전 feature 를 빼고 새로 올립니다. 렌더마다 새로 파싱하면 그때마다 다시 올리니 `useMemo` 로 한 번만 파싱하세요.
+- SDK 가 내부에서 GeoJSON 으로 바꿔 올립니다. 올라간 feature 는 ref 로 받을 수 있습니다.
+
+(SDK 3.10.5 기준)
 
 ## Props
 
+### GeoJson
+
 <PropsTable of="GeoJson" package="react-naver-maps" />
+
+### Kml
+
+<PropsTable of="Kml" package="react-naver-maps" />
+
+### Gpx
+
+<PropsTable of="Gpx" package="react-naver-maps" />

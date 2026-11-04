@@ -78,6 +78,10 @@ export type AppConfig = {
   mapCursor?: string;
   /** NaverMap 의 mapTypes 에 렌더마다 새로 만든 같은 내용의 MapTypeRegistry(normal 하나)를 넘긴다. */
   mapTypesInline?: boolean;
+  /** 이 이름의 작은 KML 문서(app.tsx 의 KML_DOCS)를 Kml 로 올린다. 렌더마다 같은 Document 다. */
+  kml?: 'point' | 'line';
+  /** 작은 GPX 문서(트랙 하나)를 Gpx 로 올린다. */
+  gpx?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };

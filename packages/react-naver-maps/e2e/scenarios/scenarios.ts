@@ -642,4 +642,36 @@ export const scenarios: Scenario[] = [
     steps: [...rerender(3), { t: 'frames', n: 3 }],
     expect: [sameMap()],
   },
+  {
+    name: 'Kml 은 KML 문서의 feature 를 올리고 문서를 바꾸면 갈아 끼우고 언마운트하면 뺀다',
+    app: { mode: 'props', kml: 'point' },
+    steps: [
+      { t: 'frames', n: 2 },
+      ...rerender(2),
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { kml: 'line' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { kml: undefined } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      // 프레임: 0-1 point, 2-3 같은 문서로 다시 렌더, 4-5 line, 6-7 언마운트
+      dataLayer({ features: 1 }, 1),
+      dataLayer({ features: 1 }, 3),
+      dataLayer({ features: 2 }, 5),
+      dataLayer({ features: 0 }),
+    ],
+    since: '0.4',
+  },
+  {
+    name: 'Gpx 는 GPX 트랙을 올리고 언마운트하면 뺀다',
+    app: { mode: 'props', gpx: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { gpx: false } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [dataLayer({ features: 1 }, 1), dataLayer({ features: 0 })],
+    since: '0.4',
+  },
 ];

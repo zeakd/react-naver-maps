@@ -20,8 +20,13 @@ export type {
   GeoJsonProps,
   GeoJsonStyle,
   DataPointerEvent,
+  DataPropertyEvent,
   DataEvent,
 } from './geo-json.js';
+export { Kml } from './kml.js';
+export type { KmlProps } from './kml.js';
+export { Gpx } from './gpx.js';
+export type { GpxProps } from './gpx.js';
 export type { CustomControlProps } from './custom-control.js';
 export type { CustomOverlayProps } from './custom-overlay.js';
 export { Circle } from './circle.js';
