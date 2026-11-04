@@ -712,14 +712,22 @@ export const scenarios: Scenario[] = [
     since: '0.4',
   },
   {
-    // zoom prop 은 효과 없이 맞추므로(setZoom) 줌 효과가 없다. 사용자 휠 확대로 본다.
+    // 래스터 지도에서 zoom prop 만 바꾸면 효과 없이 맞춰(setZoom) 줌 효과가 없다. 사용자 휠 확대로 본다.
     name: '휠로 확대하면 줌 효과의 시작과 끝에 onZoomstart, onZoomend 가 한 번씩 온다',
     app: { mode: 'controlled' },
     steps: [
       { t: 'wheel', x: 300, y: 200, deltaY: -100 },
       { t: 'frames', n: 60 },
     ],
-    expect: [calls({ onZoomstart: 1, onZoomend: 1 })],
+    expect: [
+      (trace) => {
+        const all = trace.flatMap((f) => f.propCalls);
+        const count = (n: string) => all.filter((c) => c === n).length;
+        return count('onZoomstart') === 1 && count('onZoomend') === 1
+          ? null
+          : `줌 이벤트 prop: ${all.join(', ') || '없음'}`;
+      },
+    ],
     since: '0.4',
   },
   {

@@ -126,6 +126,8 @@ export type TraceFrame = {
   events: string[];
   /** 이 프레임에 호출된 지도 메서드 */
   calls: string[];
+  /** 이 프레임에 불린 0.4 의 새 이벤트 prop(onZoomstart 등) */
+  propCalls: string[];
   /** 이 프레임에 onZoomChanged 로 받은 값 */
   zoomReports: number[];
   /** 지도에 붙은 컨트롤 수 */

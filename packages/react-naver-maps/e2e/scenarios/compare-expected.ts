@@ -9,6 +9,11 @@ type Field = keyof TraceFrame | 'status' | 'frames' | 'trace';
  * `status` 는 시나리오 판정(통과·실패)이 바뀌는 것이다. 이유에는 바뀐 동작과 근거를 적는다.
  * 기준: 0.3.0.
  */
+/**
+ * 0.4 에서 생긴 API 의 기록이라 배포본(0.3.0)에는 늘 비어 있는 필드. 비교에서 뺀다.
+ */
+export const NEW_API_FIELDS: Field[] = ['propCalls'];
+
 export const expectedDifferences: Record<
   string,
   { fields: Field[]; reason: string }
@@ -43,7 +48,7 @@ export const expectedDifferences: Record<
     reason: '요청한 center 를 기억하고 진행 중 이동을 멈춘다 (#190)',
   },
   'key 로 다시 만든 지도가 화면에 남는다': {
-    fields: ['status', 'controls', 'attached'],
+    fields: ['status', 'controls', 'attached', 'mapCursor'],
     reason: '지도마다 자기 div 를 만든다 (#191)',
   },
   '값이 그대로면 재렌더해도 setter 를 부르지 않는다': {
@@ -59,8 +64,9 @@ export const expectedDifferences: Record<
     reason: 'Marker 를 clickable 로 만든 뒤 끈다 (#192)',
   },
   'onClick 이 있는 도형은 clickable 없이도 클릭을 받는다': {
-    fields: ['status', 'events', 'circleClicks'],
-    reason: '포인터 핸들러가 있는 도형은 clickable 을 켠다 (#194)',
+    fields: ['status', 'events', 'circleClicks', 'mapCursor'],
+    reason:
+      '포인터 핸들러가 있는 도형은 clickable 을 켠다(그래서 그 위 커서도 pointer) (#194)',
   },
   'gl 서브모듈을 불러도 onZoomChanged 값은 getZoom() 과 같다': {
     fields: ['status', 'zoomReports'],
@@ -130,9 +136,9 @@ export const expectedDifferences: Record<
   },
   'Activity 로 도형과 열린 InfoWindow 를 숨겼다 보이면 같은 지도에 다시 붙고 다시 열린다':
     {
-      fields: ['calls'],
+      fields: ['calls', 'mapCursor'],
       reason:
-        '숨겼다 보여도 같은 오버레이를 다시 붙여 setter 를 다시 부르지 않는다',
+        '숨겼다 보여도 같은 오버레이를 다시 붙여 setter 를 다시 부르지 않는다. 클릭 핸들러 있는 도형이 clickable 이라 커서가 pointer (#194)',
     },
   // 다시 만드는 기준(keys)을 값으로 비교한다. 0.3.0 은 렌더마다 새 bounds 객체로 다시 만들었다.
   '같은 값의 새 bounds 로 다시 렌더해도 GroundOverlay 를 다시 만들지 않고 url 이 바뀌면 만든다':
@@ -140,4 +146,14 @@ export const expectedDifferences: Record<
       fields: ['status', 'groundOverlays'],
       reason: 'GroundOverlay 의 url, bounds 를 값으로 비교한다',
     },
+  // 공식 문서 전수 대조에서 고친 것 (#215)
+  'DROP 이 끝난 Marker 를 다시 렌더해도 다시 떨어지지 않는다': {
+    fields: ['status', 'calls', 'markerAnimation'],
+    reason:
+      'animation 은 바뀔 때만 적용한다. 0.3.0 은 DROP 뒤 다시 렌더하면 다시 넣었다 (#215)',
+  },
+  'cursor 를 주고 올리면 지도 위 커서가 그 값이다': {
+    fields: ['status', 'mapCursor'],
+    reason: 'SDK 생성자가 cursor 옵션을 읽지 않아 마운트 때 맞춘다 (#215)',
+  },
 };
