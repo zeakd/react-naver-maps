@@ -84,7 +84,13 @@ export const Polyline = defineOverlay<PolylineProps, naver.maps.Polyline>(
     ],
     initial: (props) => ({ path: props.path ?? props.defaultPath }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
-    sync: (shape, props) => useEditable(shape, props.editable, 'Polyline'),
+    sync: (shape, props) =>
+      useEditable(
+        shape,
+        props.editable,
+        'Polyline',
+        props.path === undefined ? undefined : 'path',
+      ),
     events: SHAPE_EVENTS,
     changes: ['clickable', 'visible', 'zIndex'],
   },

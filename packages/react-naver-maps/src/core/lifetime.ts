@@ -172,13 +172,20 @@ export function onReadyMap<T extends MapAttachable>(
  * onReadyMap 을 붙일 곳과 준비 판정으로 일반화한 것. 거리뷰(Panorama)도 init 뒤에 붙인다.
  * 준비 판정은 붙일 곳마다 다르다(Map 은 isReady 속성, Panorama 는 Panorama 컴포넌트가 기록).
  */
+/**
+ * 준비(init)를 기다리는 인스턴스와 그 init 리스너. 모듈에 하나만 둔다. onReadyHost 는 렌더마다
+ * 새 spec 을 만들고 useSdkInstance 는 최신 spec 으로 뗀다. spec 마다 따로 두면 init 전에 내리거나
+ * 숨길 때 앞 렌더의 spec 이 단 리스너를 찾지 못해, init 이 오면 내린 인스턴스가 지도에 붙었다
+ * (e2e "init 전에 올렸다 내린 HeatMap 과 CustomControl").
+ */
+const waits = new WeakMap<object, MapListener>();
+
 export function onReadyHost<T extends MapAttachable>(
   host: naver.maps.Map,
   isReady: () => boolean,
   create: () => T,
   attachTo: AttachTo<T> = (instance, to) => instance.setMap(to),
 ): SdkInstanceSpec<T> {
-  const waits = new WeakMap<T, MapListener>();
   const attach = (instance: T) => {
     if (isReady()) {
       attachTo(instance, host);

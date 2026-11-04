@@ -8,6 +8,7 @@ import {
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useReducer,
   useMemo,
   useRef,
 } from 'react';
@@ -188,10 +189,11 @@ function PanoramaBindings({
   props: PanoramaProps;
 }) {
   useControlledProps(panorama, pick(props, OPTIONS));
-  useCameraProp(props.position, (v) => panorama.setPosition(v));
-  useCameraProp(props.panoId, (v) => panorama.setPanoId(v));
-  useCameraProp(props.pov, (v) => panorama.setPov(v));
-  useCameraProp(props.zoom, (v) => panorama.setZoom(v));
+  const hold = useGestureHold(panorama);
+  useCameraProp(props.position, (v) => panorama.setPosition(v), hold);
+  useCameraProp(props.panoId, (v) => panorama.setPanoId(v), hold);
+  useCameraProp(props.pov, (v) => panorama.setPov(v), hold);
+  useCameraProp(props.zoom, (v) => panorama.setZoom(v), hold);
 
   const { onPanoChanged, onPanoStatus, onPovChanged, onInit } = props;
   // init 은 비동기로 오지만 NaverMap 과 같이 layout effect 로 먼저 단다.
@@ -226,12 +228,73 @@ function PanoramaBindings({
  * 카메라 prop: 값이 바뀔 때만 SDK 에 넣는다. 처음 값은 생성자에 들어갔다.
  * 사용자가 바꾼 시점·위치를 되돌리지 않는 것은 NaverMap 의 center 와 같다.
  */
-function useCameraProp<T>(value: T | undefined, apply: (value: T) => void) {
+type GestureHold = {
+  /** 사용자가 거리뷰를 누르고 있는가 */
+  active: () => boolean;
+  /** 보류한 prop 이 있다고 알린다. 손을 떼면 다시 렌더해 맞춘다. */
+  held: () => void;
+};
+
+/**
+ * 거리뷰를 누르고 있는 동안(끌기, 핀치) 카메라 prop 을 보류한다. SDK 의 Panorama 는 끌기 이벤트를 내지
+ * 않아(공식 문서 Events 4개, 3.10.5) 거리뷰 element 의 포인터로 안다. 끄는 동안 pov 는 확정되지
+ * 않지만(getPov 그대로) 앱이 앞선 끌기의 값을 늦게 되돌려주면 그것이 다음 끌기 도중에 와서 시점을
+ * 당겼다(e2e "pov 를 늦게 되돌려줘도 놓은 직후 다시 끄는"). 손을 떼면 마지막 prop 으로 맞춘다.
+ */
+function useGestureHold(panorama: naver.maps.Panorama): GestureHold {
+  const activeRef = useRef(false);
+  const heldRef = useRef(false);
+  const [, resume] = useReducer((n: number) => n + 1, 0);
+  useLayoutEffect(() => {
+    const el = panorama.getElement();
+    const down = () => {
+      activeRef.current = true;
+    };
+    const up = () => {
+      if (!activeRef.current) return;
+      activeRef.current = false;
+      if (heldRef.current) {
+        heldRef.current = false;
+        resume();
+      }
+    };
+    el.addEventListener('pointerdown', down, true);
+    window.addEventListener('pointerup', up, true);
+    window.addEventListener('pointercancel', up, true);
+    return () => {
+      el.removeEventListener('pointerdown', down, true);
+      window.removeEventListener('pointerup', up, true);
+      window.removeEventListener('pointercancel', up, true);
+      // 숨길 때도 여기로 온다. 떼는 것을 못 보므로 비운다(NaverMap 의 제스처 상태와 같다).
+      activeRef.current = false;
+    };
+  }, [panorama]);
+  return {
+    active: () => activeRef.current,
+    held: () => {
+      heldRef.current = true;
+    },
+  };
+}
+
+/** prop 이 바뀔 때만 쓴다. 누르고 있는 동안은 보류하고(prev 를 그대로 둔다) 뗀 뒤 다시 비교한다. */
+function useCameraProp<T>(
+  value: T | undefined,
+  apply: (value: T) => void,
+  hold: GestureHold,
+) {
   const prevRef = useRef(value);
   useLayoutEffect(() => {
     const prev = prevRef.current;
+    if (value === undefined || kvoEquals(prev, value)) {
+      prevRef.current = value;
+      return;
+    }
+    if (hold.active()) {
+      hold.held();
+      return;
+    }
     prevRef.current = value;
-    if (value === undefined || kvoEquals(prev, value)) return;
     apply(value);
   });
 }

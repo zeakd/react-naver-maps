@@ -9,7 +9,6 @@ import {
 import type { Scenario } from '../types.js';
 import { B, drag, pinchOut, touchDragLeftAndRelease } from './steps.js';
 
-/** 사용자 입력: 터치 드래그, 핀치, 휠. 터치는 브라우저 터치 지원을 흉내 내고 CDP 로 손가락을 보낸다. */
 export const gestures: Scenario[] = [
   {
     name: '터치로 끌어 놓으면 움직임이 끝난 뒤 idle 이 한 번 온다',

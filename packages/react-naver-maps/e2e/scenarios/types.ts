@@ -57,14 +57,35 @@ export type CoreConfig = {
   projectionlessMapType?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
+  /** false 면 지도(NaverMap)를 내리고 Container 만 남긴다. 기본 true. */
+  showMap?: boolean;
+  /**
+   * 드라이버가 SDK 의 스타일 메타데이터 요청을 이 시간(ms, 실제 시간)만큼 늦춰 지도 init 을 미룬다.
+   * 앱 코드는 읽지 않고 playwright-driver 의 mount 가 읽는다. 요청 주소는 STYLE_URL(추정).
+   */
+  delayStyleMs?: number;
 };
 
 export type Step =
-  | { t: 'props'; props: Partial<AppConfig> }
+  /** transition 이 true 면 startTransition 안에서 렌더한다(flushSync 가 아니다). */
+  | { t: 'props'; props: Partial<AppConfig>; transition?: boolean }
+  /** 지도가 init 까지 끝나길 기다린다. mount 가 waitInit: false 일 때 쓴다. */
+  | { t: 'waitInit' }
   | { t: 'frames'; n: number }
   | { t: 'call'; method: string; args?: unknown[] }
   | { t: 'mouse'; kind: 'down' | 'move' | 'up'; x: number; y: number }
   | { t: 'wheel'; x: number; y: number; deltaY: number }
+  /**
+   * 좌표 ll 이 지금 화면에 놓인 자리에서 (dx, dy) 만큼 떨어진 곳에 마우스를 둔다. 도형 꼭짓점처럼
+   * 화면 좌표를 미리 알 수 없는 것을 잡을 때 쓴다. 컨테이너가 화면 왼쪽 위에 붙어 있다고 본다.
+   */
+  | {
+      t: 'mouseAt';
+      kind: 'down' | 'move' | 'up';
+      ll: LL;
+      dx?: number;
+      dy?: number;
+    }
   /** 지도 중앙을 실제 DOM 클릭으로 누른다. */
   | { t: 'clickCenter' }
   /** 지도 중앙을 실제 DOM 더블클릭으로 누른다. */
@@ -123,6 +144,10 @@ export type CoreFrame = {
   mapId: number;
   /** 이 프레임 뒤에 잰 화면 값(probe 단계). 이름 → 값. */
   probes?: Record<string, number>;
+  /** 지도 element 가 보이는가(display·visibility 와 크기). 지도가 내려가 있으면 false. */
+  mapVisible: boolean;
+  /** 이 프레임까지 새로 생긴 pageerror 와 console.error 의 글(React 가 경계에서 잡은 에러의 로그 포함) */
+  errors: string[];
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
   overlaysOnMap: string[];
   /** 지도 가운데 점의 계산된 CSS cursor */
@@ -147,6 +172,11 @@ export type Scenario = {
    */
   unstable?: { fields: (keyof TraceFrame)[]; reason: string };
   /**
+   * mount 옵션. waitInit: false 면 지도 init 을 기다리지 않고 mount 를 끝낸다(init 전에 단계를 실행하려는
+   * 시나리오). 이때는 settle 도 건너뛰며 waitInit 단계가 init 과 settle 을 맡는다. 기본 true.
+   */
+  mount?: { waitInit?: boolean };
+  /**
    * 이 시나리오가 쓰는 API 가 생긴 버전(`major.minor`). 비교 실행에서 이보다 오래된
    * 배포본은 건너뛴다. 동작만 다른 경우에는 쓰지 않는다. 그 차이가 비교의 대상이다.
    */
@@ -155,8 +185,20 @@ export type Scenario = {
 
 /** 시나리오를 실행하는 환경. 프레임을 직접 넘길 수 있어야 한다. */
 export interface ScenarioDriver {
-  mount(app: AppConfig): Promise<void>;
-  setProps(props: Partial<AppConfig>): Promise<void>;
+  mount(app: AppConfig, options?: Scenario['mount']): Promise<void>;
+  /** init 까지 기다린 뒤 settle 한다. mount 가 waitInit: false 였을 때. */
+  waitInit(): Promise<void>;
+  setProps(
+    props: Partial<AppConfig>,
+    options?: { transition?: boolean },
+  ): Promise<void>;
+  /** 좌표 ll 의 화면 자리에서 (dx, dy) 떨어진 곳에 마우스를 둔다. */
+  mouseAt(
+    kind: 'down' | 'move' | 'up',
+    ll: LL,
+    dx: number,
+    dy: number,
+  ): Promise<void>;
   /** 16ms 를 넘기고 그 프레임의 관찰값을 돌려준다. */
   frame(): Promise<TraceFrame>;
   call(method: string, args: unknown[]): Promise<void>;

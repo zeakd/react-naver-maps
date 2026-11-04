@@ -14,6 +14,9 @@ const FRAME_MS = 16;
 const SETTLE_REAL_MS = 1500;
 const SETTLE_VIRTUAL_MS = 3000;
 const FLUSH_ROUNDS = 3;
+// 스타일 메타데이터 요청의 주소. 지도 init 은 이 응답을 기다린다(하네스 mount 가 initialized() 로 기다리는 그것).
+// 추정: 브라우저로 네트워크를 보고 확인하지 못했다. 실제 주소가 다르면 여기만 고친다.
+const STYLE_URL = /\/styles\/[^/?]+\.json/;
 // touch slop 으로 보내지 않는 touchmove 를 기다리는 실제 시간.
 const TOUCH_MOVE_WAIT_MS = 100;
 
@@ -81,8 +84,21 @@ export function createPlaywrightDriver(
     await flush();
   };
 
+  // init 뒤 타일이 자리 잡도록 실제 시간을 기다리고, 시계를 세운 채 가상 시간을 흘린다.
+  // 이미 세운 시계에 pauseAt 을 또 부르면 안 되므로 mount 가 시계를 세웠는지 기억한다.
+  let paused = false;
+  const settle = async () => {
+    await page.waitForTimeout(SETTLE_REAL_MS);
+    if (!paused) {
+      await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
+      paused = true;
+    }
+    await page.clock.runFor(SETTLE_VIRTUAL_MS);
+  };
+
   return {
-    async mount(app) {
+    async mount(app, options) {
+      const waitInit = options?.waitInit ?? true;
       await page.addInitScript(() => {
         const w = window as unknown as InputCounter;
         w.__inputs = 0;
@@ -109,6 +125,13 @@ export function createPlaywrightDriver(
         // 터치 지원은 hasTouch 컨텍스트가 준다(scenarios.spec.ts). 손가락은 CDP 로 보낸다.
         cdp = await page.context().newCDPSession(page);
       }
+      if (app.delayStyleMs) {
+        // 라우트 핸들러는 노드에서 돌므로 가상 시계의 영향을 받지 않는다.
+        await page.route(STYLE_URL, async (route) => {
+          await new Promise((resolve) => setTimeout(resolve, app.delayStyleMs));
+          await route.continue();
+        });
+      }
       await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
       await page.goto('/');
       await page.waitForFunction(() => window.mountApp !== undefined);
@@ -124,15 +147,36 @@ export function createPlaywrightDriver(
       await page.evaluate(async (c) => {
         window.app = await window.mountApp(document.getElementById('host')!, c);
       }, config);
+      if (!waitInit) {
+        // init 을 기다리지 않는다. 시계만 세워 단계가 프레임 단위로 돌게 한다.
+        await page.waitForFunction(() => window.app.ready());
+        await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
+        paused = true;
+        await page.evaluate(() => window.app.resetObserved());
+        return;
+      }
       await page.waitForFunction(() => window.app.initialized());
-      await page.waitForTimeout(SETTLE_REAL_MS);
-      await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
-      await page.clock.runFor(SETTLE_VIRTUAL_MS);
+      await settle();
       await page.evaluate(() => window.app.resetObserved());
     },
-    async setProps(props) {
-      await page.evaluate((p) => window.app.setProps(p), props);
+    async waitInit() {
+      // 추정: init 은 실제 네트워크 응답으로 끝나므로 정지한 가상 시계와 상관없이 진행한다.
+      await page.waitForFunction(() => window.app.initialized());
+      await settle();
+    },
+    async setProps(props, options) {
+      await page.evaluate(
+        ([p, transition]) => window.app.setProps(p, transition),
+        [props, options?.transition] as const,
+      );
       await flush();
+    },
+    async mouseAt(kind, ll, dx, dy) {
+      const [x, y] = await page.evaluate(
+        ([lat, lng]) => window.app.pointOf(lat, lng),
+        ll,
+      );
+      await this.mouse(kind, x + dx, y + dy);
     },
     async frame(): Promise<TraceFrame> {
       await page.clock.runFor(FRAME_MS);

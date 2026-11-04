@@ -77,7 +77,13 @@ export const Polygon = defineOverlay<PolygonProps, naver.maps.Polygon>(
     ],
     initial: (props) => ({ paths: props.paths ?? props.defaultPaths }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
-    sync: (shape, props) => useEditable(shape, props.editable, 'Polygon'),
+    sync: (shape, props) =>
+      useEditable(
+        shape,
+        props.editable,
+        'Polygon',
+        props.paths === undefined ? undefined : 'paths',
+      ),
     events: SHAPE_EVENTS,
     changes: ['clickable', 'visible', 'zIndex'],
   },

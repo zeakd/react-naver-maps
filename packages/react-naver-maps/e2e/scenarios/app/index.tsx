@@ -2,6 +2,7 @@ import {
   Activity,
   Fragment,
   StrictMode,
+  startTransition,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -281,8 +282,26 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     }
   };
 
+  // pageerror 와 console.error 를 프레임 단위로 모은다(read 가 비운다).
+  const onWindowError = (e: ErrorEvent) =>
+    observed.errors.push(`error: ${e.message}`);
+  window.addEventListener('error', onWindowError);
+  const originalConsoleError = console.error;
+  console.error = (...args: unknown[]) => {
+    observed.errors.push(
+      args
+        .map((a) =>
+          a instanceof Error ? `${a.name}: ${a.message}` : String(a),
+        )
+        .join(' '),
+    );
+    originalConsoleError.apply(console, args);
+  };
+
   const root = createRoot(host);
   let config = initial;
+  /** 마지막으로 읽은 프레임. 지도를 내린 동안은 이 값에 새 이벤트·에러만 얹어 돌려준다. */
+  let lastFrame: TraceFrame | undefined;
   let authFailures = 0;
   const render = () => {
     const tree = (
@@ -300,13 +319,15 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           }}
         >
           <Activity mode={config.mapActivity ?? 'visible'}>
-            <MapUnderTest
-              config={config}
-              observed={observed}
-              probes={probes}
-              feedback={feedback}
-              onMap={onMap}
-            />
+            {config.showMap !== false && (
+              <MapUnderTest
+                config={config}
+                observed={observed}
+                probes={probes}
+                feedback={feedback}
+                onMap={onMap}
+              />
+            )}
           </Activity>
         </Container>
       </NavermapsProvider>
@@ -321,9 +342,17 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     authFailures: () => authFailures,
     /** 스타일 메타데이터를 받아 지도가 init 까지 끝났는가 */
     initialized: () => initialized,
-    setProps(props: Partial<AppConfig>) {
+    setProps(props: Partial<AppConfig>, transition?: boolean) {
       config = { ...config, ...props };
-      flushSync(() => root.render(render()));
+      if (transition) startTransition(() => root.render(render()));
+      else flushSync(() => root.render(render()));
+    },
+    /** 좌표가 지도 element 안에서 놓인 화면 자리 [x, y]. 컨테이너가 화면 왼쪽 위에 붙어 있다고 본다. */
+    pointOf(lat: number, lng: number): [number, number] {
+      const p = map!
+        .getProjection()
+        .fromCoordToOffset(new maps.LatLng(lat, lng)) as naver.maps.Point;
+      return [p.x, p.y];
     },
     /** 되먹임 상태(reported center·zoom)에 바로 쓴다. 이후 되먹임이 덮을 수 있다. */
     setState(state: { center?: LL; zoom?: number }) {
@@ -340,6 +369,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     },
     unmount() {
       root.unmount();
+      window.removeEventListener('error', onWindowError);
+      console.error = originalConsoleError;
     },
     /** geocoder 서브모듈로 주소를 찾아 첫 도로명 주소를 돌려준다. 실패하면 에러 메시지. */
     async geocode(query: string): Promise<string> {
@@ -366,8 +397,23 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       observed.calls.length = 0;
       observed.events.length = 0;
       observed.zoomReports.length = 0;
+      observed.errors.length = 0;
     },
     read(): TraceFrame {
+      if (config.showMap === false) {
+        // 내려간 지도는 읽지 않는다(없어진 인스턴스의 값은 믿을 수 없다). 마지막 값에 새 기록만 얹는다.
+        if (!lastFrame) throw new Error('지도를 읽은 적이 없다');
+        return (lastFrame = {
+          ...lastFrame,
+          events: observed.events.splice(0),
+          calls: observed.calls.splice(0),
+          propCalls: observed.propCalls.splice(0),
+          zoomReports: observed.zoomReports.splice(0),
+          errors: observed.errors.splice(0),
+          attached: false,
+          mapVisible: false,
+        });
+      }
       // GL 서브모듈은 준비되면서 인스턴스 메서드를 새로 단다. 그러면 감싼 것이 사라지므로
       // 읽을 때마다 다시 감싼다. 이번 프레임에 이미 바뀐 호출은 못 보지만 GL 준비는 mount 안에서 끝난다.
       observe(map!, OBSERVED_METHODS, observed.calls);
@@ -399,6 +445,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
           .toSorted(),
+        mapVisible: (() => {
+          const el = map!.getElement();
+          const rect = el.getBoundingClientRect();
+          return el.checkVisibility() && rect.width > 0 && rect.height > 0;
+        })(),
+        errors: observed.errors.splice(0),
         mapCursor: (() => {
           const rect = map!.getElement().getBoundingClientRect();
           const el = document.elementFromPoint(
@@ -409,12 +461,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         })(),
       };
       // 이벤트·호출을 비운 뒤에 픽스처가 읽는다(읽기는 지도 메서드 호출을 만들지 않는다).
-      return Object.assign(
+      return (lastFrame = Object.assign(
         core,
         ...FIXTURES.map((fixture, i) =>
           fixture.read?.(map!, probes[i], observed),
         ),
-      ) as TraceFrame;
+      ) as TraceFrame);
     },
   };
 }

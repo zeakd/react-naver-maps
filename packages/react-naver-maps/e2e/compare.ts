@@ -21,6 +21,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { parseBase, prepareTarget } from './baseline.ts';
 import {
   expectedDifferences,
+  MEASURED_FIELDS,
   NEW_API_FIELDS,
 } from './scenarios/compare-expected.ts';
 import type { TraceFrame } from './scenarios/types.ts';
@@ -227,6 +228,7 @@ function compare(
       const skip = new Set<string>([
         ...a.unstable,
         ...b.unstable,
+        ...MEASURED_FIELDS,
         ...(base.kind === 'release' ? NEW_API_FIELDS : []),
       ]);
       for (const [field, text] of differences(a.trace, b.trace)) {

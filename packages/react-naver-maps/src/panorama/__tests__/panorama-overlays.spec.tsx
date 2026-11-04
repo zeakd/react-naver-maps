@@ -17,9 +17,14 @@ import { Circle } from '../../core/circle.js';
 
 class MockPanorama extends MockKVO {
   static last: MockPanorama | null = null;
-  constructor(_el: HTMLElement, options: Record<string, unknown>) {
+  el: HTMLElement;
+  constructor(el: HTMLElement, options: Record<string, unknown>) {
     super(options);
+    this.el = el;
     MockPanorama.last = this;
+  }
+  getElement() {
+    return this.el;
   }
   setSize() {}
   getPanoId() {
@@ -27,6 +32,9 @@ class MockPanorama extends MockKVO {
   }
   getPov() {
     return { pan: 0, tilt: 0, fov: 100 };
+  }
+  setPov(pov: unknown) {
+    this.set('pov', pov);
   }
 }
 
@@ -69,5 +77,29 @@ describe('Panorama 자식 오버레이', () => {
         </Container>,
       ),
     ).toThrow(/Panorama 안에서 쓸 수 없습니다/);
+  });
+
+  test('거리뷰를 누르고 있는 동안 pov prop 을 보류하고 뗀 뒤 맞춘다', () => {
+    const view = (pan: number) => (
+      <Container>
+        <Panorama
+          position={{ lat: 37.5, lng: 127 }}
+          pov={{ pan, tilt: 0, fov: 100 }}
+        />
+      </Container>
+    );
+    const { rerender } = render(view(0));
+    const pano = MockPanorama.last!;
+    const setPov = vi.spyOn(pano, 'setPov');
+    pano
+      .getElement()
+      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    rerender(view(30));
+    expect(setPov).not.toHaveBeenCalled();
+    act(() => {
+      window.dispatchEvent(new Event('pointerup'));
+    });
+    expect(setPov).toHaveBeenCalledTimes(1);
+    expect(setPov).toHaveBeenLastCalledWith({ pan: 30, tilt: 0, fov: 100 });
   });
 });
