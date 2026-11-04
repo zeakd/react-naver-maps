@@ -3,6 +3,8 @@
  * 진입점만 import 한다. 보강 파일을 직접 import 하지 않는다.
  */
 import { describe, test, expectTypeOf } from 'vitest';
+// 진입점만 끌어온다.
+// oxlint-disable-next-line unicorn/require-module-specifiers, import/no-empty-named-blocks
 import type {} from '../react-naver-maps.js';
 
 describe('@types/navermaps 보강', () => {

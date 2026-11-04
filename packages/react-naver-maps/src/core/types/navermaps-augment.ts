@@ -8,6 +8,8 @@
  *
  * 각 항목의 근거는 공식 문서의 클래스 쪽이다. 문서 목록과 @types 를 맞춘 결과(2026-11-04)로 골랐다.
  */
+// declare global 을 쓰려면 모듈이어야 한다.
+// oxlint-disable-next-line unicorn/require-module-specifiers
 export {};
 
 declare global {
