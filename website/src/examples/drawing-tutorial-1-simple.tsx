@@ -97,7 +97,7 @@ function DrawingEventLog({
   );
 }
 
-function DrawingMap() {
+function DrawingMapContent() {
   const navermaps = useNavermaps();
   const { DrawingMode } = navermaps.drawing;
   const [manager, setManager] =
@@ -118,7 +118,7 @@ function DrawingMap() {
   }, [manager, rect, polygon, DrawingMode]);
 
   return (
-    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+    <>
       <NaverMap
         defaultCenter={{ lat: 37.5651, lng: 126.9783 }}
         defaultZoom={15}
@@ -136,6 +136,14 @@ function DrawingMap() {
       {manager && (
         <DrawingEventLog manager={manager} lines={lines} onLine={log} />
       )}
+    </>
+  );
+}
+
+function DrawingMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+      <DrawingMapContent />
     </MapDiv>
   );
 }

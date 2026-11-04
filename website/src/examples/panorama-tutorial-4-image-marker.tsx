@@ -18,7 +18,7 @@ const MARKER_ICON = {
   scaledSize: { width: 55, height: 36 },
 };
 
-function PanoramaMarker() {
+function MarkerPanorama({ showMarker }: { showMarker: boolean }) {
   const navermaps = useNavermaps();
   const panoRef = useRef<naver.maps.Panorama>(null);
   const [pov, setPov] = useState<naver.maps.PanoramaPov>({
@@ -26,33 +26,39 @@ function PanoramaMarker() {
     tilt: 29,
     fov: 100,
   });
-  const [showMarker, setShowMarker] = useState(true);
 
+  return (
+    <Panorama
+      ref={panoRef}
+      position={{ lat: 37.3599605, lng: 127.1058814 }}
+      pov={pov}
+      // 거리뷰가 준비되면 마커 쪽으로 시야를 돌린다.
+      onInit={() => {
+        const lookAt = panoRef.current
+          ?.getProjection()
+          .fromCoordToPov(
+            new navermaps.LatLng(MARKER_POSITION.lat, MARKER_POSITION.lng),
+          );
+        if (lookAt) setPov(lookAt);
+      }}
+    >
+      {showMarker && (
+        <Marker
+          position={MARKER_POSITION}
+          icon={MARKER_ICON}
+          onClick={() => alert('marker clicked')}
+        />
+      )}
+    </Panorama>
+  );
+}
+
+function PanoramaMarker() {
+  const [showMarker, setShowMarker] = useState(true);
   return (
     <>
       <PanoDiv style={{ width: '100%', height: '500px' }}>
-        <Panorama
-          ref={panoRef}
-          position={{ lat: 37.3599605, lng: 127.1058814 }}
-          pov={pov}
-          // 거리뷰가 준비되면 마커 쪽으로 시야를 돌린다.
-          onInit={() => {
-            const lookAt = panoRef.current
-              ?.getProjection()
-              .fromCoordToPov(
-                new navermaps.LatLng(MARKER_POSITION.lat, MARKER_POSITION.lng),
-              );
-            if (lookAt) setPov(lookAt);
-          }}
-        >
-          {showMarker && (
-            <Marker
-              position={MARKER_POSITION}
-              icon={MARKER_ICON}
-              onClick={() => alert('marker clicked')}
-            />
-          )}
-        </Panorama>
+        <MarkerPanorama showMarker={showMarker} />
       </PanoDiv>
       <input
         type="button"

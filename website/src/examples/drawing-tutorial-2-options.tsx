@@ -74,24 +74,21 @@ const markerOptions = {
   },
 };
 
-function DrawingOptionsMap() {
+function OptionsMap({
+  position,
+  style,
+  icons,
+}: {
+  position: (typeof POSITIONS)[number];
+  style: (typeof STYLES)[number];
+  icons: (typeof MODES)[number][];
+}) {
   const navermaps = useNavermaps();
   const { DrawingMode, DrawingStyle } = navermaps.drawing;
   const [manager, setManager] =
     useState<naver.maps.drawing.DrawingManager | null>(null);
   const [rect, setRect] = useState<naver.maps.Rectangle | null>(null);
   const [rect2, setRect2] = useState<naver.maps.Rectangle | null>(null);
-
-  // 도구 막대의 위치·모양·아이콘은 state 로 두고 prop 으로 넘긴다.
-  const [position, setPosition] =
-    useState<(typeof POSITIONS)[number]>('RIGHT_CENTER');
-  const [style, setStyle] = useState<(typeof STYLES)[number]>('VERTICAL');
-  const [icons, setIcons] = useState<number[]>([
-    DrawingMode.POLYLINE,
-    DrawingMode.POLYGON,
-    DrawingMode.ELLIPSE,
-    DrawingMode.RECTANGLE,
-  ]);
 
   // 직접 setEditable 을 불러 편집 가능하게 한 도형.
   useEffect(() => {
@@ -104,75 +101,92 @@ function DrawingOptionsMap() {
   }, [manager, rect, DrawingMode]);
 
   return (
+    <NaverMap
+      defaultCenter={{ lat: 37.5, lng: 126.5 }}
+      defaultZoom={7}
+      zoomControl
+      zoomControlOptions={{
+        style: navermaps.ZoomControlStyle.LARGE,
+        position: navermaps.Position.TOP_RIGHT,
+      }}
+      mapTypeControl
+    >
+      <Rectangle
+        ref={setRect}
+        defaultBounds={{
+          west: 125.6195858,
+          south: 37.1928595,
+          east: 126.5689034,
+          north: 37.8594302,
+        }}
+        fillColor="#00bf46"
+        fillOpacity={0.4}
+        strokeWeight={2}
+        strokeColor="#00bf46"
+      />
+      <Rectangle
+        ref={setRect2}
+        defaultBounds={{
+          west: 124.2220128,
+          south: 37.1928595,
+          east: 125.1587723,
+          north: 37.8594302,
+        }}
+        fillColor="#bf0091"
+        fillOpacity={0.4}
+        strokeWeight={2}
+        strokeColor="#bf0091"
+      />
+      <DrawingManager
+        ref={setManager}
+        drawingControl={icons.map((name) => DrawingMode[name])}
+        drawingControlOptions={{
+          position: navermaps.Position[position],
+          style: DrawingStyle[style],
+        }}
+        controlPointOptions={controlPointOptions}
+        rectangleOptions={{
+          fillColor: '#ff0000',
+          fillOpacity: 0.5,
+          strokeWeight: 3,
+          strokeColor: '#ff0000',
+        }}
+        ellipseOptions={{
+          fillColor: '#ff25dc',
+          fillOpacity: 0.5,
+          strokeWeight: 3,
+          strokeColor: '#ff25dc',
+        }}
+        polylineOptions={{ strokeColor: '#222', strokeWeight: 3 }}
+        arrowlineOptions={{ endIconSize: 16, strokeWeight: 3 }}
+        polygonOptions={{
+          fillColor: '#ffc300',
+          fillOpacity: 0.5,
+          strokeWeight: 3,
+          strokeColor: '#ffc300',
+        }}
+        markerOptions={markerOptions}
+      />
+    </NaverMap>
+  );
+}
+
+function DrawingOptionsMap() {
+  // 도구 막대의 위치·모양·아이콘은 state 로 두고 prop 으로 넘긴다.
+  const [position, setPosition] =
+    useState<(typeof POSITIONS)[number]>('RIGHT_CENTER');
+  const [style, setStyle] = useState<(typeof STYLES)[number]>('VERTICAL');
+  const [icons, setIcons] = useState<(typeof MODES)[number][]>([
+    'POLYLINE',
+    'POLYGON',
+    'ELLIPSE',
+    'RECTANGLE',
+  ]);
+
+  return (
     <>
       <MapDiv style={{ width: '100%', height: '500px' }}>
-        <NaverMap
-          defaultCenter={{ lat: 37.5, lng: 126.5 }}
-          defaultZoom={7}
-          zoomControl
-          zoomControlOptions={{
-            style: navermaps.ZoomControlStyle.LARGE,
-            position: navermaps.Position.TOP_RIGHT,
-          }}
-          mapTypeControl
-        >
-          <Rectangle
-            ref={setRect}
-            defaultBounds={{
-              west: 125.6195858,
-              south: 37.1928595,
-              east: 126.5689034,
-              north: 37.8594302,
-            }}
-            fillColor="#00bf46"
-            fillOpacity={0.4}
-            strokeWeight={2}
-            strokeColor="#00bf46"
-          />
-          <Rectangle
-            ref={setRect2}
-            defaultBounds={{
-              west: 124.2220128,
-              south: 37.1928595,
-              east: 125.1587723,
-              north: 37.8594302,
-            }}
-            fillColor="#bf0091"
-            fillOpacity={0.4}
-            strokeWeight={2}
-            strokeColor="#bf0091"
-          />
-          <DrawingManager
-            ref={setManager}
-            drawingControl={icons}
-            drawingControlOptions={{
-              position: navermaps.Position[position],
-              style: DrawingStyle[style],
-            }}
-            controlPointOptions={controlPointOptions}
-            rectangleOptions={{
-              fillColor: '#ff0000',
-              fillOpacity: 0.5,
-              strokeWeight: 3,
-              strokeColor: '#ff0000',
-            }}
-            ellipseOptions={{
-              fillColor: '#ff25dc',
-              fillOpacity: 0.5,
-              strokeWeight: 3,
-              strokeColor: '#ff25dc',
-            }}
-            polylineOptions={{ strokeColor: '#222', strokeWeight: 3 }}
-            arrowlineOptions={{ endIconSize: 16, strokeWeight: 3 }}
-            polygonOptions={{
-              fillColor: '#ffc300',
-              fillOpacity: 0.5,
-              strokeWeight: 3,
-              strokeColor: '#ffc300',
-            }}
-            markerOptions={markerOptions}
-          />
-        </NaverMap>
+        <OptionsMap position={position} style={style} icons={icons} />
       </MapDiv>
       <div style={{ marginTop: 8 }}>
         <div style={panelStyle}>
@@ -210,18 +224,17 @@ function DrawingOptionsMap() {
         <div style={panelStyle}>
           <strong>아이콘</strong>
           {MODES.map((name) => {
-            const mode = DrawingMode[name];
             return (
               <div key={name}>
                 <label>
                   <input
                     type="checkbox"
-                    checked={icons.includes(mode)}
+                    checked={icons.includes(name)}
                     onChange={(e) =>
                       setIcons((prev) =>
                         e.target.checked
-                          ? [...prev, mode]
-                          : prev.filter((m) => m !== mode),
+                          ? [...prev, name]
+                          : prev.filter((m) => m !== name),
                       )
                     }
                   />{' '}
@@ -231,11 +244,7 @@ function DrawingOptionsMap() {
             );
           })}
           <button onClick={() => setIcons([])}>모두제거</button>{' '}
-          <button
-            onClick={() => setIcons(MODES.map((name) => DrawingMode[name]))}
-          >
-            모두추가
-          </button>
+          <button onClick={() => setIcons([...MODES])}>모두추가</button>
         </div>
       </div>
     </>

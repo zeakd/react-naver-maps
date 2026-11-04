@@ -20,7 +20,7 @@ const CONTENT = `<div style="padding:10px;min-width:200px;line-height:150%;">
   </p>
 </div>`;
 
-function PanoramaInfoWindow() {
+function InfoWindowPanorama() {
   const navermaps = useNavermaps();
   const panoRef = useRef<naver.maps.Panorama>(null);
   const [pov, setPov] = useState<naver.maps.PanoramaPov>({
@@ -31,26 +31,32 @@ function PanoramaInfoWindow() {
   const [open, setOpen] = useState(false);
 
   return (
+    <Panorama
+      ref={panoRef}
+      position={{ lat: 37.3599605, lng: 127.1058814 }}
+      pov={pov}
+      onInit={() => {
+        const lookAt = panoRef.current
+          ?.getProjection()
+          .fromCoordToPov(
+            new navermaps.LatLng(MARKER_POSITION.lat, MARKER_POSITION.lng),
+          );
+        if (lookAt) setPov(lookAt);
+      }}
+    >
+      <Marker
+        position={MARKER_POSITION}
+        onClick={() => setOpen((prev) => !prev)}
+      />
+      <InfoWindow open={open} content={CONTENT} anchor={MARKER_POSITION} />
+    </Panorama>
+  );
+}
+
+function PanoramaInfoWindow() {
+  return (
     <PanoDiv style={{ width: '100%', height: '500px' }}>
-      <Panorama
-        ref={panoRef}
-        position={{ lat: 37.3599605, lng: 127.1058814 }}
-        pov={pov}
-        onInit={() => {
-          const lookAt = panoRef.current
-            ?.getProjection()
-            .fromCoordToPov(
-              new navermaps.LatLng(MARKER_POSITION.lat, MARKER_POSITION.lng),
-            );
-          if (lookAt) setPov(lookAt);
-        }}
-      >
-        <Marker
-          position={MARKER_POSITION}
-          onClick={() => setOpen((prev) => !prev)}
-        />
-        <InfoWindow open={open} content={CONTENT} anchor={MARKER_POSITION} />
-      </Panorama>
+      <InfoWindowPanorama />
     </PanoDiv>
   );
 }

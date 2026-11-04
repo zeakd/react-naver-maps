@@ -30,7 +30,7 @@ function EarthquakeHeatMap({
   );
 }
 
-function SpectrumMap() {
+function SpectrumMapContent() {
   const navermaps = useNavermaps();
   const { SpectrumStyle } = navermaps.visualization;
   // 공식 예제는 HOT 하나. 나머지 스펙트럼도 골라 볼 수 있게 한다.
@@ -38,7 +38,7 @@ function SpectrumMap() {
   const [inReverse, setInReverse] = useState(false);
 
   return (
-    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+    <>
       <NaverMap
         defaultCenter={{ lat: 36.0207091, lng: 127.9204629 }}
         defaultZoom={8}
@@ -81,6 +81,14 @@ function SpectrumMap() {
           거꾸로
         </label>
       </div>
+    </>
+  );
+}
+
+function SpectrumMap() {
+  return (
+    <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
+      <SpectrumMapContent />
     </MapDiv>
   );
 }

@@ -6,19 +6,25 @@ import {
 } from 'react-naver-maps';
 import { Panorama } from 'react-naver-maps/panorama';
 
-function PanoramaAroundControl() {
+function AroundControlPanorama({ aroundControl }: { aroundControl: boolean }) {
   const navermaps = useNavermaps();
+  return (
+    <Panorama
+      position={{ lat: 37.3599605, lng: 127.1058814 }}
+      pov={{ pan: -135, tilt: 29, fov: 100 }}
+      aroundControl={aroundControl}
+      aroundControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
+    />
+  );
+}
+
+function PanoramaAroundControl() {
   const [aroundControl, setAroundControl] = useState(true);
 
   return (
     <>
       <PanoDiv style={{ width: '100%', height: '500px' }}>
-        <Panorama
-          position={{ lat: 37.3599605, lng: 127.1058814 }}
-          pov={{ pan: -135, tilt: 29, fov: 100 }}
-          aroundControl={aroundControl}
-          aroundControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
-        />
+        <AroundControlPanorama aroundControl={aroundControl} />
       </PanoDiv>
       <input
         type="button"

@@ -6,25 +6,37 @@ import {
 } from 'react-naver-maps';
 import { Panorama } from 'react-naver-maps/panorama';
 
-function PanoramaZoomControl() {
+function ZoomControlPanorama({
+  zoomControl,
+  large,
+}: {
+  zoomControl: boolean;
+  large: boolean;
+}) {
   const navermaps = useNavermaps();
+  return (
+    <Panorama
+      position={{ lat: 37.3599605, lng: 127.1058814 }}
+      pov={{ pan: -135, tilt: 29, fov: 100 }}
+      zoomControl={zoomControl}
+      zoomControlOptions={{
+        position: navermaps.Position.TOP_RIGHT,
+        style: large
+          ? navermaps.ZoomControlStyle.LARGE
+          : navermaps.ZoomControlStyle.SMALL,
+      }}
+    />
+  );
+}
+
+function PanoramaZoomControl() {
   const [zoomControl, setZoomControl] = useState(true);
   const [large, setLarge] = useState(false);
 
   return (
     <>
       <PanoDiv style={{ width: '100%', height: '500px' }}>
-        <Panorama
-          position={{ lat: 37.3599605, lng: 127.1058814 }}
-          pov={{ pan: -135, tilt: 29, fov: 100 }}
-          zoomControl={zoomControl}
-          zoomControlOptions={{
-            position: navermaps.Position.TOP_RIGHT,
-            style: large
-              ? navermaps.ZoomControlStyle.LARGE
-              : navermaps.ZoomControlStyle.SMALL,
-          }}
-        />
+        <ZoomControlPanorama zoomControl={zoomControl} large={large} />
       </PanoDiv>
       <div style={{ marginTop: 8 }}>
         <input
