@@ -1,21 +1,26 @@
 import { renderHook } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createMockNaverMaps, MockKVO } from './test-utils.js';
+import {
+  installSdkFake,
+  type SdkFake,
+  FakeKVO,
+  FakeMarker,
+} from '../../__tests__/sdk-fake.js';
 import { useControlledKVO } from '../hooks/use-controlled-kvo.js';
 
-let mock: ReturnType<typeof createMockNaverMaps>;
+let mock: SdkFake;
 
 describe('useControlledKVO', () => {
   beforeEach(() => {
-    mock = createMockNaverMaps();
+    mock = installSdkFake();
   });
 
   afterEach(() => {
-    mock.cleanup();
+    mock.uninstall();
   });
 
   test('undefined value → setter 미호출', () => {
-    const target = new MockKVO({ position: { lat: 37.5, lng: 127.0 } });
+    const target = new FakeMarker({ position: { lat: 37.5, lng: 127.0 } });
     const spy = vi.spyOn(target, 'setPosition');
 
     renderHook(() =>
@@ -26,7 +31,7 @@ describe('useControlledKVO', () => {
   });
 
   test('props 변경 시 setter 호출', () => {
-    const target = new MockKVO({ position: { lat: 37.5, lng: 127.0 } });
+    const target = new FakeMarker({ position: { lat: 37.5, lng: 127.0 } });
     const spy = vi.spyOn(target, 'setPosition');
 
     const { rerender } = renderHook(
@@ -49,7 +54,7 @@ describe('useControlledKVO', () => {
 
   test('값이 같으면 setter 미호출 (kvoEquals)', () => {
     const pos = { lat: 37.5, lng: 127.0 };
-    const target = new MockKVO({ position: pos });
+    const target = new FakeMarker({ position: pos });
     const spy = vi.spyOn(target, 'setPosition');
 
     const { rerender } = renderHook(
@@ -69,7 +74,7 @@ describe('useControlledKVO', () => {
   });
 
   test('전용 setter가 없으면 set(key, value) fallback', () => {
-    const target = new MockKVO({ customProp: 'old' });
+    const target = new FakeKVO({ customProp: 'old' });
     const spy = vi.spyOn(target, 'set');
 
     const { rerender } = renderHook(
@@ -89,7 +94,7 @@ describe('useControlledKVO', () => {
 
   test('첫 렌더에서 setter 미호출 (isFirstRef skip)', () => {
     // target의 현재 값과 다른 값으로 첫 렌더 → setter 호출되지 않아야 함
-    const target = new MockKVO({ position: { lat: 37.5, lng: 127.0 } });
+    const target = new FakeMarker({ position: { lat: 37.5, lng: 127.0 } });
     const spy = vi.spyOn(target, 'setPosition');
 
     const differentValue = { lat: 99.0, lng: 99.0 };
@@ -116,7 +121,7 @@ describe('useControlledKVO', () => {
 
   test('changeOnly: SDK 가 스스로 바꾼 값은 되돌리지 않고 prop 이 바뀔 때만 맞춘다', () => {
     // Marker animation: DROP 이 끝나면 SDK 가 null 로 바꾼다.
-    const target = Object.assign(new MockKVO({ animation: 2 }), {
+    const target = Object.assign(new FakeKVO({ animation: 2 }), {
       setAnimation(v: unknown) {
         target.set('animation', v);
       },
@@ -142,7 +147,7 @@ describe('useControlledKVO', () => {
   });
 
   test('writeOnMount: 생성자가 읽지 않는 값은 마운트 때 맞춘다', () => {
-    const target = Object.assign(new MockKVO({ cursor: 'open' }), {
+    const target = Object.assign(new FakeKVO({ cursor: 'open' }), {
       setCursor(v: unknown) {
         target.set('cursor', v);
       },

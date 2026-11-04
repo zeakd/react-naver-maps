@@ -1,9 +1,10 @@
 import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  createMockNaverMaps,
-  MockKVO,
-} from '../../core/__tests__/test-utils.js';
+  installSdkFake,
+  type SdkFake,
+  FakeKVO,
+} from '../../__tests__/sdk-fake.js';
 
 let navermaps: Record<string, unknown> = {};
 vi.mock('../../core/hooks/use-navermaps.js', () => ({
@@ -15,7 +16,7 @@ import { Container } from '../../core/container.js';
 import { Marker } from '../../core/marker.js';
 import { Circle } from '../../core/circle.js';
 
-class MockPanorama extends MockKVO {
+class MockPanorama extends FakeKVO {
   static last: MockPanorama | null = null;
   el: HTMLElement;
   constructor(el: HTMLElement, options: Record<string, unknown>) {
@@ -38,14 +39,14 @@ class MockPanorama extends MockKVO {
   }
 }
 
-let mock: ReturnType<typeof createMockNaverMaps>;
+let mock: SdkFake;
 
 describe('Panorama 자식 오버레이', () => {
   beforeEach(() => {
-    mock = createMockNaverMaps();
-    navermaps = { ...mock.navermaps, Panorama: MockPanorama };
+    mock = installSdkFake();
+    navermaps = { ...mock.maps, Panorama: MockPanorama };
   });
-  afterEach(() => mock.cleanup());
+  afterEach(() => mock.uninstall());
 
   test('Marker 는 거리뷰 init 뒤에 거리뷰에 붙는다', async () => {
     render(
@@ -55,14 +56,12 @@ describe('Panorama 자식 오버레이', () => {
         </Panorama>
       </Container>,
     );
-    await vi.waitFor(() =>
-      expect(mock.getLastInstance('Marker')).toBeDefined(),
-    );
-    const record = mock.getLastInstance('Marker')!;
-    const marker = record.instance as MockKVO;
+    await vi.waitFor(() => expect(mock.last('Marker')).toBeDefined());
+    const record = mock.last('Marker')!;
+    const marker = record.instance as FakeKVO;
     expect(record.options).not.toHaveProperty('map');
     expect(marker.get('map')).toBeUndefined();
-    act(() => MockPanorama.last!._trigger('init'));
+    act(() => mock.fire(MockPanorama.last!, 'init'));
     expect(marker.get('map')).toBe(MockPanorama.last);
   });
 

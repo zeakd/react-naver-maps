@@ -1,52 +1,13 @@
 import { render } from '@testing-library/react';
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { MockKVO } from './test-utils.js';
-
-// GroundOverlay는 3인자 생성자 (url, bounds, options) — 별도 mock
-let createdInstances: { url: string; bounds: unknown; instance: MockKVO }[] =
-  [];
-let clearCalls: unknown[] = [];
-
-function createMockGroundOverlay(
-  url: string,
-  bounds: unknown,
-  options?: Record<string, unknown>,
-) {
-  const instance = new MockKVO(options);
-  instance._values.url = url;
-  instance._values.bounds = bounds;
-  createdInstances.push({ url, bounds, instance });
-  return instance;
-}
-
-function setupMocks() {
-  createdInstances = [];
-  clearCalls = [];
-
-  (globalThis as Record<string, unknown>).naver = {
-    maps: {
-      Event: {
-        addListener: (target: MockKVO, eventName: string, cb: () => void) => {
-          return target._addListener(eventName, cb);
-        },
-        removeListener: (
-          handle: { target: MockKVO } & Record<string, unknown>,
-        ) => {
-          handle.target._removeListener(handle as any);
-        },
-        clearInstanceListeners: (target: unknown) => {
-          clearCalls.push(target);
-          (target as MockKVO)._clearListeners();
-        },
-      },
-    },
-  };
-}
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  installSdkFake,
+  type FakeKVO,
+  type SdkFake,
+} from '../../__tests__/sdk-fake.js';
 
 vi.mock('../hooks/use-navermaps.js', () => ({
-  useNavermaps: () => ({
-    GroundOverlay: createMockGroundOverlay,
-  }),
+  useNavermaps: () => (globalThis as Record<string, any>).naver.maps,
 }));
 
 const mockMap = { id: 'mock-map' };
@@ -56,62 +17,62 @@ vi.mock('../hooks/use-map.js', () => ({
 
 import { GroundOverlay } from '../ground-overlay.js';
 
+let mock: SdkFake;
+const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
+const overlays = () => mock.instances.filter((i) => i.type === 'GroundOverlay');
+
 describe('GroundOverlay 스펙 테스트', () => {
   beforeEach(() => {
-    setupMocks();
+    mock = installSdkFake();
   });
+  afterEach(() => mock.uninstall());
 
   test('마운트 시 GroundOverlay 인스턴스 생성', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
-
     render(
       <GroundOverlay url="https://example.com/image.png" bounds={bounds} />,
     );
 
-    expect(createdInstances).toHaveLength(1);
-    expect(createdInstances[0].url).toBe('https://example.com/image.png');
+    expect(overlays()).toHaveLength(1);
+    expect(overlays()[0]!.instance.get('url')).toBe(
+      'https://example.com/image.png',
+    );
+    expect(overlays()[0]!.instance.getMap()).toBe(mockMap);
   });
 
-  test('url 변경 시 기존 인스턴스 cleanup + 새 인스턴스 생성', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
-
+  test('url 변경 시 기존 인스턴스를 떼고 새 인스턴스를 만든다', () => {
     const { rerender } = render(
       <GroundOverlay url="https://example.com/image1.png" bounds={bounds} />,
     );
-
-    expect(createdInstances).toHaveLength(1);
-    const firstInstance = createdInstances[0].instance;
+    const first = overlays()[0]!.instance;
 
     rerender(
       <GroundOverlay url="https://example.com/image2.png" bounds={bounds} />,
     );
 
-    expect(clearCalls).toContain(firstInstance);
-    expect(createdInstances).toHaveLength(2);
-    expect(createdInstances[1].url).toBe('https://example.com/image2.png');
+    expect(first.getMap()).toBeNull();
+    expect(overlays()).toHaveLength(2);
+    expect(overlays()[1]!.instance.get('url')).toBe(
+      'https://example.com/image2.png',
+    );
+    expect(overlays()[1]!.instance.getMap()).toBe(mockMap);
   });
 
   test('bounds 변경 시 인스턴스 재생성', () => {
-    const bounds1 = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
     const bounds2 = { south: 36.0, west: 125.0, north: 37.0, east: 126.0 };
-
     const { rerender } = render(
-      <GroundOverlay url="https://example.com/image.png" bounds={bounds1} />,
+      <GroundOverlay url="https://example.com/image.png" bounds={bounds} />,
     );
-
-    expect(createdInstances).toHaveLength(1);
+    const first = overlays()[0]!.instance;
 
     rerender(
       <GroundOverlay url="https://example.com/image.png" bounds={bounds2} />,
     );
 
-    expect(createdInstances).toHaveLength(2);
-    expect(clearCalls).toHaveLength(1);
+    expect(overlays()).toHaveLength(2);
+    expect(first.getMap()).toBeNull();
   });
 
-  test('opacity 변경 시 setOpacity 호출', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
-
+  test('opacity 변경은 같은 인스턴스에 쓴다', () => {
     const { rerender } = render(
       <GroundOverlay
         url="https://example.com/image.png"
@@ -119,9 +80,6 @@ describe('GroundOverlay 스펙 테스트', () => {
         opacity={1}
       />,
     );
-
-    const instance = createdInstances[0].instance;
-    const spy = vi.spyOn(instance, 'setOpacity');
 
     rerender(
       <GroundOverlay
@@ -131,29 +89,29 @@ describe('GroundOverlay 스펙 테스트', () => {
       />,
     );
 
-    expect(spy).toHaveBeenCalledWith(0.5);
+    expect(overlays()).toHaveLength(1);
+    expect(overlays()[0]!.instance.get('opacity')).toBe(0.5);
   });
 
-  test('unmount 시 cleanup', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
-
+  test('unmount 시 지도에서 떼고 리스너를 남기지 않는다', () => {
     const { unmount } = render(
-      <GroundOverlay url="https://example.com/image.png" bounds={bounds} />,
+      <GroundOverlay
+        url="https://example.com/image.png"
+        bounds={bounds}
+        onClick={vi.fn()}
+      />,
     );
-
-    const instance = createdInstances[0].instance;
-    const setMapSpy = vi.spyOn(instance, 'setMap');
+    const instance = overlays()[0]!.instance;
+    expect(mock.listenerCount(instance, 'click')).toBe(1);
 
     unmount();
 
-    expect(clearCalls).toContain(instance);
-    expect(setMapSpy).toHaveBeenCalledWith(null);
+    expect(instance.getMap()).toBeNull();
+    expect(mock.listenerCount(instance, 'click')).toBe(0);
   });
 
-  test('onClick 이벤트 바인딩', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
+  test('onClick 은 click 이벤트 때 불린다', () => {
     const onClick = vi.fn();
-
     render(
       <GroundOverlay
         url="https://example.com/image.png"
@@ -162,39 +120,39 @@ describe('GroundOverlay 스펙 테스트', () => {
       />,
     );
 
-    const instance = createdInstances[0].instance;
-    expect(instance._listeners['click']).toBeDefined();
-    expect(instance._listeners['click']).toHaveLength(1);
+    const instance = overlays()[0]!.instance as FakeKVO;
+    mock.fire(instance, 'click', 'e1');
+    expect(onClick).toHaveBeenCalledExactlyOnceWith('e1');
   });
 
   // SDK 가 GroundOverlay 의 연속 클릭을 dblclick 으로 발화하므로(SDK 3.10.5),
   // onDblclick은 실제로 바인딩되어야 한다. 타입 축소 라운드에서 잘못 제거됐던 회귀를 잡는다.
   test('SDK가 발화하는 5종 이벤트(click/dblclick/mousedown/mouseup/rightclick) 모두 바인딩', () => {
-    const bounds = { south: 37.0, west: 126.0, north: 38.0, east: 127.0 };
-
+    const handlers = {
+      onClick: vi.fn(),
+      onDblclick: vi.fn(),
+      onMousedown: vi.fn(),
+      onMouseup: vi.fn(),
+      onRightclick: vi.fn(),
+    };
     render(
       <GroundOverlay
         url="https://example.com/image.png"
         bounds={bounds}
-        onClick={vi.fn()}
-        onDblclick={vi.fn()}
-        onMousedown={vi.fn()}
-        onMouseup={vi.fn()}
-        onRightclick={vi.fn()}
+        {...handlers}
       />,
     );
 
-    const instance = createdInstances[0].instance;
-    for (const event of [
-      'click',
-      'dblclick',
-      'mousedown',
-      'mouseup',
-      'rightclick',
-    ]) {
-      expect(instance._listeners[event], `${event} 리스너 누락`).toHaveLength(
-        1,
-      );
+    const instance = overlays()[0]!.instance;
+    for (const [event, prop] of [
+      ['click', 'onClick'],
+      ['dblclick', 'onDblclick'],
+      ['mousedown', 'onMousedown'],
+      ['mouseup', 'onMouseup'],
+      ['rightclick', 'onRightclick'],
+    ] as const) {
+      mock.fire(instance, event);
+      expect(handlers[prop], `${event} 리스너 누락`).toHaveBeenCalledTimes(1);
     }
   });
 });
