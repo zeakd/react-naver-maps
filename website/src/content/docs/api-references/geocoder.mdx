@@ -37,3 +37,9 @@ const result = await reverseGeocode(navermaps, {
 - 서브모듈을 불러오지 않고 부르면 불러오는 법을 담은 에러를 던집니다.
 
 요청 상태(로딩, 캐시, 재시도)는 앱의 몫입니다. 위 예처럼 TanStack Query 같은 도구에 그대로 넣을 수 있습니다.
+
+## 실패할 때
+
+- `GeocoderError` 의 상태가 500(`Service.Status.ERROR`)이면 NCP 콘솔의 Application 에서 Geocoding·Reverse Geocoding 을 선택했는지, 키가 맞는지 봅니다. SDK 는 HTTP 오류(429 등)의 이유를 알려 주지 않고 ERROR 로만 답합니다.
+- `reverseGeocode` 의 `coords` 는 리터럴(`{ lat, lng }`)도 받습니다. SDK 는 리터럴을 거절해 라이브러리가 `LatLng` 로 바꿔 넘깁니다.
+- 좌표계 상수 `Service.CoordinatesType.UTMK` 는 SDK 3.10.5 에서 `undefined` 입니다. `'nhn:2048'` 을 씁니다([좌표와 값](../guides/values)).
