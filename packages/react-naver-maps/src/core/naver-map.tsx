@@ -265,9 +265,11 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
     const instance = new navermaps.Map(
       el,
       omitUndefined({
+        // 리터럴은 SDK 객체로 바꿔 넘긴다. SDK 는 리터럴을 지금 지도 유형의 투영으로 바꾸는데,
+        // 투영을 생략한 사용자 지도 유형이면 그 자리에서 던진다(3.10.5 실측).
         center: initialBounds
           ? undefined
-          : (props.center ?? props.defaultCenter),
+          : optionalCoord(props.center ?? props.defaultCenter),
         zoom: initialBounds
           ? undefined
           : (props.zoom ?? props.defaultZoom ?? 16),
@@ -485,7 +487,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       // morph: center+zoom을 원자적으로 변경. CSS transform으로 시각적 줌 처리 후
       // 완료 시에만 KVO 일괄 발화. 개별 set보다 부드럽고 중간 상태 없음.
       requestedCenterRef.current = dirties.center;
-      map.morph(dirties.center, dirties.zoom);
+      map.morph(toCoord(dirties.center), dirties.zoom);
     } else if (dirties.centerPoint) {
       map.setCenterPoint(dirties.centerPoint);
     } else if (dirties.center) {
@@ -493,7 +495,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
       // 드래그 중 관성 패닝을 강제 중단. panTo는 트랜지션을 관리하면서 이동.
       // duration: 0으로 즉시 이동 (애니메이션 없이).
       requestedCenterRef.current = dirties.center;
-      map.panTo(dirties.center, { duration: 0 });
+      map.panTo(toCoord(dirties.center), { duration: 0 });
     } else if (dirties.zoom) {
       map.setZoom(dirties.zoom);
     }
@@ -778,12 +780,22 @@ function sameOnScreen(
   return Math.hypot(pa.x - pb.x, pa.y - pb.y) < 1;
 }
 
-function toCoord(c: naver.maps.Coord | naver.maps.CoordLiteral) {
+/** 좌표 리터럴을 SDK 객체로. `{ lat, lng }` 와 `[경도, 위도]` 는 LatLng, `{ x, y }` 는 Point. */
+function toCoord(
+  c: naver.maps.Coord | naver.maps.CoordLiteral,
+): naver.maps.Coord {
   if (c instanceof naver.maps.LatLng || c instanceof naver.maps.Point) return c;
   // 배열 리터럴은 [경도, 위도] 순서다(PointArrayLiteral).
   if (Array.isArray(c)) return new naver.maps.LatLng(c[1], c[0]);
+  if ('x' in c && !('lat' in c)) return new naver.maps.Point(c.x, c.y);
   const { lat, lng } = c as { lat: number; lng: number };
   return new naver.maps.LatLng(lat, lng);
+}
+
+function optionalCoord(
+  c: naver.maps.Coord | naver.maps.CoordLiteral | undefined,
+) {
+  return c === undefined ? undefined : toCoord(c);
 }
 
 /** 개발 모드에서 deprecated prop 을 처음 받았을 때 한 번 알린다. */

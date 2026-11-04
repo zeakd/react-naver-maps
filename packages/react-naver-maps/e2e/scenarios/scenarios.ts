@@ -753,4 +753,16 @@ export const scenarios: Scenario[] = [
     ],
     expect: [overlaysOnMap(['heatMap']), probedAtLeast('centerRed', 50)],
   },
+  {
+    // SDK 는 리터럴 좌표를 지금 지도 유형의 투영으로 바꾸는데, 투영을 생략한 유형이면 던졌다.
+    name: '투영을 생략한 사용자 지도 유형에서도 리터럴 center 로 올리고 옮긴다',
+    since: '0.4',
+    app: { mode: 'props', projectionlessMapType: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { center: A } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [sameMap()],
+  },
 ];
