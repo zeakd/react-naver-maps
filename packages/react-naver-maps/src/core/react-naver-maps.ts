@@ -61,4 +61,4 @@ export { useListener } from './hooks/use-listener.js';
 export { useKVO } from './hooks/use-kvo.js';
 export { useControlledKVO } from './hooks/use-controlled-kvo.js';
 
-export type { LoadOptions } from './load-script.js';
+export type { LoadOptions, Submodule, Language } from './load-script.js';

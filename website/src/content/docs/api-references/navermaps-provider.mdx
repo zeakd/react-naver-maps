@@ -42,6 +42,43 @@ AI NAVER API 의 지도 API 가 2026-11-24 에 종료되어, 0.3.0 에서 `ncpCl
 </NavermapsProvider>
 ```
 
+GL(`gl`)은 다른 서브모듈과 함께 쓰지 않습니다(공식 문서 "GL 생성 및 기본 동작").
+
+## 언어
+
+지도 글자와 컨트롤의 언어를 `language` 로 정합니다. SDK 가 받는 값은 `ko`(기본), `en`, `zh`, `ja` 입니다.
+
+```tsx
+<NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID" language="en">
+  ...
+</NavermapsProvider>
+```
+
+SDK 는 한 페이지에서 한 번만 불러오므로, 처음 불러온 언어가 그 페이지의 언어입니다.
+
+## 인증 실패
+
+키가 틀렸거나, Web 서비스 URL 이 등록되지 않았거나, Application 에서 Dynamic Map 을 선택하지 않았으면 SDK 가 인증에 실패합니다. 지도는 그려지지 않고 SDK 는 곧 `naver.maps` 를 비웁니다. `onAuthFailure` 로 알아챌 수 있습니다.
+
+```tsx
+<NavermapsProvider
+  ncpKeyId="YOUR_NCP_KEY_ID"
+  onAuthFailure={() => setAuthFailed(true)}
+>
+  ...
+</NavermapsProvider>
+```
+
+SDK 는 전역 `window.navermap_authFailure` 를 부릅니다. 페이지가 먼저 둔 이 함수도 함께 불립니다.
+
+## TypeScript
+
+SDK 타입은 [`@types/navermaps`](https://www.npmjs.com/package/@types/navermaps) 를 씁니다. TypeScript 에서는 함께 설치합니다.
+
+```sh
+npm i -D @types/navermaps
+```
+
 ## Props
 
 <PropsTable of="NavermapsProvider" package="react-naver-maps" />

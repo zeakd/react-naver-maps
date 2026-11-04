@@ -24,6 +24,7 @@ import {
   useKVO,
   useMap,
 } from './target.js';
+import type { Submodule } from './target.js';
 import type { AppConfig, LL, TraceFrame } from './types.js';
 
 // Maps 키. Web 서비스 URL 에 http://localhost:4321 이 등록되어 있다.
@@ -373,7 +374,10 @@ function MapUnderTest({
 /** 앱을 올리고 드라이버가 쓸 조작을 돌려준다. */
 export async function mountApp(host: HTMLElement, initial: AppConfig) {
   const ncpKeyId = initial.ncpKeyId ?? NCP_KEY_ID;
-  const maps = await loadScript({ ncpKeyId, submodules: initial.submodules });
+  const maps = await loadScript({
+    ncpKeyId,
+    submodules: initial.submodules as Submodule[] | undefined,
+  });
   const observed: Observed = {
     calls: [],
     events: [],
@@ -444,9 +448,16 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
 
   const root = createRoot(host);
   let config = initial;
+  let authFailures = 0;
   const render = () => {
     const tree = (
-      <NavermapsProvider ncpKeyId={ncpKeyId} submodules={config.submodules}>
+      <NavermapsProvider
+        ncpKeyId={ncpKeyId}
+        submodules={config.submodules as Submodule[] | undefined}
+        onAuthFailure={() => {
+          authFailures += 1;
+        }}
+      >
         <Container
           style={{
             width: `${config.containerWidth ?? 600}px`,
@@ -465,6 +476,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
 
   return {
     ready: () => map !== undefined,
+    /** NavermapsProvider 의 onAuthFailure 를 받은 수 */
+    authFailures: () => authFailures,
     /** 스타일 메타데이터를 받아 지도가 init 까지 끝났는가 */
     initialized: () => initialized,
     setProps(props: Partial<AppConfig>) {
