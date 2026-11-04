@@ -3,14 +3,14 @@
 // SDK drawing 서브모듈(naver.maps.drawing)의 DrawingManager.
 // <NavermapsProvider submodules={['drawing']}> 로 불러야 한다.
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle } from 'react';
+import { useImperativeHandle } from 'react';
 import { useNavermaps } from '../core/hooks/use-navermaps.js';
 import { useMap } from '../core/hooks/use-map.js';
 import { useControlledProps } from '../core/hooks/use-controlled-kvo.js';
+import { useOverlayEvents } from '../core/overlay-spec.js';
+import { pick } from '../core/utils/pick.js';
 import { onReadyMap, useSdkInstance } from '../core/lifetime.js';
 import { omitUndefined } from '../core/utils/omit-undefined.js';
-import { addMapListener, removeMapListener } from '../core/utils/sdk.js';
-import type { MapListener } from '../core/utils/sdk.js';
 import { requireSubmodule } from '../core/utils/submodule.js';
 
 type Manager = naver.maps.drawing.DrawingManager;
@@ -93,7 +93,7 @@ export function DrawingManager(props: DrawingManagerProps) {
 function DrawingManagerInner({ ref, ...props }: DrawingManagerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
-  const options = Object.fromEntries(OPTIONS.map((k) => [k, props[k]]));
+  const options = pick(props, OPTIONS);
 
   // 도구 막대는 지도 컨트롤이라 지도가 준비된 뒤 붙인다(lifetime.ts onReadyMap).
   const spec = onReadyMap<Manager>(
@@ -126,31 +126,17 @@ function DrawingManagerBindings({
   props: DrawingManagerProps;
 }) {
   const navermaps = useNavermaps();
-  useControlledProps(
-    manager,
-    Object.fromEntries(OPTIONS.map((k) => [k, props[k]])),
-  );
+  useControlledProps(manager, pick(props, OPTIONS));
 
   const { DrawingEvents } = navermaps.drawing;
   // SDK 이벤트 이름은 DrawingEvents 에서 읽는다. 문서의 drawing_start, drawing_cancled 는
   // 3.10.5 의 SDK 가 이름만 정의하고 내지 않아 prop 을 두지 않는다(maps-drawing 1.1.1 확인).
-  const bindings: [string, ((overlay: DrawingOverlay) => void) | undefined][] =
-    [
-      [DrawingEvents.ADD, props.onDrawingAdded],
-      [DrawingEvents.REMOVE, props.onDrawingRemoved],
-      [DrawingEvents.SELECT, props.onDrawingSelected],
-      ['drawingMode_changed', props.onDrawingModeChanged as never],
-    ];
-  const handlers = bindings.map(([, h]) => h);
-  useEffect(() => {
-    const listeners: MapListener[] = [];
-    for (const [event, handler] of bindings) {
-      if (handler) listeners.push(addMapListener(manager, event, handler));
-    }
-    return () => listeners.forEach((l) => removeMapListener(l));
-    // 핸들러 목록을 펼쳐 deps 로 쓴다. 길이는 6 으로 렌더마다 같다.
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [manager, ...handlers]);
+  useOverlayEvents(manager, props, [
+    [DrawingEvents.ADD, 'onDrawingAdded'],
+    [DrawingEvents.REMOVE, 'onDrawingRemoved'],
+    [DrawingEvents.SELECT, 'onDrawingSelected'],
+    ['drawingMode_changed', 'onDrawingModeChanged'],
+  ]);
 
   return null;
 }

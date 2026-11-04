@@ -32,6 +32,7 @@ import { PanoramaHostContext } from './contexts/overlay-host.js';
 import { ClientOptionsContext } from './contexts/client-options.js';
 import { useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import { pick } from './utils/pick.js';
 import {
   addMapListener,
   sdkAlive,
@@ -592,10 +593,4 @@ function useDeprecatedProp(
       `[react-naver-maps] <NaverMap ${name}> 는 0.4 에서 deprecated 이고 다음 버전에서 없어집니다. ${instead} 를 쓰세요.`,
     );
   }, [name, given, instead]);
-}
-
-/** props 에서 keys 의 값만 같은 순서로 모은다. */
-function pick(props: object, keys: readonly string[]): Record<string, unknown> {
-  const source = props as Record<string, unknown>;
-  return Object.fromEntries(keys.map((k) => [k, source[k]]));
 }
