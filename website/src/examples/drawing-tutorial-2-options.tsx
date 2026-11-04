@@ -88,12 +88,6 @@ function OptionsMap({
   const [manager, setManager] =
     useState<naver.maps.drawing.DrawingManager | null>(null);
   const [rect, setRect] = useState<naver.maps.Rectangle | null>(null);
-  const [rect2, setRect2] = useState<naver.maps.Rectangle | null>(null);
-
-  // 직접 setEditable 을 불러 편집 가능하게 한 도형.
-  useEffect(() => {
-    rect2?.setEditable(true);
-  }, [rect2]);
   // 그리기 도구가 다루는 도형으로 등록한다.
   useEffect(() => {
     if (manager && rect)
@@ -124,8 +118,9 @@ function OptionsMap({
         strokeWeight={2}
         strokeColor="#00bf46"
       />
+      {/* 공식 예제의 setEditable(true). 그리기 도구에 넣지 않고 편집만 켠 도형이다. */}
       <Rectangle
-        ref={setRect2}
+        editable
         defaultBounds={{
           west: 124.2220128,
           south: 37.1928595,
