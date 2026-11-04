@@ -11,7 +11,6 @@ import type {
 } from '../core/types/sdk-options.js';
 import {
   use,
-  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useReducer,
@@ -24,20 +23,15 @@ import { NaverMapContext } from '../core/contexts/naver-map.js';
 import { PanoramaHostContext } from '../core/contexts/overlay-host.js';
 import type { PanoramaHost } from '../core/contexts/overlay-host.js';
 import { useNavermaps } from '../core/hooks/use-navermaps.js';
-import { useLatest } from '../core/hooks/use-latest.js';
 import {
   kvoEquals,
   useControlledProps,
 } from '../core/hooks/use-controlled-kvo.js';
 import { onMap, useSdkInstance } from '../core/lifetime.js';
+import { useOverlayEvents, type EventDecl } from '../core/overlay-spec.js';
 import { omitUndefined } from '../core/utils/omit-undefined.js';
 import { pick } from '../core/utils/pick.js';
-import {
-  addMapListener,
-  clearMapListeners,
-  removeMapListener,
-} from '../core/utils/sdk.js';
-import type { MapListener } from '../core/utils/sdk.js';
+import { addMapListener, clearMapListeners } from '../core/utils/sdk.js';
 import { requireSubmodule } from '../core/utils/submodule.js';
 
 /**
@@ -217,45 +211,22 @@ function PanoramaBindings({
   useCameraProp(props.pov, (v) => panorama.setPov(v), hold);
   useCameraProp(props.zoom, (v) => panorama.setZoom(v), hold);
 
-  // 리스너는 핸들러가 생기거나 없어질 때만 붙인다. 붙인 리스너는 최신 핸들러를 부른다(hooks/use-latest.ts).
-  const latest = useLatest(props);
-  const hasInit = props.onInit !== undefined;
-  const hasPanoChanged = props.onPanoChanged !== undefined;
-  const hasPanoStatus = props.onPanoStatus !== undefined;
-  const hasPovChanged = props.onPovChanged !== undefined;
   // init 은 비동기로 오지만 NaverMap 과 같이 layout effect 로 먼저 단다.
-  useLayoutEffect(() => {
-    if (!hasInit) return;
-    const listener = addMapListener(panorama, 'init', () =>
-      latest.current.onInit?.(),
-    );
-    return () => removeMapListener(listener);
-  }, [panorama, hasInit, latest]);
-  useEffect(() => {
-    const listeners: MapListener[] = [];
-    if (hasPanoChanged)
-      listeners.push(
-        addMapListener(panorama, 'pano_changed', () =>
-          latest.current.onPanoChanged?.(panorama.getPanoId()),
-        ),
-      );
-    if (hasPanoStatus)
-      listeners.push(
-        addMapListener(panorama, 'pano_status', (status: 'OK' | 'ERROR') =>
-          latest.current.onPanoStatus?.(status),
-        ),
-      );
-    if (hasPovChanged)
-      listeners.push(
-        addMapListener(panorama, 'pov_changed', () =>
-          latest.current.onPovChanged?.(panorama.getPov()),
-        ),
-      );
-    return () => listeners.forEach((l) => removeMapListener(l));
-  }, [panorama, hasPanoChanged, hasPanoStatus, hasPovChanged, latest]);
+  useOverlayEvents(panorama, props, PANORAMA_LIFECYCLE_EVENTS, 'layout');
+  useOverlayEvents(panorama, props, PANORAMA_EVENTS);
 
   return null;
 }
+
+const PANORAMA_LIFECYCLE_EVENTS = ['init'];
+
+/** 거리뷰 이벤트와 prop(모양은 core/overlay-spec.tsx 의 EventDecl). 공식 문서 Panorama Events(3.10.5). */
+const PANORAMA_EVENTS: readonly EventDecl<naver.maps.Panorama>[] = [
+  // 이벤트는 인자 없이 온다. 바뀐 값을 읽어 넘긴다.
+  ['pano_changed', 'onPanoChanged', (p) => [p.getPanoId()]],
+  ['pano_status', 'onPanoStatus'],
+  ['pov_changed', 'onPovChanged', (p) => [p.getPov()]],
+];
 
 /**
  * 카메라 prop: 값이 바뀔 때만 SDK 에 넣는다. 처음 값은 생성자에 들어갔다.
@@ -353,6 +324,8 @@ export function FlightSpot(props: FlightSpotProps) {
   return <FlightSpotRoot {...props} />;
 }
 
+const FLIGHT_SPOT_EVENTS = [['poi_clicked', 'onPoiClicked'] as const];
+
 function FlightSpotRoot({ ref, onPoiClicked }: FlightSpotProps) {
   const navermaps = useNavermaps();
   const map = useMap();
@@ -367,17 +340,7 @@ function FlightSpotRoot({ ref, onPoiClicked }: FlightSpotProps) {
 
   useImperativeHandle(ref, () => flightSpot!, [flightSpot]);
 
-  const latestPoiClicked = useLatest(onPoiClicked);
-  const hasPoiClicked = onPoiClicked !== undefined;
-  useEffect(() => {
-    if (!flightSpot || !hasPoiClicked) return;
-    const listener = addMapListener(
-      flightSpot,
-      'poi_clicked',
-      (panoId: string) => latestPoiClicked.current?.(panoId),
-    );
-    return () => removeMapListener(listener);
-  }, [flightSpot, hasPoiClicked, latestPoiClicked]);
+  useOverlayEvents(flightSpot, { onPoiClicked }, FLIGHT_SPOT_EVENTS);
 
   return null;
 }

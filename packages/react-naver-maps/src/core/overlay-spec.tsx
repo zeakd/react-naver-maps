@@ -153,8 +153,8 @@ function OverlayBindings<P extends object, T extends Overlay>({
 
 /** 표의 이벤트 목록(포인터 이벤트, 값 변경 이벤트, 그 밖). 표마다 한 번만 만든다(렌더마다 만들지 않는다). */
 const specEvents = new WeakMap<object, EventList>();
-function eventsOf<P, T>(spec: OverlaySpec<P, T>): EventList {
-  let events = specEvents.get(spec);
+function eventsOf<P, T>(spec: OverlaySpec<P, T>): readonly EventDecl<T>[] {
+  let events = specEvents.get(spec) as readonly EventDecl<T>[] | undefined;
   if (!events) {
     events = [
       ...spec.events,
@@ -163,23 +163,44 @@ function eventsOf<P, T>(spec: OverlaySpec<P, T>): EventList {
       ),
       ...(spec.otherEvents ?? []),
     ];
-    specEvents.set(spec, events);
+    specEvents.set(spec, events as EventList);
   }
   return events;
 }
 
-type EventList = readonly (string | readonly [event: string, prop: string])[];
+/**
+ * 이벤트 prop 하나.
+ * - 이름만: prop 은 `on` + 이름(`click` → `onClick`), 핸들러는 SDK 가 넘긴 인자를 그대로 받는다.
+ * - `[이벤트, prop]`: prop 이름을 정한다.
+ * - `[이벤트, prop, read]`: 핸들러가 받을 인자를 이벤트 때마다 SDK 에서 읽는다(`zoom_changed` 에
+ *   `map.getZoom()` 등). read 는 이벤트의 대상과 SDK 가 넘긴 인자를 받는다.
+ */
+export type EventDecl<T = never> =
+  | string
+  | readonly [event: string, prop: string]
+  | readonly [
+      event: string,
+      prop: string,
+      read: (target: T, ...args: unknown[]) => unknown[],
+    ];
 
-/** 이벤트 목록을 [이벤트, prop] 짝으로. 같은 목록(참조)이면 한 번만 바꾼다. */
-const normalized = new WeakMap<
-  EventList,
-  readonly (readonly [string, string])[]
->();
-function pairsOf(events: EventList) {
+// 대상 타입을 지운 목록. read 의 인자는 반공변이라 어떤 EventDecl<T> 도 EventDecl<never> 에 들어간다.
+type EventList = readonly EventDecl<never>[];
+type Normalized = readonly (readonly [
+  event: string,
+  prop: string,
+  read: ((target: never, ...args: unknown[]) => unknown[]) | undefined,
+])[];
+
+/** 이벤트 목록을 [이벤트, prop, read] 로. 같은 목록(참조)이면 한 번만 바꾼다. */
+const normalized = new WeakMap<EventList, Normalized>();
+function pairsOf(events: EventList): Normalized {
   let pairs = normalized.get(events);
   if (!pairs) {
     pairs = events.map((e) =>
-      typeof e === 'string' ? ([e, eventProp(e)] as const) : e,
+      typeof e === 'string'
+        ? ([e, eventProp(e), undefined] as const)
+        : ([e[0], e[1], e[2]] as const),
     );
     normalized.set(events, pairs);
   }
@@ -187,15 +208,16 @@ function pairsOf(events: EventList) {
 }
 
 /**
- * 이벤트 prop 을 SDK 리스너로 붙인다. 핸들러가 바뀌면 그 묶음을 다시 붙인다.
- * 이름만 주면 prop 은 `on` + 이름(`click` → `onClick`), `[이벤트, prop]` 이면 그 prop 이다.
- * events 는 렌더마다 같은 목록이어야 한다. `timing: 'layout'` 은 paint 전에 붙인다(인스턴스를
- * 만들며 바로 내는 이벤트를 놓치지 않게, NaverMap 의 init 등). 호출마다 고정값이어야 한다.
+ * 이벤트 prop 을 SDK 리스너로 붙인다(목록의 모양은 EventDecl). 리스너는 핸들러가 생기거나 없어질 때만
+ * 붙이고 떼며, 붙인 리스너는 최신 핸들러를 부른다. target 이 아직 없으면(인스턴스를 만들기 전) 붙이지
+ * 않는다. events 는 렌더마다 같은 목록이어야 한다(표의 상수면 정규화도 한 번만 한다).
+ * `timing: 'layout'` 은 paint 전에 붙인다(인스턴스를 만들며 바로 내는 이벤트를 놓치지 않게, NaverMap 의
+ * init 등). 호출마다 고정값이어야 한다.
  */
-export function useOverlayEvents(
-  target: object,
+export function useOverlayEvents<T extends object>(
+  target: T | null,
   props: object,
-  events: readonly (string | readonly [event: string, prop: string])[],
+  events: readonly EventDecl<NoInfer<T>>[],
   timing: 'paint' | 'layout' = 'paint',
 ): void {
   const useTimedEffect = timing === 'layout' ? useLayoutEffect : useEffect;
@@ -212,13 +234,14 @@ export function useOverlayEvents(
   const latest = useLatest(handlers);
   const present = handlers.map((h) => h !== undefined);
   useTimedEffect(() => {
+    if (!target) return;
     const listeners: MapListener[] = [];
-    pairs.forEach(([event], i) => {
+    pairs.forEach(([event, , read], i) => {
       if (!present[i]) return;
       listeners.push(
         addMapListener(target, event, (...args: unknown[]) =>
           (latest.current[i] as ((...a: unknown[]) => void) | undefined)?.(
-            ...args,
+            ...(read ? read(target as never, ...args) : args),
           ),
         ),
       );
