@@ -1,0 +1,20 @@
+---
+title: 타일 INDEX 확인하기
+category: tutorial-maptype
+order: 37
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import TileIndexExample from '../../../examples/tile-index.tsx';
+
+지도 중심 좌표가 어느 타일에 있는지 계산해 마커의 정보 창에 보여 주는 예제입니다.
+
+<Example of={TileIndexExample} />
+
+## 설명
+
+타일 격자는 `<Layer>` 로 얹습니다. 중심의 타일 인덱스는 `onInit` 에서 `ref` 로 받은 지도의 `getProjection()` 으로 계산합니다(`fromCoordToPoint`, `scaleUp`, 타일 크기로 나눔).
+
+결과는 state 에 두고 `<InfoWindow open position content />` 로 보여 줍니다. 한계: `scaleUp` 의 반환 타입이 합집합이라 `Point` 로 단언합니다. `projection` 생략은 [타일 인덱스 그리드](/examples/maptypes-tutorial-1-tilecheck) 와 같습니다.
+
+> [네이버 공식 튜토리얼 - 타일 INDEX 확인하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-tile-index.example.html)

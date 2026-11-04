@@ -1,0 +1,22 @@
+---
+title: Starcraft The Hunters 지도 유형
+category: tutorial-maptype
+order: 7
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial7TheHuntersExample from '../../../examples/maptypes-tutorial-7-the-hunters.tsx';
+
+위경도가 아닌 평면 좌표계의 게임 맵 타일로 지도 유형을 만드는 예제입니다.
+
+<Example of={MapTypesTutorial7TheHuntersExample} />
+
+## 설명
+
+`Projection`(`fromCoordToPoint`, `fromPointToCoord`)을 직접 구현해 `ImageMapType` 의 `projection` 에 줍니다. 중심은 `Point(2048, 2048)` 입니다.
+
+`mapTypes`, `defaultMapTypeId`, `background`, `mapTypeControlOptions.mapTypeIds` 가 모두 `NaverMap` prop 입니다. 투영법, 유형, 레지스트리는 `useMemo` 로 한 번만 만듭니다.
+
+타일 이미지는 공식 문서 사이트의 파일을 URL 로 불러옵니다.
+
+> [네이버 공식 튜토리얼 - Starcraft The Hunters 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-maptypes-the-hunters.example.html)

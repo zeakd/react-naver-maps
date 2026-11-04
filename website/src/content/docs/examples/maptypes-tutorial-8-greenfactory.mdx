@@ -1,0 +1,20 @@
+---
+title: NAVER 그린팩토리 지도 유형
+category: tutorial-maptype
+order: 8
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial8GreenFactoryExample from '../../../examples/maptypes-tutorial-8-greenfactory.tsx';
+
+층별 실내 지도를 `ImageMapType` 으로 만들어 지도 유형 컨트롤로 층을 고르는 예제입니다.
+
+<Example of={MapTypesTutorial8GreenFactoryExample} />
+
+## 설명
+
+층마다 `ImageMapType` 을 만들어 `MapTypeRegistry`(`+1F`, `+2F`, `+4F`, `+5F`)에 넣고 `mapTypes`, `defaultMapTypeId` 에 줍니다. 컨트롤은 `mapTypeControlOptions` 의 `mapTypeIds`, `position`, `style` 입니다.
+
+투영법(좌표를 타일 크기로 나눔)과 레지스트리는 `useMemo` 로 한 번만 만듭니다. 타일 이미지는 공식 문서 사이트의 파일을 URL 로 불러옵니다.
+
+> [네이버 공식 튜토리얼 - NAVER 그린팩토리 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-maptypes-greenfactory.example.html)

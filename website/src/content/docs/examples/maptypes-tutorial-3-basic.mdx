@@ -1,0 +1,20 @@
+---
+title: 사용자 지도 유형 만들기
+category: tutorial-maptype
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial3BasicExample from '../../../examples/maptypes-tutorial-3-basic.tsx';
+
+타일마다 알파벳 DOM 요소를 돌려주는 사용자 지도 유형 예제입니다.
+
+<Example of={MapTypesTutorial3BasicExample} />
+
+## 설명
+
+`getTile(x, y, z)` 가 DOM 요소를 돌려주는 객체를 `MapTypeRegistry` 에 `mine` 으로 넣고 `NaverMap` 의 `mapTypes`, `defaultMapTypeId="mine"` 로 씁니다. 기본 지도 유형도 함께 고르게 네 가지를 같이 넣습니다.
+
+레지스트리는 `useMemo` 로 한 번만 만듭니다. 한계: `@types/navermaps` 의 `MapType` 은 `projection` 을 필수로 적어서 공식 예제처럼 생략하려면 타입 단언이 필요합니다.
+
+> [네이버 공식 튜토리얼 - 사용자 지도 유형 만들기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-maptypes-basic.example.html)
