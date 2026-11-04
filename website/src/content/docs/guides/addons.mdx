@@ -8,7 +8,7 @@ order: 9
 
 ## useAutoResize
 
-SDK 는 window resize 만 듣는다. 패널을 접는 등으로 지도 영역만 달라지면 `useAutoResize` 로 지도 크기를 맞춘다.
+SDK 는 window resize 만 듣는다. 패널을 접는 등으로 지도 영역만 달라지면 `useAutoResize` 로 지도 크기를 맞춘다. 거리뷰(`Panorama` 인스턴스)도 받는다. 거리뷰는 window resize 도 듣지 않는다.
 
 ```tsx
 import { NaverMap, useMap } from 'react-naver-maps';

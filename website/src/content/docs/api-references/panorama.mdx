@@ -32,6 +32,40 @@ import { Panorama } from 'react-naver-maps/panorama';
 - 숨겼다 보여도 같은 거리뷰를 씁니다.
 - 서브모듈을 불러오지 않고 쓰면 불러오는 법을 담은 에러를 던집니다.
 
+## 거리뷰 위 마커와 정보 창
+
+`Panorama` 의 자식으로 `Marker`, `InfoWindow` 를 두면 거리뷰 위에 그립니다(공식 튜토리얼 "파노라마에 마커", "파노라마에 정보 창"). 거리뷰가 준비(`init`)된 뒤에 붙입니다. 다른 오버레이는 SDK 가 거리뷰에 붙이지 않아 에러를 냅니다.
+
+```tsx
+<Container style={{ height: 400 }}>
+  <Panorama position={{ lat: 37.3599605, lng: 127.1058814 }}>
+    <Marker
+      position={{ lat: 37.359484, lng: 127.105333 }}
+      onClick={() => setOpen(true)}
+    />
+    <InfoWindow
+      open={open}
+      content="정자역"
+      anchor={{ lat: 37.359484, lng: 127.105333 }}
+    />
+  </Panorama>
+</Container>
+```
+
+SDK 는 거리뷰 위치에서 먼 마커를 그리지 않습니다(약 1km 떨어진 마커가 보이지 않는 것을 3.10.5 에서 확인). 마커 쪽을 보게 하려면 ref 로 받은 인스턴스의 `getProjection().fromCoordToPov(좌표)` 를 `pov` 로 줍니다.
+
+## 크기
+
+거리뷰는 Container 크기로 시작합니다. SDK 는 Container 나 창 크기가 바뀌어도 따라가지 않습니다. `size` 를 바꾸거나 `useAutoResize` 를 씁니다.
+
+```tsx
+import { useAutoResize } from 'react-naver-maps/addons';
+
+const [pano, setPano] = useState<naver.maps.Panorama | null>(null);
+useAutoResize(pano);
+<Panorama ref={setPano} position={here} />;
+```
+
 ## Props
 
 <PropsTable of="Panorama" package="react-naver-maps" />

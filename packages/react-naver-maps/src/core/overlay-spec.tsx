@@ -3,9 +3,9 @@
 import type { Ref } from 'react';
 import { useEffect, useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
-import { useMap } from './hooks/use-map.js';
+import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
-import { onMap, onReadyMap, useSdkInstance } from './lifetime.js';
+import { onMap, onReadyHost, useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
@@ -55,6 +55,11 @@ export type OverlaySpec<P, T> = {
   otherEvents?: readonly (readonly [event: string, prop: string])[];
   /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create 에 map 을 넣지 않는다. */
   waitForReadyMap?: boolean;
+  /**
+   * Panorama(거리뷰) 안에서도 쓸 수 있다. SDK 가 거리뷰에 붙는 것을 받는 오버레이만 켠다(Marker).
+   * 거리뷰에는 준비(init) 뒤에 붙인다.
+   */
+  panorama?: boolean;
 };
 
 type Overlay = naver.maps.KVO & {
@@ -75,23 +80,30 @@ export function defineOverlay<P extends object, T extends Overlay>(
   function OverlayComponent({ ref, ...rest }: P & { ref?: Ref<T> }) {
     const props = rest as P;
     const navermaps = useNavermaps();
-    const map = useMap();
-    const attachTo = spec.waitForReadyMap ? onReadyMap : onMap;
+    const host = useOverlayHost();
+    if (host.kind === 'panorama' && !spec.panorama) {
+      throw new Error(
+        `${name} 는 Panorama 안에서 쓸 수 없습니다(SDK 가 거리뷰에 붙이지 않는다).`,
+      );
+    }
+    const map = host.target;
+    const waitForReady = spec.waitForReadyMap || host.kind === 'panorama';
+    const make = () => {
+      const created = spec.create(
+        navermaps,
+        omitUndefined({
+          map: waitForReady ? undefined : map,
+          ...pick(props, spec.options),
+          ...spec.initial?.(props),
+          ...spec.derived?.(props),
+        }),
+        props,
+      );
+      spec.afterCreate?.(created, props);
+      return created;
+    };
     const instance = useSdkInstance(
-      attachTo(map, () => {
-        const created = spec.create(
-          navermaps,
-          omitUndefined({
-            map: spec.waitForReadyMap ? undefined : map,
-            ...pick(props, spec.options),
-            ...spec.initial?.(props),
-            ...spec.derived?.(props),
-          }),
-          props,
-        );
-        spec.afterCreate?.(created, props);
-        return created;
-      }),
+      waitForReady ? onReadyHost(map, host.isReady, make) : onMap(map, make),
       spec.keys?.(props),
     );
 
