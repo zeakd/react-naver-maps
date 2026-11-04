@@ -557,3 +557,103 @@ export function polygonFirstMovesLeft(minDeg: number): Assertion {
       : `꼭짓점이 ${moved} 만 옮겨졌다 (기대 >= ${minDeg})`;
   };
 }
+
+/**
+ * from 프레임부터 to 프레임 앞까지 모든 프레임에서 올린 오버레이마다 overlayDrift 가 maxPx 이하다.
+ * overlayDrift 가 null(지도에 없음)인 프레임은 건너뛰되, 범위 안에서 하나도 못 쟀으면 실패다.
+ */
+export function overlaysStayPut(
+  maxPx: number,
+  from = 0,
+  to?: number,
+  only?: string[],
+): Assertion {
+  return (trace) => {
+    const start = from < 0 ? trace.length + from : from;
+    const end = Math.min(to ?? trace.length, trace.length);
+    let measured = 0;
+    for (let i = start; i < end; i++) {
+      for (const [name, px] of Object.entries(trace[i]!.overlayDrift)) {
+        if (px === null || (only && !only.includes(name))) continue;
+        measured++;
+        if (px > maxPx) {
+          return `프레임 ${i} 에서 ${name} 가 지도의 자기 좌표에서 ${px.toFixed(1)}px 벗어났다 (허용 ${maxPx}px)`;
+        }
+      }
+    }
+    return measured > 0 ? null : '오버레이 위치를 한 번도 재지 못했다';
+  };
+}
+
+/**
+ * 오버레이가 Marker(SDK 가 그린다)와 함께 움직인다: overlayOffsetFromMarker 가 첫 프레임과 maxPx 안이다.
+ * frames 'last' 는 마지막 프레임만 본다. 래스터 줌 애니메이션은 pane 에 확대 변환을 걸어 기준점 사이
+ * 거리도 함께 늘어나므로, 줌 시나리오는 멈춘 뒤만 본다.
+ */
+export function overlaysMoveWithMarker(
+  maxPx: number,
+  frames: 'all' | 'last' = 'all',
+  only?: string[],
+): Assertion {
+  return (trace) => {
+    const base = trace[0]!.overlayOffsetFromMarker;
+    const names = Object.keys(base).filter(
+      (n) => base[n] && (!only || only.includes(n)),
+    );
+    if (names.length === 0) return 'Marker 와의 간격을 재지 못했다';
+    const from = frames === 'last' ? trace.length - 1 : 0;
+    for (let i = from; i < trace.length; i++) {
+      for (const name of names) {
+        const a = base[name]!;
+        const b = trace[i]!.overlayOffsetFromMarker[name];
+        if (!b) return `프레임 ${i} 에 ${name} 가 없다`;
+        const d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        if (d > maxPx) {
+          return `프레임 ${i} 에서 ${name} 가 Marker 에 비해 ${d.toFixed(1)}px 어긋났다 (허용 ${maxPx}px)`;
+        }
+      }
+    }
+    return null;
+  };
+}
+
+/** 모든 프레임에서 두 번째 지도의 center 가 처음 프레임과 같다. */
+export function secondMapStaysPut(): Assertion {
+  return (trace) => {
+    const base = trace[0]!.secondCenter;
+    if (!base) return '두 번째 지도가 없다';
+    const i = trace.findIndex(
+      (f) => !f.secondCenter || !near(f.secondCenter, base),
+    );
+    return i === -1
+      ? null
+      : `프레임 ${i} 에서 두 번째 지도 center 가 ${trace[i]!.secondCenter} 로 바뀌었다 (처음 ${base})`;
+  };
+}
+
+/** 마지막 프레임에서 두 번째 지도의 center 가 target 이다. */
+export function secondSettlesAt(target: LL): Assertion {
+  return (trace) => {
+    const c = trace.at(-1)!.secondCenter;
+    if (!c) return '두 번째 지도가 없다';
+    return near(c, target)
+      ? null
+      : `마지막 두 번째 지도 center ${c} 가 ${target} 이 아니다`;
+  };
+}
+
+/** from 프레임부터 모든 프레임에서 첫 지도와 두 번째 지도의 InfoWindow 가 각자의 지도에 열려 있다. */
+export function infoWindowsOpenOnBothMaps(from = 0): Assertion {
+  return (trace) => {
+    for (let i = from; i < trace.length; i++) {
+      const f = trace[i]!;
+      if (!f.overlaysOnMap.includes('infoWindow')) {
+        return `프레임 ${i} 에서 첫 지도의 InfoWindow 가 닫혀 있다`;
+      }
+      if (f.secondInfoWindowOpen !== true) {
+        return `프레임 ${i} 에서 두 번째 지도의 InfoWindow 가 닫혀 있다 (${f.secondInfoWindowOpen})`;
+      }
+    }
+    return null;
+  };
+}

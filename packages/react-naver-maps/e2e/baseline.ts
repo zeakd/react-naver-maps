@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const here = import.meta.dirname;
 const pkgDir = resolve(here, '..');
@@ -44,6 +44,8 @@ export function prepareTarget(b: Base, imports: string[]): string {
     mkdirSync(dir, { recursive: true });
     const tgz = b.kind === 'release' ? packRelease(b.version) : packGit(b.sha);
     execFileSync('tar', ['-xzf', tgz, '-C', dir]);
+    // tarball 을 받은 임시 폴더는 풀고 나면 필요 없다.
+    rmSync(dirname(tgz), { recursive: true, force: true });
     // source map 은 패키지에 없는 소스를 가리켜 Vite 가 경고를 쏟아낸다. 검사에는 필요 없으니
     // map 파일과 그것을 가리키는 주석을 함께 지운다.
     for (const file of readdirSync(join(dir, 'package', 'dist'), {

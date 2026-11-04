@@ -64,6 +64,14 @@ export type CoreConfig = {
    * 앱 코드는 읽지 않고 playwright-driver 의 mount 가 읽는다. 요청 주소는 STYLE_URL(추정).
    */
   delayStyleMs?: number;
+  /**
+   * 첫 지도 옆(오른쪽, 너비 400)에 두 번째 지도를 올린다. 두 번째 지도는 같은 mode 로 center 를 내려주고
+   * (onCenterChanged 되먹임), 자기 InfoWindow 하나(INITIAL_CENTER 에 열림)를 가진다. gl 은 쓰지 않는다.
+   * 두 번째 지도의 값은 secondCenter, secondInfoWindowOpen 으로 읽는다.
+   */
+  secondMap?: boolean;
+  /** 두 번째 지도에 prop 으로 내려줄 center. 없으면 mode 의 되먹임 값(없으면 INITIAL_CENTER). */
+  secondMapCenter?: LL;
 };
 
 export type Step =
@@ -150,6 +158,10 @@ export type CoreFrame = {
   errors: string[];
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
   overlaysOnMap: string[];
+  /** 두 번째 지도(secondMap)의 center. 없으면 null */
+  secondCenter: LL | null;
+  /** 두 번째 지도의 InfoWindow 가 그 지도에 열려 있는가. 없으면 null */
+  secondInfoWindowOpen: boolean | null;
   /** 지도 가운데 점의 계산된 CSS cursor */
   mapCursor: string;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */

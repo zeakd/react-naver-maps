@@ -17,6 +17,7 @@ import {
   type DataLayerConfig,
   type DataLayerFrame,
 } from './data-layer.js';
+import { customOverlay, type CustomOverlayConfig } from './custom-overlay.js';
 import { drawing, type DrawingConfig, type DrawingFrame } from './drawing.js';
 import {
   editablePolygon,
@@ -47,6 +48,7 @@ import {
   type MarkerCrowdConfig,
   type MarkerCrowdFrame,
 } from './marker-crowd.js';
+import { overlayDrift, type OverlayDriftFrame } from './overlay-drift.js';
 import { polyline, type PolylineConfig } from './polyline.js';
 import { suspend, type SuspendConfig } from './suspend.js';
 import {
@@ -86,6 +88,7 @@ export type FixtureConfig = AutoResizeConfig &
   InfoWindowConfig &
   InfoWindowOnMarkerConfig &
   MarkerCrowdConfig &
+  CustomOverlayConfig &
   ErrorBoundaryConfig;
 
 /** TraceFrame 의 기능별 부분. */
@@ -100,6 +103,7 @@ export type FixtureFrame = MarkerFrame &
   CircleFrame &
   InfoWindowOnMarkerFrame &
   MarkerCrowdFrame &
+  OverlayDriftFrame &
   ErrorBoundaryFrame;
 
 /** 지도의 자식으로 렌더하는 순서대로. */
@@ -125,4 +129,7 @@ export const FIXTURES: AnyFixture[] = [
   infoWindowOnMarker,
   markerCrowd,
   errorBoundary,
+  customOverlay,
+  // 다른 픽스처가 등록한 오버레이를 읽으므로 맨 뒤에 둔다.
+  overlayDrift,
 ];
