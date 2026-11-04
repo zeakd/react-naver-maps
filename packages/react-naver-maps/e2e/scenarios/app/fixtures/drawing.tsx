@@ -1,4 +1,4 @@
-import { Activity } from 'react';
+import { Activity } from '../activity.js';
 import { defineFixture } from '../fixture.js';
 import { DrawingManager } from '../target-imports.js';
 

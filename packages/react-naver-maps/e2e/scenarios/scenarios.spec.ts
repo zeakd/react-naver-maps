@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { version as reactVersion } from 'react';
 import { createPlaywrightDriver, type Shot } from './playwright-driver.js';
 import { runScenario, violations } from './run.js';
 import { scenarios } from './scenarios.js';
@@ -6,6 +7,9 @@ import { scenarios } from './scenarios.js';
 // 비교 실행(`e2e/compare.ts`)이 기준선을 검사할 때 그 이름. 없으면 저장소 소스다.
 // 배포 버전은 `0.3.0`, git 커밋은 `git-<sha7>` 이다.
 const target = process.env.RNM_TARGET;
+
+const [major = 0, minor = 0] = reactVersion.split('.').map(Number);
+const hasActivity = major > 19 || (major === 19 && minor >= 2);
 
 function olderThan(version: string, since: string) {
   // git 기준선은 since 를 따지지 않는다. 시나리오가 쓰는 API 가 없으면 그 시나리오가 실패로 드러난다.
@@ -20,6 +24,11 @@ for (const scenario of scenarios) {
     test.skip(
       !!target && !!scenario.since && olderThan(target, scenario.since),
       `${target} 에는 이 시나리오가 쓰는 API 가 없다 (since ${scenario.since})`,
+    );
+    // Activity 는 React 19.2 부터 있다(app/activity.tsx). 그 전 버전에서는 Activity 를 쓰는 시나리오를 건너뛴다.
+    test.skip(
+      !hasActivity && /Activity"/.test(JSON.stringify(scenario)),
+      `React ${reactVersion} 에는 Activity 가 없다`,
     );
     if (scenario.knownIssue) test.fail(true, scenario.knownIssue);
     // 터치 시나리오는 터치를 지원하는 기기로 연다. 페이지를 연 뒤에는 바꿀 수 없다.

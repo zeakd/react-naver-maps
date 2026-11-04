@@ -1,4 +1,5 @@
-import { Activity, Fragment, type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
+import { Activity } from './activity.js';
 import type { AppConfig } from '../types.js';
 import type { Observed } from './observe.js';
 

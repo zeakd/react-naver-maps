@@ -1,4 +1,5 @@
-import { Activity, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Activity } from '../activity.js';
 import type { CoreConfig, LL } from '../../types.js';
 import { INITIAL_CENTER, toCoord } from '../common.js';
 import { defineFixture } from '../fixture.js';
