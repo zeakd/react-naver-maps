@@ -1,5 +1,8 @@
 'use client';
 
+// @types/navermaps 보강 선언(타입만). 패키지를 쓰면 함께 들어간다.
+export type {} from './types/navermaps-augment.js';
+
 // Components
 export { NavermapsProvider } from './provider.js';
 export type { NavermapsProviderProps } from './provider.js';
