@@ -7,24 +7,13 @@ import {
   settlesAtZoom,
   zoomReportsMatchMap,
 } from '../assertions.js';
-import type { Scenario, Step } from '../types.js';
-import { A, B, HOME } from './steps.js';
+import type { Scenario } from '../types.js';
+import { A, B, HOME, everyFrame } from './steps.js';
 
 /**
  * center 와 실수 zoom 을 매 프레임 조금씩 바꾸는 단계 30개. 프레임마다 경도 0.0002(zoom 15.3 에서 5.7px),
  * zoom 0.02 씩 간다. 한 프레임이라도 뒤처지면 5px 넘게 벌어지게 잡은 값이다.
  */
-const everyFrame: Step[] = Array.from({ length: 30 }, (_, i): Step[] => [
-  {
-    t: 'props',
-    props: {
-      center: [HOME[0] + 0.00005 * (i + 1), HOME[1] + 0.0002 * (i + 1)],
-      zoom: 15 + 0.02 * (i + 1),
-    },
-  },
-  { t: 'frames', n: 1 },
-]).flat();
-
 /** 카메라: center·zoom prop 과 지도 메서드 호출, KVO, onZoomChanged 보고. */
 export const camera: Scenario[] = [
   {

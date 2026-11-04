@@ -73,3 +73,24 @@ export function drag(fromX: number, dx: number, moves: number): Step[] {
     ]).flat(),
   ];
 }
+
+/** x 에서 휠을 n 번(4프레임 간격) 굴리고 60프레임. */
+export const wheels = (n: number, x: number, deltaY: number): Step[] => [
+  ...Array.from({ length: n }, (): Step[] => [
+    { t: 'wheel', x, y: 200, deltaY },
+    { t: 'frames', n: 4 },
+  ]).flat(),
+  { t: 'frames', n: 60 },
+];
+
+/** 30프레임 동안 매 프레임 center 와 실수 zoom 을 조금씩 바꾼다(15.02 ~ 15.6). */
+export const everyFrame: Step[] = Array.from({ length: 30 }, (_, i): Step[] => [
+  {
+    t: 'props',
+    props: {
+      center: [HOME[0] + 0.00005 * (i + 1), HOME[1] + 0.0002 * (i + 1)],
+      zoom: 15 + 0.02 * (i + 1),
+    },
+  },
+  { t: 'frames', n: 1 },
+]).flat();

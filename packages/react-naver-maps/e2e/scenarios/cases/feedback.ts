@@ -10,7 +10,7 @@ import {
   zoomOneWay,
 } from '../assertions.js';
 import type { Scenario, Step } from '../types.js';
-import { A, B, dragLeftAndRelease } from './steps.js';
+import { A, B, dragLeftAndRelease, wheels } from './steps.js';
 
 /**
  * 되먹임이 늦게 오는 앱(onChanged 값을 몇십 ms 뒤에 상태에 넣는다)에서 생기는 튐.
@@ -19,14 +19,6 @@ import { A, B, dragLeftAndRelease } from './steps.js';
  */
 
 /** 휠을 4프레임 간격으로 n 번 굴린 뒤 60프레임. */
-const wheels = (n: number, x: number, deltaY: number): Step[] => [
-  ...Array.from({ length: n }, (): Step[] => [
-    { t: 'wheel', x, y: 200, deltaY },
-    { t: 'frames', n: 4 },
-  ]).flat(),
-  { t: 'frames', n: 60 },
-];
-
 /** 마커(지도 가운데, 아이콘 위쪽을 잡는다)를 왼쪽으로 15프레임 끌고 놓은 뒤 40프레임. 끄는 동안은 프레임 0~20. */
 const dragMarkerLeft: Step[] = [
   { t: 'frames', n: 5 },
