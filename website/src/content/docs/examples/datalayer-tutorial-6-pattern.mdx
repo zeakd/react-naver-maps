@@ -1,0 +1,18 @@
+---
+title: 데이터 레이어 SVG 패턴 적용하기
+category: tutorial-data
+order: 6
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import DatalayerTutorial6PatternExample from '../../../examples/datalayer-tutorial-6-pattern.tsx';
+
+지역마다 SVG 패턴으로 채우는 예제입니다.
+
+> [네이버 공식 예제 - 데이터 레이어 SVG 패턴 적용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-datalayer-pattern.example.html)
+
+<Example of={DatalayerTutorial6PatternExample} />
+
+## 설명
+
+스타일의 `fillColor` 에 `url(#패턴id)` 를 주면 SVG `<pattern>` 으로 채웁니다. 패턴은 페이지에 숨겨 둔 `<svg><defs>` 에 React 로 그립니다. 공식 예제의 패턴 18개는 문서에 적힌 대용량 SVG 라서 옮기지 않고, 같은 방식으로 직접 만든 6개를 씁니다. 지역에 패턴을 고르는 것은 공식의 무작위 대신 지역 이름으로 정해 렌더마다 바뀌지 않게 했습니다.

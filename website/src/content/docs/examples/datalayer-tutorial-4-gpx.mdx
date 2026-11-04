@@ -1,0 +1,18 @@
+---
+title: GPX 데이터 레이어 표시하기
+category: tutorial-data
+order: 4
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import DatalayerTutorial4GpxExample from '../../../examples/datalayer-tutorial-4-gpx.tsx';
+
+설악산 GPX 를 데이터 레이어에 올립니다.
+
+> [네이버 공식 예제 - GPX 데이터 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-datalayer-gpx.example.html)
+
+<Example of={DatalayerTutorial4GpxExample} />
+
+## 설명
+
+`Gpx` 도 `Kml` 처럼 `DOMParser` 로 만든 `Document` 를 `data` 로 받습니다. 한 번만 파싱해 같은 참조를 넘깁니다.
