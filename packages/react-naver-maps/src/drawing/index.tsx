@@ -53,13 +53,18 @@ export interface DrawingManagerProps {
    * 돌아간다. 받아들이려면 `onDrawingModeChanged` 로 상태를 갱신한다.
    */
   drawingMode?: naver.maps.drawing.DrawingMode;
-  controlPointOptions?: Partial<naver.maps.drawing.ControlPointOptions>;
-  rectangleOptions?: naver.maps.RectangleOptions;
-  ellipseOptions?: naver.maps.EllipseOptions;
-  polylineOptions?: naver.maps.PolylineOptions;
-  arrowlineOptions?: naver.maps.PolylineOptions;
-  polygonOptions?: naver.maps.PolygonOptions;
-  markerOptions?: naver.maps.MarkerOptions;
+  /** 편집점 모양. 공식 문서 controlPointOptions: 꼭짓점(anchor)과 중간점(mid)의 원 스타일. */
+  controlPointOptions?: {
+    anchorPointOptions?: Partial<naver.maps.CircleOptions>;
+    midPointOptions?: Partial<naver.maps.CircleOptions>;
+  };
+  // 그릴 도형의 스타일. 위치(bounds, path 등)는 사용자가 그려서 정하므로 일부만 준다(@types DrawingOptions 와 같다).
+  rectangleOptions?: Partial<naver.maps.RectangleOptions>;
+  ellipseOptions?: Partial<naver.maps.EllipseOptions>;
+  polylineOptions?: Partial<naver.maps.PolylineOptions>;
+  arrowlineOptions?: Partial<naver.maps.PolylineOptions>;
+  polygonOptions?: Partial<naver.maps.PolygonOptions>;
+  markerOptions?: Partial<naver.maps.MarkerOptions>;
   onDrawingAdded?: (overlay: DrawingOverlay) => void;
   onDrawingRemoved?: (overlay: DrawingOverlay) => void;
   onDrawingSelected?: (overlay: DrawingOverlay) => void;

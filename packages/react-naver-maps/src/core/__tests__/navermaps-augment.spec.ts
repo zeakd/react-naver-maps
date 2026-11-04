@@ -25,6 +25,14 @@ describe('@types/navermaps 보강', () => {
     expectTypeOf<
       ReturnType<typeof call>
     >().toEqualTypeOf<naver.maps.DOMEventListener>();
+    // 지도에 올린 도형을 그리기 도구에 넣고, 종류별 이벤트를 이름으로 듣는다.
+    expectTypeOf<
+      naver.maps.drawing.DrawingManager['addDrawing']
+    >().toBeCallableWith(
+      {} as naver.maps.Rectangle,
+      1 as naver.maps.drawing.DrawingMode,
+    );
+    expectTypeOf<naver.maps.Polygon['setEditable']>().not.toBeNever();
     const data = {} as naver.maps.Data;
     expectTypeOf(data.revertStyle).toBeCallableWith();
   });

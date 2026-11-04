@@ -89,7 +89,32 @@ declare global {
     namespace drawing {
       interface DrawingManager {
         removeDrawing(overlayOrId: DrawingOverlay | string): void;
+        /** 지도에 올린 도형을 그리기 도구에 넣는다. id·name 은 SDK 가 붙인다(공식 예제 "그리기 기본"). */
+        addDrawing(
+          overlay: Rectangle | Ellipse | Polyline | Polygon | Marker,
+          drawingMode: DrawingMode,
+          id?: string,
+        ): void;
+        /** 도형 종류별 이벤트(`rectangleAdded` 등, 공식 문서 DrawingEvents)도 이름으로 듣는다. */
+        addListener(
+          eventName: string,
+          listener: (overlay: DrawingOverlay) => void,
+        ): MapEventListener;
       }
+    }
+
+    // drawing 서브모듈을 불러오면 도형에 생기는 메서드(공식 문서 DrawingOverlay, 3.10.5 확인).
+    interface Rectangle {
+      setEditable?(editable: boolean, controlPointOptions?: object): void;
+    }
+    interface Ellipse {
+      setEditable?(editable: boolean, controlPointOptions?: object): void;
+    }
+    interface Polyline {
+      setEditable?(editable: boolean, controlPointOptions?: object): void;
+    }
+    interface Polygon {
+      setEditable?(editable: boolean, controlPointOptions?: object): void;
     }
   }
 }
