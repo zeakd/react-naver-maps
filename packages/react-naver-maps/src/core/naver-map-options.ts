@@ -1,3 +1,4 @@
+import type { EventDecl } from './overlay-spec.js';
 import type { ConstantPaths } from './constants.js';
 import { changedProp } from './types/overlay-events.js';
 
@@ -72,13 +73,16 @@ export const MAP_SYNCED_PROPS = [
 export const MAP_STATIC_PROPS = propsWith('static');
 
 /**
- * 지도 이벤트와 prop. 이름만 쓴 것은 `on` + 이름(`click` → `onClick`), 값 변경 이벤트는
- * `<키>_changed` → `on<키>Changed`(값을 인자로 받는다). 공식 문서 Map Events(3.10.5).
+ * 지도 이벤트와 prop(모양은 overlay-spec.tsx 의 EventDecl). 이름만 쓴 것은 `on` + 이름
+ * (`click` → `onClick`), 값 변경 이벤트는 `<키>_changed` → `on<키>Changed`(값을 인자로 받는다).
+ * 공식 문서 Map Events(3.10.5).
  *
- * 여기 없는 것: `zoom_changed`(GL 에서 이벤트 값과 getZoom() 이 달라 getZoom() 을 넘긴다),
- * `init`·`idle`·`tilesloaded`(MAP_LIFECYCLE_EVENTS).
+ * 여기 없는 것: `init`·`idle`·`tilesloaded`(MAP_LIFECYCLE_EVENTS).
  */
-export const MAP_EVENTS = [
+export const MAP_EVENTS: readonly EventDecl<naver.maps.Map>[] = [
+  // gl 서브모듈을 불러오면 SDK 내부 zoom 이 1 커져 이벤트 값과 getZoom() 이 다르다.
+  // getZoom() 이 사용자에게 보이는 값이므로 이 값을 넘긴다.
+  ['zoom_changed', 'onZoomChanged', (map) => [map.getZoom()]],
   ...[
     'center',
     'bounds',
@@ -121,7 +125,7 @@ export const MAP_EVENTS = [
   'doubletap',
   'keydown',
   'keyup',
-] as const;
+];
 
 /**
  * 지도가 만들어지며 바로(동기 또는 짧은 비동기로) 내는 이벤트. paint 뒤에 붙이면 놓칠 수 있어
