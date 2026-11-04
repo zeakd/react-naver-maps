@@ -17,7 +17,7 @@ export type OverlayAnchor = {
 /** 지도 본체가 쥐는 관찰 상태. 여러 픽스처가 함께 쓰는 것만 둔다(기능 하나만의 상태는 그 픽스처의 probe). */
 export type Observed = {
   calls: string[];
-  /** 0.4 에서 생긴 이벤트 prop 이 불린 기록. 0.3.0 과의 비교에서 뺀다(compare-expected 의 NEW_API_FIELDS). */
+  /** 0.4 에서 생긴 이벤트 prop 이 불린 기록. 0.4 전 배포본과의 비교에서 뺀다(CORE_FIELDS 의 since). */
   propCalls: string[];
   events: string[];
   zoomReports: number[];

@@ -40,7 +40,7 @@ export function createPlaywrightDriver(
 ): ScenarioDriver {
   let cdp: CDPSession | undefined;
   // 실제 JS 실행 시간(CDP Performance.ScriptDuration). 가상 시계가 performance.now 를 바꾸므로 페이지 안에서는
-  // 잴 수 없다. 기기마다 달라 비교에는 쓰지 않고(MEASURED_FIELDS) 같은 실행 안의 조건 비교에 쓴다.
+  // 잴 수 없다. 기기마다 달라 비교에는 쓰지 않고(CORE_FIELDS 의 measured) 같은 실행 안의 조건 비교에 쓴다.
   let perf: CDPSession | undefined;
   let profiler: CDPSession | undefined;
   // 입력이 예약한 React 작업(MessageChannel)을 끝낸다. 입력 직후에 부르지 않으면 그 작업이

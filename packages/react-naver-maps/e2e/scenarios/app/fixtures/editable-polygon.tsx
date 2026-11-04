@@ -51,6 +51,7 @@ export const editablePolygon = defineFixture<
         fillOpacity={0.2}
       />
     ),
+  fields: { polygonFirst: 'behavior' },
   read: (_map, probe) => ({
     polygonFirst: probe.polygon
       ? (() => {

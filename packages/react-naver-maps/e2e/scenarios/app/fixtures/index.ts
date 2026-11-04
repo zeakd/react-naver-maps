@@ -1,5 +1,5 @@
-// 기능 하나를 검사하려면 (1) 이 폴더에 픽스처 파일을 만든다: 설정 타입, 프레임 타입, 렌더, 프레임마다 읽을 값
-//   (defineFixture, 기존 파일을 본뜬다). (2) 아래 FIXTURES 에 한 줄을 더하고 FixtureConfig·FixtureFrame 에
+// 기능 하나를 검사하려면 (1) 이 폴더에 픽스처 파일을 만든다: 설정 타입, 프레임 타입, 렌더, 프레임마다 읽을 값과
+//   그 필드마다 비교 방법(fields, ../../fields.ts)(defineFixture, 기존 파일을 본뜬다). (2) 아래 FIXTURES 에 한 줄을 더하고 FixtureConfig·FixtureFrame 에
 //   그 타입을 더한다. 렌더 순서가 곧 effect 순서라 SDK 호출 순서(calls)를 정하므로 순서를 바꾸지 않는다.
 // (3) cases/ 에 시나리오를 더한다. 설정 키와 프레임 키 이름은 비교 실행기와 compare-expected 가 보므로
 //   한 번 정하면 바꾸지 않는다. 여러 기능이 쓰는 것(calls, overlays)은 픽스처가 아니라 app/observe.ts 에 있다.

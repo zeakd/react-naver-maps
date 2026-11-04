@@ -81,6 +81,11 @@ export const dataLayer = defineFixture<
       {config.gpx && <Gpx data={xml(GPX_TEXT)} />}
     </>
   ),
+  fields: {
+    dataFeatures: 'behavior',
+    dataFillColor: 'behavior',
+    geoJsonClicks: 'behavior',
+  },
   read: (map, probe) => ({
     dataFeatures: map.data.getAllFeature().length,
     dataFillColor: (() => {

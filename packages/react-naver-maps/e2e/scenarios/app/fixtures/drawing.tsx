@@ -38,6 +38,7 @@ export const drawing = defineFixture<DrawingConfig, DrawingProbe, DrawingFrame>(
           />
         </Activity>
       ),
+    fields: { drawings: 'behavior', drawingAdded: 'behavior' },
     read: (_map, probe) => ({
       drawings: probe.manager
         ? Object.keys(probe.manager.getDrawings() ?? {}).length

@@ -68,6 +68,7 @@ export const errorBoundary = defineFixture<
         <Thrower on={(config.throwKey ?? 0) >= 1} />
       </Boundary>
     ),
+  fields: { boundaryMarkers: 'behavior', boundaryFallback: 'behavior' },
   read: (map, probe) => ({
     boundaryMarkers:
       probe.markers.size === 0

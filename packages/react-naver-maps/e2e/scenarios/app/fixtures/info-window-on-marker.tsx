@@ -112,6 +112,11 @@ export const infoWindowOnMarker = defineFixture<
         calls={core.calls}
       />
     ),
+  fields: {
+    infoWindowOpen: 'behavior',
+    infoWindowPosition: 'behavior',
+    infoWindowAnchorAt: 'behavior',
+  },
   read: (map, probe) => {
     return {
       infoWindowOpen: probe.infoWindow

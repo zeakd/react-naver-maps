@@ -9,7 +9,14 @@ import {
 import { Activity } from './activity.js';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import type { AppConfig, CoreFrame, LL, TraceFrame } from '../types.js';
+import type { FieldKind } from '../fields.js';
+import {
+  CORE_FIELDS,
+  type AppConfig,
+  type CoreFrame,
+  type LL,
+  type TraceFrame,
+} from '../types.js';
 import { INITIAL_CENTER, INITIAL_ZOOM, NCP_KEY_ID, toCoord } from './common.js';
 import { FIXTURES } from './fixtures/index.js';
 import { createObserved, observe, type Observed } from './observe.js';
@@ -496,6 +503,14 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       } catch (e) {
         return `error: ${(e as Error).message}`;
       }
+    },
+    /** 프레임 필드마다 비교 방법. 실행이 보고서에 fields.json 으로 붙인다(scenarios.spec.ts). */
+    fields(): Record<string, FieldKind> {
+      return Object.assign(
+        {},
+        CORE_FIELDS,
+        ...FIXTURES.map((fixture) => fixture.fields),
+      );
     },
     resetObserved() {
       if (map) observe(map, OBSERVED_METHODS, observed.calls);
