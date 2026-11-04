@@ -1,0 +1,20 @@
+---
+title: 그리기 도구 옵션 활용하기
+category: tutorial-drawing
+order: 2
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import DrawingTutorial2OptionsExample from '../../../examples/drawing-tutorial-2-options.tsx';
+
+도구 막대의 위치·모양·아이콘과 도형별 옵션을 바꾸는 예제입니다.
+
+> [네이버 공식 예제 - 그리기 도구 옵션 활용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-drawing-options.example.html)
+
+<Example of={DrawingTutorial2OptionsExample} />
+
+## 설명
+
+공식 예제의 `setOptions` 호출은 모두 prop 입니다. 위치와 모양은 `drawingControlOptions`, 보일 아이콘은 `drawingControl`, 도형 기본 스타일은 `rectangleOptions` 등입니다. 라디오와 체크박스는 React state 로 두고 prop 으로 넘깁니다.
+
+한계: 공식 예제는 `rect2.setEditable(true)` 를 직접 부르는데, `Rectangle` 에 편집 prop 이 없어 `ref` 로 받아 effect 에서 같은 메서드를 부릅니다.
