@@ -1,0 +1,22 @@
+---
+title: 좌표를 픽셀로 변환하기
+category: tutorial-map
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ProjectionTutorial1CoordToPixelExample from '../../../examples/projection-tutorial-1-coord-to-pixel.tsx';
+
+투영법으로 경계의 모서리를 픽셀로 바꿔 안쪽(reduce)이나 바깥쪽(expand)으로 50px 씩 옮긴 뒤 다시 좌표로 되돌리는 예제입니다.
+
+<Example of={ProjectionTutorial1CoordToPixelExample} />
+
+## 설명
+
+`ref` 로 받은 지도에 `getProjection()` 을 부르고 `fromCoordToOffset()`, `fromOffsetToCoord()` 로 좌표와 픽셀을 오갑니다. 경계는 React state(`bounds`)이고 `Rectangle` 과 두 `Marker` 에 그대로 넘깁니다.
+
+처음 경계는 지도 `init` 뒤에 읽을 수 있어 `onInit` 에서 `getBounds()` 로 채웁니다.
+
+타입: `getBounds()`, `fromOffsetToCoord()` 가 돌려주는 값은 `LatLngBounds`, `LatLng` 로 단언합니다(`@types` 가 상위 타입으로 적어 둡니다).
+
+> [네이버 공식 튜토리얼 - 좌표를 픽셀로 변환하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-projection-coord-to-pixel.example.html)

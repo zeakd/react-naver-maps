@@ -1,0 +1,22 @@
+---
+title: 전체 화면 지도와 미니 맵
+category: tutorial-map
+order: 7
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTutorial7FullsizeMinimapExample from '../../../examples/map-tutorial-7-fullsize-minimap.tsx';
+
+전체 화면 지도 오른쪽 아래에 같은 영역을 보여 주는 작은 지도를 둡니다. 큰 지도의 유형에 따라 미니 맵 유형이 짝지어 바뀌고, 미니 맵을 끌면 큰 지도가 따라 움직입니다.
+
+<Example of={MapTutorial7FullsizeMinimapExample} />
+
+## 설명
+
+미니 맵은 큰 `NaverMap` 의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap` 입니다. 공식 예제의 `map.controls[...].push(element)` 가 `CustomControl` 의 children 이 됩니다.
+
+동기화는 큰 지도의 `onBoundsChanged` 에서 미니 맵 `ref` 에 `fitBounds()`, `onMapTypeIdChanged` 로 미니 맵 `mapTypeId` prop, 미니 맵의 `onDrag` 에서 큰 지도 `ref` 에 `panTo()` 입니다. 끄는 동안 서로 되먹임하지 않도록 `ref` 플래그(공식 예제의 `semaphore`)를 쓰고 `onIdle` 에서 풉니다.
+
+공식 예제는 전체 화면(새 창)으로 보여 주며 여기서는 600px 높이의 영역에 담았습니다.
+
+> [네이버 공식 튜토리얼 - 전체 화면 지도와 미니 맵](https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-map-fullsize-minimap.example.html)
