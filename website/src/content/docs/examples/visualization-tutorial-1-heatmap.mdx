@@ -1,0 +1,18 @@
+---
+title: 열지도 시각화하기
+category: tutorial-visualization
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import VisualizationTutorial1HeatmapExample from '../../../examples/visualization-tutorial-1-heatmap.tsx';
+
+국내 지진 발생 지점을 열지도로 보여 줍니다.
+
+> [네이버 공식 예제 - 열지도 시각화하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-visualization-heatmap.example.html)
+
+<Example of={VisualizationTutorial1HeatmapExample} />
+
+## 설명
+
+`react-naver-maps/visualization` 의 `HeatMap` 에 `[경도, 위도]` 배열을 `data` 로 넘깁니다(`submodules={['visualization']}`). 지도가 준비된 뒤에 붙으므로 `init` 을 직접 기다리지 않아도 됩니다.
