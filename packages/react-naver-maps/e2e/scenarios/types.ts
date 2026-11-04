@@ -92,6 +92,8 @@ export type AppConfig = {
   heatMapWeighted?: boolean;
   /** 투영(projection)을 생략한 사용자 지도 유형 하나를 mapTypes 로 주고 그 유형으로 올린다(공식 예제 "지도 유형 기본"). */
   projectionlessMapType?: boolean;
+  /** 첫 꼭짓점이 지도 중앙(HOME)인 Polygon 을 defaultPaths 와 editable 로 올린다. submodules 에 'drawing'. */
+  editablePolygon?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
@@ -176,6 +178,8 @@ export type TraceFrame = {
   markerAnimation: number | null;
   /** 지도 가운데 점의 계산된 CSS cursor */
   mapCursor: string;
+  /** editablePolygon 의 첫 꼭짓점. 없으면 null */
+  polygonFirst: LL | null;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
 };
