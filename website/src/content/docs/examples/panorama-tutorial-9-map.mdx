@@ -1,0 +1,18 @@
+---
+title: 지도와 파노라마 연동하기
+category: tutorial-panorama
+order: 9
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial9MapExample from '../../../examples/panorama-tutorial-9-map.tsx';
+
+지도와 거리뷰를 나란히 두고 서로의 위치를 따라가게 합니다.
+
+> [네이버 공식 예제 - 지도와 파노라마 연동하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-panorama-map.example.html)
+
+<Example of={PanoramaTutorial9MapExample} />
+
+## 설명
+
+두 `Container` 를 나란히 두고 state 로 잇습니다. 거리뷰가 바뀌면(`onPanoChanged`) 인스턴스의 `getPosition()` 을 지도의 `center` 로 넘기고, 거리뷰 레이어가 켜진 동안 지도를 누르면(`onClick`) 그 좌표를 `Panorama` 의 `position` 으로 넘깁니다. 거리뷰 레이어는 `{street && <StreetLayer />}` 로 켜고 끕니다. 가장 가까운 파노라마(검색 반경 300m)는 SDK 가 고릅니다.

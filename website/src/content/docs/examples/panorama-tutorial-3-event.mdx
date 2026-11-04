@@ -1,0 +1,18 @@
+---
+title: 파노라마 이벤트 처리하기
+category: tutorial-panorama
+order: 3
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial3EventExample from '../../../examples/panorama-tutorial-3-event.tsx';
+
+거리뷰 이벤트를 받아 파노라마의 속성을 표로 보여 줍니다.
+
+> [네이버 공식 예제 - 파노라마 이벤트 처리하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-panorama-event.example.html)
+
+<Example of={PanoramaTutorial3EventExample} />
+
+## 설명
+
+`onPanoChanged`, `onPovChanged`, `onPanoStatus` prop 으로 이벤트를 받고, 값은 `ref` 로 받은 인스턴스에서 읽습니다(`getLocation()`, `getPov()`, `getZoom()` 등). 확대·축소 버튼은 같은 인스턴스의 `zoomIn()`, `zoomOut()` 입니다.
