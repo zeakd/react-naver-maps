@@ -8,8 +8,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { apps, type FixtureApp } from './apps/manifest.ts';
+import { holdPort, PORT } from './port.ts';
 
-const PORT = 4321;
+holdPort('verify:frameworks');
 const URL_BASE = `http://localhost:${PORT}`;
 const AUTH_GRACE_MS = 3000;
 const TARGET = { lat: 37.57, lng: 126.99 };

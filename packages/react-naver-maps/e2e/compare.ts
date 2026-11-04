@@ -4,21 +4,27 @@
 //   pnpm compare:scenarios              # 배포된 0.3.0 과 비교
 //   pnpm compare:scenarios 0.2.2        # 다른 배포 버전과 비교
 //   pnpm compare:scenarios git:v0.4     # 그 커밋을 빌드해 비교(내부 정리의 동작 보존 확인)
+//   pnpm compare:scenarios harness:v0.4 # 그 커밋의 하네스로 돌린 궤적과 비교(하네스 정리의 동작 보존 확인)
+//   pnpm compare:scenarios harness:HEAD # 같은 코드끼리 비교(실행마다 흔들리는 필드 찾기)
 //   pnpm compare:scenarios -- -g 드래그  # playwright 인자를 덧붙인다
 //   pnpm compare:scenarios 0.3.0 --reuse # 다시 돌리지 않고 지난 실행 보고서로 표만 다시 낸다
 //
 // 배포 버전과의 차이는 `scenarios/compare-expected.ts` 에 이유와 함께 적은 것만 허용한다.
-// git 기준선에는 허용 목록이 없다. 동작을 바꾸지 않는 정리를 확인하는 용도라서 차이가 하나라도
+// git·harness 기준선에는 허용 목록이 없다. 동작을 바꾸지 않는 정리를 확인하는 용도라서 차이가 하나라도
 // 나면 실패다. 의도한 동작 변경은 정리와 다른 PR 로 나누고 배포 버전 비교에 적는다.
+// git 은 라이브러리만 바꿔 끼우고 하네스는 지금 것을 쓴다. 그래서 하네스를 바꾼 변경은 git 으로
+// 증명되지 않는다. harness 는 그 커밋을 임시 작업 트리에 꺼내 그 트리의 하네스로 돈다. 라이브러리
+// 소스(`src/`)가 지금 작업 트리와 다르면 시작하지 않는다.
 // 적지 않은 차이가 있으면 실패로 끝난다. 결과는 `e2e/.compare/<기준선>/` 에 남는다.
 //
-// 실제 SDK 인증이 localhost:4321 에서만 통과하므로 두 실행을 차례로 돌린다. 포트가 쓰이고 있으면
-// 시작하지 않는다.
+// 실제 SDK 인증이 localhost:4321 에서만 통과하므로 두 실행을 차례로 돌린다. 두 실행 내내 포트를
+// 잡고(`port.ts`), 포트에 서버가 떠 있으면 시작하지 않는다.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { parseBase, prepareTarget } from './baseline.ts';
+import { parseBase, prepareTarget, withTree } from './baseline.ts';
+import { holdPort, listener, PORT } from './port.ts';
 import {
   expectedDifferences,
   MEASURED_FIELDS,
@@ -26,7 +32,6 @@ import {
 } from './scenarios/compare-expected.ts';
 import type { TraceFrame } from './scenarios/types.ts';
 
-const PORT = 4321;
 const here = import.meta.dirname;
 const pkgDir = resolve(here, '..');
 
@@ -57,13 +62,6 @@ function imported(): string[] {
     .split(',')
     .map((n) => n.trim())
     .filter(Boolean);
-}
-
-function portInUse(): boolean {
-  const r = spawnSync('lsof', ['-nP', `-iTCP:${PORT}`, '-sTCP:LISTEN'], {
-    encoding: 'utf8',
-  });
-  return r.stdout.trim().length > 0;
 }
 
 type JsonSuite = { title: string; specs?: JsonSpec[]; suites?: JsonSuite[] };
@@ -111,10 +109,12 @@ function collect(suites: JsonSuite[], out: Map<string, Outcome>): void {
   }
 }
 
+/** `cwd` 는 돌릴 패키지 폴더다. harness 기준선은 임시 작업 트리의 패키지 폴더에서 돈다. */
 function run(
   label: string,
   target: string | undefined,
   outDir: string,
+  cwd = pkgDir,
 ): Map<string, Outcome> {
   const report = join(outDir, `${label}.json`);
   if (reuse) return read(report, label);
@@ -132,7 +132,7 @@ function run(
       ...passthrough,
     ],
     {
-      cwd: pkgDir,
+      cwd,
       stdio: ['ignore', 'ignore', 'inherit'],
       env: {
         ...process.env,
@@ -270,21 +270,54 @@ function table(rows: Row[], title: string): string {
   ].join('\n');
 }
 
-if (!reuse && portInUse()) {
-  console.error(
-    `포트 ${PORT} 를 다른 프로세스가 쓰고 있다. lsof -nP -iTCP:${PORT} -sTCP:LISTEN 으로 확인한다.`,
-  );
-  process.exit(2);
+/** harness 기준선은 라이브러리가 같아야 하네스만의 차이가 된다. 커밋하지 않은 변경도 본다. */
+function assertSameLibrary(sha: string): void {
+  const git = (argv: string[]) =>
+    spawnSync('git', argv, { cwd: pkgDir, encoding: 'utf8' });
+  const diff = git(['diff', '--name-only', sha, '--', 'src']).stdout.trim();
+  const added = git([
+    'ls-files',
+    '--others',
+    '--exclude-standard',
+    '--',
+    'src',
+  ]).stdout.trim();
+  const changed = [diff, added].filter(Boolean).join('\n');
+  if (changed) {
+    console.error(
+      `harness 기준선 ${sha.slice(0, 7)} 과 라이브러리 소스가 다르다. 하네스만 바꾼 변경에 쓴다:\n${changed}`,
+    );
+    process.exit(2);
+  }
 }
-prepareTarget(base, imported());
+
+if (!reuse) {
+  holdPort(`compare:scenarios ${base.label}`);
+  const l = listener();
+  if (l) {
+    console.error(
+      `포트 ${PORT} 에 서버가 떠 있다(pid ${l.pid}, 작업 폴더 ${l.cwd}). 비교는 실행마다 서버를 새로 띄운다.`,
+    );
+    process.exit(2);
+  }
+}
 const outDir = join(here, '.compare', base.label);
 mkdirSync(outDir, { recursive: true });
-const baseRun = run(base.label, base.label, outDir);
+let baseRun: Map<string, Outcome>;
+if (base.kind === 'harness') {
+  assertSameLibrary(base.sha);
+  baseRun = reuse
+    ? read(join(outDir, `${base.label}.json`), base.label)
+    : withTree(base.sha, (pkg) => run(base.label, undefined, outDir, pkg));
+} else {
+  prepareTarget(base, imported());
+  baseRun = run(base.label, base.label, outDir);
+}
 const head = run('source', undefined, outDir);
 const rows = compare(baseRun, head);
 const md = table(
   rows,
-  base.kind === 'git' ? `${base.ref} (${base.label})` : base.label,
+  base.kind === 'release' ? base.label : `${base.ref} (${base.label})`,
 );
 writeFileSync(join(outDir, 'report.md'), md);
 console.log(`\n${md}`);

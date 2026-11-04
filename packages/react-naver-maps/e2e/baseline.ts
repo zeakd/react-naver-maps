@@ -17,24 +17,29 @@ const here = import.meta.dirname;
 const pkgDir = resolve(here, '..');
 
 /**
- * 비교 기준선. `release` 는 npm 에 배포된 버전, `git` 은 이 저장소의 커밋이다.
- * `label` 은 `.targets/`·`.compare/` 의 폴더 이름이자 시나리오 앱이 받는 RNM_TARGET 값이다.
+ * 비교 기준선. `label` 은 `.targets/`·`.compare/` 의 폴더 이름이다.
+ * - `release`: npm 에 배포된 버전을 지금 하네스로 돈다.
+ * - `git`: 그 커밋의 라이브러리를 빌드해 지금 하네스로 돈다. 라이브러리 정리의 동작 보존 확인.
+ * - `harness`: 그 커밋의 하네스와 라이브러리를 그 커밋의 작업 트리에서 그대로 돈다. 라이브러리 소스가
+ *   지금과 같아야 하므로(`compare.ts` 가 확인), 하네스만 바꾼 변경의 동작 보존 확인이다.
+ *   `harness:HEAD` 는 같은 코드끼리 돌리는 것이라 실행마다 흔들리는 필드를 찾는 데 쓴다.
+ * release·git 의 label 은 시나리오 앱이 받는 RNM_TARGET 값이기도 하다.
  */
 export type Base =
   | { kind: 'release'; label: string; version: string }
-  | { kind: 'git'; label: string; ref: string; sha: string };
+  | { kind: 'git' | 'harness'; label: string; ref: string; sha: string };
 
 export function parseBase(arg: string): Base {
-  if (!arg.startsWith('git:')) {
-    return { kind: 'release', label: arg, version: arg };
-  }
-  const ref = arg.slice('git:'.length);
+  const m = /^(git|harness):(.+)$/.exec(arg);
+  if (!m) return { kind: 'release', label: arg, version: arg };
+  const kind = m[1] as 'git' | 'harness';
+  const ref = m[2]!;
   const sha = execFileSync(
     'git',
     ['rev-parse', '--verify', `${ref}^{commit}`],
     { cwd: pkgDir, encoding: 'utf8' },
   ).trim();
-  return { kind: 'git', label: `git-${sha.slice(0, 7)}`, ref, sha };
+  return { kind, label: `${kind}-${sha.slice(0, 7)}`, ref, sha };
 }
 
 /** `.targets/<label>/package` 에 기준선 패키지를 풀어 두고 시나리오 앱이 쓸 진입점을 만든다. */
@@ -89,8 +94,23 @@ function quiet(cmd: string, argv: string[], cwd: string): void {
 
 function packGit(sha: string): string {
   const tmp = mkdtempSync(join(tmpdir(), 'rnm-base-'));
-  const tree = join(tmp, 'tree');
   console.log(`\n▶ 기준선 ${sha.slice(0, 7)} 빌드`);
+  withTree(sha, (pkg) => {
+    quiet('pnpm', ['run', 'build'], pkg);
+    quiet('pnpm', ['pack', '--pack-destination', tmp], pkg);
+  });
+  const tgz = readdirSync(tmp).find((f) => f.endsWith('.tgz'));
+  if (!tgz) throw new Error(`${sha}: pack 결과가 없다`);
+  return join(tmp, tgz);
+}
+
+/**
+ * 커밋을 임시 작업 트리에 꺼내 의존성을 설치하고, 그 트리의 패키지 폴더로 `fn` 을 부른 뒤 지운다.
+ * 임시 폴더는 시스템 임시 폴더 아래라 이 저장소의 vite·tsconfig 설정과 섞이지 않는다.
+ */
+export function withTree<T>(sha: string, fn: (pkg: string) => T): T {
+  const tmp = mkdtempSync(join(tmpdir(), 'rnm-tree-'));
+  const tree = join(tmp, 'tree');
   quiet('git', ['worktree', 'add', '--detach', tree, sha], pkgDir);
   try {
     quiet(
@@ -104,17 +124,13 @@ function packGit(sha: string): string {
       ],
       tree,
     );
-    const pkg = join(tree, 'packages', 'react-naver-maps');
-    quiet('pnpm', ['run', 'build'], pkg);
-    quiet('pnpm', ['pack', '--pack-destination', tmp], pkg);
+    return fn(join(tree, 'packages', 'react-naver-maps'));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', tree], {
       cwd: pkgDir,
     });
+    rmSync(tmp, { recursive: true, force: true });
   }
-  const tgz = readdirSync(tmp).find((f) => f.endsWith('.tgz'));
-  if (!tgz) throw new Error(`${sha}: pack 결과가 없다`);
-  return join(tmp, tgz);
 }
 
 /**
