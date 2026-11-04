@@ -2,10 +2,11 @@ import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { StrictMode, type ReactNode } from 'react';
 import {
-  createMockNaverMaps,
-  MockKVO as MockKVOClass,
-  type MockKVO,
-} from './test-utils.js';
+  installSdkFake,
+  type SdkFake,
+  FakeKVO as FakeKVOClass,
+  type FakeKVO,
+} from '../../__tests__/sdk-fake.js';
 
 // useNavermaps를 mock하여 스크립트 로딩 없이 테스트
 vi.mock('../hooks/use-navermaps.js', () => ({
@@ -16,8 +17,8 @@ vi.mock('../hooks/use-navermaps.js', () => ({
 import { Marker } from '../marker.js';
 import { NaverMapContext } from '../contexts/naver-map.js';
 
-let mock: ReturnType<typeof createMockNaverMaps>;
-let mockMap: MockKVO;
+let mock: SdkFake;
+let mockMap: FakeKVO;
 
 function Wrapper({ children }: { children: ReactNode }) {
   return (
@@ -29,12 +30,12 @@ function Wrapper({ children }: { children: ReactNode }) {
 
 describe('Marker 스펙 테스트', () => {
   beforeEach(() => {
-    mock = createMockNaverMaps();
-    mockMap = new (mock.navermaps.Map as any)({ id: 'test-map' });
+    mock = installSdkFake();
+    mockMap = new (mock.maps.Map as any)({ id: 'test-map' });
   });
 
   afterEach(() => {
-    mock.cleanup();
+    mock.uninstall();
   });
 
   test('마운트 시 Marker 를 만들어 지도에 붙인다', async () => {
@@ -45,7 +46,7 @@ describe('Marker 스펙 테스트', () => {
     );
 
     await vi.waitFor(() => {
-      const created = mock.getLastInstance('Marker');
+      const created = mock.last('Marker');
       expect(created).toBeDefined();
       expect(created!.options).toMatchObject({
         position: { lat: 37.5, lng: 127.0 },
@@ -58,8 +59,8 @@ describe('Marker 스펙 테스트', () => {
     // SDK 는 붙일 때 clickable 인 Marker 에만 DOM 리스너를 단다. StrictMode 는 마운트 직후
     // 뗐다 다시 붙인다(숨겼다 보일 때와 같은 경로).
     const attached: unknown[] = [];
-    const setMap = MockKVOClass.prototype.setMap;
-    MockKVOClass.prototype.setMap = function (this: MockKVO, m: unknown) {
+    const setMap = FakeKVOClass.prototype.setMap;
+    FakeKVOClass.prototype.setMap = function (this: FakeKVO, m: unknown) {
       if (m) attached.push(this.get('clickable'));
       setMap.call(this, m);
     };
@@ -72,13 +73,13 @@ describe('Marker 스펙 테스트', () => {
         </StrictMode>,
       );
       await vi.waitFor(() => {
-        const created = mock.getLastInstance('Marker')!;
+        const created = mock.last('Marker')!;
         expect(created.instance.get('map')).toBe(mockMap);
         expect(created.instance.get('clickable')).toBe(false);
       });
       expect(attached).toEqual([true, true]);
     } finally {
-      MockKVOClass.prototype.setMap = setMap;
+      FakeKVOClass.prototype.setMap = setMap;
     }
   });
 
@@ -90,7 +91,7 @@ describe('Marker 스펙 테스트', () => {
     );
 
     await vi.waitFor(() => {
-      const created = mock.getLastInstance('Marker');
+      const created = mock.last('Marker');
       expect(created).toBeDefined();
       expect(created!.options).toMatchObject({
         position: { lat: 37.5, lng: 127.0 },
@@ -105,9 +106,9 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let markerInstance: MockKVO;
+    let markerInstance: FakeKVO;
     await vi.waitFor(() => {
-      markerInstance = mock.getLastInstance('Marker')!.instance;
+      markerInstance = mock.last('Marker')!.instance;
       expect(markerInstance).toBeDefined();
     });
 
@@ -131,13 +132,13 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let markerInstance: MockKVO;
+    let markerInstance: FakeKVO;
     await vi.waitFor(() => {
-      markerInstance = mock.getLastInstance('Marker')!.instance;
+      markerInstance = mock.last('Marker')!.instance;
       expect(markerInstance).toBeDefined();
     });
 
-    const clearSpy = vi.spyOn(mock.navermaps.Event, 'clearInstanceListeners');
+    const clearSpy = vi.spyOn(mock.maps.Event, 'clearInstanceListeners');
     const setMapSpy = vi.spyOn(markerInstance!, 'setMap');
 
     unmount();
@@ -148,7 +149,6 @@ describe('Marker 스펙 테스트', () => {
 
   test('onClick prop → click 이벤트 때 그 핸들러가 불린다', async () => {
     const handleClick = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
     render(
       <Wrapper>
@@ -156,18 +156,14 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('Marker')!.instance;
+      instance = mock.last('Marker')!.instance;
       expect(instance).toBeDefined();
-      expect(addSpy).toHaveBeenCalledWith(
-        instance,
-        'click',
-        expect.any(Function),
-      );
+      expect(mock.listenerCount(instance, 'click')).toBe(1);
     });
 
-    instance!._trigger('click', 'e1');
+    mock.fire(instance!, 'click', 'e1');
     expect(handleClick).toHaveBeenCalledTimes(1);
     expect(handleClick).toHaveBeenCalledWith('e1');
   });
@@ -175,8 +171,6 @@ describe('Marker 스펙 테스트', () => {
   test('onClick 변경 시 새 핸들러가 불리고 옛 핸들러는 안 불린다, 리스너는 다시 붙지 않는다', async () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
-    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
 
     const { rerender } = render(
       <Wrapper>
@@ -184,19 +178,14 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('Marker')!.instance;
+      instance = mock.last('Marker')!.instance;
       expect(instance).toBeDefined();
-      expect(addSpy).toHaveBeenCalledWith(
-        instance,
-        'click',
-        expect.any(Function),
-      );
+      expect(mock.listenerCount(instance, 'click')).toBe(1);
     });
 
-    addSpy.mockClear();
-    removeSpy.mockClear();
+    const added = mock.listenerAdds(instance!, 'click');
 
     rerender(
       <Wrapper>
@@ -204,16 +193,15 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    instance!._trigger('click');
+    mock.fire(instance!, 'click');
     expect(handler2).toHaveBeenCalledTimes(1);
     expect(handler1).not.toHaveBeenCalled();
-    expect(addSpy).not.toHaveBeenCalled();
-    expect(removeSpy).not.toHaveBeenCalled();
+    expect(mock.listenerAdds(instance!, 'click')).toBe(added);
+    expect(mock.listenerCount(instance!, 'click')).toBe(1);
   });
 
   test('onClick 을 없애면 click 리스너를 뗀다', async () => {
     const handler = vi.fn();
-    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
 
     const { rerender } = render(
       <Wrapper>
@@ -221,10 +209,10 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('Marker')!.instance;
-      expect(instance._listeners.click).toHaveLength(1);
+      instance = mock.last('Marker')!.instance;
+      expect(mock.listenerCount(instance, 'click')).toBe(1);
     });
 
     rerender(
@@ -234,10 +222,9 @@ describe('Marker 스펙 테스트', () => {
     );
 
     await vi.waitFor(() => {
-      expect(removeSpy).toHaveBeenCalled();
+      expect(mock.listenerCount(instance!, 'click')).toBe(0);
     });
-    expect(instance!._listeners.click ?? []).toHaveLength(0);
-    instance!._trigger('click');
+    mock.fire(instance!, 'click');
     expect(handler).not.toHaveBeenCalled();
   });
 
@@ -248,9 +235,9 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let markerInstance: MockKVO;
+    let markerInstance: FakeKVO;
     await vi.waitFor(() => {
-      markerInstance = mock.getLastInstance('Marker')!.instance;
+      markerInstance = mock.last('Marker')!.instance;
       expect(markerInstance).toBeDefined();
     });
 
@@ -268,8 +255,6 @@ describe('Marker 스펙 테스트', () => {
   test('onDragend 핸들러 변경 시 새 핸들러가 불리고 리스너는 다시 붙지 않는다', async () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
-    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
     const { rerender } = render(
       <Wrapper>
@@ -277,23 +262,18 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('Marker')!.instance;
+      instance = mock.last('Marker')!.instance;
       expect(instance).toBeDefined();
     });
 
     // 첫 렌더에서 dragend 리스너 등록 확인
-    expect(addSpy).toHaveBeenCalledWith(
-      instance!,
-      'dragend',
-      expect.any(Function),
-    );
-    instance!._trigger('dragend');
+    expect(mock.listenerCount(instance!, 'dragend')).toBe(1);
+    mock.fire(instance!, 'dragend');
     expect(handler1).toHaveBeenCalledTimes(1);
 
-    addSpy.mockClear();
-    removeSpy.mockClear();
+    const added = mock.listenerAdds(instance!, 'dragend');
 
     rerender(
       <Wrapper>
@@ -301,11 +281,11 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    instance!._trigger('dragend');
+    mock.fire(instance!, 'dragend');
     expect(handler2).toHaveBeenCalledTimes(1);
     expect(handler1).toHaveBeenCalledTimes(1);
-    expect(addSpy).not.toHaveBeenCalled();
-    expect(removeSpy).not.toHaveBeenCalled();
+    expect(mock.listenerAdds(instance!, 'dragend')).toBe(added);
+    expect(mock.listenerCount(instance!, 'dragend')).toBe(1);
   });
 
   test('undefined props는 생성자 옵션에서 제외 (omitUndefined)', async () => {
@@ -316,7 +296,7 @@ describe('Marker 스펙 테스트', () => {
     );
 
     await vi.waitFor(() => {
-      const created = mock.getLastInstance('Marker');
+      const created = mock.last('Marker');
       expect(created).toBeDefined();
       // icon, title 등 undefined인 옵션은 포함되지 않아야 함
       expect(created!.options).not.toHaveProperty('icon');
@@ -337,14 +317,12 @@ describe('Marker 스펙 테스트', () => {
         />
       </Wrapper>,
     );
-    await vi.waitFor(() =>
-      expect(mock.getLastInstance('Marker')).toBeDefined(),
-    );
-    const marker = mock.getLastInstance('Marker')!.instance as MockKVO;
+    await vi.waitFor(() => expect(mock.last('Marker')).toBeDefined());
+    const marker = mock.last('Marker')!.instance as FakeKVO;
     // 사용자가 끌어 SDK 가 값을 바꾼 상황
     marker.set('position', { lat: 37.6, lng: 127.1 });
     expect(onPositionChanged).toHaveBeenCalledTimes(1);
-    marker._trigger('icon_loaded', marker);
+    mock.fire(marker, 'icon_loaded', marker);
     expect(onIconLoaded).toHaveBeenCalledWith(marker);
   });
 });

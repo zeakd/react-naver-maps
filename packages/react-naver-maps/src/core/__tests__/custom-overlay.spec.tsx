@@ -1,7 +1,11 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createRef, type ReactNode } from 'react';
-import { createMockNaverMaps, type MockKVO } from './test-utils.js';
+import {
+  installSdkFake,
+  type SdkFake,
+  type FakeKVO,
+} from '../../__tests__/sdk-fake.js';
 
 vi.mock('../hooks/use-navermaps.js', () => ({
   useNavermaps: () => (globalThis as Record<string, any>).naver.maps,
@@ -10,8 +14,8 @@ vi.mock('../hooks/use-navermaps.js', () => ({
 import { CustomOverlay } from '../custom-overlay.js';
 import { NaverMapContext } from '../contexts/naver-map.js';
 
-let mock: ReturnType<typeof createMockNaverMaps>;
-let mockMap: MockKVO;
+let mock: SdkFake;
+let mockMap: FakeKVO;
 
 function Wrapper({ children }: { children: ReactNode }) {
   return (
@@ -23,12 +27,12 @@ function Wrapper({ children }: { children: ReactNode }) {
 
 describe('CustomOverlay 스펙 테스트', () => {
   beforeEach(() => {
-    mock = createMockNaverMaps();
-    mockMap = new (mock.navermaps.Map as any)({ id: 'test-map' });
+    mock = installSdkFake();
+    mockMap = new (mock.maps.Map as any)({ id: 'test-map' });
   });
 
   afterEach(() => {
-    mock.cleanup();
+    mock.uninstall();
   });
 
   test('마운트 시 OverlayView 인스턴스 생성 + setMap(map) 호출', async () => {
@@ -144,7 +148,7 @@ describe('CustomOverlay 스펙 테스트', () => {
       expect(child).not.toBeNull();
     });
 
-    const clearSpy = vi.spyOn(mock.navermaps.Event, 'clearInstanceListeners');
+    const clearSpy = vi.spyOn(mock.maps.Event, 'clearInstanceListeners');
 
     unmount();
 
@@ -246,9 +250,7 @@ describe('CustomOverlay 스펙 테스트', () => {
   /**
    * fix-10: position에 .equals()를 가진 객체(LatLng 인스턴스)를 같은 좌표로 다시 전달하면
    * 참조가 다르더라도 kvoEquals(equals 호출)로 변경 없음으로 판정해 setPosition을 호출하지 않아야 한다.
-   *
-   * test-utils의 MockLatLng은 .equals()가 없으므로, 이 테스트에서는 .equals()를 가진
-   * 별도 LatLng-like 객체로 검증한다.
+   * 리터럴과 다른 클래스의 객체로도 equals 가 쓰이는지 보려고 별도 LatLng-like 객체로 검증한다.
    */
   test('동일 좌표 LatLng(.equals) 재전달 시 setPosition 미호출 (fix-10)', async () => {
     class LatLngLike {

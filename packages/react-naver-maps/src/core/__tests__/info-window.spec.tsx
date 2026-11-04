@@ -1,7 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { ReactNode } from 'react';
-import { createMockNaverMaps, MockKVO } from './test-utils.js';
+import {
+  installSdkFake,
+  type SdkFake,
+  type FakeKVO,
+  FakeInfoWindow,
+} from '../../__tests__/sdk-fake.js';
 
 vi.mock('../hooks/use-navermaps.js', () => ({
   useNavermaps: () => (globalThis as Record<string, any>).naver.maps,
@@ -10,8 +15,8 @@ vi.mock('../hooks/use-navermaps.js', () => ({
 import { InfoWindow } from '../info-window.js';
 import { NaverMapContext } from '../contexts/naver-map.js';
 
-let mock: ReturnType<typeof createMockNaverMaps>;
-let mockMap: MockKVO;
+let mock: SdkFake;
+let mockMap: FakeKVO;
 
 function Wrapper({ children }: { children: ReactNode }) {
   return (
@@ -23,19 +28,19 @@ function Wrapper({ children }: { children: ReactNode }) {
 
 describe('InfoWindow 스펙 테스트', () => {
   beforeEach(() => {
-    mock = createMockNaverMaps();
-    mockMap = new (mock.navermaps.Map as any)({ id: 'test-map' });
+    mock = installSdkFake();
+    mockMap = new (mock.maps.Map as any)({ id: 'test-map' });
   });
 
   afterEach(() => {
-    mock.cleanup();
+    mock.uninstall();
   });
 
   test('open prop 미전달 시 인스턴스 생성만, open/close 미호출 (ref 제어)', async () => {
     // open === undefined → InfoWindowInner의 동기 effect가 early return.
     // 자동 open/close 없이 ref로 직접 제어하는 경로.
-    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
-    const closeSpy = vi.spyOn(MockKVO.prototype, 'close');
+    const openSpy = vi.spyOn(FakeInfoWindow.prototype, 'open');
+    const closeSpy = vi.spyOn(FakeInfoWindow.prototype, 'close');
 
     render(
       <Wrapper>
@@ -43,13 +48,13 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
-    expect(mock.getLastInstance('InfoWindow')!.options).toMatchObject({
+    expect(mock.last('InfoWindow')!.options).toMatchObject({
       content: 'hello',
     });
     // 자동 open/close 없음
@@ -60,24 +65,25 @@ describe('InfoWindow 스펙 테스트', () => {
   test('open=true 시 open(map) 호출', async () => {
     // open()은 useLayoutEffect 생성 직후 useEffect에서 호출되므로
     // 인스턴스 생성 전에 prototype에 spy를 걸어 실제 호출+인자를 단언한다.
-    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
-    const closeSpy = vi.spyOn(MockKVO.prototype, 'close');
+    const openSpy = vi.spyOn(FakeInfoWindow.prototype, 'open');
+    const closeSpy = vi.spyOn(FakeInfoWindow.prototype, 'close');
 
     render(
       <Wrapper>
-        <InfoWindow content="hello" open />
+        <InfoWindow content="hello" position={{ lat: 37.5, lng: 127.0 }} open />
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
     await vi.waitFor(() => {
       expect(openSpy).toHaveBeenCalledTimes(1);
     });
+    expect(instance!.getMap()).toBe(mockMap);
     // anchor 없으면 open(map)만 (anchor 미전달)
     expect(openSpy.mock.contexts[0]).toBe(instance!);
     expect(openSpy.mock.calls[0]).toEqual([mockMap]);
@@ -85,8 +91,8 @@ describe('InfoWindow 스펙 테스트', () => {
   });
 
   test('open=false 시 close() 호출 (open 미호출)', async () => {
-    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
-    const closeSpy = vi.spyOn(MockKVO.prototype, 'close');
+    const openSpy = vi.spyOn(FakeInfoWindow.prototype, 'open');
+    const closeSpy = vi.spyOn(FakeInfoWindow.prototype, 'close');
 
     render(
       <Wrapper>
@@ -94,9 +100,9 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
@@ -109,8 +115,8 @@ describe('InfoWindow 스펙 테스트', () => {
   });
 
   test('anchor 전달 시 open(map, anchor) 호출', async () => {
-    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
-    const mockAnchor = new (mock.navermaps.Marker as any)({});
+    const openSpy = vi.spyOn(FakeInfoWindow.prototype, 'open');
+    const mockAnchor = new (mock.maps.Marker as any)({});
 
     render(
       <Wrapper>
@@ -118,9 +124,9 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
@@ -133,7 +139,7 @@ describe('InfoWindow 스펙 테스트', () => {
   });
 
   test('인라인 anchor 로 다시 렌더해도 다시 열지 않고, SDK 가 닫은 정보 창을 다시 열지 않는다', async () => {
-    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
+    const openSpy = vi.spyOn(FakeInfoWindow.prototype, 'open');
     const view = (tick: number) => (
       <Wrapper>
         <InfoWindow
@@ -147,7 +153,7 @@ describe('InfoWindow 스펙 테스트', () => {
     const { rerender } = render(view(0));
     await vi.waitFor(() => expect(openSpy).toHaveBeenCalledTimes(1));
     // 같은 지도의 다른 정보 창이 열리거나 사용자가 닫기 버튼을 누르면 SDK 가 닫는다.
-    mock.getLastInstance('InfoWindow')!.instance.close();
+    mock.last('InfoWindow')!.instance.close();
     for (let i = 1; i <= 3; i++) rerender(view(i));
     expect(openSpy).toHaveBeenCalledTimes(1);
   });
@@ -159,9 +165,9 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
@@ -185,14 +191,14 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
     const closeSpy = vi.spyOn(instance!, 'close');
-    const clearSpy = vi.spyOn(mock.navermaps.Event, 'clearInstanceListeners');
+    const clearSpy = vi.spyOn(mock.maps.Event, 'clearInstanceListeners');
 
     unmount();
 
@@ -209,13 +215,13 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
-      expect(instance._listeners.close).toHaveLength(1);
+      instance = mock.last('InfoWindow')!.instance;
+      expect(mock.listenerCount(instance, 'close')).toBe(1);
     });
 
-    instance!._trigger('close');
+    mock.fire(instance!, 'close');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -228,47 +234,43 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
-      expect(instance._listeners.open).toHaveLength(1);
+      instance = mock.last('InfoWindow')!.instance;
+      expect(mock.listenerCount(instance, 'open')).toBe(1);
     });
 
-    instance!._trigger('open');
+    mock.fire(instance!, 'open');
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
   test('onOpen 변경 시 새 핸들러가 불리고 리스너는 다시 붙지 않는다, 없애면 뗀다', async () => {
     const onOpen1 = vi.fn();
     const onOpen2 = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
-    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
-
     const { rerender } = render(
       <Wrapper>
         <InfoWindow content="hello" onOpen={onOpen1} />
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
-      expect(instance._listeners.open).toHaveLength(1);
+      instance = mock.last('InfoWindow')!.instance;
+      expect(mock.listenerCount(instance, 'open')).toBe(1);
     });
 
-    addSpy.mockClear();
-    removeSpy.mockClear();
+    const added = mock.listenerAdds(instance!, 'open');
 
     rerender(
       <Wrapper>
         <InfoWindow content="hello" onOpen={onOpen2} />
       </Wrapper>,
     );
-    instance!._trigger('open');
+    mock.fire(instance!, 'open');
     expect(onOpen2).toHaveBeenCalledTimes(1);
     expect(onOpen1).not.toHaveBeenCalled();
-    expect(addSpy).not.toHaveBeenCalled();
-    expect(removeSpy).not.toHaveBeenCalled();
+    expect(mock.listenerAdds(instance!, 'open')).toBe(added);
+    expect(mock.listenerCount(instance!, 'open')).toBe(1);
 
     rerender(
       <Wrapper>
@@ -276,9 +278,8 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
     await vi.waitFor(() => {
-      expect(removeSpy).toHaveBeenCalled();
+      expect(mock.listenerCount(instance!, 'open')).toBe(0);
     });
-    expect(instance!._listeners.open ?? []).toHaveLength(0);
   });
 
   /**
@@ -303,9 +304,9 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
@@ -356,9 +357,9 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
@@ -390,33 +391,30 @@ describe('InfoWindow 스펙 테스트', () => {
   test('open() 동기 발화 시 onOpen 호출 + onClose 리스너 등록 (fix-16)', async () => {
     const onOpen = vi.fn();
     const onClose = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
     render(
       <Wrapper>
-        <InfoWindow content="hello" open onOpen={onOpen} onClose={onClose} />
+        <InfoWindow
+          content="hello"
+          position={{ lat: 37.5, lng: 127.0 }}
+          open
+          onOpen={onOpen}
+          onClose={onClose}
+        />
       </Wrapper>,
     );
 
-    let instance: MockKVO;
+    let instance: FakeKVO;
     await vi.waitFor(() => {
-      instance = mock.getLastInstance('InfoWindow')!.instance;
+      instance = mock.last('InfoWindow')!.instance;
       expect(instance).toBeDefined();
     });
 
-    // listener가 정확한 인스턴스/event명에 등록되어야 함
+    // 리스너가 그 인스턴스의 그 이벤트에 붙어 있어야 한다
     await vi.waitFor(() => {
-      expect(addSpy).toHaveBeenCalledWith(
-        instance!,
-        'open',
-        expect.any(Function),
-      );
+      expect(mock.listenerCount(instance!, 'open')).toBe(1);
     });
-    expect(addSpy).toHaveBeenCalledWith(
-      instance!,
-      'close',
-      expect.any(Function),
-    );
+    expect(mock.listenerCount(instance!, 'close')).toBe(1);
 
     // mock open()이 동기 'open' 발화 → 등록된 onOpen이 호출됨
     await vi.waitFor(() => {
@@ -425,7 +423,7 @@ describe('InfoWindow 스펙 테스트', () => {
     expect(onClose).not.toHaveBeenCalled();
 
     // 붙인 close 리스너는 onClose 를 부른다
-    instance!._trigger('close');
+    mock.fire(instance!, 'close');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
