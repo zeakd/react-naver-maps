@@ -164,6 +164,45 @@ export function oneWay(from = 0, to?: number): Assertion {
   };
 }
 
+/** from 프레임부터 to 프레임 앞까지 zoom 이 한 방향으로만 바뀐다. 같은 값을 유지하는 것은 허용한다. */
+export function zoomOneWay(from = 0, to?: number): Assertion {
+  return (trace) => {
+    const end = Math.min(to ?? trace.length, trace.length);
+    let sign = 0;
+    for (let i = from + 1; i < end; i++) {
+      const d = trace[i].zoom - trace[i - 1].zoom;
+      if (Math.abs(d) < EPSILON_DEG) continue;
+      const s = Math.sign(d);
+      if (sign !== 0 && s !== sign) {
+        return `프레임 ${i} 에서 zoom 방향이 바뀌었다 (${trace[i - 1].zoom} -> ${trace[i].zoom})`;
+      }
+      sign = s;
+    }
+    return null;
+  };
+}
+
+/** from 프레임부터 to 프레임 앞까지 Marker 경도가 한 방향으로만 바뀐다. Marker 가 없는 프레임은 건너뛴다. */
+export function markerOneWay(from = 0, to?: number): Assertion {
+  return (trace) => {
+    const end = Math.min(to ?? trace.length, trace.length);
+    let sign = 0;
+    for (let i = from + 1; i < end; i++) {
+      const a = trace[i - 1].markerPosition;
+      const b = trace[i].markerPosition;
+      if (!a || !b) continue;
+      const d = b[1] - a[1];
+      if (Math.abs(d) < EPSILON_DEG) continue;
+      const s = Math.sign(d);
+      if (sign !== 0 && s !== sign) {
+        return `프레임 ${i} 에서 Marker 경도 방향이 바뀌었다 (${a[1]} -> ${b[1]})`;
+      }
+      sign = s;
+    }
+    return null;
+  };
+}
+
 /** from 프레임 뒤로 center 가 움직이지 않는다. */
 export function staysAfter(from: number): Assertion {
   return (trace) => {
