@@ -78,18 +78,20 @@ function packRelease(v: string): string {
 }
 
 /**
- * 커밋을 임시 작업 트리에 꺼내 새로 빌드하고 pack 한 tarball 경로. 이 작업 트리의 `dist` 를 쓰지
- * 않는 것은 `tsc -b` 가 지난 빌드의 파일을 지우지 않아 배포본과 내용이 달라질 수 있어서다.
+ * 커밋을 임시 작업 트리에 꺼내 새로 빌드하고 pack 한 tarball 경로. 지금 작업 트리의 `dist` 를 쓰지
+ * 않는 것은 커밋하지 않은 변경과 지난 빌드의 파일이 섞이지 않게 하려는 것이다.
  */
+function quiet(cmd: string, argv: string[], cwd: string): void {
+  execFileSync(cmd, argv, { cwd, stdio: ['ignore', 'ignore', 'inherit'] });
+}
+
 function packGit(sha: string): string {
   const tmp = mkdtempSync(join(tmpdir(), 'rnm-base-'));
   const tree = join(tmp, 'tree');
-  const run = (cmd: string, argv: string[], cwd: string) =>
-    execFileSync(cmd, argv, { cwd, stdio: ['ignore', 'ignore', 'inherit'] });
   console.log(`\n▶ 기준선 ${sha.slice(0, 7)} 빌드`);
-  run('git', ['worktree', 'add', '--detach', tree, sha], pkgDir);
+  quiet('git', ['worktree', 'add', '--detach', tree, sha], pkgDir);
   try {
-    run(
+    quiet(
       'pnpm',
       [
         'install',
@@ -101,8 +103,8 @@ function packGit(sha: string): string {
       tree,
     );
     const pkg = join(tree, 'packages', 'react-naver-maps');
-    run('pnpm', ['run', 'build'], pkg);
-    run('pnpm', ['pack', '--pack-destination', tmp], pkg);
+    quiet('pnpm', ['run', 'build'], pkg);
+    quiet('pnpm', ['pack', '--pack-destination', tmp], pkg);
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', tree], {
       cwd: pkgDir,

@@ -159,6 +159,23 @@ function read(report: string, label: string): Map<string, Outcome> {
 }
 
 /** 두 궤적에서 달라진 필드마다 처음 갈라지는 프레임과 값. */
+/**
+ * 화면 픽셀을 센 값(probes)은 같은 코드에서도 실행마다 1~2px 흔들린다(캔버스 렌더, 2026-11-04 같은
+ * 커밋끼리 네 번 실행해 확인). 동작이 아니라 측정값이라 max(3px, 1%) 안이면 같다고 본다.
+ */
+function sameProbes(a: unknown, b: unknown): boolean {
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+    return isDeepStrictEqual(a, b);
+  }
+  const x = a as Record<string, number>;
+  const y = b as Record<string, number>;
+  const keys = new Set([...Object.keys(x), ...Object.keys(y)]);
+  return [...keys].every((k) => {
+    if (typeof x[k] !== 'number' || typeof y[k] !== 'number') return false;
+    return Math.abs(x[k] - y[k]) <= Math.max(3, 0.01 * Math.max(x[k], y[k]));
+  });
+}
+
 function differences(a: TraceFrame[], b: TraceFrame[]): Map<string, string> {
   const first = new Map<string, string>();
   if (a.length !== b.length) {
@@ -169,7 +186,12 @@ function differences(a: TraceFrame[], b: TraceFrame[]): Map<string, string> {
     const fa = a[i]!;
     const fb = b[i]!;
     for (const k of Object.keys(fa) as (keyof TraceFrame)[]) {
-      if (first.has(k) || isDeepStrictEqual(fa[k], fb[k])) continue;
+      if (first.has(k)) continue;
+      const same =
+        k === 'probes'
+          ? sameProbes(fa[k], fb[k])
+          : isDeepStrictEqual(fa[k], fb[k]);
+      if (same) continue;
       first.set(
         k,
         `${k}@${i} ${JSON.stringify(fa[k])} → ${JSON.stringify(fb[k])}`,
@@ -233,9 +255,9 @@ function compare(
 
 const esc = (text: string) => text.replaceAll('|', '\\|');
 
-function table(rows: Row[], base: string): string {
+function table(rows: Row[], title: string): string {
   return [
-    `# 시나리오 비교: ${base} → 소스`,
+    `# 시나리오 비교: ${title} → 소스`,
     '',
     '| 시나리오 | 결과 | 내용 |',
     '|---|---|---|',
