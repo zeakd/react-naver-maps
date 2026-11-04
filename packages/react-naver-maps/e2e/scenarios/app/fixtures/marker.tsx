@@ -151,6 +151,12 @@ export const marker = defineFixture<MarkerConfig, MarkerProbe, MarkerFrame>({
         )}
       </Activity>
     ),
+  fields: {
+    markerClicks: 'behavior',
+    markerPosition: 'behavior',
+    markerOnMap: 'behavior',
+    markerAnimation: 'behavior',
+  },
   read: (map, probe) => ({
     markerClicks: probe.clicks,
     markerOnMap: probe.marker ? probe.marker.getMap() === map : null,

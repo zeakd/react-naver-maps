@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 import { Activity } from './activity.js';
+import type { FieldKinds } from '../fields.js';
 import type { AppConfig } from '../types.js';
 import type { Observed } from './observe.js';
 
@@ -17,14 +18,20 @@ export interface Fixture<C = AppConfig, P = undefined, F = object> {
   render(config: C, probe: P, core: Observed): ReactNode;
   /** 프레임마다 읽는 값. 키 이름·값이 TraceFrame 의 해당 필드다. */
   read?(map: naver.maps.Map, probe: P, core: Observed): F;
+  /** read 가 내는 필드마다 비교 방법(`fields.ts`). 프레임이 있으면 defineFixture 가 요구한다. */
+  fields?: FieldKinds<F>;
 }
 
 /** FIXTURES 에 담기 위해 설정·상태 타입을 지운 모양. */
 export type AnyFixture = Fixture<AppConfig, unknown, object>;
 
-/** 타입 추론용. 기능 파일이 설정·상태·프레임 타입을 한 번에 묶는다. */
+/**
+ * 타입 추론용. 기능 파일이 설정·상태·프레임 타입을 한 번에 묶는다. 프레임(F)에 필드가 있으면
+ * `fields` 에 필드마다 비교 방법을 적어야 한다.
+ */
 export function defineFixture<C, P = undefined, F = object>(
-  fixture: Fixture<C, P, F>,
+  fixture: Fixture<C, P, F> &
+    ([keyof F] extends [never] ? unknown : { fields: FieldKinds<F> }),
 ): Fixture<C, P, F> {
   return fixture;
 }
@@ -58,5 +65,6 @@ export function activityGroup(
         {},
         ...members.map((m, i) => m.read?.(map, (probes as unknown[])[i], core)),
       ),
+    fields: Object.assign({}, ...members.map((m) => m.fields)),
   };
 }

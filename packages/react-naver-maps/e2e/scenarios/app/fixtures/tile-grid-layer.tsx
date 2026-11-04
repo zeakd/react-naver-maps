@@ -52,6 +52,7 @@ export const tileGridLayer = defineFixture<
         zIndex={config.tileGridZIndex}
       />
     ),
+  fields: { layersCreated: 'behavior', tileGridCells: 'behavior' },
   read: (_map, probe) => ({
     layersCreated: probe.layers.size,
     tileGridCells: document.querySelectorAll('.tile-grid').length,

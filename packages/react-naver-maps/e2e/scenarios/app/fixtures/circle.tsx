@@ -34,5 +34,6 @@ export const circle = defineFixture<
         }}
       />
     ),
+  fields: { circleClicks: 'behavior' },
   read: (_map, probe) => ({ circleClicks: probe.clicks }),
 });

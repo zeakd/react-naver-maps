@@ -27,5 +27,6 @@ export const groundOverlay = defineFixture<
         bounds={{ south: 37.56, west: 126.97, north: 37.57, east: 126.99 }}
       />
     ),
+  fields: { groundOverlays: 'behavior' },
   read: (_map, probe) => ({ groundOverlays: probe.created.size }),
 });

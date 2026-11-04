@@ -1,4 +1,5 @@
 import type { FixtureConfig, FixtureFrame } from './app/fixtures/index.js';
+import type { FieldKinds } from './fields.js';
 
 /** 위도, 경도 */
 export type LL = [number, number];
@@ -141,7 +142,7 @@ export type CoreFrame = {
   mapSetOptionsCalls: number | null;
   /**
    * measureScript 일 때 이 프레임까지 누적한 실제 JS 실행 시간(ms, CDP ScriptDuration). 아니면 null.
-   * 기기·부하마다 달라 비교 실행에서 뺀다(MEASURED_FIELDS). 같은 실행 안의 구간 차이로 읽는다.
+   * 기기·부하마다 달라 비교 실행에서 뺀다(CORE_FIELDS measured). 같은 실행 안의 구간 차이로 읽는다.
    */
   scriptMs: number | null;
   /** 이 프레임에 발생한 지도 이벤트 */
@@ -184,6 +185,36 @@ export type CoreFrame = {
   mapCursor: string;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
+};
+
+/** CoreFrame 필드마다 비교 방법(`fields.ts`). */
+export const CORE_FIELDS: FieldKinds<CoreFrame> = {
+  center: 'behavior',
+  zoom: 'behavior',
+  zoomControlPositionName: 'behavior',
+  zoomControlStyleName: 'behavior',
+  mapSetOptionsCalls: 'behavior',
+  scriptMs: 'measured',
+  events: 'behavior',
+  calls: 'behavior',
+  propCalls: { since: '0.4' },
+  zoomReports: 'behavior',
+  propCenter: 'behavior',
+  propZoom: 'behavior',
+  controls: 'behavior',
+  attached: 'behavior',
+  mapWidth: 'behavior',
+  kvoZoom: 'behavior',
+  kvoLat: 'behavior',
+  mapId: 'behavior',
+  probes: 'pixels',
+  mapVisible: 'behavior',
+  errors: 'behavior',
+  overlaysOnMap: 'behavior',
+  secondCenter: 'behavior',
+  secondInfoWindowOpen: 'behavior',
+  mapCursor: 'behavior',
+  renderMode: 'behavior',
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */

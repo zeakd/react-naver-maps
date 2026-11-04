@@ -53,6 +53,7 @@ export const visualization = defineFixture<
       )}
     </>
   ),
+  fields: { heatMapOpacity: 'behavior' },
   read: (_map, _probe, core) => ({
     heatMapOpacity:
       (

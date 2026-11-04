@@ -52,6 +52,11 @@ for (const scenario of scenarios) {
       body: JSON.stringify(trace),
       contentType: 'application/json',
     });
+    // 하네스가 아는 필드 분류. 비교가 필드마다 견주는 방법을 이것으로 정한다(fields.ts).
+    await testInfo.attach('fields.json', {
+      body: JSON.stringify(await page.evaluate(() => window.app.fields())),
+      contentType: 'application/json',
+    });
     if (scenario.unstable) {
       await testInfo.attach('unstable.json', {
         body: JSON.stringify(scenario.unstable.fields),

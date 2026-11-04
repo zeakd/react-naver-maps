@@ -15,7 +15,7 @@ export type MarkerCrowdFrame = {
   /**
    * 이 프레임까지 naver.maps.Event.addListener 가 불린 수(누적). 앱을 올릴 때부터 센다.
    * 라이브러리가 부른 것과 SDK 안에서 같은 함수를 거쳐 부른 것이 섞인다(추정). 구간의 증가량으로 읽는다.
-   * 버전마다 달라질 수 있는 값이라 비교 실행에서 뺀다(compare-expected 의 NEW_API_FIELDS).
+   * 버전마다 달라질 수 있는 값이라 비교 실행에서 뺀다(아래 fields 의 measured).
    */
   addListenerCalls: number;
 };
@@ -65,5 +65,10 @@ export const markerCrowd = defineFixture<
         }
       />
     )),
+  fields: {
+    // SDK 내부의 addListener 호출까지 세어 타일 로딩 시점에 따라 같은 커밋끼리도 달라진다(2026-11-05,
+    // key 로 다시 만든 지도에서 500 / 612). 판정은 시나리오의 expect 가 증가량으로 한다.
+    addListenerCalls: 'measured',
+  },
   read: (_map, probe) => ({ addListenerCalls: probe.addListenerCalls }),
 });

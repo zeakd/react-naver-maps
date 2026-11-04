@@ -71,7 +71,7 @@ pnpm compare:types git:v0.4      # 공개 타입(진입점마다 내보내는 �
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).
 
 - 시나리오는 `packages/react-naver-maps/e2e/scenarios/cases/` 에 영역별로 있고 `scenarios.ts` 가 이어 붙인다. 지도에 올리는 기능은 `app/fixtures/` 에 기능별 파일로 있다(더하는 법은 `app/fixtures/index.ts` 맨 위). 가상 시계로 16ms 씩 넘겨 같은 시나리오는 같은 궤적을 낸다. 실패하면 `test-results/` 에 trace 와 영상이 남는다.
-- `compare:scenarios` 는 배포 버전과의 차이 중 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 것만 허용한다. 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
+- `compare:scenarios` 는 배포 버전과의 차이 중 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 것만 허용한다. 프레임 필드는 선언하는 곳 옆에 비교 방법(동작·화면 픽셀·측정값·생긴 버전)을 적어야 하고, 분류 없는 필드가 궤적에 나오면 비교가 실패한다(`e2e/scenarios/fields.ts`). 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
 - `git:<ref>` 기준선은 그 커밋을 임시 작업 트리에서 새로 빌드해 쓴다(`e2e/baseline.ts`). 허용 목록이 없어 차이가 하나라도 나면 실패다. 동작을 바꾸는 변경은 정리와 다른 PR 로 나눈다.
 - `git:<ref>` 는 라이브러리만 바꿔 끼우고 하네스(`e2e/scenarios`)는 지금 것을 쓴다. 하네스를 바꾼 변경은 `harness:<ref>` 로 확인한다. 그 커밋을 임시 작업 트리에서 그 트리의 하네스로 돌리며, 라이브러리 소스(`src/`)가 지금과 다르면 시작하지 않는다. `harness:HEAD` 는 같은 코드끼리 돌려 실행마다 흔들리는 필드를 찾는다.
 - GL 시나리오는 GPU 로 WebGL 을 쓸 수 있을 때만 GL 로 돈다. SDK 는 성능 경고가 있는 WebGL(소프트웨어 렌더)에서 래스터로 바꾸고, 그러면 시나리오를 건너뛴다. GPU 가 없는 CI 에서는 건너뛴다.

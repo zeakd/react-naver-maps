@@ -35,6 +35,13 @@ export const overlayDrift = defineFixture<object, Probe, OverlayDriftFrame>({
   probe: () => ({ prev: {}, bias: {} }),
   // 그리지 않는다. 다른 픽스처가 등록한 anchors 를 읽기만 한다.
   render: () => null,
+  fields: {
+    // 오버레이 화면 자리(px). 래스터 pane 이동·기준점 근사에 따라 달라지는 측정값이고 판정은 시나리오의
+    // expect 가 한다(cases/overlay-motion.ts).
+    overlayDrift: 'measured',
+    overlayDriftPrev: 'measured',
+    overlayOffsetFromMarker: 'measured',
+  },
   read: (map, probe, core) => {
     const mapRect = map.getElement().getBoundingClientRect();
     const projection = map.getProjection();

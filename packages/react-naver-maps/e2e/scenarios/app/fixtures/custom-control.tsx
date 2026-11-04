@@ -30,6 +30,7 @@ export const customControl = defineFixture<
         <button type="button">처음 위치</button>
       </CustomControl>
     ),
+  fields: { customControlAt: 'behavior', customControlText: 'behavior' },
   read: (map, probe) => ({
     customControlAt: (() => {
       const el = probe.control?.getElement();
