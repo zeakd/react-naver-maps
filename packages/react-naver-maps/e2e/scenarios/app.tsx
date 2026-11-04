@@ -23,6 +23,7 @@ import {
   NaverMap,
   NavermapsProvider,
   Panorama,
+  Polygon,
   Polyline,
   reverseGeocode,
   useAutoResize,
@@ -142,6 +143,15 @@ function projectionlessRegistry(): naver.maps.MapTypeRegistry {
   return projectionless;
 }
 
+// 첫 꼭짓점이 지도 중앙(INITIAL_CENTER)인 삼각형.
+const EDITABLE_PATHS = [
+  [
+    { lat: 37.5666, lng: 126.9784 },
+    { lat: 37.5666, lng: 126.982 },
+    { lat: 37.5645, lng: 126.98 },
+  ],
+];
+
 const STABLE_PATH = [
   { lat: 37.56, lng: 126.97 },
   { lat: 37.57, lng: 126.98 },
@@ -167,6 +177,8 @@ type Observed = {
   control: naver.maps.CustomControl | null;
   recordControl: (o: naver.maps.CustomControl | null) => void;
   groundOverlays: Set<unknown>;
+  polygon: naver.maps.Polygon | null;
+  recordPolygon: (o: naver.maps.Polygon | null) => void;
   /** 지금까지 만들어진 Layer 인스턴스 */
   layers: Set<unknown>;
   recordGroundOverlay: (o: unknown) => void;
@@ -384,6 +396,15 @@ function MapUnderTest({
       )}
       {config.kml && <Kml data={xml(KML_TEXT[config.kml])} />}
       {config.gpx && <Gpx data={xml(GPX_TEXT)} />}
+      {config.editablePolygon && (
+        <Polygon
+          ref={(o: naver.maps.Polygon | null) => observed.recordPolygon(o)}
+          defaultPaths={EDITABLE_PATHS}
+          editable
+          fillColor="#f00"
+          fillOpacity={0.2}
+        />
+      )}
       {config.customControlPosition !== undefined && (
         <CustomControl
           ref={(o: naver.maps.CustomControl | null) =>
@@ -514,6 +535,10 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       if (o) observed.control = o;
     },
     groundOverlays: new Set(),
+    polygon: null,
+    recordPolygon(o) {
+      if (o) observed.polygon = o;
+    },
     layers: new Set(),
     recordGroundOverlay(o) {
       if (o) observed.groundOverlays.add(o);
@@ -698,6 +723,15 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
           .toSorted(),
+        polygonFirst: observed.polygon
+          ? (() => {
+              const paths = observed.polygon.getPaths() as unknown as {
+                getAt(i: number): { getAt(i: number): naver.maps.LatLng };
+              };
+              const p = paths.getAt(0).getAt(0);
+              return [p.lat(), p.lng()] as LL;
+            })()
+          : null,
         markerAnimation: observed.marker
           ? ((observed.marker.getAnimation() as number | null) ?? null)
           : null,

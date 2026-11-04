@@ -765,4 +765,27 @@ export const scenarios: Scenario[] = [
     ],
     expect: [sameMap()],
   },
+  {
+    name: 'editable Polygon 의 꼭짓점을 끌면 옮겨지고 다시 렌더해도 그대로다',
+    since: '0.4',
+    app: { mode: 'props', submodules: ['drawing'], editablePolygon: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      ...drag(300, -6, 5),
+      { t: 'mouse', kind: 'up', x: 270, y: 200 },
+      { t: 'frames', n: 5 },
+      ...rerender(2),
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      (trace) => {
+        const first = trace[0]!.polygonFirst!;
+        const last = trace.at(-1)!.polygonFirst!;
+        return last[1] < first[1] - 0.0001
+          ? null
+          : `꼭짓점이 옮겨지지 않았다: ${JSON.stringify(first)} -> ${JSON.stringify(last)}`;
+      },
+      sameMap(),
+    ],
+  },
 ];

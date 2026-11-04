@@ -171,4 +171,26 @@ describe('Polygon', () => {
     expect('strokeColor' in lastPolygonInstance!.options).toBe(false);
     expect('fillColor' in lastPolygonInstance!.options).toBe(false);
   });
+
+  test('editable 은 drawing 서브모듈의 setEditable 로 켜고 끈다', () => {
+    const setEditable = vi.fn();
+    (globalThis as any).naver.maps.drawing = {};
+    (MockPolygon.prototype as any).setEditable = setEditable;
+    const { rerender } = render(
+      <Polygon defaultPaths={trianglePaths} editable />,
+    );
+    expect(setEditable).toHaveBeenLastCalledWith(true);
+    rerender(<Polygon defaultPaths={trianglePaths} editable />);
+    expect(setEditable).toHaveBeenCalledTimes(1);
+    rerender(<Polygon defaultPaths={trianglePaths} editable={false} />);
+    expect(setEditable).toHaveBeenLastCalledWith(false);
+    delete (MockPolygon.prototype as any).setEditable;
+  });
+
+  test('drawing 서브모듈 없이 editable 을 켜면 불러오는 법을 담아 던진다', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() =>
+      render(<Polygon defaultPaths={trianglePaths} editable />),
+    ).toThrow(/submodules=\{\['drawing'\]\}/);
+  });
 });

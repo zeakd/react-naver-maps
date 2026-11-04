@@ -2,6 +2,7 @@
 
 import type { Ref } from 'react';
 import { defineOverlay } from './overlay-spec.js';
+import { useEditable } from './hooks/use-editable.js';
 import type { StrokeStyle, FillStyle } from './types/shape-style.js';
 import type {
   ChangeHandlerProps,
@@ -48,6 +49,11 @@ export interface PolygonProps
   clickable?: boolean;
   visible?: boolean;
   zIndex?: number;
+  /**
+   * 꼭짓점을 끌어 고칠 수 있게 한다(drawing 서브모듈 필요). 편집은 SDK 가 path 를 제자리에서 고쳐
+   * controlled 값이면 다시 렌더할 때 되돌린다. `default*` 로 두고 ref 의 getter 로 읽는다.
+   */
+  editable?: boolean;
 }
 
 export const Polygon = defineOverlay<PolygonProps, naver.maps.Polygon>(
@@ -71,6 +77,7 @@ export const Polygon = defineOverlay<PolygonProps, naver.maps.Polygon>(
     ],
     initial: (props) => ({ paths: props.paths ?? props.defaultPaths }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
+    sync: (shape, props) => useEditable(shape, props.editable, 'Polygon'),
     events: SHAPE_EVENTS,
     changes: ['clickable', 'visible', 'zIndex'],
   },
