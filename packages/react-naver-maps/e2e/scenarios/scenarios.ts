@@ -8,6 +8,7 @@ import { layersData } from './cases/layers-data.js';
 import { lifecycle } from './cases/lifecycle.js';
 import { mapProps } from './cases/map-props.js';
 import { overlays } from './cases/overlays.js';
+import { reactLifecycle } from './cases/react-lifecycle.js';
 import { submodules } from './cases/submodules.js';
 import type { Scenario } from './types.js';
 
@@ -23,6 +24,7 @@ export const scenarios: Scenario[] = [
   ...gestures,
   ...gl,
   ...lifecycle,
+  ...reactLifecycle,
   ...overlays,
   ...controls,
   ...layersData,

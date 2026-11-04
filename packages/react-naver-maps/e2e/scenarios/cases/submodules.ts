@@ -1,13 +1,15 @@
 import {
+  calls,
   drawn,
   heatMapOpacity,
   probedAt,
   probedAtLeast,
   overlaysOnMap,
+  polygonFirstMovesLeft,
   sameMap,
 } from '../assertions.js';
-import type { Scenario } from '../types.js';
-import { drag, rerender } from './steps.js';
+import type { Scenario, Step } from '../types.js';
+import { drag, HOME, rerender } from './steps.js';
 
 /** 서브모듈이 필요한 컴포넌트: visualization, drawing, panorama. */
 export const submodules: Scenario[] = [
@@ -154,5 +156,32 @@ export const submodules: Scenario[] = [
       },
       sameMap(),
     ],
+  },
+  // QC 사례 23. 문서상 지원하지 않는 조합이다(src/core/hooks/use-editable.ts 의 주석): editable 도형의 편집은
+  // SDK 의 path 배열을 제자리에서 고치고 이벤트를 내지 않아, controlled paths 를 렌더마다 다시 주면
+  // 편집이 되돌려질 수 있다. 되돌려지지 않는 것이 목표인지, 문서대로 defaultPath 만 지원하는지는 운전 세션이
+  // 정한다. 꼭짓점의 화면 자리는 앱의 pointOf(HOME 이 첫 꼭짓점)로 얻는다. 투영의 좌표 기준은 확인하지 못했다.
+  {
+    name: 'controlled paths 를 준 editable Polygon 의 꼭짓점을 끄는 동안 다시 렌더해도 편집이 끊기지 않는다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      submodules: ['drawing'],
+      editablePolygon: true,
+      polygonPathsMode: 'controlled',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'mouseAt', kind: 'down', ll: HOME },
+      { t: 'frames', n: 1 },
+      ...Array.from({ length: 6 }, (_, i): Step[] => [
+        { t: 'mouseAt', kind: 'move', ll: HOME, dx: -6 * (i + 1) },
+        { t: 'props', props: { tick: i + 1 } },
+        { t: 'frames', n: 1 },
+      ]).flat(),
+      { t: 'mouseAt', kind: 'up', ll: HOME, dx: -36 },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ setPaths: 0 }), polygonFirstMovesLeft(0.0001), sameMap()],
   },
 ];

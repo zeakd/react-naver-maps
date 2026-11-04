@@ -1,13 +1,29 @@
 import {
   calls,
+  followsProps,
   kvoFollowsMap,
   noBacktrack,
   settlesAt,
   settlesAtZoom,
   zoomReportsMatchMap,
 } from '../assertions.js';
-import type { Scenario } from '../types.js';
-import { A, B } from './steps.js';
+import type { Scenario, Step } from '../types.js';
+import { A, B, HOME } from './steps.js';
+
+/**
+ * center 와 실수 zoom 을 매 프레임 조금씩 바꾸는 단계 30개. 프레임마다 경도 0.0002(zoom 15.3 에서 5.7px),
+ * zoom 0.02 씩 간다. 한 프레임이라도 뒤처지면 5px 넘게 벌어지게 잡은 값이다.
+ */
+const everyFrame: Step[] = Array.from({ length: 30 }, (_, i): Step[] => [
+  {
+    t: 'props',
+    props: {
+      center: [HOME[0] + 0.00005 * (i + 1), HOME[1] + 0.0002 * (i + 1)],
+      zoom: 15 + 0.02 * (i + 1),
+    },
+  },
+  { t: 'frames', n: 1 },
+]).flat();
 
 /** 카메라: center·zoom prop 과 지도 메서드 호출, KVO, onZoomChanged 보고. */
 export const camera: Scenario[] = [
@@ -102,5 +118,14 @@ export const camera: Scenario[] = [
       { t: 'frames', n: 90 },
     ],
     expect: [settlesAt([37.5706, 126.9784]), settlesAtZoom(18)],
+  },
+  // 사례 14. 매 프레임 바뀌는 prop 마다 morph 를 새로 시작하면 지도가 뒤처지거나 떨린다(추정).
+  // 실수 zoom 을 래스터 지도가 받아 주는지는 확인하지 못했다. 안 받으면 zoom 판정이 먼저 실패한다.
+  {
+    name: 'center 와 zoom 을 매 프레임 함께 바꾸면 지도가 매 프레임 그 prop 을 따른다',
+    since: '0.4',
+    app: { mode: 'props' },
+    steps: [{ t: 'frames', n: 2 }, ...everyFrame],
+    expect: [followsProps()],
   },
 ];
