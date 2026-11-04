@@ -132,6 +132,26 @@ describe('InfoWindow 스펙 테스트', () => {
     expect(openSpy.mock.calls[0]).toEqual([mockMap, mockAnchor]);
   });
 
+  test('인라인 anchor 로 다시 렌더해도 다시 열지 않고, SDK 가 닫은 정보 창을 다시 열지 않는다', async () => {
+    const openSpy = vi.spyOn(MockKVO.prototype, 'open');
+    const view = (tick: number) => (
+      <Wrapper>
+        <InfoWindow
+          content={`hello`}
+          open
+          anchor={{ lat: 37.5, lng: 127.0 }}
+          zIndex={tick > 99 ? 1 : undefined}
+        />
+      </Wrapper>
+    );
+    const { rerender } = render(view(0));
+    await vi.waitFor(() => expect(openSpy).toHaveBeenCalledTimes(1));
+    // 같은 지도의 다른 정보 창이 열리거나 사용자가 닫기 버튼을 누르면 SDK 가 닫는다.
+    mock.getLastInstance('InfoWindow')!.instance.close();
+    for (let i = 1; i <= 3; i++) rerender(view(i));
+    expect(openSpy).toHaveBeenCalledTimes(1);
+  });
+
   test('string content 변경 시 setContent 호출', async () => {
     const { rerender } = render(
       <Wrapper>

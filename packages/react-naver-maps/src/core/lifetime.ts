@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
+import { useStableValue } from './hooks/use-stable-value.js';
 import {
   addMapListener,
   clearMapListeners,
@@ -70,8 +71,7 @@ export function useSdkInstance<T>(
 
   // keys 를 값으로 안정화한다. 렌더마다 새로 만든 같은 값(인라인 bounds 등)이면 지난 배열을 그대로
   // 써서 effect 가 다시 돌지 않게 한다. 그러지 않으면 렌더마다 떼었다 붙였다(setMap(null), setMap(map)).
-  const [stableKeys, setStableKeys] = useState(keys);
-  if (!kvoEquals(stableKeys, keys)) setStableKeys(keys);
+  const stableKeys = useStableValue(keys);
   // stableKeys 가 바뀔 때만 다시 돈다(배열을 그대로 deps 로 넘긴다). 그 밖에 effect 가 다시 도는 것은
   // 숨겼다 보일 때와 StrictMode 재실행이다.
   // oxlint-disable-next-line react-hooks/exhaustive-deps

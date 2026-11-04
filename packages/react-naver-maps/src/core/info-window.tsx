@@ -13,7 +13,7 @@ import {
   removeMapListener,
   clearMapListeners,
 } from './utils/sdk.js';
-import { kvoEquals } from './hooks/use-controlled-kvo.js';
+import { useStableValue } from './hooks/use-stable-value.js';
 import { useSdkInstance } from './lifetime.js';
 import { useOverlayEvents } from './overlay-spec.js';
 import { changedProp } from './types/overlay-events.js';
@@ -193,31 +193,29 @@ function InfoWindowInner({
   useOverlayEvents(infoWindow, props, ['open', 'close'], 'layout');
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
+  // anchor 는 값으로 안정화한다. 인라인 anchor 는 렌더마다 새 객체라 그대로 deps 에 두면 이 effect 가
+  // 렌더마다 돈다. 그러면 SDK 가 닫은 정보 창(사용자가 닫기 버튼을 누름, 같은 지도의 다른 정보 창이
+  // 열림)을 렌더마다 다시 열었다. 두 정보 창이 open 이면 서로 닫고 열기를 되풀이했다.
+  const anchor = useStableValue(props.anchor);
   const openedRef = useRef<{ anchor: unknown } | null>(null);
   useEffect(() => {
     if (open === undefined || !sdkAlive() || !ready) return;
     if (open) {
-      // 인라인 anchor 는 참조가 매번 달라도 값이 같으면 다시 열지 않는다.
-      // open 은 close 와 open 이벤트를 다시 내고 autoPan 도 다시 돈다.
-      // 숨겼다 보이면(Activity 등) 닫혀 있으므로 다시 연다.
+      // 이미 그 anchor 로 열려 있으면 다시 열지 않는다(StrictMode 의 effect 재실행). open 은 close 와
+      // open 이벤트를 다시 내고 autoPan 도 다시 돈다. 숨겼다 보이면(Activity 등) 닫혀 있으므로 다시 연다.
       const opened = openedRef.current;
-      if (
-        opened &&
-        kvoEquals(opened.anchor, props.anchor) &&
-        infoWindow.getMap()
-      )
-        return;
-      if (props.anchor) {
-        infoWindow.open(map, props.anchor);
+      if (opened && opened.anchor === anchor && infoWindow.getMap()) return;
+      if (anchor) {
+        infoWindow.open(map, anchor);
       } else {
         infoWindow.open(map);
       }
-      openedRef.current = { anchor: props.anchor };
+      openedRef.current = { anchor };
     } else {
       openedRef.current = null;
       infoWindow.close();
     }
-  }, [infoWindow, map, open, props.anchor, ready]);
+  }, [infoWindow, map, open, anchor, ready]);
 
   // content 변경 시 네이티브 setContent 호출
   useEffect(() => {
