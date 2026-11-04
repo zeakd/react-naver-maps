@@ -123,6 +123,25 @@ function tileGridType(): naver.maps.MapType {
   return tileGrid;
 }
 
+// 투영을 생략한 사용자 지도 유형(공식 예제 tutorial-3-maptypes-basic 과 같은 모양). 한 번만 만든다.
+let projectionless: naver.maps.MapTypeRegistry | null = null;
+function projectionlessRegistry(): naver.maps.MapTypeRegistry {
+  projectionless ??= new naver.maps.MapTypeRegistry(
+    {
+      normal: naver.maps.NaverStyleMapTypeOptions.getNormalMap(),
+      mine: {
+        name: 'Alphabet',
+        minZoom: 0,
+        maxZoom: 22,
+        tileSize: new naver.maps.Size(50, 50),
+        getTile: () => document.createElement('div'),
+      } as unknown as naver.maps.MapType,
+    },
+    'mine',
+  );
+  return projectionless;
+}
+
 const STABLE_PATH = [
   { lat: 37.56, lng: 126.97 },
   { lat: 37.57, lng: 126.98 },
@@ -184,8 +203,15 @@ function AutoResize() {
 function KvoProbe({ observed }: { observed: Observed }) {
   const map = useMap();
   const zoom = useKVO<number>(map, 'zoom');
-  const center = useKVO<naver.maps.LatLng>(map, 'center');
-  observed.recordKvo(zoom, center.lat());
+  const center = useKVO<naver.maps.Coord>(map, 'center');
+  // 투영이 없는 사용자 지도 유형에서는 Point 다.
+  observed.recordKvo(
+    zoom,
+    // 인증에 실패하면 SDK 가 naver.maps 를 비우므로 클래스 대신 메서드로 가른다.
+    'lat' in center && typeof center.lat === 'function'
+      ? center.lat()
+      : (center as naver.maps.Point).y,
+  );
   return null;
 }
 
@@ -260,6 +286,9 @@ function MapUnderTest({
       zoomControl={config.zoomControl}
       gl={config.gl}
       cursor={config.mapCursor}
+      {...(config.projectionlessMapType
+        ? { mapTypes: projectionlessRegistry(), mapTypeId: 'mine' }
+        : {})}
       {...(config.mapTypesInline
         ? {
             mapTypes: new naver.maps.MapTypeRegistry(
@@ -607,9 +636,14 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       // GL 서브모듈은 준비되면서 인스턴스 메서드를 새로 단다. 그러면 감싼 것이 사라지므로
       // 읽을 때마다 다시 감싼다. 이번 프레임에 이미 바뀐 호출은 못 보지만 GL 준비는 mount 안에서 끝난다.
       observe(map!, OBSERVED_METHODS, observed.calls);
-      const center = map!.getCenter() as naver.maps.LatLng;
+      // 투영이 없는 사용자 지도 유형에서는 getCenter() 가 Point 다. 그때는 [y, x].
+      const c = map!.getCenter();
+      const center: LL =
+        'lat' in c && typeof c.lat === 'function'
+          ? [c.lat(), (c as naver.maps.LatLng).lng()]
+          : [(c as naver.maps.Point).y, (c as naver.maps.Point).x];
       return {
-        center: [center.lat(), center.lng()],
+        center,
         zoom: map!.getZoom(),
         events: observed.events.splice(0),
         calls: observed.calls.splice(0),

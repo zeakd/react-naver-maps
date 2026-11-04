@@ -150,8 +150,9 @@ describe('NaverMap center/zoom/bounds dirty diff', () => {
       </Wrapper>,
     );
 
+    // 리터럴은 SDK LatLng 로 바꿔 넘긴다(투영 없는 지도 유형에서 SDK 가 리터럴 변환에 실패한다).
     expect(map.panTo).toHaveBeenCalledWith(
-      { lat: 38.0, lng: 128.0 },
+      expect.objectContaining({ x: 128.0, y: 38.0 }),
       { duration: 0 },
     );
     expect(map.setCenter).not.toHaveBeenCalled();
@@ -193,7 +194,10 @@ describe('NaverMap center/zoom/bounds dirty diff', () => {
       </Wrapper>,
     );
 
-    expect(map.morph).toHaveBeenCalledWith({ lat: 38.0, lng: 128.0 }, 15);
+    expect(map.morph).toHaveBeenCalledWith(
+      expect.objectContaining({ x: 128.0, y: 38.0 }),
+      15,
+    );
     expect(map.panTo).not.toHaveBeenCalled();
     expect(map.setZoom).not.toHaveBeenCalled();
   });

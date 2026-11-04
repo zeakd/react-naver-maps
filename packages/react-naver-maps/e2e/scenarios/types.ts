@@ -90,6 +90,8 @@ export type AppConfig = {
   flightSpot?: boolean;
   /** heatMapOpacity 의 HeatMap 데이터를 { weight, location } 리터럴로 넘긴다. */
   heatMapWeighted?: boolean;
+  /** 투영(projection)을 생략한 사용자 지도 유형 하나를 mapTypes 로 주고 그 유형으로 올린다(공식 예제 "지도 유형 기본"). */
+  projectionlessMapType?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
