@@ -14,6 +14,8 @@ export type DrawingFrame = {
   drawings: number | null;
   /** 이 프레임까지 onDrawingAdded 를 받은 수 */
   drawingAdded: number;
+  /** DrawingManager 가 있으면 지금 drawingMode(getOptions) */
+  drawingMode: number | null;
 };
 
 type DrawingProbe = {
@@ -38,12 +40,19 @@ export const drawing = defineFixture<DrawingConfig, DrawingProbe, DrawingFrame>(
           />
         </Activity>
       ),
-    fields: { drawings: 'behavior', drawingAdded: 'behavior' },
+    fields: {
+      drawings: 'behavior',
+      drawingAdded: 'behavior',
+      drawingMode: 'behavior',
+    },
     read: (_map, probe) => ({
       drawings: probe.manager
         ? Object.keys(probe.manager.getDrawings() ?? {}).length
         : null,
       drawingAdded: probe.added,
+      drawingMode: probe.manager
+        ? (probe.manager.getOptions('drawingMode') as number)
+        : null,
     }),
   },
 );
