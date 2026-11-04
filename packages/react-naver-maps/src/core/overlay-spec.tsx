@@ -6,6 +6,7 @@ import { useNavermaps } from './hooks/use-navermaps.js';
 import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { onMap, onReadyHost, useSdkInstance } from './lifetime.js';
+import type { AttachTo } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { pick } from './utils/pick.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
@@ -45,6 +46,11 @@ export type OverlaySpec<P, T> = {
   derived?: (props: P) => Record<string, unknown>;
   /** 만든 직후 할 일. */
   afterCreate?: (instance: T, props: P) => void;
+  /**
+   * 붙이는 방법(lifetime.ts AttachTo). 없으면 생성자에 map 을 넣어 붙이고, 다시 붙일 때 setMap 한다.
+   * 주면 생성자에는 map 을 넣지 않고 붙일 때마다 이것을 부른다.
+   */
+  attachTo?: AttachTo<T>;
   /**
    * 표로 나타내지 못하는 동기화(인자 둘인 SDK 메서드 등). OverlayBindings 안에서 훅으로 부른다.
    * 예: HeatMap 의 setColorMap(colorMap, inReverse).
@@ -92,7 +98,7 @@ export function defineOverlay<P extends object, T extends Overlay>(
       const created = spec.create(
         navermaps,
         omitUndefined({
-          map: waitForReady ? undefined : map,
+          map: waitForReady || spec.attachTo ? undefined : map,
           ...pick(props, spec.options),
           ...spec.initial?.(props),
           ...spec.derived?.(props),
@@ -103,7 +109,9 @@ export function defineOverlay<P extends object, T extends Overlay>(
       return created;
     };
     const instance = useSdkInstance(
-      waitForReady ? onReadyHost(map, host.isReady, make) : onMap(map, make),
+      waitForReady
+        ? onReadyHost(map, host.isReady, make, spec.attachTo)
+        : onMap(map, make, spec.attachTo),
       spec.keys?.(props),
     );
 

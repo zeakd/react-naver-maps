@@ -71,6 +71,12 @@ export class MockKVO {
   setMap(map: unknown): void {
     this.set('map', map);
   }
+  getClickable(): unknown {
+    return this.get('clickable');
+  }
+  setClickable(value: unknown): void {
+    this.set('clickable', value);
+  }
   setPosition(pos: unknown): void {
     this.set('position', pos);
   }

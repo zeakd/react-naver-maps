@@ -96,12 +96,24 @@ function DrawingManagerInner({ ref, ...props }: DrawingManagerProps) {
   const options = pick(props, OPTIONS);
 
   // 도구 막대는 지도 컨트롤이라 지도가 준비된 뒤 붙인다(lifetime.ts onReadyMap).
+  // SDK 는 지도에서 떼면 drawingMode 를 HAND(0)로 되돌리고 다시 붙여도 그대로 둔다(3.10.5 실측).
+  // 다시 붙일 때(숨겼다 보일 때, StrictMode 재실행) prop 의 drawingMode 로 맞춘다.
+  const drawingMode = props.drawingMode;
   const spec = onReadyMap<Manager>(
     map,
     () =>
       new navermaps.drawing.DrawingManager(
         omitUndefined(options) as naver.maps.drawing.DrawingOptions,
       ),
+    (manager, host) => {
+      manager.setMap(host);
+      if (
+        drawingMode !== undefined &&
+        manager.getOptions('drawingMode') !== drawingMode
+      ) {
+        manager.setOptions('drawingMode', drawingMode);
+      }
+    },
   );
   // 버릴 때는 SDK 의 destroy 로 도구 막대, 메뉴, 리스너를 정리한다.
   const manager = useSdkInstance<Manager>({
