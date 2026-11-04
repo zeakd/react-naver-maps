@@ -1,0 +1,16 @@
+---
+title: 폴리라인에 화살표 표시하기
+category: tutorial-marker
+order: 25
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PointingIconExample from '../../../examples/pointing-icon.tsx';
+
+<Example of={PointingIconExample} />
+
+## 설명
+
+`Polyline` 의 `startIcon`/`endIcon` 에 `navermaps.PointingIcon.OPEN_ARROW` 같은 상수를 주고, `startIconSize`/`endIconSize`(픽셀)로 크기를 고정합니다. 크기를 안 주면 `strokeWeight` 에 따라 커집니다. 선 두께 버튼은 state 하나를 모든 폴리라인의 `strokeWeight` 로 줍니다.
+
+> [네이버 공식 예제 - 폴리라인에 화살표 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-pointing-icon.example.html)

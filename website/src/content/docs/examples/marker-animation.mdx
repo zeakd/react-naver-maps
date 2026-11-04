@@ -1,0 +1,16 @@
+---
+title: 애니메이션 마커 표시하기
+category: tutorial-marker
+order: 18
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerAnimationExample from '../../../examples/marker-animation.tsx';
+
+<Example of={MarkerAnimationExample} />
+
+## 설명
+
+`Marker` 의 `animation` 은 값이 바뀔 때만 적용됩니다. SDK 는 `DROP` 이 끝나면 값을 `null` 로 돌리지만 다시 렌더해도 다시 떨어지지 않습니다. 클릭으로 `BOUNCE` 를 켜고 끄는 부분은 `animation` 에 `BOUNCE`/`null` state 를 주고, 지금 상태는 `ref` 의 `getAnimation()` 으로 읽습니다. `icon` 은 이미지 URL·SymbolIcon·HtmlIcon, `shape` 는 SymbolIcon 의 클릭 영역입니다.
+
+> [네이버 공식 예제 - 애니메이션 마커 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-animation.example.html)

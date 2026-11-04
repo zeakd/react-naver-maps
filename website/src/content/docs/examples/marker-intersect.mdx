@@ -1,0 +1,16 @@
+---
+title: 겹침 마커 처리하기
+category: tutorial-marker
+order: 20
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerIntersectExample from '../../../examples/marker-intersect.tsx';
+
+<Example of={MarkerIntersectExample} />
+
+## 설명
+
+겹침 판정은 이벤트가 날 때 `NaverMap` `ref` 의 `getProjection().fromCoordToOffset()` 으로 화면 픽셀 거리를 재어 합니다. 안내 상자와 목록은 `CustomOverlay`, 마우스 올림 강조는 state 로 `icon`·`zIndex` 를 바꿉니다. 한계: 공식 예제는 `Event.stopDispatch` 로 겹친 마커의 click 을 막지만, 여기서는 click 핸들러가 겹친 마커이면 무시합니다.
+
+> [네이버 공식 예제 - 겹침 마커 처리하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-intersect.example.html)

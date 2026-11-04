@@ -1,0 +1,16 @@
+---
+title: 보이는 지도 영역의 마커만 표시하기
+category: tutorial-marker
+order: 22
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerViewportExample from '../../../examples/marker-viewport.tsx';
+
+<Example of={MarkerViewportExample} />
+
+## 설명
+
+`NaverMap` 의 `onIdle` 에서 `ref.current.getBounds()` 를 state 에 담고, 그 영역 안(`hasLatLng`)의 마커만 렌더합니다. 영역 밖 마커는 컴포넌트가 사라지므로 `setMap(null)` 을 직접 부르지 않아도 됩니다.
+
+> [네이버 공식 예제 - 보이는 지도 영역의 마커만 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-viewport.example.html)
