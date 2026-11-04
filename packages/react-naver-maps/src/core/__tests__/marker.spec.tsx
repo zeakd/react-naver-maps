@@ -146,7 +146,7 @@ describe('Marker 스펙 테스트', () => {
     expect(setMapSpy).toHaveBeenCalledWith(null);
   });
 
-  test('onClick prop → addListener 등록', async () => {
+  test('onClick prop → click 이벤트 때 그 핸들러가 불린다', async () => {
     const handleClick = vi.fn();
     const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
@@ -156,18 +156,26 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    let instance: MockKVO;
     await vi.waitFor(() => {
+      instance = mock.getLastInstance('Marker')!.instance;
+      expect(instance).toBeDefined();
       expect(addSpy).toHaveBeenCalledWith(
-        expect.anything(),
+        instance,
         'click',
-        handleClick,
+        expect.any(Function),
       );
     });
+
+    instance!._trigger('click', 'e1');
+    expect(handleClick).toHaveBeenCalledTimes(1);
+    expect(handleClick).toHaveBeenCalledWith('e1');
   });
 
-  test('onClick 변경 시 이전 리스너 제거 + 새 리스너 등록', async () => {
+  test('onClick 변경 시 새 핸들러가 불리고 옛 핸들러는 안 불린다, 리스너는 다시 붙지 않는다', async () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
+    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
     const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
 
     const { rerender } = render(
@@ -176,9 +184,19 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    let instance: MockKVO;
     await vi.waitFor(() => {
-      expect(mock.getLastInstance('Marker')).toBeDefined();
+      instance = mock.getLastInstance('Marker')!.instance;
+      expect(instance).toBeDefined();
+      expect(addSpy).toHaveBeenCalledWith(
+        instance,
+        'click',
+        expect.any(Function),
+      );
     });
+
+    addSpy.mockClear();
+    removeSpy.mockClear();
 
     rerender(
       <Wrapper>
@@ -186,9 +204,41 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    instance!._trigger('click');
+    expect(handler2).toHaveBeenCalledTimes(1);
+    expect(handler1).not.toHaveBeenCalled();
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(removeSpy).not.toHaveBeenCalled();
+  });
+
+  test('onClick 을 없애면 click 리스너를 뗀다', async () => {
+    const handler = vi.fn();
+    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
+
+    const { rerender } = render(
+      <Wrapper>
+        <Marker position={{ lat: 37.5, lng: 127.0 }} onClick={handler} />
+      </Wrapper>,
+    );
+
+    let instance: MockKVO;
+    await vi.waitFor(() => {
+      instance = mock.getLastInstance('Marker')!.instance;
+      expect(instance._listeners.click).toHaveLength(1);
+    });
+
+    rerender(
+      <Wrapper>
+        <Marker position={{ lat: 37.5, lng: 127.0 }} />
+      </Wrapper>,
+    );
+
     await vi.waitFor(() => {
       expect(removeSpy).toHaveBeenCalled();
     });
+    expect(instance!._listeners.click ?? []).toHaveLength(0);
+    instance!._trigger('click');
+    expect(handler).not.toHaveBeenCalled();
   });
 
   test('static options (visible, clickable 등) KVO 동기화', async () => {
@@ -215,7 +265,7 @@ describe('Marker 스펙 테스트', () => {
     });
   });
 
-  test('onDragend 핸들러 변경 시 리스너 교체', async () => {
+  test('onDragend 핸들러 변경 시 새 핸들러가 불리고 리스너는 다시 붙지 않는다', async () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
     const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
@@ -227,14 +277,23 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    let instance: MockKVO;
     await vi.waitFor(() => {
-      expect(mock.getLastInstance('Marker')).toBeDefined();
+      instance = mock.getLastInstance('Marker')!.instance;
+      expect(instance).toBeDefined();
     });
 
     // 첫 렌더에서 dragend 리스너 등록 확인
-    expect(addSpy).toHaveBeenCalledWith(expect.anything(), 'dragend', handler1);
+    expect(addSpy).toHaveBeenCalledWith(
+      instance!,
+      'dragend',
+      expect.any(Function),
+    );
+    instance!._trigger('dragend');
+    expect(handler1).toHaveBeenCalledTimes(1);
 
     addSpy.mockClear();
+    removeSpy.mockClear();
 
     rerender(
       <Wrapper>
@@ -242,16 +301,11 @@ describe('Marker 스펙 테스트', () => {
       </Wrapper>,
     );
 
-    await vi.waitFor(() => {
-      // 이전 리스너 제거
-      expect(removeSpy).toHaveBeenCalled();
-      // 새 리스너 등록
-      expect(addSpy).toHaveBeenCalledWith(
-        expect.anything(),
-        'dragend',
-        handler2,
-      );
-    });
+    instance!._trigger('dragend');
+    expect(handler2).toHaveBeenCalledTimes(1);
+    expect(handler1).toHaveBeenCalledTimes(1);
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(removeSpy).not.toHaveBeenCalled();
   });
 
   test('undefined props는 생성자 옵션에서 제외 (omitUndefined)', async () => {

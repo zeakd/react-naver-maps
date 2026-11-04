@@ -346,7 +346,7 @@ describe('NaverMap lifecycle events register via useLayoutEffect (fix-13)', () =
     expect(onInit).toHaveBeenCalledTimes(1);
   });
 
-  test('인터랙션 이벤트 prop 변경 시 onInit 재등록되지 않음 (별도 useLayoutEffect deps)', () => {
+  test('인터랙션 이벤트 prop 변경 시 onInit 도 click 도 재등록되지 않고 새 onClick 이 불린다', () => {
     const onInit = vi.fn();
     const onClick1 = vi.fn();
     const onClick2 = vi.fn();
@@ -380,13 +380,15 @@ describe('NaverMap lifecycle events register via useLayoutEffect (fix-13)', () =
       </Wrapper>,
     );
 
-    // onInit은 별도 useLayoutEffect에 있으므로 재등록 안 됨
     expect(addCalls.init ?? 0).toBe(initRegistrations);
-    // onClick은 변경됐으므로 재등록됨
-    expect(addCalls.click ?? 0).toBeGreaterThan(clickRegistrationsBefore);
+    // onClick 은 바뀌어도 리스너를 다시 붙이지 않는다. 붙은 리스너가 최신 핸들러를 부른다.
+    expect(addCalls.click ?? 0).toBe(clickRegistrationsBefore);
+    for (const cb of lastMapInstance!._listeners.click ?? []) cb();
+    expect(onClick2).toHaveBeenCalledTimes(1);
+    expect(onClick1).not.toHaveBeenCalled();
   });
 
-  test('onInit 자체 변경 시에는 재등록 (deps 추적)', () => {
+  test('onInit 이 바뀌어도 재등록하지 않고 새 onInit 이 불린다', () => {
     const onInit1 = vi.fn();
     const onInit2 = vi.fn();
 
@@ -416,7 +418,10 @@ describe('NaverMap lifecycle events register via useLayoutEffect (fix-13)', () =
       </Wrapper>,
     );
 
-    expect((addCalls.init ?? 0) - before).toBeGreaterThan(0);
+    expect(addCalls.init ?? 0).toBe(before);
+    for (const cb of lastMapInstance!._listeners.init ?? []) cb();
+    expect(onInit2).toHaveBeenCalledTimes(1);
+    expect(onInit1).not.toHaveBeenCalled();
   });
 });
 

@@ -42,6 +42,7 @@ import {
   type InfoWindowOnMarkerConfig,
   type InfoWindowOnMarkerFrame,
 } from './info-window-on-marker.js';
+import { heavyPolyline, type HeavyPolylineConfig } from './heavy-polyline.js';
 import { marker, type MarkerConfig, type MarkerFrame } from './marker.js';
 import {
   markerCrowd,
@@ -89,7 +90,8 @@ export type FixtureConfig = AutoResizeConfig &
   InfoWindowOnMarkerConfig &
   MarkerCrowdConfig &
   CustomOverlayConfig &
-  ErrorBoundaryConfig;
+  ErrorBoundaryConfig &
+  HeavyPolylineConfig;
 
 /** TraceFrame 의 기능별 부분. */
 export type FixtureFrame = MarkerFrame &
@@ -130,6 +132,7 @@ export const FIXTURES: AnyFixture[] = [
   markerCrowd,
   errorBoundary,
   customOverlay,
+  heavyPolyline,
   // 다른 픽스처가 등록한 오버레이를 읽으므로 맨 뒤에 둔다.
   overlayDrift,
 ];

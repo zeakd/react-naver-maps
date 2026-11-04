@@ -59,10 +59,12 @@ for (const scenario of scenarios) {
       });
     }
     for (const shot of shots) {
-      await testInfo.attach(`${shot.name}.png`, {
-        body: shot.png,
-        contentType: 'image/png',
-      });
+      await testInfo.attach(
+        shot.text ? `${shot.name}.txt` : `${shot.name}.png`,
+        shot.text
+          ? { body: shot.text, contentType: 'text/plain' }
+          : { body: shot.png!, contentType: 'image/png' },
+      );
     }
     // WebGL 을 성능 경고 없이 쓸 수 없는 환경(GPU 없는 CI)에서 SDK 는 래스터로 바꾼다.
     // 그때 gl 시나리오는 GL 을 검사하지 못하므로 건너뛴다.

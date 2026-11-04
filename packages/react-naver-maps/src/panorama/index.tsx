@@ -24,6 +24,7 @@ import { NaverMapContext } from '../core/contexts/naver-map.js';
 import { PanoramaHostContext } from '../core/contexts/overlay-host.js';
 import type { PanoramaHost } from '../core/contexts/overlay-host.js';
 import { useNavermaps } from '../core/hooks/use-navermaps.js';
+import { useLatest } from '../core/hooks/use-latest.js';
 import {
   kvoEquals,
   useControlledProps,
@@ -216,31 +217,42 @@ function PanoramaBindings({
   useCameraProp(props.pov, (v) => panorama.setPov(v), hold);
   useCameraProp(props.zoom, (v) => panorama.setZoom(v), hold);
 
-  const { onPanoChanged, onPanoStatus, onPovChanged, onInit } = props;
+  // 리스너는 핸들러가 생기거나 없어질 때만 붙인다. 붙인 리스너는 최신 핸들러를 부른다(hooks/use-latest.ts).
+  const latest = useLatest(props);
+  const hasInit = props.onInit !== undefined;
+  const hasPanoChanged = props.onPanoChanged !== undefined;
+  const hasPanoStatus = props.onPanoStatus !== undefined;
+  const hasPovChanged = props.onPovChanged !== undefined;
   // init 은 비동기로 오지만 NaverMap 과 같이 layout effect 로 먼저 단다.
   useLayoutEffect(() => {
-    if (!onInit) return;
-    const listener = addMapListener(panorama, 'init', onInit);
+    if (!hasInit) return;
+    const listener = addMapListener(panorama, 'init', () =>
+      latest.current.onInit?.(),
+    );
     return () => removeMapListener(listener);
-  }, [panorama, onInit]);
+  }, [panorama, hasInit, latest]);
   useEffect(() => {
     const listeners: MapListener[] = [];
-    if (onPanoChanged)
+    if (hasPanoChanged)
       listeners.push(
         addMapListener(panorama, 'pano_changed', () =>
-          onPanoChanged(panorama.getPanoId()),
+          latest.current.onPanoChanged?.(panorama.getPanoId()),
         ),
       );
-    if (onPanoStatus)
-      listeners.push(addMapListener(panorama, 'pano_status', onPanoStatus));
-    if (onPovChanged)
+    if (hasPanoStatus)
+      listeners.push(
+        addMapListener(panorama, 'pano_status', (status: 'OK' | 'ERROR') =>
+          latest.current.onPanoStatus?.(status),
+        ),
+      );
+    if (hasPovChanged)
       listeners.push(
         addMapListener(panorama, 'pov_changed', () =>
-          onPovChanged(panorama.getPov()),
+          latest.current.onPovChanged?.(panorama.getPov()),
         ),
       );
     return () => listeners.forEach((l) => removeMapListener(l));
-  }, [panorama, onPanoChanged, onPanoStatus, onPovChanged]);
+  }, [panorama, hasPanoChanged, hasPanoStatus, hasPovChanged, latest]);
 
   return null;
 }
@@ -355,11 +367,17 @@ function FlightSpotRoot({ ref, onPoiClicked }: FlightSpotProps) {
 
   useImperativeHandle(ref, () => flightSpot!, [flightSpot]);
 
+  const latestPoiClicked = useLatest(onPoiClicked);
+  const hasPoiClicked = onPoiClicked !== undefined;
   useEffect(() => {
-    if (!flightSpot || !onPoiClicked) return;
-    const listener = addMapListener(flightSpot, 'poi_clicked', onPoiClicked);
+    if (!flightSpot || !hasPoiClicked) return;
+    const listener = addMapListener(
+      flightSpot,
+      'poi_clicked',
+      (panoId: string) => latestPoiClicked.current?.(panoId),
+    );
     return () => removeMapListener(listener);
-  }, [flightSpot, onPoiClicked]);
+  }, [flightSpot, hasPoiClicked, latestPoiClicked]);
 
   return null;
 }

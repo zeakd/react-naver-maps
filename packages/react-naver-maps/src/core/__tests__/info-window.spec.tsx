@@ -200,9 +200,8 @@ describe('InfoWindow 스펙 테스트', () => {
     expect(clearSpy).toHaveBeenCalledWith(instance!);
   });
 
-  test('onClose 이벤트 핸들러 등록', async () => {
+  test('onClose: close 이벤트 때 그 핸들러가 불린다', async () => {
     const onClose = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
     render(
       <Wrapper>
@@ -210,14 +209,18 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    let instance: MockKVO;
     await vi.waitFor(() => {
-      expect(addSpy).toHaveBeenCalledWith(expect.anything(), 'close', onClose);
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance._listeners.close).toHaveLength(1);
     });
+
+    instance!._trigger('close');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('onOpen 이벤트 핸들러 등록', async () => {
+  test('onOpen: open 이벤트 때 그 핸들러가 불린다', async () => {
     const onOpen = vi.fn();
-    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
 
     render(
       <Wrapper>
@@ -225,9 +228,57 @@ describe('InfoWindow 스펙 테스트', () => {
       </Wrapper>,
     );
 
+    let instance: MockKVO;
     await vi.waitFor(() => {
-      expect(addSpy).toHaveBeenCalledWith(expect.anything(), 'open', onOpen);
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance._listeners.open).toHaveLength(1);
     });
+
+    instance!._trigger('open');
+    expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  test('onOpen 변경 시 새 핸들러가 불리고 리스너는 다시 붙지 않는다, 없애면 뗀다', async () => {
+    const onOpen1 = vi.fn();
+    const onOpen2 = vi.fn();
+    const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
+    const removeSpy = vi.spyOn(mock.navermaps.Event, 'removeListener');
+
+    const { rerender } = render(
+      <Wrapper>
+        <InfoWindow content="hello" onOpen={onOpen1} />
+      </Wrapper>,
+    );
+
+    let instance: MockKVO;
+    await vi.waitFor(() => {
+      instance = mock.getLastInstance('InfoWindow')!.instance;
+      expect(instance._listeners.open).toHaveLength(1);
+    });
+
+    addSpy.mockClear();
+    removeSpy.mockClear();
+
+    rerender(
+      <Wrapper>
+        <InfoWindow content="hello" onOpen={onOpen2} />
+      </Wrapper>,
+    );
+    instance!._trigger('open');
+    expect(onOpen2).toHaveBeenCalledTimes(1);
+    expect(onOpen1).not.toHaveBeenCalled();
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(removeSpy).not.toHaveBeenCalled();
+
+    rerender(
+      <Wrapper>
+        <InfoWindow content="hello" />
+      </Wrapper>,
+    );
+    await vi.waitFor(() => {
+      expect(removeSpy).toHaveBeenCalled();
+    });
+    expect(instance!._listeners.open ?? []).toHaveLength(0);
   });
 
   /**
@@ -336,7 +387,7 @@ describe('InfoWindow 스펙 테스트', () => {
    * 따라서 주장 범위를 "open() 동기 발화 시 onOpen/onClose가 등록되어 호출된다"로 낮춘다.
    * 이 경우 회귀 대상은: listener가 아예 등록되지 않거나, 잘못된 event명/대상에 걸리는 경우.
    */
-  test('open() 동기 발화 시 onOpen 호출 + listener 등록 (fix-16)', async () => {
+  test('open() 동기 발화 시 onOpen 호출 + onClose 리스너 등록 (fix-16)', async () => {
     const onOpen = vi.fn();
     const onClose = vi.fn();
     const addSpy = vi.spyOn(mock.navermaps.Event, 'addListener');
@@ -355,14 +406,26 @@ describe('InfoWindow 스펙 테스트', () => {
 
     // listener가 정확한 인스턴스/event명에 등록되어야 함
     await vi.waitFor(() => {
-      expect(addSpy).toHaveBeenCalledWith(instance!, 'open', onOpen);
+      expect(addSpy).toHaveBeenCalledWith(
+        instance!,
+        'open',
+        expect.any(Function),
+      );
     });
-    expect(addSpy).toHaveBeenCalledWith(instance!, 'close', onClose);
+    expect(addSpy).toHaveBeenCalledWith(
+      instance!,
+      'close',
+      expect.any(Function),
+    );
 
     // mock open()이 동기 'open' 발화 → 등록된 onOpen이 호출됨
     await vi.waitFor(() => {
       expect(onOpen).toHaveBeenCalledTimes(1);
     });
     expect(onClose).not.toHaveBeenCalled();
+
+    // 붙인 close 리스너는 onClose 를 부른다
+    instance!._trigger('close');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

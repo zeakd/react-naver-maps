@@ -21,6 +21,7 @@ import {
   MAP_SYNCED_PROPS,
 } from './naver-map-options.js';
 import { useOverlayEvents } from './overlay-spec.js';
+import { useLatest } from './hooks/use-latest.js';
 import type {
   ControlOptionsProp,
   MapTypeControlOptionsProp,
@@ -621,14 +622,15 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useOverlayEvents(map, props, MAP_EVENTS);
   // gl 서브모듈을 불러오면 SDK 내부 zoom 이 1 커져 이벤트 값과 getZoom() 이 다르다.
   // getZoom() 이 사용자에게 보이는 값이므로 이 값을 넘긴다.
-  const { onZoomChanged } = props;
+  const onZoomChanged = useLatest(props.onZoomChanged);
+  const hasZoomChanged = props.onZoomChanged !== undefined;
   useEffect(() => {
-    if (!onZoomChanged) return;
+    if (!hasZoomChanged) return;
     const listener = addMapListener(map, 'zoom_changed', () =>
-      onZoomChanged(map.getZoom()),
+      onZoomChanged.current?.(map.getZoom()),
     );
     return () => removeMapListener(listener);
-  }, [map, onZoomChanged]);
+  }, [map, hasZoomChanged, onZoomChanged]);
 
   return <>{children}</>;
 }

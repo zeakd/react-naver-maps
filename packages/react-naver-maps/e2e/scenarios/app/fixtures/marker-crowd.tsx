@@ -5,7 +5,11 @@ import { Marker } from '../target-imports.js';
 export type MarkerCrowdConfig = {
   /** 인라인 onClick 핸들러가 있는 Marker 를 이 수만큼 지도 중앙 둘레에 격자로 올린다. */
   markerCount?: number;
+  /** onClick 을 어떻게 줄지. 기본 inline(렌더마다 새 함수). stable 은 모듈의 같은 함수, none 은 주지 않는다. */
+  markerCrowdHandler?: 'inline' | 'stable' | 'none';
 };
+
+const stableClick = () => {};
 
 export type MarkerCrowdFrame = {
   /**
@@ -49,7 +53,17 @@ export const markerCrowd = defineFixture<
     Array.from({ length: config.markerCount }, (_, i) => (
       // 같은 순서로만 늘어나는 고정 격자라 인덱스 키가 안전하다.
       // oxlint-disable-next-line react/no-array-index-key
-      <Marker key={i} position={positionOf(i)} onClick={() => {}} />
+      <Marker
+        key={i}
+        position={positionOf(i)}
+        onClick={
+          config.markerCrowdHandler === 'none'
+            ? undefined
+            : config.markerCrowdHandler === 'stable'
+              ? stableClick
+              : () => {}
+        }
+      />
     )),
   read: (_map, probe) => ({ addListenerCalls: probe.addListenerCalls }),
 });
