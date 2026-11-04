@@ -46,8 +46,7 @@ function readLock(): Lock | undefined {
 
 /**
  * 이 실행이 끝날 때까지 포트를 잡는다. 다른 실행이 잡고 있으면 그 실행을 알려 주고 던진다.
- * 같은 실행의 자식이면(환경 변수로 안다) 아무것도 하지 않는다. 끝나거나 SIGINT·SIGTERM·SIGHUP 으로
- * 멈출 때 푼다.
+ * 같은 실행의 자식이면(환경 변수로 안다) 아무것도 하지 않는다. 프로세스가 끝날 때 푼다(아래 시그널 처리 참고).
  *
  * 잠금 파일은 배타 생성(`wx`)으로 만든다. 동시에 시작한 두 실행 중 하나만 이긴다. 확인과 쓰기를 따로
  * 하면 둘 다 "없음" 을 읽고 둘 다 썼다(2026-11-05, 같은 순간 시작한 두 프로세스 40회 중 28회).
@@ -89,12 +88,14 @@ export function holdPort(command: string): void {
     if (readLock()?.pid === process.pid) rmSync(LOCK, { force: true });
   };
   process.on('exit', release);
-  // 시그널로 멈추면 exit 이벤트가 오지 않는다. 풀고, 다른 처리기(Playwright 등)가 없으면 같은 시그널로 다시
-  // 멈춘다.
+  // 시그널을 처리하는 곳이 없으면 프로세스는 exit 이벤트 없이 멈춘다. 그때만 풀고 같은 시그널로 다시 멈춘다.
+  // 다른 처리기(Playwright 등)가 있으면 그쪽이 정리를 마치고 exit 하므로 그때(exit 이벤트) 푼다. 시그널을
+  // 받자마자 풀면 Playwright 가 정리하는 동안 다른 실행이 포트를 잡았다(2026-11-05 리뷰에서 재현).
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
     process.once(signal, () => {
+      if (process.listenerCount(signal) > 0) return;
       release();
-      if (process.listenerCount(signal) === 0) process.kill(process.pid, signal);
+      process.kill(process.pid, signal);
     });
   }
 }
