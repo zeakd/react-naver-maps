@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          # 문서 검사가 base 와의 차이를 본다.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6.1.0
       - uses: actions/setup-node@v7.1.0
         with:
@@ -24,6 +27,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      # 라이브러리 소스와 changeset 을 바꾼 PR 은 문서도 바꾼다(scripts/docs-with-changeset.mts).
+      - run: node scripts/docs-with-changeset.mts origin/${{ github.base_ref }} HEAD
       - run: pnpm -r run build
       - run: pnpm -r run test
       - run: pnpm --filter react-naver-maps run check:package
