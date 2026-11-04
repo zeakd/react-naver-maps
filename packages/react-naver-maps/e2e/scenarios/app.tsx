@@ -691,7 +691,7 @@ export type MountedApp = Awaited<ReturnType<typeof mountApp>>;
  */
 export async function mountPanorama(
   host: HTMLElement,
-  initial: { position: LL; pan?: number },
+  initial: { position: LL; pan?: number; marker?: LL; infoWindow?: boolean },
 ) {
   const maps = await loadScript({
     ncpKeyId: NCP_KEY_ID,
@@ -699,6 +699,8 @@ export async function mountPanorama(
   });
   const events: string[] = [];
   let panorama: naver.maps.Panorama | null = null;
+  let marker: naver.maps.Marker | null = null;
+  let infoWindow: naver.maps.InfoWindow | null = null;
   let pan = initial.pan ?? 0;
   const root = createRoot(host);
   const render = () =>
@@ -714,7 +716,28 @@ export async function mountPanorama(
             onPanoChanged={(id) => events.push(`pano_changed:${id}`)}
             onPanoStatus={(status) => events.push(`pano_status:${status}`)}
             onPovChanged={() => events.push('pov_changed')}
-          />
+            onInit={() => events.push('init')}
+          >
+            {initial.marker && (
+              <Marker
+                ref={(m: naver.maps.Marker | null) => {
+                  if (m) marker = m;
+                }}
+                position={toCoord(initial.marker)}
+              />
+            )}
+            {initial.marker && initial.infoWindow && (
+              <InfoWindow
+                ref={(o: naver.maps.InfoWindow | null) => {
+                  if (o) infoWindow = o;
+                }}
+                open
+                content="here"
+                anchor={toCoord(initial.marker)}
+                onOpen={() => events.push('infoWindowOpen')}
+              />
+            )}
+          </Panorama>
         </Container>
       </NavermapsProvider>,
     );
@@ -723,6 +746,21 @@ export async function mountPanorama(
   return {
     events: () => events.slice(),
     pan: () => (panorama as naver.maps.Panorama | null)?.getPov().pan ?? null,
+    /** 튜토리얼처럼 거리뷰 투영으로 Marker 쪽을 바라본다. 화면 확인용. */
+    lookAtMarker() {
+      if (!panorama || !marker) return;
+      const pov = panorama
+        .getProjection()
+        .fromCoordToPov(marker.getPosition() as naver.maps.LatLng);
+      if (pov) panorama.setPov(pov);
+    },
+    /** Marker 가 거리뷰에 붙었는가 */
+    markerOnPano: () =>
+      !!marker && (marker.getMap() as unknown) === (panorama as unknown),
+    /** InfoWindow 가 거리뷰에 열렸는가 */
+    infoWindowOnPano: () =>
+      !!infoWindow &&
+      (infoWindow.getMap() as unknown) === (panorama as unknown),
     setPan(next: number) {
       pan = next;
       flushSync(render);

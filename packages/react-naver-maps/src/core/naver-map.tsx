@@ -20,6 +20,7 @@ import type {
 } from './types/sdk-options.js';
 import { ContainerContext } from './contexts/container.js';
 import { NaverMapContext } from './contexts/naver-map.js';
+import { PanoramaHostContext } from './contexts/overlay-host.js';
 import { useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import {
@@ -329,9 +330,12 @@ export function NaverMap({ ref, children, ...props }: NaverMapProps) {
 
   return (
     <NaverMapContext value={map}>
-      <NaverMapInner map={map} {...props}>
-        {children}
-      </NaverMapInner>
+      {/* 거리뷰 안에 둔 지도의 오버레이가 거리뷰에 붙지 않게 Panorama 문맥을 비운다. */}
+      <PanoramaHostContext value={null}>
+        <NaverMapInner map={map} {...props}>
+          {children}
+        </NaverMapInner>
+      </PanoramaHostContext>
     </NaverMapContext>
   );
 }

@@ -124,17 +124,29 @@ export function onReadyMap<T extends MapAttachable>(
   map: naver.maps.Map,
   create: () => T,
 ): SdkInstanceSpec<T> {
+  return onReadyHost(map, () => !!(map as ReadyMap).isReady, create);
+}
+
+/**
+ * onReadyMap 을 붙일 곳과 준비 판정으로 일반화한 것. 거리뷰(Panorama)도 init 뒤에 붙인다.
+ * 준비 판정은 붙일 곳마다 다르다(Map 은 isReady 속성, Panorama 는 Panorama 컴포넌트가 기록).
+ */
+export function onReadyHost<T extends MapAttachable>(
+  host: naver.maps.Map,
+  isReady: () => boolean,
+  create: () => T,
+): SdkInstanceSpec<T> {
   const waits = new WeakMap<T, MapListener>();
   const attach = (instance: T) => {
-    if ((map as ReadyMap).isReady) {
-      instance.setMap(map);
+    if (isReady()) {
+      instance.setMap(host);
       return;
     }
     waits.set(
       instance,
-      addMapListener(map, 'init', () => {
+      addMapListener(host, 'init', () => {
         waits.delete(instance);
-        instance.setMap(map);
+        instance.setMap(host);
       }),
     );
   };

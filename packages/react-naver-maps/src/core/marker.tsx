@@ -77,6 +77,7 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
     'collisionBoxSize',
   ],
   changeOnly: ['animation'],
+  panorama: true,
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,
     // SDK 는 지도에 붙을 때 clickable 이 true 인 Marker 에만 DOM 리스너를 단다.

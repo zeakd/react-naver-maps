@@ -1,9 +1,15 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import {
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
-import { useMap } from './hooks/use-map.js';
+import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import {
@@ -109,7 +115,8 @@ const CHANGES = [
 
 export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   const navermaps = useNavermaps();
-  const map = useMap();
+  const host = useOverlayHost();
+  const map = host.target;
 
   // 수명은 lifetime.ts 규칙을 따른다. 숨길 때는 닫고, 다시 보일 때는 open prop 동기화가 다시 연다
   // (InfoWindowInner 의 open effect 가 닫힌 것을 보고 연다).
@@ -148,6 +155,7 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
     <InfoWindowInner
       infoWindow={infoWindow}
       map={map}
+      waitForInit={host.kind === 'panorama' ? host.isReady : undefined}
       content={content}
       open={open}
       {...props}
@@ -158,6 +166,8 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
 interface InfoWindowInnerProps extends Omit<InfoWindowProps, 'ref'> {
   infoWindow: naver.maps.InfoWindow;
   map: naver.maps.Map;
+  /** 거리뷰에서는 준비(init) 뒤에 연다. 준비 판정. */
+  waitForInit?: () => boolean;
 }
 
 function InfoWindowInner({
@@ -165,8 +175,18 @@ function InfoWindowInner({
   map,
   content,
   open,
+  waitForInit,
   ...props
 }: InfoWindowInnerProps) {
+  // 거리뷰(Panorama)는 준비 전에 연 정보 창을 그리지 않는다. 준비되면 다시 렌더해 연다.
+  const [ready, setReady] = useState(() => !waitForInit || waitForInit());
+  useEffect(() => {
+    if (ready || !waitForInit) return;
+    const listener = addMapListener(map, 'init', () => setReady(true));
+    // 렌더와 이 effect 사이에 init 이 이미 왔으면 리스너가 놓친다.
+    if (waitForInit()) queueMicrotask(() => setReady(true));
+    return () => removeMapListener(listener);
+  }, [map, ready, waitForInit]);
   // 'open'/'close' 이벤트 listener를 useLayoutEffect로 우선 등록 (paint 전).
   // 같은 컴포넌트 내에서 React가 hook 등록 순서를 보장하므로 useEffect로도 timing 자체는
   // 안전하지만(이 컴포넌트는 listener 등록 다음에 open() 호출 useEffect가 따라옴),
@@ -186,7 +206,7 @@ function InfoWindowInner({
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   const openedRef = useRef<{ anchor: unknown } | null>(null);
   useEffect(() => {
-    if (open === undefined || !sdkAlive()) return;
+    if (open === undefined || !sdkAlive() || !ready) return;
     if (open) {
       // 인라인 anchor 는 참조가 매번 달라도 값이 같으면 다시 열지 않는다.
       // open 은 close 와 open 이벤트를 다시 내고 autoPan 도 다시 돈다.
@@ -208,7 +228,7 @@ function InfoWindowInner({
       openedRef.current = null;
       infoWindow.close();
     }
-  }, [infoWindow, map, open, props.anchor]);
+  }, [infoWindow, map, open, props.anchor, ready]);
 
   // content 변경 시 네이티브 setContent 호출
   useEffect(() => {
