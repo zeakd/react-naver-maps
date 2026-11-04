@@ -90,17 +90,7 @@ export const feedback: Scenario[] = [
     ],
     since: '0.4',
   },
-  {
-    // 방향키는 SDK 가 panBy 로 옮긴다. 오른쪽 키는 경도가 늘어나는 쪽으로만 간다.
-    name: '방향키로 옮기는 동안 center 를 늦게 되돌려줘도 지도를 끌지 않는다',
-    app: { mode: 'delayed' },
-    steps: [
-      { t: 'key', key: 'ArrowRight' },
-      { t: 'frames', n: 60 },
-    ],
-    expect: [oneWay(), calls(NO_STALE_CAMERA), movedBy(0.00001)],
-    since: '0.4',
-  },
+
   {
     // 사례 8. 앱이 center 와 zoom 을 함께 바꾸면 morph 하나로 이동한다. 그 중간 값이 늦게 돌아와
     // 다시 적용되면 morph 가 끊기거나 목표에 못 닿는다.

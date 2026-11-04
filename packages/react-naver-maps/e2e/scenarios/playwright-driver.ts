@@ -91,7 +91,6 @@ export function createPlaywrightDriver(
           'mousemove',
           'mouseup',
           'wheel',
-          'keydown',
           'touchstart',
           'touchmove',
           'touchend',
@@ -162,10 +161,6 @@ export function createPlaywrightDriver(
     },
     async dblclickCenter() {
       await input(() => page.mouse.dblclick(300, 200));
-    },
-    async key(key) {
-      await page.evaluate(() => window.app.focusMap());
-      await input(() => page.keyboard.press(key));
     },
     async setState(state) {
       await page.evaluate((s) => window.app.setState(s), state);

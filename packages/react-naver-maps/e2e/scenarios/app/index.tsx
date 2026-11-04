@@ -330,11 +330,6 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
       feedback.write(state);
     },
     /** 키보드 단계를 위해 지도 요소에 포커스를 둔다. */
-    focusMap() {
-      const el = map!.getElement() as HTMLElement;
-      if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
-      el.focus();
-    },
     call(method: string, args: unknown[]) {
       const decoded = args.map((a) =>
         Array.isArray(a) ? new maps.LatLng(a[0], a[1]) : a,

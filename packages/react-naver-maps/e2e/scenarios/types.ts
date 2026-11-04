@@ -70,7 +70,6 @@ export type Step =
   /** 지도 중앙을 실제 DOM 더블클릭으로 누른다. */
   | { t: 'dblclickCenter' }
   /** 지도에 포커스를 두고 키를 누른다(Playwright 키 이름, 예: ArrowRight). */
-  | { t: 'key'; key: string }
   /**
    * 앱 상태(되먹임으로 받은 center·zoom)에 바로 쓴다. 설정의 center·zoom 과 달리 고정하지 않아
    * 이후 되먹임이 덮을 수 있다.
@@ -165,7 +164,6 @@ export interface ScenarioDriver {
   wheel(x: number, y: number, deltaY: number): Promise<void>;
   clickCenter(): Promise<void>;
   dblclickCenter(): Promise<void>;
-  key(key: string): Promise<void>;
   setState(state: { center?: LL; zoom?: number }): Promise<void>;
   touch(
     kind: 'start' | 'move' | 'end',

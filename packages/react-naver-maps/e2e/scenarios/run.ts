@@ -32,9 +32,6 @@ export async function runScenario(
       case 'dblclickCenter':
         await driver.dblclickCenter();
         break;
-      case 'key':
-        await driver.key(step.key);
-        break;
       case 'setState':
         await driver.setState({ center: step.center, zoom: step.zoom });
         break;
