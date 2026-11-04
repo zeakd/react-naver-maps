@@ -78,7 +78,7 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
     'collisionBoxSize',
   ],
   changeOnly: ['animation'],
-  constants: { animation: (m) => m.Animation },
+  constants: { animation: 'Animation' },
   panorama: true,
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,

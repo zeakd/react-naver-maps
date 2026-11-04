@@ -38,7 +38,8 @@ export function CustomControl({
 }: CustomControlProps) {
   const navermaps = useNavermaps();
   const position = resolveConstant(
-    navermaps.Position,
+    navermaps,
+    'Position',
     given,
     '<CustomControl position>',
   ) as naver.maps.Position;

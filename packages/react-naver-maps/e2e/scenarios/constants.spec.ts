@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
+import type { ConstantTable } from '../../src/core/constants.js';
 
-// 라이브러리가 이름으로 받는 SDK 상수(src/core/constants.ts)의 이름이 @types 와 실제 SDK 에 모두 있는지 본다.
-// 아래 표는 @types/navermaps 의 enum 이름 전부다. @types 가 이름을 더하거나 빼면 Record 의 키가 맞지 않아
-// 타입 검사(pnpm check:e2e)가 실패한다. 실제 SDK 객체에 없는 이름은 이 spec 이 실패로 낸다.
+// 라이브러리가 이름으로 받는 SDK 상수(src/core/constants.ts CONSTANT_TABLES)의 이름이 @types 와 실제 SDK 에 모두
+// 있는지 본다. 아래 표는 표마다 @types/navermaps 의 enum 이름 전부다. @types 가 이름을 더하거나 빼면, 또는
+// CONSTANT_TABLES 에 표가 생기거나 없어지면 키가 맞지 않아 타입 검사(pnpm check:e2e)가 실패한다. 실제 SDK 객체에 없는 이름은 이 spec 이 실패로 낸다.
 // SDK 를 바꾼 뒤(sdk/README.md 갱신 절차) 이 spec 이 어긋남을 알려 준다.
 const TABLES = {
   Position: {
@@ -47,7 +48,7 @@ const TABLES = {
     HORIZONTAL_2: true,
     VERTICAL_2: true,
   } satisfies Record<keyof typeof naver.maps.drawing.DrawingStyle, true>,
-};
+} satisfies Record<ConstantTable, object>;
 
 test('이름으로 받는 SDK 상수의 이름이 실제 SDK 에 모두 있다', async ({
   page,
