@@ -312,6 +312,9 @@ importers:
       '@astrojs/sitemap':
         specifier: ^3.7.1
         version: 3.7.1
+      '@types/navermaps':
+        specifier: ^3.9.2
+        version: 3.9.2
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
