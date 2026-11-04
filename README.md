@@ -63,12 +63,15 @@ pnpm test:scenarios     # 실제 SDK 로 인증과 지도 동작을 프레임 �
 pnpm test:visual:cached  # 문서 예제 지도 스크린샷 비교 (website dev 서버를 띄움)
 pnpm verify:frameworks  # 배포 형태 패키지를 Vite, Next, React Router, TanStack Start, Astro 에서 검증
 pnpm compare:scenarios  # 같은 시나리오를 npm 0.3.0 과 소스에 돌려 동작 차이를 표로 낸다
+pnpm compare:scenarios git:v0.4  # 그 커밋을 빌드해 기준선으로 쓴다(내부 정리의 동작 보존 확인)
+pnpm compare:types git:v0.4      # 공개 타입(진입점마다 내보내는 이름과 타입)을 그 커밋과 비교
 ```
 
 스크린샷 기준 이미지는 네이버 지도 타일이 담겨 저장소에 두지 않는다. `RNM_VISUAL_BASELINES=<디렉터리>` 로 기준 위치를 지정하거나, 처음 한 번 `pnpm test:visual:cache` 로 로컬 기준을 만든다(`e2e/__screenshots__/`, git 제외).
 
 - 시나리오는 `packages/react-naver-maps/e2e/scenarios/scenarios.ts` 에 있다. 가상 시계로 16ms 씩 넘겨 같은 시나리오는 같은 궤적을 낸다. 실패하면 `test-results/` 에 trace 와 영상이 남는다.
-- `compare:scenarios` 는 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 차이만 허용한다. 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
+- `compare:scenarios` 는 배포 버전과의 차이 중 `e2e/scenarios/compare-expected.ts` 에 필드와 이유를 적은 것만 허용한다. 다른 버전은 `pnpm compare:scenarios 0.2.2`, 지난 실행으로 표만 다시 내려면 `--reuse`.
+- `git:<ref>` 기준선은 그 커밋을 임시 작업 트리에서 새로 빌드해 쓴다(`e2e/baseline.ts`). 허용 목록이 없어 차이가 하나라도 나면 실패다. 동작을 바꾸는 변경은 정리와 다른 PR 로 나눈다.
 - GL 시나리오는 GPU 로 WebGL 을 쓸 수 있을 때만 GL 로 돈다. SDK 는 성능 경고가 있는 WebGL(소프트웨어 렌더)에서 래스터로 바꾸고, 그러면 시나리오를 건너뛴다. GPU 가 없는 CI 에서는 건너뛴다.
 - 터치는 Chrome 개발자 프로토콜로 손가락을 보낸다(`AppConfig.touch`).
 - 인증 실패는 지도 DOM 으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
