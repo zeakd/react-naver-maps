@@ -7,7 +7,7 @@
 ```tsx
 <NaverMap>
   <LabelLayer />
-  <Layer name="tileGrid" mapTypeOrRegistry={tileGrid} zIndex={5} />
+  <Layer name="tileGrid" mapTypes={tileGrid} zIndex={5} />
   <FlightSpot onPoiClicked={(panoId) => setPanoId(panoId)} />
 </NaverMap>
 ```

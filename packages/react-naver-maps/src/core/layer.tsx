@@ -8,7 +8,7 @@ import { onMap, useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 
 /**
- * 사용자 정의 레이어를 지도에 올린다. SDK 의 `new naver.maps.Layer(name, mapTypeOrRegistry, options)` 다.
+ * 사용자 정의 레이어를 지도에 올린다. SDK 의 `new naver.maps.Layer(name, MapTypeRegistry, options)` 다.
  *
  * ```tsx
  * const tileGrid = useMemo(
@@ -16,12 +16,12 @@ import { omitUndefined } from './utils/omit-undefined.js';
  *   [navermaps],
  * );
  * <NaverMap>
- *   <Layer name="tileGrid" mapTypeOrRegistry={tileGrid} />
+ *   <Layer name="tileGrid" mapTypes={tileGrid} />
  * </NaverMap>
  * ```
  *
- * `name`, `mapTypeOrRegistry`, 옵션은 SDK 에 setter 가 없어 바뀌면 레이어를 다시 만든다(값으로 비교).
- * `mapTypeOrRegistry` 는 `useMemo` 로 한 번 만든다. 렌더마다 새 MapType 객체를 만들면
+ * `name`, `mapTypes`, 옵션은 SDK 에 setter 가 없어 바뀌면 레이어를 다시 만든다(값으로 비교).
+ * `mapTypes` 는 `useMemo` 로 한 번 만든다. 렌더마다 새 MapType 객체를 만들면
  * (getTile 이 매번 새 함수이면) 렌더마다 레이어가 다시 만들어진다.
  */
 export interface LayerProps {
@@ -30,9 +30,9 @@ export interface LayerProps {
   name: string;
   /**
    * 레이어가 그릴 지도 유형. MapTypeRegistry 이거나 MapType 하나다(SDK 가 name 을 키로 레지스트리를 만든다).
-   * 문서 인자 이름은 `MapTypeRegistry`, SDK 코드의 이름은 `mapTypeOrRegistry` 다.
+   * 문서의 생성자 인자 `MapTypeRegistry`("지도 유형의 컬렉션")다. NaverMap 의 `mapTypes` 와 같은 이름으로 쓴다.
    */
-  mapTypeOrRegistry: naver.maps.MapType | naver.maps.MapTypeRegistry;
+  mapTypes: naver.maps.MapType | naver.maps.MapTypeRegistry;
   /** 고해상도 타일 사용. 문서 LayerOptions. SDK 3.10.5 코드에서 읽는 곳을 못 찾았다. */
   hd?: boolean;
   /** true 면 타일로 간주해 지도 맨 아래에 두고 타일과 같이 줌 효과를 받는다. false 면 별도 창(pane). */
@@ -44,7 +44,7 @@ export interface LayerProps {
 export function Layer({
   ref,
   name,
-  mapTypeOrRegistry,
+  mapTypes,
   hd,
   overlayMap,
   zIndex,
@@ -56,18 +56,18 @@ export function Layer({
       // @types 3.9.2 의 Layer 생성자는 MapTypeRegistry 만 받는다. SDK 와 공식 예제는 MapType 도 받는다.
       const Custom = navermaps.Layer as unknown as new (
         name: string,
-        mapTypeOrRegistry: LayerProps['mapTypeOrRegistry'],
+        mapTypes: LayerProps['mapTypes'],
         options: naver.maps.LayerOptions,
       ) => naver.maps.Layer;
       const instance = new Custom(
         name,
-        mapTypeOrRegistry,
+        mapTypes,
         omitUndefined({ hd, overlayMap, zIndex }),
       );
       instance.setMap(map);
       return instance;
     }),
-    [map, name, mapTypeOrRegistry, hd, overlayMap, zIndex],
+    [map, name, mapTypes, hd, overlayMap, zIndex],
   );
 
   useImperativeHandle(ref, () => layer!, [layer]);
