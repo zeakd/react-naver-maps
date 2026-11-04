@@ -35,7 +35,7 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps';
 - `cursor`: SDK 는 드래그 중 커서가 손 모양(`"open"`/`"closed"`)일 때만 둘을 오갑니다. `"crosshair"` 같은 다른 값은 그대로 둡니다.
 - `mapTypes` 는 `useMemo` 로 한 번 만듭니다([지도 유형과 레이어](../guides/map-types)).
 - `gl`, `customStyleId`, `useStyleMap`, `repeatX`, `blankTileImage`, `tileDuration` 은 생성 때만 적용됩니다. 바꾸면 개발 모드에서 경고합니다. 바꾸려면 `key` 로 다시 만듭니다.
-- 줌 효과의 시작과 끝은 `onZoomstart`, `onZoomend`, GL 의 실수 줌은 `onZoom` 입니다. `zoom` prop 은 효과 없이 맞추므로 이 이벤트가 오지 않습니다.
+- 줌 효과의 시작과 끝은 `onZoomstart`, `onZoomend`, GL 의 실수 줌은 `onZoom` 입니다. 래스터 지도에서 `zoom` prop 만 바꾸면 효과 없이 맞춰 이 이벤트가 오지 않습니다. `center` 와 함께 바꾸거나(`morph`) GL 지도에서는 옵니다.
 - 이벤트 이름과 인자는 [이벤트](../guides/events).
 
 ## Props

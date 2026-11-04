@@ -159,6 +159,8 @@ const STABLE_PATH = [
 
 type Observed = {
   calls: string[];
+  /** 0.4 에서 생긴 이벤트 prop 이 불린 기록. 0.3.0 과의 비교에서 뺀다(compare-expected 의 NEW_API_FIELDS). */
+  propCalls: string[];
   events: string[];
   zoomReports: number[];
   kvo: { zoom: number; lat: number };
@@ -316,8 +318,8 @@ function MapUnderTest({
           }
         : {})}
       onZoomChanged={(zoom: number) => observed.zoomReports.push(zoom)}
-      onZoomstart={() => observed.calls.push('onZoomstart')}
-      onZoomend={() => observed.calls.push('onZoomend')}
+      onZoomstart={() => observed.propCalls.push('onZoomstart')}
+      onZoomend={() => observed.propCalls.push('onZoomend')}
       onCenterChanged={onCenterChanged}
     >
       <KvoProbe observed={observed} />
@@ -511,6 +513,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
   });
   const observed: Observed = {
     calls: [],
+    propCalls: [],
     events: [],
     zoomReports: [],
     kvo: { zoom: 0, lat: 0 },
@@ -672,6 +675,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         zoom: map!.getZoom(),
         events: observed.events.splice(0),
         calls: observed.calls.splice(0),
+        propCalls: observed.propCalls.splice(0),
         zoomReports: observed.zoomReports.splice(0),
         controls: controlCount(map!),
         attached: map!.getPanes().overlayLayer.isConnected,

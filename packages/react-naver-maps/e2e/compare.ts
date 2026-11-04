@@ -21,7 +21,10 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { expectedDifferences } from './scenarios/compare-expected.ts';
+import {
+  expectedDifferences,
+  NEW_API_FIELDS,
+} from './scenarios/compare-expected.ts';
 import type { TraceFrame } from './scenarios/types.ts';
 
 const PORT = 4321;
@@ -252,7 +255,11 @@ function compare(
     if (a.status !== b.status)
       changed.set('status', `판정 ${a.status} → ${b.status}`);
     if (a.trace && b.trace) {
-      const skip = new Set([...a.unstable, ...b.unstable]);
+      const skip = new Set<string>([
+        ...a.unstable,
+        ...b.unstable,
+        ...NEW_API_FIELDS,
+      ]);
       for (const [field, text] of differences(a.trace, b.trace)) {
         if (!skip.has(field)) changed.set(field, text);
       }
