@@ -84,10 +84,10 @@ export interface DrawingManagerProps {
 
 /** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
 const DRAWING_CONSTANTS: ConstantPaths = {
-  drawingMode: (m) => m.drawing.DrawingMode,
-  'drawingControl[]': (m) => m.drawing.DrawingMode,
-  'drawingControlOptions.position': (m) => m.Position,
-  'drawingControlOptions.style': (m) => m.drawing.DrawingStyle,
+  drawingMode: 'drawing.DrawingMode',
+  'drawingControl[]': 'drawing.DrawingMode',
+  'drawingControlOptions.position': 'Position',
+  'drawingControlOptions.style': 'drawing.DrawingStyle',
 };
 
 const OPTIONS = [

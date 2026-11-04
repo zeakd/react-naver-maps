@@ -8,7 +8,9 @@
     "declaration": false,
     "declarationMap": false,
     "incremental": false,
-    "rootDir": "."
+    "rootDir": ".",
+    // 문서와 코드를 맞대는 검사(naver-map-docs.spec.ts)가 파일을 읽는다.
+    "types": ["navermaps", "node"]
   },
   "include": ["src/**/*.spec.ts"],
   "exclude": ["node_modules", "dist"]

@@ -24,19 +24,35 @@ export type MapTypeControlStyleName = Named<
 export type DrawingModeName = Named<typeof naver.maps.drawing.DrawingMode>;
 export type DrawingStyleName = Named<typeof naver.maps.drawing.DrawingStyle>;
 
-/** prop 경로 → 그 자리의 SDK 상수 표. 경로는 `a`, `a.b`, 배열이면 `a[]`. */
-export type ConstantPaths = Readonly<
-  Record<string, (navermaps: typeof naver.maps) => object>
->;
+/**
+ * 이름으로 받는 SDK 상수 표. 이름 → 그 표의 SDK 객체. prop 자리(ConstantPaths)는 이 표 이름으로만
+ * 고른다. 그래서 이름을 받는 표의 목록이 여기 하나다. 표의 이름들이 @types 와 실제 SDK 에 모두 있는지는
+ * `e2e/scenarios/constants.spec.ts` 가 표마다 본다(표를 더하면 그 spec 이 타입 오류로 알려 준다).
+ * drawing 표는 drawing 서브모듈을 불러야 생긴다. 그래서 값이 아니라 SDK 에서 꺼내는 함수다.
+ */
+export const CONSTANT_TABLES = {
+  Position: (m) => m.Position,
+  Animation: (m) => m.Animation,
+  ZoomControlStyle: (m) => m.ZoomControlStyle,
+  MapTypeControlStyle: (m) => m.MapTypeControlStyle,
+  'drawing.DrawingMode': (m) => m.drawing.DrawingMode,
+  'drawing.DrawingStyle': (m) => m.drawing.DrawingStyle,
+} as const satisfies Record<string, (navermaps: typeof naver.maps) => object>;
 
-/** 이름이면 table 에서 찾아 바꾸고, 아니면 그대로 돌려준다. */
+export type ConstantTable = keyof typeof CONSTANT_TABLES;
+
+/** prop 경로 → 그 자리의 SDK 상수 표 이름. 경로는 `a`, `a.b`, 배열이면 `a[]`. */
+export type ConstantPaths = Readonly<Record<string, ConstantTable>>;
+
+/** 이름이면 그 표에서 찾아 바꾸고, 아니면 그대로 돌려준다. */
 export function resolveConstant(
-  table: object,
+  navermaps: typeof naver.maps,
+  table: ConstantTable,
   value: unknown,
   where: string,
 ): unknown {
   if (typeof value !== 'string') return value;
-  const t = table as Record<string, unknown>;
+  const t = CONSTANT_TABLES[table](navermaps) as Record<string, unknown>;
   // enum 의 역방향 키('1' → 'TOP_LEFT')나 Object 의 키를 이름으로 받지 않는다.
   if (Object.prototype.hasOwnProperty.call(t, value) && !/^\d+$/.test(value)) {
     return t[value];
@@ -63,7 +79,7 @@ export function resolveConstants<P extends object>(
   if (!paths) return props;
   let out: Record<string, unknown> | null = null;
   const source = props as Record<string, unknown>;
-  for (const [path, tableOf] of Object.entries(paths)) {
+  for (const [path, table] of Object.entries(paths)) {
     const array = path.endsWith('[]');
     const [head, child] = (array ? path.slice(0, -2) : path).split('.') as [
       string,
@@ -74,18 +90,17 @@ export function resolveConstants<P extends object>(
     const where = `<${component} ${path.replace('[]', '')}>`;
     let next: unknown = current;
     if (child === undefined && !array) {
-      next = resolveConstant(tableOf(navermaps), current, where);
+      next = resolveConstant(navermaps, table, current, where);
     } else if (array && Array.isArray(current)) {
       if (current.some((v) => typeof v === 'string')) {
-        const table = tableOf(navermaps);
-        next = current.map((v) => resolveConstant(table, v, where));
+        next = current.map((v) => resolveConstant(navermaps, table, v, where));
       }
     } else if (child !== undefined && typeof current === 'object') {
       const inner = (current as Record<string, unknown>)[child];
       if (typeof inner === 'string') {
         next = {
           ...(current as object),
-          [child]: resolveConstant(tableOf(navermaps), inner, where),
+          [child]: resolveConstant(navermaps, table, inner, where),
         };
       }
     }

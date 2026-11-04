@@ -135,11 +135,11 @@ export const MAP_LIFECYCLE_EVENTS = ['init', 'idle', 'tilesloaded'] as const;
 
 /** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
 export const MAP_CONSTANTS: ConstantPaths = {
-  'zoomControlOptions.position': (m) => m.Position,
-  'zoomControlOptions.style': (m) => m.ZoomControlStyle,
-  'mapTypeControlOptions.position': (m) => m.Position,
-  'mapTypeControlOptions.style': (m) => m.MapTypeControlStyle,
-  'scaleControlOptions.position': (m) => m.Position,
-  'logoControlOptions.position': (m) => m.Position,
-  'mapDataControlOptions.position': (m) => m.Position,
+  'zoomControlOptions.position': 'Position',
+  'zoomControlOptions.style': 'ZoomControlStyle',
+  'mapTypeControlOptions.position': 'Position',
+  'mapTypeControlOptions.style': 'MapTypeControlStyle',
+  'scaleControlOptions.position': 'Position',
+  'logoControlOptions.position': 'Position',
+  'mapDataControlOptions.position': 'Position',
 };

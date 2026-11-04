@@ -11,20 +11,20 @@ const maps = {
 
 describe('resolveConstant', () => {
   test('이름은 SDK 표의 값으로, 숫자는 그대로', () => {
-    expect(resolveConstant(Position, 'TOP_RIGHT', 'x')).toBe(3);
-    expect(resolveConstant(Position, 3, 'x')).toBe(3);
-    expect(resolveConstant(Position, undefined, 'x')).toBe(undefined);
+    expect(resolveConstant(maps, 'Position', 'TOP_RIGHT', 'x')).toBe(3);
+    expect(resolveConstant(maps, 'Position', 3, 'x')).toBe(3);
+    expect(resolveConstant(maps, 'Position', undefined, 'x')).toBe(undefined);
   });
 
   test('SDK 에 없는 이름은 쓸 수 있는 이름과 함께 던진다', () => {
-    expect(() => resolveConstant(Position, 'TOP', '<NaverMap x>')).toThrow(
-      /<NaverMap x>.*'TOP'.*CENTER, TOP_RIGHT/,
-    );
+    expect(() =>
+      resolveConstant(maps, 'Position', 'TOP', '<NaverMap x>'),
+    ).toThrow(/<NaverMap x>.*'TOP'.*CENTER, TOP_RIGHT/);
   });
 
   test('enum 의 역방향 키(숫자 문자열)와 Object 의 키는 이름으로 받지 않는다', () => {
-    expect(() => resolveConstant(Position, '3', 'x')).toThrow(/'3'/);
-    expect(() => resolveConstant(Position, 'toString', 'x')).toThrow(
+    expect(() => resolveConstant(maps, 'Position', '3', 'x')).toThrow(/'3'/);
+    expect(() => resolveConstant(maps, 'Position', 'toString', 'x')).toThrow(
       /'toString'/,
     );
   });
@@ -32,11 +32,11 @@ describe('resolveConstant', () => {
 
 describe('resolveConstants', () => {
   const paths = {
-    'zoomControlOptions.position': (m: typeof naver.maps) => m.Position,
-    'zoomControlOptions.style': (m: typeof naver.maps) => m.ZoomControlStyle,
-    'list[]': (m: typeof naver.maps) => m.Position,
-    top: (m: typeof naver.maps) => m.Position,
-  };
+    'zoomControlOptions.position': 'Position',
+    'zoomControlOptions.style': 'ZoomControlStyle',
+    'list[]': 'Position',
+    top: 'Position',
+  } as const;
 
   test('중첩, 배열, 최상위 자리를 바꾸고 원본은 그대로 둔다', () => {
     const props = {

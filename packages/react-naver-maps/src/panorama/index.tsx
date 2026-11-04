@@ -95,10 +95,10 @@ export interface PanoramaProps {
 const CAMERA = ['position', 'panoId', 'pov', 'zoom'] as const;
 /** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
 const PANORAMA_CONSTANTS: ConstantPaths = {
-  'logoControlOptions.position': (m) => m.Position,
-  'zoomControlOptions.position': (m) => m.Position,
-  'zoomControlOptions.style': (m) => m.ZoomControlStyle,
-  'aroundControlOptions.position': (m) => m.Position,
+  'logoControlOptions.position': 'Position',
+  'zoomControlOptions.position': 'Position',
+  'zoomControlOptions.style': 'ZoomControlStyle',
+  'aroundControlOptions.position': 'Position',
 };
 
 const OPTIONS = [
