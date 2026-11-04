@@ -1,13 +1,16 @@
 import { defineConfig } from '@playwright/test';
+import { holdPort, PORT } from './port.ts';
 
 // 실제 SDK 로 지도 동작을 프레임 단위로 검증한다.
 // Maps 키의 Web 서비스 URL 에 등록된 주소가 http://localhost:4321 이므로 포트를 바꾸지 않는다.
-const PORT = 4321;
+// 실행 동안 포트를 잡고, 테스트 전에 서버가 이 작업 트리의 것인지 본다(`port.ts`).
+holdPort('test:scenarios');
 
 export default defineConfig({
   testDir: './scenarios',
   timeout: 60000,
   workers: 1,
+  globalSetup: './port-setup.ts',
   use: {
     baseURL: `http://localhost:${PORT}`,
     viewport: { width: 1024, height: 768 },
