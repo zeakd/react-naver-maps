@@ -202,4 +202,43 @@ export const reactLifecycle: Scenario[] = [
       noErrors(/E2E_BOUNDARY_THROW/),
     ],
   },
+
+  // transition 밖에서 지도의 자식이 suspend 하면 React 는 지도를 숨겼다 다시 보인다. 이때 layout effect 만
+  // 다시 돈다. 열어 둔 InfoWindow 를 다시 여는 일이 passive effect 에 있으면 다시 보인 뒤 닫힌 채 남았다.
+  {
+    name: 'suspend 로 숨겼다 다시 보인 지도에서 열어 둔 InfoWindow 가 다시 열린다',
+    since: '0.4',
+    app: { mode: 'props', infoWindow: true },
+    steps: [
+      { t: 'frames', n: 3 },
+      { t: 'props', props: { suspendKey: 1 } },
+      { t: 'frames', n: 35 },
+    ],
+    expect: [
+      overlaysOnMap(['infoWindow'], 0),
+      lastFrame('mapVisible', true),
+      overlaysOnMap(['infoWindow']),
+    ],
+  },
+  // init 전에 붙이기를 미룬 DrawingManager 가 init 때 붙으며 drawingMode 를 맞춘다. 그 사이 바뀐 prop 이
+  // 아니라 처음 렌더의 값으로 맞추면 init 뒤 옛 모드로 돌아간다.
+  {
+    name: 'init 전에 바꾼 DrawingManager 의 drawingMode 가 init 뒤에도 남는다',
+    since: '0.4',
+    mount: BEFORE_INIT,
+    app: {
+      mode: 'props',
+      submodules: ['drawing'],
+      delayStyleMs: INIT_DELAY_MS,
+      drawingMode: 5,
+    },
+    steps: [
+      { t: 'frames', n: 1 },
+      { t: 'props', props: { drawingMode: 6 } },
+      { t: 'frames', n: 2 },
+      { t: 'waitInit' },
+      { t: 'frames', n: 10 },
+    ],
+    expect: [lastFrame('drawingMode', 6)],
+  },
 ];

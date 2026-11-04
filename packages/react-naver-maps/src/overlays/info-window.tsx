@@ -1,7 +1,13 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { useOverlayHost } from './use-overlay-host.js';
 import { useControlledProps } from '../binding/use-controlled-kvo.js';
@@ -136,7 +142,7 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   const map = host.target;
 
   // 수명은 lifetime.ts 규칙을 따른다. 숨길 때는 닫고, 다시 보일 때는 open prop 동기화가 다시 연다
-  // (InfoWindowInner 의 open effect 가 닫힌 것을 보고 연다).
+  // (InfoWindowInner 의 open layout effect 가 닫힌 것을 보고 연다).
   const infoWindow = useSdkInstance<naver.maps.InfoWindow>({
     create: () =>
       new navermaps.InfoWindow(
@@ -201,7 +207,10 @@ function InfoWindowInner({
   // 열림)을 렌더마다 다시 열었다. 두 정보 창이 open 이면 서로 닫고 열기를 되풀이했다.
   const anchor = useStableValue(props.anchor);
   const openedRef = useRef<{ anchor: unknown } | null>(null);
-  useEffect(() => {
+  // layout effect 다. 숨겼다 다시 보일 때 React 가 다시 돌리는 것은 layout effect 뿐인 경우가 있다
+  // (transition 밖의 Suspense 재중단). passive effect 에 두면 다시 보인 뒤 닫힌 채 남았다(e2e "suspend 로
+  // 숨겼다 다시 보인 지도에서 열어 둔 InfoWindow"). open·close 리스너는 위에서 먼저 단 layout effect 다.
+  useLayoutEffect(() => {
     if (open === undefined || !sdkAlive() || !ready) return;
     if (open) {
       // 이미 그 anchor 로 열려 있으면 다시 열지 않는다(StrictMode 의 effect 재실행). open 은 close 와

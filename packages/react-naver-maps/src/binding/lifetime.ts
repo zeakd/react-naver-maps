@@ -113,6 +113,8 @@ type MapAttachable = { setMap: (map: naver.maps.Map | null) => void };
  * 인스턴스를 붙이는 방법. 없으면 `setMap(host)`. 붙일 때마다(처음, 숨겼다 다시 보일 때, StrictMode
  * 재실행) 같은 방법을 쓴다. 이것을 주면 create 는 붙이지 않은 인스턴스를 돌려준다.
  * 예: Marker 는 clickable 을 켠 채 붙여야 클릭을 받는다.
+ * onReadyHost 에서는 지도 init 뒤로 미뤄져 등록한 렌더보다 늦게 불린다. prop 을 읽어야 하면 렌더의 값을
+ * 붙잡지 말고 최신 값(ref, use-latest.ts)을 읽는다.
  */
 export type AttachTo<T> = (instance: T, host: naver.maps.Map) => void;
 

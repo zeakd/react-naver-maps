@@ -16,6 +16,7 @@ import { useMap } from '../hooks/use-map.js';
 import { useControlledProps } from '../binding/use-controlled-kvo.js';
 import { useOverlayEvents } from '../overlays/overlay-spec.js';
 import { pick } from '../binding/pick.js';
+import { useLatest } from '../binding/use-latest.js';
 import { onReadyMap, useSdkInstance } from '../binding/lifetime.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { requireSubmodule } from '../sdk/submodule.js';
@@ -123,10 +124,12 @@ function DrawingManagerInner({ ref, ...given }: DrawingManagerProps) {
   // 도구 막대는 지도 컨트롤이라 지도가 준비된 뒤 붙인다(lifetime.ts onReadyMap).
   // SDK 는 지도에서 떼면 drawingMode 를 HAND(0)로 되돌리고 다시 붙여도 그대로 둔다(3.10.5 실측).
   // 다시 붙일 때(숨겼다 보일 때, StrictMode 재실행) prop 의 drawingMode 로 맞춘다.
-  // resolveConstants 를 거쳐 SDK 값이다.
-  const drawingMode = props.drawingMode as
-    | naver.maps.drawing.DrawingMode
-    | undefined;
+  // resolveConstants 를 거쳐 SDK 값이다. 붙이기는 지도 init 뒤로 미뤄질 수 있어서(onReadyMap) 붙일 때의
+  // 최신 prop 을 읽는다. 이 렌더의 값을 붙잡으면 init 전에 바꾼 drawingMode 가 init 때 처음 값으로
+  // 돌아갔다(e2e "init 전에 바꾼 DrawingManager 의 drawingMode").
+  const drawingMode = useLatest(
+    props.drawingMode as naver.maps.drawing.DrawingMode | undefined,
+  );
   const spec = onReadyMap<Manager>(
     map,
     () =>
@@ -135,11 +138,9 @@ function DrawingManagerInner({ ref, ...given }: DrawingManagerProps) {
       ),
     (manager, host) => {
       manager.setMap(host);
-      if (
-        drawingMode !== undefined &&
-        manager.getOptions('drawingMode') !== drawingMode
-      ) {
-        manager.setOptions('drawingMode', drawingMode);
+      const mode = drawingMode.current;
+      if (mode !== undefined && manager.getOptions('drawingMode') !== mode) {
+        manager.setOptions('drawingMode', mode);
       }
     },
   );
