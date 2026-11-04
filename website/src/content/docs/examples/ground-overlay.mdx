@@ -1,0 +1,16 @@
+---
+title: 지상 오버레이 표시하기
+category: tutorial-overlay
+order: 16
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import GroundOverlayExample from '../../../examples/ground-overlay.tsx';
+
+<Example of={GroundOverlayExample} />
+
+## 설명
+
+`GroundOverlay` 에 `url`, `bounds`, `opacity`, `clickable` 을 줍니다. `bounds` 는 `{ south, west, north, east }` 리터럴입니다. `url` 이나 `bounds` 가 바뀌면 오버레이를 새로 만듭니다.
+
+> [네이버 공식 예제 - 지상 오버레이 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-ground-overlay.example.html)

@@ -1,18 +1,16 @@
 ---
-title: 커스텀 오버레이
-category: examples
-order: 4
+title: 사용자 정의 오버레이 표시하기
+category: tutorial-overlay
+order: 15
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
-import CustomOverlayExample from '../../../examples/custom-overlay-example.tsx';
-
-React 컴포넌트를 지도 위에 직접 렌더링하는 예제입니다.
+import CustomOverlayExample from '../../../examples/custom-overlay.tsx';
 
 <Example of={CustomOverlayExample} />
 
 ## 설명
 
-`CustomOverlay`는 `position` 좌표에 `children`을 렌더링합니다. React의 `createPortal`을 사용하므로 일반 React 컴포넌트를 그대로 활용할 수 있습니다.
+`CustomOverlay` 가 React children 을 지도 위 `position` 에 그립니다. 공식 예제의 `OverlayView` 서브클래스(`onAdd`/`draw`/`onRemove`)와 jQuery 가 필요 없고, 클릭한 곳마다 오버레이를 더하는 부분은 위치 배열 state 를 `map` 으로 그립니다. `pane="overlayLayer"` 로 공식 예제와 같은 레이어에 둡니다.
 
-스타일은 CSS로 자유롭게 지정하세요.
+> [네이버 공식 예제 - 사용자 정의 오버레이 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-custom-overlay.example.html)
