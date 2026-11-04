@@ -14,6 +14,11 @@ import { HOME } from './steps.js';
 export const lifecycle: Scenario[] = [
   {
     name: 'key 로 다시 만든 지도가 화면에 남는다',
+    unstable: {
+      fields: ['controls'],
+      reason:
+        '다시 만든 지도의 기본 컨트롤은 SDK 가 비동기로 붙여 첫 프레임에 있을지가 실행마다 다르다(같은 커밋끼리 4회 중 4회)',
+    },
     app: { mode: 'props', mapKey: 1 },
     steps: [
       { t: 'props', props: { mapKey: 2 } },

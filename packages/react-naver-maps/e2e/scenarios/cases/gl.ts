@@ -46,9 +46,9 @@ export const gl: Scenario[] = [
     // GL 의 getCenter() 는 드래그 중 0.0002 도 단위로 움직여 넷째 자리 반올림으로는 값이 그대로다.
     name: 'GL 지도에서 반올림한 center 를 되돌려줘도 드래그 중에는 지도를 당기지 않는다',
     unstable: {
-      fields: ['events'],
+      fields: ['events', 'center', 'calls', 'kvoLat'],
       reason:
-        'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다',
+        'GL 의 idle 은 벡터 타일을 다 받은 뒤라 실제 네트워크 시간에 따라 프레임이 바뀐다. 놓은 뒤 마지막으로 보고된 center 도 GL 렌더 시점에 따라 달라 반올림 값을 되돌릴 때 panTo 가 있거나 없다(같은 커밋끼리 4회 중 1회). 드래그 중 당기지 않는다는 판정은 expect 가 본다',
     },
     app: { mode: 'rounded', roundDigits: 3, submodules: ['gl'], gl: true },
     steps: dragLeftAndRelease,
