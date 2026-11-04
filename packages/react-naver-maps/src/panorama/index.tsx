@@ -23,6 +23,7 @@ import {
 } from '../core/hooks/use-controlled-kvo.js';
 import { onMap, useSdkInstance } from '../core/lifetime.js';
 import { omitUndefined } from '../core/utils/omit-undefined.js';
+import { pick } from '../core/utils/pick.js';
 import {
   addMapListener,
   clearMapListeners,
@@ -133,7 +134,7 @@ function PanoramaRoot({ ref, children, ...props }: PanoramaProps) {
       const instance = new navermaps.Panorama(
         el,
         omitUndefined(
-          Object.fromEntries([...CAMERA, ...OPTIONS].map((k) => [k, props[k]])),
+          pick(props, [...CAMERA, ...OPTIONS]),
         ) as naver.maps.PanoramaOptions,
       );
       readyRef.current = false;
@@ -186,10 +187,7 @@ function PanoramaBindings({
   panorama: naver.maps.Panorama;
   props: PanoramaProps;
 }) {
-  useControlledProps(
-    panorama,
-    Object.fromEntries(OPTIONS.map((k) => [k, props[k]])),
-  );
+  useControlledProps(panorama, pick(props, OPTIONS));
   useCameraProp(props.position, (v) => panorama.setPosition(v));
   useCameraProp(props.panoId, (v) => panorama.setPanoId(v));
   useCameraProp(props.pov, (v) => panorama.setPov(v));

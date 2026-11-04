@@ -1,24 +1,18 @@
 'use client';
 
 import type { Ref } from 'react';
-import {
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import { pick } from './utils/pick.js';
 import {
   sdkAlive,
   addMapListener,
   removeMapListener,
   clearMapListeners,
 } from './utils/sdk.js';
-import type { MapListener } from './utils/sdk.js';
 import { kvoEquals } from './hooks/use-controlled-kvo.js';
 import { useSdkInstance } from './lifetime.js';
 import { useOverlayEvents } from './overlay-spec.js';
@@ -97,6 +91,26 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   onClose?: (e: naver.maps.PointerEvent) => void;
 }
 
+/**
+ * 생성 옵션이자 controlled 로 맞추는 prop. 순서가 생성자에 넘기는 순서다. content 는 setContent 로
+ * 따로 맞추고(아래 effect), 열림은 open prop 이 맡는다.
+ */
+const OPTIONS = [
+  'position',
+  'maxWidth',
+  'backgroundColor',
+  'borderColor',
+  'borderWidth',
+  'disableAutoPan',
+  'disableAnchor',
+  'anchorSkew',
+  'anchorSize',
+  'anchorColor',
+  'pixelOffset',
+  'autoPanPadding',
+  'zIndex',
+] as const satisfies readonly (keyof InfoWindowProps)[];
+
 const CHANGES = [
   'anchorColor',
   'anchorSize',
@@ -125,19 +139,7 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
       new navermaps.InfoWindow(
         omitUndefined({
           content,
-          position: props.position,
-          maxWidth: props.maxWidth,
-          backgroundColor: props.backgroundColor,
-          borderColor: props.borderColor,
-          borderWidth: props.borderWidth,
-          disableAutoPan: props.disableAutoPan,
-          disableAnchor: props.disableAnchor,
-          anchorSkew: props.anchorSkew,
-          anchorSize: props.anchorSize,
-          anchorColor: props.anchorColor,
-          pixelOffset: props.pixelOffset,
-          autoPanPadding: props.autoPanPadding,
-          zIndex: props.zIndex,
+          ...pick(props, OPTIONS),
         }) as unknown as naver.maps.InfoWindowOptions,
       ),
     detach: (instance) => instance.close(),
@@ -187,21 +189,8 @@ function InfoWindowInner({
     if (waitForInit()) queueMicrotask(() => setReady(true));
     return () => removeMapListener(listener);
   }, [map, ready, waitForInit]);
-  // 'open'/'close' 이벤트 listener를 useLayoutEffect로 우선 등록 (paint 전).
-  // 같은 컴포넌트 내에서 React가 hook 등록 순서를 보장하므로 useEffect로도 timing 자체는
-  // 안전하지만(이 컴포넌트는 listener 등록 다음에 open() 호출 useEffect가 따라옴),
-  // 향후 코드 변경이나 SDK가 다른 곳에서 동기 발화하는 패턴을 추가했을 때 안전하도록 보수적으로
-  // useLayoutEffect 사용. (fix-16, fix-13과 동일한 라이프사이클 이벤트 정책)
-  useLayoutEffect(() => {
-    const listeners: MapListener[] = [];
-    if (props.onOpen)
-      listeners.push(addMapListener(infoWindow, 'open', props.onOpen));
-    if (props.onClose)
-      listeners.push(addMapListener(infoWindow, 'close', props.onClose));
-    return () => {
-      listeners.forEach((l) => removeMapListener(l));
-    };
-  }, [infoWindow, props.onOpen, props.onClose]);
+  // open, close 는 open() 을 부르는 아래 effect 보다 먼저, paint 전에 단다.
+  useOverlayEvents(infoWindow, props, ['open', 'close'], 'layout');
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   const openedRef = useRef<{ anchor: unknown } | null>(null);
@@ -235,23 +224,9 @@ function InfoWindowInner({
     infoWindow.setContent(content);
   }, [infoWindow, content]);
 
-  // 개별 옵션을 useControlledKVO로 처리 — equality 검사 후 변경된 키만 setOptions(key, val).
-  // 객체 setOptions(obj) 일괄 호출은 deps 하나만 바뀌어도 모든 키 _changed 발화 + resize/draw → 폭주 위험.
-  useControlledProps(infoWindow, {
-    position: props.position,
-    zIndex: props.zIndex,
-    maxWidth: props.maxWidth,
-    backgroundColor: props.backgroundColor,
-    borderColor: props.borderColor,
-    borderWidth: props.borderWidth,
-    disableAutoPan: props.disableAutoPan,
-    disableAnchor: props.disableAnchor,
-    anchorSkew: props.anchorSkew,
-    anchorSize: props.anchorSize,
-    anchorColor: props.anchorColor,
-    pixelOffset: props.pixelOffset,
-    autoPanPadding: props.autoPanPadding,
-  });
+  // 옵션마다 비교해 바뀐 것만 맞춘다(useControlledProps). 객체 하나로 setOptions 하면 모든 키의
+  // _changed 가 나고 다시 그린다.
+  useControlledProps(infoWindow, pick(props, OPTIONS));
 
   useOverlayEvents(infoWindow, props, CHANGES);
 

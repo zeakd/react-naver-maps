@@ -7,6 +7,7 @@ import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { onMap, onReadyHost, useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
+import { pick } from './utils/pick.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
 import type { MapListener } from './utils/sdk.js';
 import { changedProp, eventProp } from './types/overlay-events.js';
@@ -70,12 +71,6 @@ export type OverlaySpec<P, T> = {
 type Overlay = naver.maps.KVO & {
   setMap: (map: naver.maps.Map | null) => void;
 };
-
-function pick<P>(props: P, keys: readonly string[]): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const key of keys) out[key] = (props as Record<string, unknown>)[key];
-  return out;
-}
 
 /** spec 으로 오버레이 컴포넌트를 만든다. */
 export function defineOverlay<P extends object, T extends Overlay>(
