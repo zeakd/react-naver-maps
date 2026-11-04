@@ -1,5 +1,4 @@
 import {
-  Activity,
   Fragment,
   StrictMode,
   startTransition,
@@ -7,6 +6,7 @@ import {
   useLayoutEffect,
   useState,
 } from 'react';
+import { Activity } from './activity.js';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import type { AppConfig, CoreFrame, LL, TraceFrame } from '../types.js';
