@@ -1,0 +1,11 @@
+{
+  // 사이트 예제·샘플 tsx 의 타입 검사(`pnpm run check`). .astro, .mdx 와 public/ 은 Astro 빌드가 본다.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": false,
+    "types": ["navermaps"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/env.d.ts", "src/content.config.ts"]
+}
