@@ -48,7 +48,7 @@ export const gestures: Scenario[] = [
     since: '0.4',
   },
 
-  // QC(research/qc-cases #1): 숨길 때 제스처 상태가 남으면 그 뒤 카메라 prop 을 계속 보류한다.
+  // 숨길 때 제스처 상태가 남으면 그 뒤 카메라 prop 을 계속 보류한다.
   {
     name: '드래그 중 Activity 로 지도를 숨겼다 보이면 그 뒤 center prop 이 반영된다',
     since: '0.4',
@@ -65,7 +65,7 @@ export const gestures: Scenario[] = [
     ],
     expect: [settlesAt(B)],
   },
-  // QC #2: 움직이지 않은 클릭 뒤 제스처 상태가 'settling' 에 멈추면 카메라 prop 을 보류한다.
+  // 움직이지 않은 클릭 뒤 제스처 상태가 'settling' 에 멈추면 카메라 prop 을 보류한다.
   {
     name: '누르고 움직이지 않고 떼도 다음 center prop 이 곧장 반영된다',
     app: { mode: 'props' },

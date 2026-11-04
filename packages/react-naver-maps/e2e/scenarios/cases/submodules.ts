@@ -157,7 +157,7 @@ export const submodules: Scenario[] = [
       sameMap(),
     ],
   },
-  // QC 사례 23. 문서상 지원하지 않는 조합이다(src/core/hooks/use-editable.ts 의 주석): editable 도형의 편집은
+  // 문서상 지원하지 않는 조합이다(src/core/hooks/use-editable.ts 의 주석): editable 도형의 편집은
   // 꼭짓점 끌기 대조군. 다음 시나리오의 되돌림이 하네스 끌기 실패가 아니라는 근거다.
   {
     name: 'defaultPaths 로 둔 editable Polygon 은 꼭짓점을 끄는 동안 다시 렌더해도 편집이 남는다',
