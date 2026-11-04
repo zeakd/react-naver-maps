@@ -1,0 +1,20 @@
+---
+title: 사용자 정의 레이어 만들기
+category: tutorial-maptype
+order: 6
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import CustomTutorial6Example from '../../../examples/custom-tutorial-6.tsx';
+
+벡터 지도에 사용자가 만든 레이어(POI 라벨)를 켜고 끄는 예제입니다.
+
+<Example of={CustomTutorial6Example} />
+
+## 설명
+
+`<Layer name mapTypes />` 가 `new naver.maps.Layer(name, MapTypeRegistry)` 입니다. 레이어 유형 레지스트리(`label`)는 `useMemo` 로 한 번만 만듭니다.
+
+켜고 끄는 것은 `ref.setMap` 이 아니라 마운트로 합니다. 자세한 내용은 [Layer](/api-references/layer) 를 보세요.
+
+> [네이버 공식 튜토리얼 - 사용자 정의 레이어 만들기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-custom.example.html)
