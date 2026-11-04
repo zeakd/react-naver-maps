@@ -119,12 +119,11 @@ export function createPlaywrightDriver(
         );
         if (!touch) throw new Error('페이지가 터치 지원을 알리지 않는다');
       }
-      await page.evaluate(async (config) => {
-        window.app = await window.mountApp(
-          document.getElementById('host')!,
-          config,
-        );
-      }, app);
+      // RNM_STRICT=1 이면 모든 시나리오를 StrictMode 로 올린다(effect 를 두 번 돌려도 같은 궤적인지 본다).
+      const config = process.env.RNM_STRICT ? { ...app, strict: true } : app;
+      await page.evaluate(async (c) => {
+        window.app = await window.mountApp(document.getElementById('host')!, c);
+      }, config);
       await page.waitForFunction(() => window.app.initialized());
       await page.waitForTimeout(SETTLE_REAL_MS);
       await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
