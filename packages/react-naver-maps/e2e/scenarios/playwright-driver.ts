@@ -1,5 +1,5 @@
 import type { CDPSession, Page } from '@playwright/test';
-import type { MountedApp } from './app.js';
+import type { MountedApp } from './app/index.js';
 import type { AppConfig, ScenarioDriver, TraceFrame } from './types.js';
 
 declare global {

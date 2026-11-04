@@ -1,3 +1,4 @@
-import { mountApp, mountPanorama } from '../app.js';
+import { mountApp } from '../app/index.js';
+import { mountPanorama } from '../app/panorama.js';
 
 Object.assign(window, { mountApp, mountPanorama });

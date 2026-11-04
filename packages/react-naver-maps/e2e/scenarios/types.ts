@@ -1,8 +1,16 @@
+import type { FixtureConfig, FixtureFrame } from './app/fixtures/index.js';
+
 /** 위도, 경도 */
 export type LL = [number, number];
 
-/** 시나리오가 올리는 앱의 설정. app.tsx 가 이 값으로 라이브러리를 렌더링한다. */
-export type AppConfig = {
+/**
+ * 시나리오가 올리는 앱의 설정. app/ 이 이 값으로 라이브러리를 렌더링한다.
+ * 지도 본체의 설정(CoreConfig)에 기능별 픽스처(app/fixtures)의 설정이 합쳐진다.
+ */
+export type AppConfig = CoreConfig & FixtureConfig;
+
+/** 지도 본체의 설정: center 를 내려주는 방식, 지도 prop, 컨테이너. */
+export type CoreConfig = {
   /**
    * center 를 내려주는 방식.
    * - props: 설정의 center 를 렌더마다 새 객체로 내려준다. 상태를 갱신하지 않는다.
@@ -22,78 +30,22 @@ export type AppConfig = {
   gl?: boolean;
   /** 터치 입력을 켠다(드라이버가 브라우저 터치 지원을 흉내 낸다). */
   touch?: boolean;
-  /** 기본값은 app.tsx 의 NCP_KEY_ID */
+  /** 기본값은 app/common.ts 의 NCP_KEY_ID */
   ncpKeyId?: string;
   /** NaverMap 의 key. 바꾸면 지도를 다시 만든다. */
   mapKey?: number;
-  /** 인라인 핸들러가 있는 Marker 를 함께 올린다. */
-  marker?: boolean;
-  /** Marker 의 clickable */
-  markerClickable?: boolean;
-  /** Marker 를 draggable 로 올린다. position 은 고정값이고 onDragend 로 상태를 갱신하지 않는다. */
-  markerDraggable?: boolean;
-  /** Marker icon 을 렌더마다 새로 만든 같은 값(content 문자열, anchor Point)으로 넘긴다. */
-  markerInlineIcon?: boolean;
-  /** onClick 만 있는 Circle 을 지도 중앙에 올린다. */
-  circle?: boolean;
-  /** Circle 의 clickable */
-  circleClickable?: boolean;
-  /** 값이 그대로인 path 로 Polyline 을 함께 올린다. */
-  polyline?: boolean;
-  /** polyline 의 path 를 렌더마다 새 배열(같은 좌표)로 넘긴다. */
-  polylineInline?: boolean;
   /** padding, zoomControlOptions 를 인라인 객체로 넘긴다. */
   inlineOptions?: boolean;
-  /** 값이 그대로인 인라인 anchor 로 열린 InfoWindow 를 함께 올린다. */
-  infoWindow?: boolean;
   /** Container 너비. 기본값은 600 */
   containerWidth?: number;
-  /** addons 의 useAutoResize 를 켠다. */
-  autoResize?: boolean;
-  /** 값이 바뀌면 지도 안에서 200ms(가상 시계) 동안 suspend 하는 자식을 올린다. */
-  suspendKey?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
   mapActivity?: 'visible' | 'hidden';
-  /** DrawingManager 를 이 drawingMode 로 올린다. submodules 에 'drawing' 이 있어야 한다. */
-  drawingMode?: number;
-  /** DotMap 을 이 fillColor 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'dotMap'. */
-  dotMapFill?: string;
-  /** HeatMap 을 이 opacity 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'heatMap'. */
-  heatMapOpacity?: number;
-  /** 지도 중앙을 덮는 다각형 하나를 GeoJson 으로 올린다. 값은 fillColor. */
-  geoJsonFill?: string;
-  /** CustomControl 을 이 자리(naver.maps.Position 값)에 버튼과 함께 올린다. */
-  customControlPosition?: number;
-  /** BicycleLayer 를 올린다. overlaysOnMap 에 'bicycle' 로 나온다. */
-  bicycleLayer?: boolean;
-  /** GroundOverlay 를 이 url 로 올린다. bounds 는 렌더마다 새로 만든 같은 값이다. */
-  groundOverlayUrl?: string;
-  /** Polyline, Circle, InfoWindow 를 함께 Activity 로 감싼다. */
-  overlaysActivity?: 'visible' | 'hidden';
-  /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
-  markerActivity?: 'visible' | 'hidden';
-  /** Marker 의 animation (naver.maps.Animation 값, null 은 끔). marker 가 있어야 한다. */
-  markerAnimation?: number | null;
   /** NaverMap 의 cursor */
   mapCursor?: string;
   /** NaverMap 의 mapTypes 에 렌더마다 새로 만든 같은 내용의 MapTypeRegistry(normal 하나)를 넘긴다. */
   mapTypesInline?: boolean;
-  /** 이 이름의 작은 KML 문서(app.tsx 의 KML_DOCS)를 Kml 로 올린다. 렌더마다 같은 Document 다. */
-  kml?: 'point' | 'line';
-  /** 작은 GPX 문서(트랙 하나)를 Gpx 로 올린다. */
-  gpx?: boolean;
-  /** LabelLayer 를 올린다. overlaysOnMap 에 'label'. */
-  labelLayer?: boolean;
-  /** 타일 경계를 그리는 사용자 MapType 으로 Layer 를 올린다. overlaysOnMap 에 'tileGrid'. 값은 zIndex. */
-  tileGridZIndex?: number;
-  /** FlightSpot 을 올린다. submodules 에 'panorama' 가 있어야 한다. overlaysOnMap 에 'flightSpot'. */
-  flightSpot?: boolean;
-  /** heatMapOpacity 의 HeatMap 데이터를 { weight, location } 리터럴로 넘긴다. */
-  heatMapWeighted?: boolean;
   /** 투영(projection)을 생략한 사용자 지도 유형 하나를 mapTypes 로 주고 그 유형으로 올린다(공식 예제 "지도 유형 기본"). */
   projectionlessMapType?: boolean;
-  /** 첫 꼭짓점이 지도 중앙(HOME)인 Polygon 을 defaultPaths 와 editable 로 올린다. submodules 에 'drawing'. */
-  editablePolygon?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
@@ -118,8 +70,14 @@ export type Step =
   /** 가상 시계로 돌지 않는 브라우저 일을 기다린다. ResizeObserver 등. */
   | { t: 'realtime'; ms: number };
 
-/** 한 프레임 동안 관찰한 지도 상태. 공개 API 로 읽을 수 있는 값만 담는다. */
-export type TraceFrame = {
+/**
+ * 한 프레임 동안 관찰한 지도 상태. 공개 API 로 읽을 수 있는 값만 담는다.
+ * 지도 본체의 값(CoreFrame)에 기능별 픽스처(app/fixtures)가 읽은 값이 합쳐진다.
+ */
+export type TraceFrame = CoreFrame & FixtureFrame;
+
+/** 지도 본체가 읽는 값. */
+export type CoreFrame = {
   center: LL;
   zoom: number;
   /** 이 프레임에 발생한 지도 이벤트 */
@@ -140,48 +98,14 @@ export type TraceFrame = {
   kvoZoom: number;
   /** useKVO 로 읽은 center 위도 */
   kvoLat: number;
-  /** 이 프레임까지 Marker 가 받은 클릭 수 */
-  markerClicks: number;
-  /** 이 프레임까지 Circle 이 받은 클릭 수 */
-  circleClicks: number;
-  /** Marker 가 있으면 그 위치 */
-  markerPosition: LL | null;
   /** 지금 지도 인스턴스의 번호. 새 인스턴스가 생기면 1 늘어난다. */
   mapId: number;
-  /** Marker 가 있으면 지금 지도에 붙어 있는가 */
-  markerOnMap: boolean | null;
-  /** DrawingManager 가 있으면 그린 도형 수(getDrawings) */
-  drawings: number | null;
-  /** 이 프레임까지 onDrawingAdded 를 받은 수 */
-  drawingAdded: number;
   /** 이 프레임 뒤에 잰 화면 값(probe 단계). 이름 → 값. */
   probes?: Record<string, number>;
-  /** HeatMap 이 있으면 그 opacity(SDK 값) */
-  heatMapOpacity: number | null;
-  /** 데이터 레이어의 feature 수 */
-  dataFeatures: number;
-  /** 첫 feature 의 첫 overlay fillColor */
-  dataFillColor: string | null;
-  /** 이 프레임까지 GeoJson onClick 이 feature 와 함께 받은 수 */
-  geoJsonClicks: number;
-  /** CustomControl 이 들어 있는 컨트롤 자리(Position 값). 없으면 null */
-  customControlAt: number | null;
-  /** CustomControl element 안에 그려진 버튼 글자 */
-  customControlText: string | null;
-  /** 지금까지 만들어진 GroundOverlay 인스턴스 수 */
-  groundOverlays: number;
-  /** 지금까지 만들어진 Layer 인스턴스 수 */
-  layersCreated: number;
-  /** 문서에 있는 tileGrid 타일 div 수 */
-  tileGridCells: number;
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
   overlaysOnMap: string[];
-  /** Marker 가 있으면 그 animation (SDK 값). 없으면 null */
-  markerAnimation: number | null;
   /** 지도 가운데 점의 계산된 CSS cursor */
   mapCursor: string;
-  /** editablePolygon 의 첫 꼭짓점. 없으면 null */
-  polygonFirst: LL | null;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
 };

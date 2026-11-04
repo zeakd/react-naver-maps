@@ -45,11 +45,13 @@ type Outcome = {
   error?: string;
 };
 
-/** 시나리오 앱(app.tsx)이 target 에서 값으로 import 하는 이름. */
+/** 시나리오 앱이 target 에서 값으로 가져오는 이름(`scenarios/app/target-imports.ts` 한 곳에 모여 있다). */
 function imported(): string[] {
-  const app = readFileSync(join(here, 'scenarios', 'app.tsx'), 'utf8');
-  const block = app.match(/import\s*\{([^}]*)\}\s*from\s*'\.\/target\.js'/);
-  if (!block) throw new Error('app.tsx 에서 target import 를 찾지 못했다');
+  const file = join(here, 'scenarios', 'app', 'target-imports.ts');
+  const block = readFileSync(file, 'utf8').match(
+    /export\s*\{([^}]*)\}\s*from\s*'\.\.\/target\.js'/,
+  );
+  if (!block) throw new Error(`${file} 에서 target export 블록을 찾지 못했다`);
   return block[1]!
     .split(',')
     .map((n) => n.trim())
