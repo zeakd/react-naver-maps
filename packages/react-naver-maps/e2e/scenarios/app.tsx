@@ -63,6 +63,9 @@ const HEAT_POINTS: naver.maps.PointArrayLiteral[] = Array.from(
   (_, i) => [126.9784 + 0.001 * Math.cos(i), 37.5666 + 0.001 * Math.sin(i)],
 );
 
+// 같은 점을 공식 튜토리얼의 { weight, location: [경도, 위도] } 모양으로.
+const HEAT_WEIGHTED = HEAT_POINTS.map((location) => ({ weight: 3, location }));
+
 // 지도 중앙(INITIAL_CENTER)을 덮는 사각형.
 const CENTER_SQUARE: naver.maps.GeoJSON = {
   type: 'Feature',
@@ -331,7 +334,7 @@ function MapUnderTest({
           ref={(o: naver.maps.visualization.HeatMap | null) =>
             observed.recordOverlay('heatMap', o)
           }
-          data={HEAT_POINTS}
+          data={config.heatMapWeighted ? HEAT_WEIGHTED : HEAT_POINTS}
           opacity={config.heatMapOpacity}
           radius={20}
         />

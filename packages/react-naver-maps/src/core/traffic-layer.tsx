@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 import { useEffect, useImperativeHandle } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useMap } from './hooks/use-map.js';
+import { useStyleMapLayerWarning } from './hooks/use-style-map-layer-warning.js';
 import { useStaticProp } from './hooks/use-static-prop.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { onMap, useSdkInstance } from './lifetime.js';
@@ -29,6 +30,7 @@ export function TrafficLayer({
 }: TrafficLayerProps) {
   const navermaps = useNavermaps();
   const map = useMap();
+  useStyleMapLayerWarning(map, 'TrafficLayer');
 
   // satisfies로 propName이 keyof TrafficLayerProps에 속함을 컴파일 시점에 강제.
   // 정책: static 호출이 1~2회이면 satisfies, 3회 이상이면 wrapper(useXStatic).

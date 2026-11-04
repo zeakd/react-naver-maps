@@ -4,7 +4,21 @@ import { requireSubmodule } from '../core/utils/submodule.js';
 
 export type GeocodeOptions = naver.maps.Service.GeocodeServiceOptions;
 export type ReverseGeocodeOptions = naver.maps.Service.ReverseServiceOptions;
-export type GeocodeResult = naver.maps.Service.GeocodeResponse['v2'];
+type SdkGeocodeV2 = naver.maps.Service.GeocodeResponse['v2'];
+type SdkAddressElement =
+  SdkGeocodeV2['addresses'][number]['addressElements'][number];
+
+/** 주소 구성 요소. 실제 응답의 `types` 는 배열이다(공식 문서 "Geocoding" 응답 예). @types 3.9.2 는 하나로 적었다. */
+export type AddressElement = Omit<SdkAddressElement, 'types'> & {
+  types: SdkAddressElement['types'][];
+};
+export type AddressItem = Omit<
+  SdkGeocodeV2['addresses'][number],
+  'addressElements'
+> & { addressElements: AddressElement[] };
+export type GeocodeResult = Omit<SdkGeocodeV2, 'addresses'> & {
+  addresses: AddressItem[];
+};
 export type ReverseGeocodeResult =
   naver.maps.Service.ReverseGeocodeResponse['v2'];
 
@@ -35,7 +49,8 @@ export function geocode(
   requireSubmodule(navermaps, 'geocoder', 'geocode');
   return new Promise((resolve, reject) => {
     navermaps.Service.geocode(options, (status, response) => {
-      if (status === navermaps.Service.Status.OK) resolve(response.v2);
+      if (status === navermaps.Service.Status.OK)
+        resolve(response.v2 as unknown as GeocodeResult);
       else reject(new GeocoderError(status, response));
     });
   });

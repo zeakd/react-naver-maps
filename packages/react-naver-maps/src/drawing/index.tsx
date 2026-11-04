@@ -14,13 +14,18 @@ import type { MapListener } from '../core/utils/sdk.js';
 import { requireSubmodule } from '../core/utils/submodule.js';
 
 type Manager = naver.maps.drawing.DrawingManager;
-/** 그린 도형. 모드에 따라 Rectangle, Ellipse, Polyline, Polygon, Marker 다. */
-export type DrawingOverlay =
+/**
+ * 그린 도형. 모드에 따라 Rectangle, Ellipse, Polyline, Polygon, Marker 이고, SDK 가 붙인 `id`, `name`
+ * (그린 모드 이름)과 `setEditable` 이 있다(공식 문서 DrawingManager, global DrawingOverlay).
+ */
+export type DrawingOverlay = (
   | naver.maps.Rectangle
   | naver.maps.Ellipse
   | naver.maps.Polyline
   | naver.maps.Polygon
-  | naver.maps.Marker;
+  | naver.maps.Marker
+) &
+  naver.maps.drawing.DrawingOverlay;
 
 /**
  * 사용자가 지도 위에 도형을 그리게 한다. SDK 의 `naver.maps.drawing.DrawingManager` 다.
@@ -48,7 +53,7 @@ export interface DrawingManagerProps {
    * 돌아간다. 받아들이려면 `onDrawingModeChanged` 로 상태를 갱신한다.
    */
   drawingMode?: naver.maps.drawing.DrawingMode;
-  controlPointOptions?: Record<string, unknown>;
+  controlPointOptions?: Partial<naver.maps.drawing.ControlPointOptions>;
   rectangleOptions?: naver.maps.RectangleOptions;
   ellipseOptions?: naver.maps.EllipseOptions;
   polylineOptions?: naver.maps.PolylineOptions;

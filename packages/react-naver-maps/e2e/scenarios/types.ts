@@ -88,6 +88,8 @@ export type AppConfig = {
   tileGridZIndex?: number;
   /** FlightSpot 을 올린다. submodules 에 'panorama' 가 있어야 한다. overlaysOnMap 에 'flightSpot'. */
   flightSpot?: boolean;
+  /** heatMapOpacity 의 HeatMap 데이터를 { weight, location } 리터럴로 넘긴다. */
+  heatMapWeighted?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };

@@ -41,4 +41,32 @@ describe('visualization', () => {
     render(<HeatMap data={[[127, 37]]} radius={20} />);
     expect(setMap).toHaveBeenCalledWith({ isReady: true });
   });
+
+  test('colorMapInReverse 는 setColorMap(colorMap, true) 로 맞춘다', () => {
+    const setColorMap = vi.fn();
+    class Layer {
+      constructor(public options: Record<string, unknown>) {}
+      setMap = vi.fn();
+      getMap = () => null;
+      get = vi.fn();
+      set = vi.fn();
+      setColorMap = setColorMap;
+      getColorMap = () => 'jet';
+    }
+    navermaps = {
+      visualization: { HeatMap: Layer, DotMap: Layer },
+      Event: {
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        clearInstanceListeners: vi.fn(),
+      },
+    };
+    (globalThis as any).naver = { maps: navermaps };
+    const data = [{ weight: 2, location: [127, 37] as [number, number] }];
+    const { rerender } = render(<HeatMap data={data} colorMapInReverse />);
+    expect(setColorMap).toHaveBeenLastCalledWith('jet', true);
+    rerender(<HeatMap data={data} colorMapInReverse={false} />);
+    expect(setColorMap).toHaveBeenLastCalledWith('jet', false);
+    expect(setColorMap).toHaveBeenCalledTimes(2);
+  });
 });
