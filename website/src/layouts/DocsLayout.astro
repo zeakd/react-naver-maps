@@ -18,19 +18,53 @@ const navigation = buildNavigation(
   })),
 );
 
-const categoryOrder = ['guides', 'examples', 'tutorials', 'api-references'];
+// 공식 예제를 옮긴 쪽은 영역별 카테고리(tutorial-*)에 둔다. 공식 문서 예제 목록의 묶음과 같다.
+const categoryOrder = [
+  'guides',
+  'examples',
+  'tutorial-map',
+  'tutorial-control',
+  'tutorial-event',
+  'tutorial-maptype',
+  'tutorial-layer',
+  'tutorial-marker',
+  'tutorial-infowindow',
+  'tutorial-shape',
+  'tutorial-overlay',
+  'tutorial-data',
+  'tutorial-visualization',
+  'tutorial-drawing',
+  'tutorial-geocoder',
+  'tutorial-panorama',
+  'tutorial-gl',
+  'api-references',
+];
 
 const categoryLabels: Record<string, string> = {
   guides: 'Guides',
   examples: 'Examples',
+  'tutorial-map': '예제: 지도',
+  'tutorial-control': '예제: 컨트롤',
+  'tutorial-event': '예제: 이벤트',
+  'tutorial-maptype': '예제: 지도 유형',
+  'tutorial-layer': '예제: 레이어',
+  'tutorial-marker': '예제: 마커',
+  'tutorial-infowindow': '예제: 정보 창',
+  'tutorial-shape': '예제: 도형',
+  'tutorial-overlay': '예제: 사용자 정의 오버레이',
+  'tutorial-data': '예제: 데이터 레이어',
+  'tutorial-visualization': '예제: 시각화',
+  'tutorial-drawing': '예제: 그리기',
+  'tutorial-geocoder': '예제: 지오코딩',
+  'tutorial-panorama': '예제: 거리뷰',
+  'tutorial-gl': '예제: GL',
   'api-references': 'API Reference',
-  'tutorials': 'Tutorials',
 };
 
 navigation.sort(
   (a, b) =>
-    (categoryOrder.indexOf(a.name) ?? 99) -
-    (categoryOrder.indexOf(b.name) ?? 99),
+    (categoryOrder.indexOf(a.name) + 1 || 99) -
+    (categoryOrder.indexOf(b.name) + 1 || 99),
 );
 ---
 
