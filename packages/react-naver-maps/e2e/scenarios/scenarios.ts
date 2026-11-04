@@ -9,6 +9,7 @@ import { lifecycle } from './cases/lifecycle.js';
 import { mapProps } from './cases/map-props.js';
 import { overlayMotion } from './cases/overlay-motion.js';
 import { overlays } from './cases/overlays.js';
+import { performance } from './cases/performance.js';
 import { reactLifecycle } from './cases/react-lifecycle.js';
 import { submodules } from './cases/submodules.js';
 import type { Scenario } from './types.js';
@@ -31,4 +32,5 @@ export const scenarios: Scenario[] = [
   ...controls,
   ...layersData,
   ...submodules,
+  ...performance,
 ];

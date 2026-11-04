@@ -153,8 +153,16 @@ export function useControlledKVO(
   useControlledProps(target, { [property]: value }, rules);
 }
 
-/** 한 prop 의 동기화 상태. 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. */
-type Synced = { prop: unknown; applied: unknown };
+/**
+ * 한 prop 의 동기화 상태. 마지막으로 맞춘 prop 과, 그 직후 SDK 가 가진 값. io 는 그 인스턴스의 읽기·쓰기
+ * 함수로, 렌더마다 만들지 않으려고 둔다(target 이 바뀌면 다시 만든다).
+ */
+type Synced = {
+  prop: unknown;
+  applied: unknown;
+  target: naver.maps.KVO;
+  io: ReturnType<typeof accessors>;
+};
 
 /**
  * 여러 prop 을 한 번에 동기화한다. 규칙은 useControlledKVO 와 같고 layout effect 하나로 돈다.
@@ -208,8 +216,11 @@ function syncProp(
   value: unknown,
   rule: { mounting: boolean; changeOnly: boolean; writeOnMount: boolean },
 ): void {
-  const io = accessors(target, property);
   const synced = states.get(property);
+  const io =
+    synced && synced.target === target
+      ? synced.io
+      : accessors(target, property);
   const current = io.read();
 
   if (synced === undefined) {
@@ -218,19 +229,33 @@ function syncProp(
     // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
     if ((!rule.mounting || rule.writeOnMount) && !kvoEquals(current, value))
       io.write(value);
-    states.set(property, { prop: value, applied: snapshot(io.read()) });
+    states.set(property, {
+      prop: value,
+      applied: snapshot(io.read()),
+      target,
+      io,
+    });
     return;
   }
 
   const propChanged = !kvoEquals(synced.prop, value);
   const changedOutside =
     !rule.changeOnly && !kvoEquals(current, synced.applied);
-  if (!propChanged && !changedOutside) return;
+  if (!propChanged && !changedOutside) {
+    if (synced.target !== target) synced.io = io;
+    synced.target = target;
+    return;
+  }
 
   // prop 이 바뀌었거나, 바깥에서 SDK 값을 바꿨으면 prop 으로 맞춘다(되돌림).
   // 0.3.0 과 같은 동작이다. 바깥 변경을 받아들이려면 앱이 이벤트로 상태를 갱신해 prop 을 바꾼다.
   if (!kvoEquals(current, value)) io.write(value);
-  states.set(property, { prop: value, applied: snapshot(io.read()) });
+  states.set(property, {
+    prop: value,
+    applied: snapshot(io.read()),
+    target,
+    io,
+  });
 }
 
 /**

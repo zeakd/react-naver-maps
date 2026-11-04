@@ -1,0 +1,49 @@
+---
+title: 성능
+category: guides
+order: 10
+---
+
+React 는 상태가 바뀌면 다시 렌더하고, 지도 SDK 는 명령으로 그립니다. 이 차이에서 생기는 비용은 라이브러리가 맡습니다. 인라인 핸들러, 인라인 객체, 지도 위에 둔 상태처럼 최적화하지 않은 코드로도 끄는 동안 지도가 버벅이지 않게 하는 것이 목표입니다.
+
+## 라이브러리가 하는 것
+
+- **같은 값은 SDK 에 다시 쓰지 않습니다.** prop 은 값으로 비교합니다. `position={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값이면 setter 를 부르지 않습니다.
+- **핸들러가 바뀌기만 하면 리스너를 다시 붙이지 않습니다.** 리스너는 핸들러가 생기거나 없어질 때만 붙이고 떼며, 붙은 리스너가 최신 핸들러를 부릅니다. `onClick={() => select(id)}` 같은 인라인 함수를 써도 됩니다.
+- **이벤트 목록과 SDK 접근 함수는 한 번만 만듭니다.** 오버레이 하나의 렌더는 prop 비교와 SDK 값 읽기 정도입니다.
+- **카메라는 prop 이 바뀔 때만 움직입니다.** 끄는 동안은 보류하고, 늦게 돌아온 `onCenterChanged` 값(되울림)은 따르지 않습니다([핵심 개념](../guides/core-concepts/)).
+
+## 잰 값
+
+controlled `center`(`onCenterChanged` 로 상태를 갱신해 되돌려주는 앱)로 지도를 16 프레임 끄는 동안의 JavaScript 실행 시간입니다. 2026-11-05, Apple M4, React 19.3.1 배포 빌드, SDK 3.10.5. 기기마다 다르니 비율로 읽습니다.
+
+| 지도 위                                    | 16 프레임 | 오버레이가 더하는 프레임당 시간 |
+| ------------------------------------------ | --------- | ------------------------------- |
+| 오버레이 없음                              | 9ms       |                                 |
+| 인라인 `onClick` 이 있는 `Marker` 300개    | 38ms      | 약 1.8ms                        |
+| `onClick` 이 없는 `Marker` 300개           | 38ms      | 약 1.8ms                        |
+| 꼭짓점 1만 개 `Polyline`, 같은 배열        | 14ms      | 약 0.3ms                        |
+| 꼭짓점 1만 개 `Polyline`, 렌더마다 새 배열 | 28ms      | 약 1.2ms                        |
+
+`Marker` 300개의 시간에는 React 의 렌더와 SDK 의 그리기가 함께 들어 있습니다. 끄는 동안 라이브러리가 SDK 에 쓰는 일은 없습니다(같은 값이므로).
+
+## 더 줄이고 싶으면
+
+- **끄는 동안 다시 렌더할 필요가 없으면 uncontrolled 로 둡니다.** `defaultCenter` 로 두고 다 끈 뒤에만 알고 싶으면 `onIdle` 이나 `onDragend` 에서 `map.getCenter()` 를 읽습니다. 끄는 동안 React 가 아무것도 하지 않습니다.
+- **꼭짓점이 많은 `path`·`paths` 는 같은 배열을 유지합니다.** 값 비교는 꼭짓점 수만큼 일합니다. 상태로 두거나 `useMemo` 로 만들면 참조가 같아 바로 넘어갑니다.
+- **오버레이가 많으면 목록을 `memo` 로 감쌉니다.** 지도 상태가 바뀌어도 목록의 props 가 그대로면 React 가 그 아래를 건너뜁니다.
+
+  ```tsx
+  const Stores = memo(function Stores({ stores }: { stores: Store[] }) {
+    return stores.map((s) => <Marker key={s.id} position={s.position} />);
+  });
+  ```
+
+## 직접 재기
+
+저장소의 실제 SDK 시나리오에 성능 측정이 있습니다(`packages/react-naver-maps/e2e/scenarios/cases/performance.ts`). `RNM_REACT_PROD=1` 이면 React 배포 빌드로 재고, 시나리오의 `{ t: 'profile' }` 단계는 CPU 프로파일 요약을 첨부합니다.
+
+```sh
+cd packages/react-naver-maps
+RNM_REACT_PROD=1 pnpm test:scenarios -g "성능:"
+```

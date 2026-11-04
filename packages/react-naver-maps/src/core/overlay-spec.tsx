@@ -3,6 +3,7 @@
 import type { Ref } from 'react';
 import { useEffect, useImperativeHandle, useLayoutEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
+import { useLatest } from './hooks/use-latest.js';
 import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
 import { onMap, onReadyHost, useSdkInstance } from './lifetime.js';
@@ -146,14 +147,43 @@ function OverlayBindings<P extends object, T extends Overlay>({
     { changeOnly: spec.changeOnly },
   );
   spec.sync?.(instance, props);
-  useOverlayEvents(instance, props, spec.events);
-  useOverlayEvents(instance, props, [
-    ...(spec.changes ?? []).map(
-      (k) => [`${k}_changed`, changedProp(k)] as const,
-    ),
-    ...(spec.otherEvents ?? []),
-  ]);
+  useOverlayEvents(instance, props, eventsOf(spec));
   return null;
+}
+
+/** 표의 이벤트 목록(포인터 이벤트, 값 변경 이벤트, 그 밖). 표마다 한 번만 만든다(렌더마다 만들지 않는다). */
+const specEvents = new WeakMap<object, EventList>();
+function eventsOf<P, T>(spec: OverlaySpec<P, T>): EventList {
+  let events = specEvents.get(spec);
+  if (!events) {
+    events = [
+      ...spec.events,
+      ...(spec.changes ?? []).map(
+        (k) => [`${k}_changed`, changedProp(k)] as const,
+      ),
+      ...(spec.otherEvents ?? []),
+    ];
+    specEvents.set(spec, events);
+  }
+  return events;
+}
+
+type EventList = readonly (string | readonly [event: string, prop: string])[];
+
+/** 이벤트 목록을 [이벤트, prop] 짝으로. 같은 목록(참조)이면 한 번만 바꾼다. */
+const normalized = new WeakMap<
+  EventList,
+  readonly (readonly [string, string])[]
+>();
+function pairsOf(events: EventList) {
+  let pairs = normalized.get(events);
+  if (!pairs) {
+    pairs = events.map((e) =>
+      typeof e === 'string' ? ([e, eventProp(e)] as const) : e,
+    );
+    normalized.set(events, pairs);
+  }
+  return pairs;
 }
 
 /**
@@ -169,23 +199,32 @@ export function useOverlayEvents(
   timing: 'paint' | 'layout' = 'paint',
 ): void {
   const useTimedEffect = timing === 'layout' ? useLayoutEffect : useEffect;
-  const pairs = events.map((e) =>
-    typeof e === 'string' ? ([e, eventProp(e)] as const) : e,
-  );
+  // 목록이 같은 참조면(표의 상수) 짝을 다시 만들지 않는다. 렌더마다 새 목록이면 매번 만든다.
+  const pairs = pairsOf(events);
   const handlers = pairs.map(
     ([, prop]) =>
       (props as Record<string, unknown>)[prop] as
         | PointerEventHandler
         | undefined,
   );
+  // 리스너는 핸들러가 생기거나 없어질 때만 붙이고 뗀다. 핸들러가 바뀌기만 하면(인라인 함수) 붙인 리스너가
+  // 최신 핸들러를 부른다(hooks/use-latest.ts).
+  const latest = useLatest(handlers);
+  const present = handlers.map((h) => h !== undefined);
   useTimedEffect(() => {
     const listeners: MapListener[] = [];
     pairs.forEach(([event], i) => {
-      const handler = handlers[i];
-      if (handler) listeners.push(addMapListener(target, event, handler));
+      if (!present[i]) return;
+      listeners.push(
+        addMapListener(target, event, (...args: unknown[]) =>
+          (latest.current[i] as ((...a: unknown[]) => void) | undefined)?.(
+            ...args,
+          ),
+        ),
+      );
     });
     return () => listeners.forEach((l) => removeMapListener(l));
-    // 핸들러 목록을 펼쳐 deps 로 쓴다. 길이는 events 로 정해져 렌더마다 같다.
+    // 있음·없음 목록을 펼쳐 deps 로 쓴다. 길이는 events 로 정해져 렌더마다 같다.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, ...handlers]);
+  }, [target, ...present]);
 }

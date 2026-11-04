@@ -180,7 +180,7 @@ describe('Circle', () => {
     expect(onMouseover).toHaveBeenCalled();
   });
 
-  test('onClick 변경 시 이전 리스너 제거 + 새 리스너 추가', () => {
+  test('onClick 변경 시 새 핸들러가 불리고 옛 핸들러는 안 불린다, 리스너는 다시 붙지 않는다', () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
 
@@ -192,12 +192,15 @@ describe('Circle', () => {
       />,
     );
 
-    // handler1이 click 리스너로 등록되어 있는지 확인
-    const clickListener1 = eventListeners.find(
-      (l) => l.target === lastCircleInstance && l.event === 'click',
-    );
-    expect(clickListener1).toBeDefined();
-    expect(clickListener1!.cb).toBe(handler1);
+    const clickListeners = () =>
+      eventListeners.filter(
+        (l) => l.target === lastCircleInstance && l.event === 'click',
+      );
+    const listener = clickListeners()[0];
+    expect(clickListeners()).toHaveLength(1);
+
+    listener.cb('e1');
+    expect(handler1).toHaveBeenCalledWith('e1');
 
     rerender(
       <Circle
@@ -207,12 +210,33 @@ describe('Circle', () => {
       />,
     );
 
-    // handler1 리스너가 제거되고 handler2로 교체
-    const remainingClick = eventListeners.filter(
-      (l) => l.target === lastCircleInstance && l.event === 'click',
+    // 같은 리스너가 그대로 붙어 있고, 이벤트 때 최신 핸들러를 부른다
+    expect(clickListeners()).toHaveLength(1);
+    expect(clickListeners()[0]).toBe(listener);
+    listener.cb('e2');
+    expect(handler2).toHaveBeenCalledTimes(1);
+    expect(handler2).toHaveBeenCalledWith('e2');
+    expect(handler1).toHaveBeenCalledTimes(1);
+  });
+
+  test('onClick 을 없애면 click 리스너를 뗀다', () => {
+    const { rerender } = render(
+      <Circle
+        defaultCenter={{ lat: 37.5, lng: 127.0 }}
+        defaultRadius={100}
+        onClick={vi.fn()}
+      />,
     );
-    expect(remainingClick).toHaveLength(1);
-    expect(remainingClick[0].cb).toBe(handler2);
+    const clickListeners = () =>
+      eventListeners.filter(
+        (l) => l.target === lastCircleInstance && l.event === 'click',
+      );
+    expect(clickListeners()).toHaveLength(1);
+
+    rerender(
+      <Circle defaultCenter={{ lat: 37.5, lng: 127.0 }} defaultRadius={100} />,
+    );
+    expect(clickListeners()).toHaveLength(0);
   });
 
   test('undefined 옵션은 omitUndefined로 제거', () => {

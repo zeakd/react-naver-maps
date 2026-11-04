@@ -2,6 +2,7 @@
 
 import type { Ref } from 'react';
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import { useLatest } from './hooks/use-latest.js';
 import { useMap } from './hooks/use-map.js';
 import { useSdkInstance } from './lifetime.js';
 import { addMapListener, removeMapListener } from './utils/sdk.js';
@@ -159,21 +160,23 @@ export function useDataFeatures(
         | ((e: { feature: naver.maps.Feature }) => void)
         | undefined,
   );
+  // 리스너는 핸들러가 생기거나 없어질 때만 붙인다. 붙인 리스너는 최신 핸들러를 부른다(hooks/use-latest.ts).
+  const latest = useLatest(handlers);
+  const present = handlers.map((h) => h !== undefined);
   useEffect(() => {
     if (!features) return;
     const mine = new Set(features);
     const listeners: MapListener[] = [];
     EVENT_PROPS.forEach(([event], i) => {
-      const handler = handlers[i];
-      if (!handler) return;
+      if (!present[i]) return;
       listeners.push(
         addMapListener(layer, event, (e: { feature: naver.maps.Feature }) => {
-          if (mine.has(e.feature)) handler(e);
+          if (mine.has(e.feature)) latest.current[i]?.(e);
         }),
       );
     });
     return () => listeners.forEach((l) => removeMapListener(l));
-    // 핸들러 목록을 펼쳐 deps 로 쓴다. 길이는 EVENT_PROPS 로 정해져 렌더마다 같다.
+    // 있음·없음 목록을 펼쳐 deps 로 쓴다. 길이는 EVENT_PROPS 로 정해져 렌더마다 같다.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [layer, features, ...handlers]);
+  }, [layer, features, ...present]);
 }

@@ -22,6 +22,7 @@ export const NEW_API_FIELDS: Field[] = ['propCalls'];
  */
 export const MEASURED_FIELDS: Field[] = [
   'addListenerCalls',
+  'scriptMs',
   // 오버레이 화면 자리(px). 래스터 pane 이동·기준점 근사에 따라 달라지는 측정값이고 판정은 시나리오의
   // expect 가 한다(cases/overlay-motion.ts).
   'overlayDrift',

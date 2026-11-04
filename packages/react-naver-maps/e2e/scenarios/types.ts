@@ -49,6 +49,8 @@ export type CoreConfig = {
   zoomControlOptionsNamed?: { position?: string; style?: string };
   /** 지도 인스턴스의 setOptions 호출을 센다(mapSetOptionsCalls). 없으면 null. */
   countMapSetOptions?: boolean;
+  /** 프레임마다 실제 JS 실행 시간을 잰다(scriptMs). */
+  measureScript?: boolean;
   /** Container 너비. 기본값은 600 */
   containerWidth?: number;
   /** 지도(Container 안)를 Activity 로 감싼다. */
@@ -117,6 +119,8 @@ export type Step =
   | { t: 'probe'; name: 'centerRed' }
   /** 화면을 찍어 결과에 붙인다. 판정에는 쓰지 않는다. */
   | { t: 'shot'; name: string }
+  /** 이 구간의 CPU 프로파일을 잰다. stop 에서 profile-<n>.txt 를 남긴다. */
+  | { t: 'profile'; kind: 'start' | 'stop' }
   /** 가상 시계로 돌지 않는 브라우저 일을 기다린다. ResizeObserver 등. */
   | { t: 'realtime'; ms: number };
 
@@ -135,6 +139,11 @@ export type CoreFrame = {
   zoomControlStyleName: string | null;
   /** countMapSetOptions 일 때 이 프레임까지 누적한 지도 setOptions 호출 수. 아니면 null. */
   mapSetOptionsCalls: number | null;
+  /**
+   * measureScript 일 때 이 프레임까지 누적한 실제 JS 실행 시간(ms, CDP ScriptDuration). 아니면 null.
+   * 기기·부하마다 달라 비교 실행에서 뺀다(MEASURED_FIELDS). 같은 실행 안의 구간 차이로 읽는다.
+   */
+  scriptMs: number | null;
   /** 이 프레임에 발생한 지도 이벤트 */
   events: string[];
   /** 이 프레임에 호출된 지도 메서드 */
@@ -233,6 +242,7 @@ export interface ScenarioDriver {
     points: [number, number][],
   ): Promise<void>;
   shot(name: string): Promise<void>;
+  profile(kind: 'start' | 'stop'): Promise<void>;
   /** 화면 값을 잰다. 지원하지 않으면 null. */
   probe(name: 'centerRed'): Promise<number | null>;
   realtime(ms: number): Promise<void>;

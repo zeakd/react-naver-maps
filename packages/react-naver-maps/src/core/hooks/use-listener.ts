@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { useLatest } from './use-latest.js';
 import { addMapListener, removeMapListener } from '../utils/sdk.js';
 
 /**
@@ -17,8 +18,7 @@ export function useListener(
   eventName: string,
   listener: ((...args: unknown[]) => void) | undefined,
 ): void {
-  const listenerRef = useRef(listener);
-  listenerRef.current = listener;
+  const listenerRef = useLatest(listener);
 
   useEffect(() => {
     if (!target || !listenerRef.current) return;

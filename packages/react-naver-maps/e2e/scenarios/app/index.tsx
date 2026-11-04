@@ -530,6 +530,8 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         mapSetOptionsCalls: initial.countMapSetOptions
           ? mapSetOptionsCalls
           : null,
+        // 드라이버가 CDP 로 채운다(playwright-driver.ts frame).
+        scriptMs: null,
         events: observed.events.splice(0),
         calls: observed.calls.splice(0),
         propCalls: observed.propCalls.splice(0),

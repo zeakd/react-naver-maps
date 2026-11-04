@@ -47,6 +47,9 @@ export async function runScenario(
       case 'shot':
         await driver.shot(step.name);
         break;
+      case 'profile':
+        await driver.profile(step.kind);
+        break;
       case 'probe': {
         const value = await driver.probe(step.name);
         const last = trace.at(-1);

@@ -21,7 +21,8 @@ const STYLE_URL = /\/styles\/[^/?]+\.json/;
 const TOUCH_MOVE_WAIT_MS = 100;
 
 /** 시나리오가 찍은 화면. spec 이 결과에 붙인다. */
-export type Shot = { name: string; png: Buffer };
+/** 시나리오가 남기는 첨부. 화면(png) 또는 글(text, 프로파일 요약 등). */
+export type Shot = { name: string; png?: Buffer; text?: string };
 
 /** 페이지가 받은 입력 이벤트 수. mount 가 심는다. */
 type InputCounter = { __inputs: number; __onInput?: () => void };
@@ -38,6 +39,10 @@ export function createPlaywrightDriver(
   shots: Shot[] = [],
 ): ScenarioDriver {
   let cdp: CDPSession | undefined;
+  // 실제 JS 실행 시간(CDP Performance.ScriptDuration). 가상 시계가 performance.now 를 바꾸므로 페이지 안에서는
+  // 잴 수 없다. 기기마다 달라 비교에는 쓰지 않고(MEASURED_FIELDS) 같은 실행 안의 조건 비교에 쓴다.
+  let perf: CDPSession | undefined;
+  let profiler: CDPSession | undefined;
   // 입력이 예약한 React 작업(MessageChannel)을 끝낸다. 입력 직후에 부르지 않으면 그 작업이
   // 시계를 넘기기 전에 도는지 뒤에 도는지가 실행마다 달라, SDK 가 미뤄 둔 이동이 들어가는
   // 프레임이 바뀐다(onCenterChanged 값을 가공해 되돌려주는 앱에서 관찰). 렌더가 지도 메서드를
@@ -125,6 +130,10 @@ export function createPlaywrightDriver(
         // 터치 지원은 hasTouch 컨텍스트가 준다(scenarios.spec.ts). 손가락은 CDP 로 보낸다.
         cdp = await page.context().newCDPSession(page);
       }
+      if (app.measureScript) {
+        perf = await page.context().newCDPSession(page);
+        await perf.send('Performance.enable');
+      }
       if (app.delayStyleMs) {
         // 라우트 핸들러는 노드에서 돌므로 가상 시계의 영향을 받지 않는다.
         await page.route(STYLE_URL, async (route) => {
@@ -181,7 +190,15 @@ export function createPlaywrightDriver(
     async frame(): Promise<TraceFrame> {
       await page.clock.runFor(FRAME_MS);
       await flush();
-      return page.evaluate(() => window.app.read());
+      const frame = await page.evaluate(() => window.app.read());
+      if (perf) {
+        const { metrics } = (await perf.send('Performance.getMetrics')) as {
+          metrics: { name: string; value: number }[];
+        };
+        const script = metrics.find((m) => m.name === 'ScriptDuration');
+        frame.scriptMs = script ? script.value * 1000 : null;
+      }
+      return frame;
     },
     async call(method, args) {
       await page.evaluate(([m, a]) => window.app.call(m, a), [method, args] as [
@@ -228,6 +245,23 @@ export function createPlaywrightDriver(
     async shot(name) {
       shots.push({ name, png: await page.screenshot() });
     },
+    async profile(kind) {
+      // CPU 프로파일(CDP Profiler). stop 에서 함수별 자기 시간 상위를 profile-<n>.txt 로 남긴다.
+      profiler ??= await page.context().newCDPSession(page);
+      if (kind === 'start') {
+        await profiler.send('Profiler.enable');
+        await profiler.send('Profiler.setSamplingInterval', { interval: 100 });
+        await profiler.send('Profiler.start');
+        return;
+      }
+      const { profile } = (await profiler.send('Profiler.stop')) as {
+        profile: CpuProfile;
+      };
+      shots.push({
+        name: `profile-${shots.filter((s) => s.text).length + 1}`,
+        text: summarizeProfile(profile),
+      });
+    },
     async probe() {
       // 지도(600x400, 화면 왼쪽 위) 가운데. 그림은 페이지의 canvas 로 풀어 센다(실제 시간).
       const png = await page.screenshot({
@@ -255,4 +289,39 @@ export function createPlaywrightDriver(
       await input(() => page.mouse.wheel(0, deltaY));
     },
   };
+}
+
+type CpuProfile = {
+  nodes: {
+    id: number;
+    callFrame: { functionName: string; url: string; lineNumber: number };
+  }[];
+  samples: number[];
+  timeDeltas: number[];
+};
+
+/** 함수별·파일별 자기 시간(ms) 상위. 라이브러리(src/)·SDK(maps.js)·React(react-dom) 를 가려 보려는 것이다. */
+function summarizeProfile(profile: CpuProfile): string {
+  const nodes = new Map(profile.nodes.map((n) => [n.id, n]));
+  const byFn = new Map<string, number>();
+  const byFile = new Map<string, number>();
+  profile.samples.forEach((id, i) => {
+    const us = profile.timeDeltas[i] ?? 0;
+    const cf = nodes.get(id)!.callFrame;
+    const file =
+      (cf.url.split('?')[0] ?? '')
+        .replace(/^.*\/(src\/|e2e\/|node_modules\/\.vite\/deps\/)/, '$1')
+        .replace(/^https?:\/\/[^/]+\/openapi\/v3\//, 'sdk:') || '(native)';
+    const fn = `${cf.functionName || '(anon)'} ${file}:${cf.lineNumber + 1}`;
+    byFn.set(fn, (byFn.get(fn) ?? 0) + us);
+    byFile.set(file, (byFile.get(file) ?? 0) + us);
+  });
+  const top = (m: Map<string, number>, n: number) =>
+    [...m]
+      .toSorted((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([k, v]) => `${(v / 1000).toFixed(1).padStart(7)}ms  ${k}`);
+  return ['# 파일', ...top(byFile, 15), '', '# 함수', ...top(byFn, 40)].join(
+    '\n',
+  );
 }

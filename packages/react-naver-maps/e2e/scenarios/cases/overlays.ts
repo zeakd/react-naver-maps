@@ -160,19 +160,15 @@ export const overlays: Scenario[] = [
       },
     ],
   },
-  // QC 사례 21. Marker 300개의 인라인 onClick 이 렌더마다 새 함수라 라이브러리가 리스너를 떼었다 붙일 수 있다.
-  // 끄는 동안(프레임 0~15) controlled center 가 매 프레임 렌더를 일으킨다. setPosition 은 0이어야 한다.
-  // addListener 증가량의 상한은 실행해 보고 운전 세션이 정한다. 지금은 상한 없이(Infinity) 기록만 하고,
-  // 값은 trace.json 의 addListenerCalls 로 본다.
+  // Marker 300개의 인라인 onClick 은 렌더마다 새 함수다. 끄는 동안(프레임 0~15) controlled center 가 매 프레임
+  // 렌더를 일으킨다. 리스너는 핸들러가 생기거나 없어질 때만 붙여야 한다(hooks/use-latest.ts). 예전에는 프레임마다
+  // 리스너 306개를 다시 붙였다(2026-11-05 실측).
   {
-    name: 'Marker 300개와 controlled center 로 끌어도 Marker 의 위치를 다시 쓰지 않는다',
+    name: 'Marker 300개와 controlled center 로 끌어도 Marker 의 위치를 다시 쓰지 않고 리스너를 다시 붙이지 않는다',
     since: '0.4',
     app: { mode: 'controlled', marker: false, markerCount: 300 },
     steps: dragLeftAndRelease,
-    expect: [
-      calls({ setPosition: 0 }),
-      addListenerCallsWithin(0, 16, Number.POSITIVE_INFINITY),
-    ],
+    expect: [calls({ setPosition: 0 }), addListenerCallsWithin(0, 16, 0)],
   },
 
   {

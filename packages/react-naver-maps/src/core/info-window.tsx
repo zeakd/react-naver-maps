@@ -111,6 +111,9 @@ const OPTIONS = [
   'zIndex',
 ] as const satisfies readonly (keyof InfoWindowProps)[];
 
+/** 열고 닫힘 이벤트. 목록을 상수로 두어 렌더마다 만들지 않는다. */
+const OPEN_CLOSE = ['open', 'close'] as const;
+
 const CHANGES = [
   'anchorColor',
   'anchorSize',
@@ -190,7 +193,7 @@ function InfoWindowInner({
     return () => removeMapListener(listener);
   }, [map, ready, waitForInit]);
   // open, close 는 open() 을 부르는 아래 effect 보다 먼저, paint 전에 단다.
-  useOverlayEvents(infoWindow, props, ['open', 'close'], 'layout');
+  useOverlayEvents(infoWindow, props, OPEN_CLOSE, 'layout');
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   // anchor 는 값으로 안정화한다. 인라인 anchor 는 렌더마다 새 객체라 그대로 deps 에 두면 이 effect 가
