@@ -50,6 +50,23 @@ function App() {
 
 ## 개발
 
+라이브러리 소스(`packages/react-naver-maps/src`)는 역할별 폴더로 나뉜다. 각 폴더의 테스트는 그 폴더의 `__tests__` 에 있다.
+
+```
+src/
+  index.ts        루트 진입(react-naver-maps)
+  sdk/            SDK 불러오기(NavermapsProvider, loadScript), 이름으로 받는 상수, 리스너, SDK 타입 보강
+  binding/        SDK 인스턴스와 prop 을 잇는 부품: 수명(lifetime), 값 동기화, 최신 핸들러, 생성 때만 쓰는 prop 경고
+  map/            NaverMap, Container, 카메라 판정(camera/)
+  overlays/       Marker, InfoWindow, CustomOverlay, GroundOverlay, CustomControl, 오버레이 표(overlay-spec)와 이벤트
+  shapes/         Circle, Ellipse, Polygon, Polyline, Rectangle, 도형 편집
+  layers/         내장 레이어와 사용자 Layer
+  data/           GeoJson, Gpx, Kml(데이터 레이어)
+  hooks/          공개 훅(useNavermaps, useMap, useKVO, useListener, useOverlay)
+  addons/ drawing/ geocoder/ panorama/ visualization/   하위 경로 진입(react-naver-maps/<이름>)
+  __tests__/      단위 테스트의 SDK 가짜와 그 계약
+```
+
 ```bash
 pnpm install
 pnpm check && pnpm -r run build && pnpm -r run test   # 단위 검사 (SDK mock)

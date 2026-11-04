@@ -20,7 +20,7 @@ type OverlayViewWithContainer = naver.maps.OverlayView & {
 
 /**
  * overlayDrift 의 CustomOverlay 기준점: 컨테이너 element 의 왼쪽 위 + anchor.
- * src/core/custom-overlay.tsx 의 draw() 가 컨테이너를 (좌표의 화면 점 - anchor) 에 놓는다.
+ * src/overlays/custom-overlay.tsx 의 draw() 가 컨테이너를 (좌표의 화면 점 - anchor) 에 놓는다.
  */
 function customOverlayAnchor(o: OverlayViewWithContainer): OverlayAnchor {
   return {

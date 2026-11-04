@@ -3,7 +3,7 @@ import { describe, test, expect, vi } from 'vitest';
 import { Panorama } from '../index.js';
 
 let navermaps: Record<string, unknown> = {};
-vi.mock('../../core/hooks/use-navermaps.js', () => ({
+vi.mock('../../hooks/use-navermaps.js', () => ({
   useNavermaps: () => navermaps,
 }));
 

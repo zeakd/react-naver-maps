@@ -7,14 +7,14 @@ import {
 } from '../../__tests__/sdk-fake.js';
 
 let navermaps: Record<string, unknown> = {};
-vi.mock('../../core/hooks/use-navermaps.js', () => ({
+vi.mock('../../hooks/use-navermaps.js', () => ({
   useNavermaps: () => navermaps,
 }));
 
 import { Panorama } from '../index.js';
-import { Container } from '../../core/container.js';
-import { Marker } from '../../core/marker.js';
-import { Circle } from '../../core/circle.js';
+import { Container } from '../../map/container.js';
+import { Marker } from '../../overlays/marker.js';
+import { Circle } from '../../shapes/circle.js';
 
 class MockPanorama extends FakeKVO {
   static last: MockPanorama | null = null;

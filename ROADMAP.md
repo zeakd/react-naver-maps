@@ -51,8 +51,8 @@ React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
 ### 0.4 (진행 중, 배포 전)
 
 - 검증: 같은 시나리오를 배포본(0.3.0)과 소스에 돌려 동작 차이를 표로 낸다(`compare:scenarios`). GL, 터치, 앱 상태가 지도와 어긋나는 경우, React 수명(suspend, Activity) 시나리오.
-- 동작: prop 을 값으로 비교, 제스처 중 카메라 prop 보류, 숨겼다 보여도 같은 인스턴스(`core/lifetime.ts`), 핸들러가 있는 도형은 clickable.
-- 구조: 오버레이를 스펙 하나로 정의(`core/overlay-spec.tsx`).
+- 동작: prop 을 값으로 비교, 제스처 중 카메라 prop 보류, 숨겼다 보여도 같은 인스턴스(`binding/lifetime.ts`), 핸들러가 있는 도형은 clickable.
+- 구조: 오버레이를 스펙 하나로 정의(`overlays/overlay-spec.tsx`).
 - 추가: `BicycleLayer`, `CustomControl`, `GeoJson`, `react-naver-maps/addons`, 서브모듈 경로 `geocoder`, `visualization`, `drawing`, `panorama`.
 - deprecated: controlled `bounds`, `centerPoint`, `defaultCenterPoint`.
 - 안내: 0.3 에서 0.4 로 가이드.
@@ -90,7 +90,7 @@ React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
 5. 없던 전역을 만들지 않는다.
 6. 그 밖의 SDK 특이 동작은 숨기지 않고 문서로 알린다.
 
-`src/core` 는 `src/addons` 를 모른다. addons 는 코어의 공개 API 만 쓴다.
+코어(루트 진입 `src/index.ts` 가 내보내는 것)는 `src/addons` 를 모른다. addons 는 코어의 공개 API 만 쓴다.
 
 SDK 서브모듈은 `react-naver-maps/<서브모듈>` 경로로 둔다(`src/geocoder`, `src/visualization`, `src/drawing`, `src/panorama`). 라이브러리가 서브모듈을 대신 불러오지 않고, 없으면 불러오는 법을 담은 에러를 낸다. 옮기는 범위는 SDK 공식 문서에 있는 클래스다.
 
@@ -99,7 +99,7 @@ SDK 서브모듈은 `react-naver-maps/<서브모듈>` 경로로 둔다(`src/geoc
 1. **런타임 의존성 0**: peerDeps만 react/react-dom 19
 2. **omitUndefined 필수**: 네이버맵 생성자에 undefined 전달 시 초기화 실패
 3. **KVO 단방향 동기화**: 구독 없이 렌더 시점에 맞춘다. 값으로 비교하고, SDK 값이 마지막으로 맞춘 직후와 달라졌으면(사용자 드래그 등) prop 으로 되돌린다. 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직이고 제스처 중에는 보류한다
-4. **수명은 한 곳에서**: `core/lifetime.ts`. 숨김(Suspense, Activity, StrictMode)에는 떼고 다시 보이면 붙이며, 진짜 언마운트에서만 버린다(clearInstanceListeners + setMap(null))
+4. **수명은 한 곳에서**: `binding/lifetime.ts`. 숨김(Suspense, Activity, StrictMode)에는 떼고 다시 보이면 붙이며, 진짜 언마운트에서만 버린다(clearInstanceListeners + setMap(null))
 5. **Suspense 네이티브**: use() + Promise 캐시 패턴
 6. **useLayoutEffect**: 인스턴스 생성 + KVO setter는 paint 전 실행
 7. **오버레이는 스펙으로**: `defineOverlay` 의 표 하나에서 컴포넌트를 만든다. 예외는 스펙 필드(`initial`, `derived`, `afterCreate`, `keys`, `waitForReadyMap`)로 드러낸다

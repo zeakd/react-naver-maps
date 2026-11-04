@@ -3,12 +3,12 @@
 // SDK panorama 서브모듈의 Panorama(거리뷰).
 // <NavermapsProvider submodules={['panorama']}> 로 불러야 한다.
 import type { ReactNode, Ref } from 'react';
-import { resolveConstants } from '../core/constants.js';
-import type { ConstantPaths } from '../core/constants.js';
+import { resolveConstants } from '../sdk/constants.js';
+import type { ConstantPaths } from '../sdk/constants.js';
 import type {
   ControlOptionsProp,
   ZoomControlOptionsProp,
-} from '../core/types/sdk-options.js';
+} from '../sdk/sdk-options.js';
 import {
   use,
   useImperativeHandle,
@@ -17,22 +17,22 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { ContainerContext } from '../core/contexts/container.js';
-import { useMap } from '../core/hooks/use-map.js';
-import { NaverMapContext } from '../core/contexts/naver-map.js';
-import { PanoramaHostContext } from '../core/contexts/overlay-host.js';
-import type { PanoramaHost } from '../core/contexts/overlay-host.js';
-import { useNavermaps } from '../core/hooks/use-navermaps.js';
+import { ContainerContext } from '../map/container-context.js';
+import { useMap } from '../hooks/use-map.js';
+import { NaverMapContext } from '../map/naver-map-context.js';
+import { PanoramaHostContext } from '../overlays/overlay-host-context.js';
+import type { PanoramaHost } from '../overlays/overlay-host-context.js';
+import { useNavermaps } from '../hooks/use-navermaps.js';
 import {
   kvoEquals,
   useControlledProps,
-} from '../core/hooks/use-controlled-kvo.js';
-import { onMap, useSdkInstance } from '../core/lifetime.js';
-import { useOverlayEvents, type EventDecl } from '../core/overlay-spec.js';
-import { omitUndefined } from '../core/utils/omit-undefined.js';
-import { pick } from '../core/utils/pick.js';
-import { addMapListener, clearMapListeners } from '../core/utils/sdk.js';
-import { requireSubmodule } from '../core/utils/submodule.js';
+} from '../binding/use-controlled-kvo.js';
+import { onMap, useSdkInstance } from '../binding/lifetime.js';
+import { useOverlayEvents, type EventDecl } from '../overlays/overlay-spec.js';
+import { omitUndefined } from '../binding/omit-undefined.js';
+import { pick } from '../binding/pick.js';
+import { addMapListener, clearMapListeners } from '../sdk/listeners.js';
+import { requireSubmodule } from '../sdk/submodule.js';
 
 /**
  * 거리뷰를 보여 준다. SDK 의 `naver.maps.Panorama` 다. NaverMap 처럼 `Container` 안에 둔다.
@@ -93,7 +93,7 @@ export interface PanoramaProps {
 }
 
 const CAMERA = ['position', 'panoId', 'pov', 'zoom'] as const;
-/** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
+/** 이름으로도 받는 SDK 상수 자리(sdk/constants.ts). */
 const PANORAMA_CONSTANTS: ConstantPaths = {
   'logoControlOptions.position': 'Position',
   'zoomControlOptions.position': 'Position',
@@ -220,7 +220,7 @@ function PanoramaBindings({
 
 const PANORAMA_LIFECYCLE_EVENTS = ['init'];
 
-/** 거리뷰 이벤트와 prop(모양은 core/overlay-spec.tsx 의 EventDecl). 공식 문서 Panorama Events(3.10.5). */
+/** 거리뷰 이벤트와 prop(모양은 overlays/overlay-spec.tsx 의 EventDecl). 공식 문서 Panorama Events(3.10.5). */
 const PANORAMA_EVENTS: readonly EventDecl<naver.maps.Panorama>[] = [
   // 이벤트는 인자 없이 온다. 바뀐 값을 읽어 넘긴다.
   ['pano_changed', 'onPanoChanged', (p) => [p.getPanoId()]],

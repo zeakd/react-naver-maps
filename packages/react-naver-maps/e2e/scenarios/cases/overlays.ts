@@ -161,7 +161,7 @@ export const overlays: Scenario[] = [
     ],
   },
   // Marker 300개의 인라인 onClick 은 렌더마다 새 함수다. 끄는 동안(프레임 0~15) controlled center 가 매 프레임
-  // 렌더를 일으킨다. 리스너는 핸들러가 생기거나 없어질 때만 붙여야 한다(hooks/use-latest.ts). 예전에는 프레임마다
+  // 렌더를 일으킨다. 리스너는 핸들러가 생기거나 없어질 때만 붙여야 한다(binding/use-latest.ts). 예전에는 프레임마다
   // 리스너 306개를 다시 붙였다(2026-11-05 실측).
   {
     name: 'Marker 300개와 controlled center 로 끌어도 Marker 의 위치를 다시 쓰지 않고 리스너를 다시 붙이지 않는다',
