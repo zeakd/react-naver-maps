@@ -1,0 +1,16 @@
+---
+title: 클릭한 지점 폴리곤 연결하기
+category: tutorial-shape
+order: 26
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PolygonDynamicExample from '../../../examples/polygon-dynamic.tsx';
+
+<Example of={PolygonDynamicExample} />
+
+## 설명
+
+클릭한 점을 state 배열에 쌓고 `Polygon` 의 `paths={[points]}` 와 `Marker` 목록이 그 배열에서 그려집니다. 점을 찍는 순간 `path.push` 를 부르지 않고 배열을 새로 만들어 넣습니다.
+
+> [네이버 공식 예제 - 클릭한 지점 폴리곤 연결하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-polygon-dynamic.example.html)

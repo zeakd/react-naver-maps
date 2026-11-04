@@ -1,0 +1,16 @@
+---
+title: 스프라이트 이미지 아이콘 사용하기
+category: tutorial-marker
+order: 4
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerTutorial4SpriteImageIconExample from '../../../examples/marker-tutorial-4-sprite-image-icon.tsx';
+
+<Example of={MarkerTutorial4SpriteImageIconExample} />
+
+## 설명
+
+스프라이트 이미지는 `icon.origin` 으로 자를 칸을 고릅니다. 마우스를 올리면 아래 줄 이미지로 바꾸는 부분은 `onMouseover`/`onMouseout` 으로 state 를 바꾸고, 그 state 로 `icon` 을 새로 계산합니다(`marker.setIcon` 을 부르지 않습니다).
+
+> [네이버 공식 예제 - 스프라이트 이미지 아이콘 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-marker-sprite-image-icon.example.html)

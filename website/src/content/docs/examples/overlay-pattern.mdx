@@ -1,0 +1,16 @@
+---
+title: 오버레이 SVG 패턴 적용하기
+category: tutorial-overlay
+order: 24
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import OverlayPatternExample from '../../../examples/overlay-pattern.tsx';
+
+<Example of={OverlayPatternExample} />
+
+## 설명
+
+SVG `<pattern>` 을 문서에 두고 도형의 `fillColor` 에 `url(#id)` 를 줍니다. 마우스를 올리거나 벗어날 때 무늬를 바꾸는 부분은 `getElement().style.fill` 대신 도형별 무늬 state 입니다. 한계: 공식 예제의 무늬 20종은 쓰지 않고 간단한 무늬 5종을 직접 그렸습니다.
+
+> [네이버 공식 예제 - 오버레이 SVG 패턴 적용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-overlay-pattern.example.html)

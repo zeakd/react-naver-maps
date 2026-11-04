@@ -1,0 +1,16 @@
+---
+title: 멀티 폴리라인 성능 테스트
+category: tutorial-shape
+order: 28
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PolylineRouteExample from '../../../examples/polyline-route.tsx';
+
+<Example of={PolylineRouteExample} />
+
+## 설명
+
+경로 JSON 은 `fetch` 로 받아 구간별 좌표 배열로 바꿉니다. 단일은 `Polyline` 하나, 멀티는 구간마다 `Polyline` 을 `map` 으로 그립니다. 삭제는 배열을 비웁니다(컴포넌트가 사라지며 `setMap(null)` 이 불립니다).
+
+> [네이버 공식 예제 - 멀티 폴리라인 성능 테스트](https://navermaps.github.io/maps.js.ncp/docs/tutorial-polyline-route.example.html)

@@ -1,0 +1,16 @@
+---
+title: 정보 창 옵션 사용하기
+category: tutorial-infowindow
+order: 17
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import InfowindowOptionsExample from '../../../examples/infowindow-options.tsx';
+
+<Example of={InfowindowOptionsExample} />
+
+## 설명
+
+`InfoWindow` 의 `maxWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `anchorSize`, `anchorSkew`, `anchorColor`, `pixelOffset` 을 그대로 prop 으로 줍니다. 크기와 오프셋은 `{ width, height }`, `{ x, y }` 리터럴입니다. 마커를 누르면 열고 닫는 부분은 `open` state 입니다.
+
+> [네이버 공식 예제 - 정보 창 옵션 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-infowindow-options.example.html)

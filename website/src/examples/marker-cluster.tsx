@@ -23,6 +23,7 @@ function ClusterMap() {
           parseFloat(d.grd_la),
           parseFloat(d.grd_lo),
         ),
+        draggable: true,
       });
     });
 
@@ -59,7 +60,7 @@ function ClusterMap() {
 
     clusterRef.current = new MarkerClustering({
       minClusterSize: 2,
-      maxZoom: 13,
+      maxZoom: 8,
       map: map,
       markers: markers,
       disableClickZoom: false,
@@ -83,10 +84,16 @@ function ClusterMap() {
 }
 
 function ClusterMapContent() {
+  const navermaps = useNavermaps();
   return (
     <NaverMap
       defaultCenter={{ lat: 36.2253017, lng: 127.6460516 }}
       defaultZoom={6}
+      zoomControl
+      zoomControlOptions={{
+        position: navermaps.Position.TOP_LEFT,
+        style: navermaps.ZoomControlStyle.SMALL,
+      }}
     >
       <ClusterMap />
     </NaverMap>

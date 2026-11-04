@@ -1,0 +1,16 @@
+---
+title: 폴리라인, 폴리곤의 거리/면적 재기
+category: tutorial-shape
+order: 29
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ShapeMeasuresExample from '../../../examples/shape-measures.tsx';
+
+<Example of={ShapeMeasuresExample} />
+
+## 설명
+
+점을 찍는 동안의 경로·마우스 위치·끝난 도형·이정표를 모두 state 로 두고 `Polyline`/`Polygon`/`CustomOverlay` 로 그립니다. 길이와 면적은 SDK 의 `getDistance()`/`getAreaSize()` 로 재는데, 이를 위해 지도에 올리지 않는 도형 인스턴스를 클릭 처리 안에서 잠깐 만듭니다. 마우스를 따라가는 안내선은 `onMousemove`, 끝내기는 `onRightclick`, 커서는 `cursor` prop 입니다. 한계: 안내선의 점선은 SDK 문서의 `[4, 4]` 배열 대신 `strokeStyle="shortdash"` 입니다.
+
+> [네이버 공식 예제 - 폴리라인, 폴리곤의 거리/면적 재기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-shape-measures.example.html)

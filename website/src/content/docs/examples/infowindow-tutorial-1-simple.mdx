@@ -1,0 +1,16 @@
+---
+title: 정보 창 표시하기
+category: tutorial-infowindow
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import InfowindowTutorial1SimpleExample from '../../../examples/infowindow-tutorial-1-simple.tsx';
+
+<Example of={InfowindowTutorial1SimpleExample} />
+
+## 설명
+
+`InfoWindow` 의 `content` 에 HTML 문자열을 주고, `anchor` 에 `Marker` 인스턴스를 넘깁니다. `Marker` 의 `ref` 를 state 에 담으면(`ref={setMarker}`) 인스턴스가 만들어진 뒤 그 값을 `anchor` 로 쓸 수 있습니다. 열고 닫기는 `open` 에 state 를 주어 하고, SDK 가 다른 정보 창을 열며 이 창을 닫을 때는 `onClose` 로 state 를 맞춥니다.
+
+> [네이버 공식 예제 - 정보 창 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-infowindow-simple.example.html)

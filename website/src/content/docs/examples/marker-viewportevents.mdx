@@ -1,0 +1,16 @@
+---
+title: 다수의 마커에 이벤트 핸들러 사용하기
+category: tutorial-marker
+order: 23
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerViewporteventsExample from '../../../examples/marker-viewportevents.tsx';
+
+<Example of={MarkerViewporteventsExample} />
+
+## 설명
+
+viewport 필터는 `marker-viewport` 와 같습니다. 마커마다 정보 창이 있으므로 마커 하나와 `InfoWindow` 를 묶은 컴포넌트가 자기 `open` state 를 갖습니다. 다른 정보 창이 열려 SDK 가 이 창을 닫으면 `onClose` 로 state 를 맞춥니다.
+
+> [네이버 공식 예제 - 다수의 마커에 이벤트 핸들러 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-viewportevents.example.html)
