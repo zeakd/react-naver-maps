@@ -367,3 +367,16 @@ export function probedAt(
     return ok(value) ? null : `${name} 의 ${nth} 번째 값이 ${value} 다`;
   };
 }
+
+/** 마지막 프레임의 field 가 value 와 같다. */
+export function lastFrame<K extends keyof TraceFrame>(
+  field: K,
+  value: TraceFrame[K],
+): Assertion {
+  return (trace) => {
+    const actual = trace.at(-1)?.[field];
+    return Object.is(actual, value)
+      ? null
+      : `마지막 프레임 ${String(field)}: ${JSON.stringify(actual)}, 기대 ${JSON.stringify(value)}`;
+  };
+}

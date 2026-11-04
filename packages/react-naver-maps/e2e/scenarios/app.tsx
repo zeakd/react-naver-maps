@@ -50,7 +50,7 @@ const OBSERVED_METHODS = [
   'fitBounds',
 ];
 const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
-const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition'];
+const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition', 'setAnimation'];
 // 지도 중앙 둘레의 점들([경도, 위도]).
 const HEAT_POINTS: naver.maps.PointArrayLiteral[] = Array.from(
   { length: 30 },
@@ -209,6 +209,15 @@ function MapUnderTest({
       zoom={config.zoom ?? INITIAL_ZOOM}
       zoomControl={config.zoomControl}
       gl={config.gl}
+      cursor={config.mapCursor}
+      {...(config.mapTypesInline
+        ? {
+            mapTypes: new naver.maps.MapTypeRegistry(
+              { normal: naver.maps.NaverStyleMapTypeOptions.getNormalMap() },
+              'normal',
+            ),
+          }
+        : {})}
       {...(config.inlineOptions
         ? {
             padding: { top: 10, right: 10, bottom: 10, left: 10 },
@@ -230,6 +239,12 @@ function MapUnderTest({
             position={toCoord(INITIAL_CENTER)}
             clickable={config.markerClickable}
             draggable={config.markerDraggable}
+            {...(config.markerAnimation !== undefined
+              ? {
+                  animation:
+                    config.markerAnimation as naver.maps.Animation | null,
+                }
+              : {})}
             {...(config.markerInlineIcon
               ? {
                   icon: {
@@ -552,6 +567,17 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
           .toSorted(),
+        markerAnimation: observed.marker
+          ? ((observed.marker.getAnimation() as number | null) ?? null)
+          : null,
+        mapCursor: (() => {
+          const rect = map!.getElement().getBoundingClientRect();
+          const el = document.elementFromPoint(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+          );
+          return el ? getComputedStyle(el).cursor : '';
+        })(),
         markerPosition: observed.marker
           ? (() => {
               const p = observed.marker.getPosition() as naver.maps.LatLng;

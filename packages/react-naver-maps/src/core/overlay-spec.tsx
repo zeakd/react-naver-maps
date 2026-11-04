@@ -33,6 +33,11 @@ export type OverlaySpec<P, T> = {
   keys?: (props: P) => readonly unknown[];
   /** 생성자 옵션으로 넘기고 이후 controlled 로 맞추는 prop. */
   options: readonly (keyof P & string)[];
+  /**
+   * options 중 prop 이 바뀔 때만 맞추는 값(useControlledProps 의 changeOnly). SDK 가 스스로
+   * 되돌리는 일회성 값이다. 예: Marker 의 animation.
+   */
+  changeOnly?: readonly (keyof P & string)[];
   /** 생성할 때만 쓰는 값. options 의 값보다 우선한다(`position: props.position ?? props.defaultPosition`). */
   initial?: (props: P) => Record<string, unknown>;
   /** prop 에서 계산해 controlled 로 맞추는 값. */
@@ -101,10 +106,14 @@ function OverlayBindings<P extends object, T extends Overlay>({
   props: P;
   spec: OverlaySpec<P, T>;
 }) {
-  useControlledProps(instance, {
-    ...pick(props, spec.options),
-    ...spec.derived?.(props),
-  });
+  useControlledProps(
+    instance,
+    {
+      ...pick(props, spec.options),
+      ...spec.derived?.(props),
+    },
+    { changeOnly: spec.changeOnly },
+  );
   useOverlayEvents(instance, props, spec.events);
   return null;
 }

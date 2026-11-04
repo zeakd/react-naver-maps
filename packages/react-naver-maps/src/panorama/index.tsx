@@ -96,7 +96,8 @@ function PanoramaRoot({ ref, ...props }: PanoramaProps) {
   const elementRef = useRef<HTMLElement | null>(null);
 
   // 수명은 NaverMap 과 같다(lifetime.ts). 숨길 때는 element 만 숨기고 보일 때 크기를 다시 잰다.
-  // SDK 에 Panorama.destroy 가 없어 버릴 때는 리스너를 지우고 element 를 뺀다.
+  // SDK 의 Panorama.destroy 는 컨테이너를 비우고 인증 실패 그림을 깔아 정리용으로 쓸 수 없다
+  // (3.10.5 확인). 버릴 때는 리스너를 지우고 element 를 뺀다.
   const panorama = useSdkInstance<naver.maps.Panorama>({
     create: () => {
       const el = document.createElement('div');

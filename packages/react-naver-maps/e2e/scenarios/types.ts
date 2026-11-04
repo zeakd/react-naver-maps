@@ -72,6 +72,12 @@ export type AppConfig = {
   overlaysActivity?: 'visible' | 'hidden';
   /** Marker 를 Activity 로 감싼다. marker 가 있어야 한다. */
   markerActivity?: 'visible' | 'hidden';
+  /** Marker 의 animation (naver.maps.Animation 값, null 은 끔). marker 가 있어야 한다. */
+  markerAnimation?: number | null;
+  /** NaverMap 의 cursor */
+  mapCursor?: string;
+  /** NaverMap 의 mapTypes 에 렌더마다 새로 만든 같은 내용의 MapTypeRegistry(normal 하나)를 넘긴다. */
+  mapTypesInline?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
   tick?: number;
 };
@@ -148,6 +154,10 @@ export type TraceFrame = {
   groundOverlays: number;
   /** 지금 지도에 붙어 있는 Polyline·Circle·InfoWindow 이름(정렬). InfoWindow 는 열려 있으면 붙어 있다. */
   overlaysOnMap: string[];
+  /** Marker 가 있으면 그 animation (SDK 값). 없으면 null */
+  markerAnimation: number | null;
+  /** 지도 가운데 점의 계산된 CSS cursor */
+  mapCursor: string;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
 };

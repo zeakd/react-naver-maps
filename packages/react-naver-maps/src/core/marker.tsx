@@ -21,7 +21,11 @@ export interface MarkerProps extends EventHandlerProps<MarkerEvent> {
     | naver.maps.ImageIcon
     | naver.maps.SymbolIcon
     | naver.maps.HtmlIcon;
-  animation?: naver.maps.Animation;
+  /**
+   * 바뀔 때만 적용한다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지
+   * 않는다. null 을 주면 애니메이션을 멈춘다(BOUNCE 끄기).
+   */
+  animation?: naver.maps.Animation | null;
   shape?: naver.maps.MarkerShape;
   title?: string;
   cursor?: string;
@@ -46,6 +50,7 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
     'visible',
     'zIndex',
   ],
+  changeOnly: ['animation'],
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,
     // SDK 는 지도에 붙을 때 clickable 이 true 인 Marker 에만 DOM 리스너를 단다.

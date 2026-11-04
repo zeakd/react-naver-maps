@@ -55,10 +55,8 @@ export interface DrawingManagerProps {
   arrowlineOptions?: naver.maps.PolylineOptions;
   polygonOptions?: naver.maps.PolygonOptions;
   markerOptions?: naver.maps.MarkerOptions;
-  onDrawingStart?: (overlay: DrawingOverlay) => void;
   onDrawingAdded?: (overlay: DrawingOverlay) => void;
   onDrawingRemoved?: (overlay: DrawingOverlay) => void;
-  onDrawingCanceled?: (overlay: DrawingOverlay) => void;
   onDrawingSelected?: (overlay: DrawingOverlay) => void;
   onDrawingModeChanged?: (mode: naver.maps.drawing.DrawingMode) => void;
 }
@@ -124,13 +122,12 @@ function DrawingManagerBindings({
   );
 
   const { DrawingEvents } = navermaps.drawing;
-  // SDK 이벤트 이름은 DrawingEvents 에서 읽는다(취소는 SDK 에서 `drawing_cancled` 다).
+  // SDK 이벤트 이름은 DrawingEvents 에서 읽는다. 문서의 drawing_start, drawing_cancled 는
+  // 3.10.5 의 SDK 가 이름만 정의하고 내지 않아 prop 을 두지 않는다(maps-drawing 1.1.1 확인).
   const bindings: [string, ((overlay: DrawingOverlay) => void) | undefined][] =
     [
-      [DrawingEvents.START, props.onDrawingStart],
       [DrawingEvents.ADD, props.onDrawingAdded],
       [DrawingEvents.REMOVE, props.onDrawingRemoved],
-      [DrawingEvents.CANCLE, props.onDrawingCanceled],
       [DrawingEvents.SELECT, props.onDrawingSelected],
       ['drawingMode_changed', props.onDrawingModeChanged as never],
     ];

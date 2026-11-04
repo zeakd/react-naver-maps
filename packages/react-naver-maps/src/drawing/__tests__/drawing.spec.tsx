@@ -82,18 +82,15 @@ describe('DrawingManager', () => {
 
   test('지도에 붙이고 SDK 이벤트 이름으로 핸들러를 단다', () => {
     const onAdded = vi.fn();
-    const onCanceled = vi.fn();
+    const onRemoved = vi.fn();
     render(
-      <DrawingManager
-        onDrawingAdded={onAdded}
-        onDrawingCanceled={onCanceled}
-      />,
+      <DrawingManager onDrawingAdded={onAdded} onDrawingRemoved={onRemoved} />,
     );
     expect(last.getMap()).toBe(map);
     listeners.find((l) => l.event === 'drawing_added')!.cb('overlay');
-    listeners.find((l) => l.event === 'drawing_cancled')!.cb('overlay');
+    listeners.find((l) => l.event === 'drawing_removed')!.cb('overlay');
     expect(onAdded).toHaveBeenCalledWith('overlay');
-    expect(onCanceled).toHaveBeenCalledTimes(1);
+    expect(onRemoved).toHaveBeenCalledTimes(1);
   });
 
   test('drawingMode 를 바꾸면 맞추고 언마운트하면 destroy 한다', () => {
