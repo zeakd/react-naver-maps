@@ -1,0 +1,77 @@
+import {
+  mapAttached,
+  markerOnMap,
+  mapWidth,
+  overlaysOnMap,
+  sameMap,
+  settlesAt,
+} from '../assertions.js';
+import type { Scenario } from '../types.js';
+import { HOME } from './steps.js';
+
+/** 수명: suspend, Activity. */
+export const lifecycle: Scenario[] = [
+  // 수명. 지도와 오버레이 인스턴스가 React 의 suspend, Activity 를 지나도 살아 있는지 본다.
+  {
+    name: '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다',
+    unstable: {
+      fields: ['controls'],
+      reason:
+        '다시 만든 지도의 init 이 스타일 메타데이터 응답을 기다려 컨트롤이 붙는 프레임이 실행마다 다르다',
+    },
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { suspendKey: 1 } },
+      { t: 'frames', n: 30 },
+    ],
+    expect: [sameMap(), mapAttached(), markerOnMap(true), settlesAt(HOME)],
+  },
+  {
+    name: 'Activity 로 지도를 숨겼다 보이면 같은 지도가 같은 크기와 center 로 돌아온다',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { mapActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { mapActivity: 'visible' } },
+      { t: 'frames', n: 20 },
+    ],
+    expect: [
+      sameMap(),
+      mapAttached(),
+      mapWidth(600),
+      settlesAt(HOME),
+      markerOnMap(true),
+    ],
+  },
+  {
+    name: 'Activity 로 Marker 를 숨기면 지도에서 떨어지고 보이면 다시 붙는다',
+    app: { mode: 'props', marker: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { markerActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { markerActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [markerOnMap(false, 6), markerOnMap(true)],
+  },
+  {
+    name: 'Activity 로 도형과 열린 InfoWindow 를 숨겼다 보이면 같은 지도에 다시 붙고 다시 열린다',
+    app: { mode: 'props', polyline: true, circle: true, infoWindow: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { overlaysActivity: 'hidden' } },
+      { t: 'frames', n: 5 },
+      { t: 'props', props: { overlaysActivity: 'visible' } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [
+      overlaysOnMap(['circle', 'infoWindow', 'polyline'], 0),
+      overlaysOnMap([], 6),
+      overlaysOnMap(['circle', 'infoWindow', 'polyline']),
+      sameMap(),
+    ],
+  },
+];
