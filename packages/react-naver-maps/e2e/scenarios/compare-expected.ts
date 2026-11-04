@@ -13,7 +13,14 @@ type Field = keyof TraceFrame | 'status' | 'frames' | 'trace';
  * 0.4 에서 생긴 API 의 기록이라 배포본(0.3.0)에는 늘 비어 있는 필드. 비교에서 뺀다.
  * addListenerCalls 는 API 가 아니라 라이브러리 구현에 따라 버전마다 달라지는 값이라 함께 뺀다.
  */
-export const NEW_API_FIELDS: Field[] = ['propCalls', 'addListenerCalls'];
+export const NEW_API_FIELDS: Field[] = ['propCalls'];
+
+/**
+ * 동작이 아니라 측정값이라 어느 기준선과도 비교하지 않는 필드. addListenerCalls 는 SDK 내부의
+ * addListener 호출까지 세어 타일 로딩 시점에 따라 같은 커밋끼리도 달라진다(2026-11-05, key 로 다시
+ * 만든 지도에서 500 / 612). 시나리오의 기록용이다.
+ */
+export const MEASURED_FIELDS: Field[] = ['addListenerCalls'];
 
 export const expectedDifferences: Record<
   string,
@@ -122,13 +129,29 @@ export const expectedDifferences: Record<
   },
   // 수명. 숨겼다 보여도 같은 지도·오버레이 인스턴스를 쓴다(lifetime.ts). 0.3.0 은 숨길 때 버리고 새로 만들었다.
   '지도 안의 자식이 suspend 했다 풀려도 같은 지도에 Marker 가 붙어 있다': {
-    fields: ['status', 'attached', 'calls', 'mapId', 'markerOnMap'],
-    reason: '숨겼다 보여도 같은 지도를 쓴다',
+    fields: [
+      'status',
+      'attached',
+      'calls',
+      'mapId',
+      'markerOnMap',
+      'mapVisible',
+    ],
+    reason:
+      '숨겼다 보여도 같은 지도를 쓴다. 숨긴 동안은 그 지도의 element 를 감춘다(mapVisible false)',
   },
   'Activity 로 지도를 숨겼다 보이면 같은 지도가 같은 크기와 center 로 돌아온다':
     {
-      fields: ['status', 'attached', 'calls', 'mapId', 'markerOnMap'],
-      reason: '숨겼다 보여도 같은 지도를 쓴다',
+      fields: [
+        'status',
+        'attached',
+        'calls',
+        'mapId',
+        'markerOnMap',
+        'mapVisible',
+      ],
+      reason:
+        '숨겼다 보여도 같은 지도를 쓴다. 숨긴 동안은 그 지도의 element 를 감춘다(mapVisible false)',
     },
   'Activity 로 Marker 를 숨기면 지도에서 떨어지고 보이면 다시 붙는다': {
     fields: ['calls'],
