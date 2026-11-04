@@ -174,4 +174,13 @@ export const overlays: Scenario[] = [
       addListenerCallsWithin(0, 16, Number.POSITIVE_INFINITY),
     ],
   },
+
+  {
+    name: 'Marker 의 animation 을 상수 이름으로 주면 그 애니메이션이 된다',
+    since: '0.4',
+    app: { mode: 'props', marker: true, markerAnimation: 'BOUNCE' },
+    steps: [{ t: 'frames', n: 2 }, ...rerender(5), { t: 'frames', n: 3 }],
+    // BOUNCE 는 SDK 3.10.5 에서 1(sdk 스냅샷 확인). 다시 렌더해도 다시 넣지 않는다(changeOnly).
+    expect: [lastFrame('markerAnimation', 1), calls({ setAnimation: 0 })],
+  },
 ];

@@ -20,7 +20,14 @@ export const NEW_API_FIELDS: Field[] = ['propCalls'];
  * addListener 호출까지 세어 타일 로딩 시점에 따라 같은 커밋끼리도 달라진다(2026-11-05, key 로 다시
  * 만든 지도에서 500 / 612). 시나리오의 기록용이다.
  */
-export const MEASURED_FIELDS: Field[] = ['addListenerCalls'];
+export const MEASURED_FIELDS: Field[] = [
+  'addListenerCalls',
+  // 오버레이 화면 자리(px). 래스터 pane 이동·기준점 근사에 따라 달라지는 측정값이고 판정은 시나리오의
+  // expect 가 한다(cases/overlay-motion.ts).
+  'overlayDrift',
+  'overlayDriftPrev',
+  'overlayOffsetFromMarker',
+];
 
 export const expectedDifferences: Record<
   string,

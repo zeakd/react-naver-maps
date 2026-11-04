@@ -13,6 +13,7 @@ import { useNavermaps } from './hooks/use-navermaps.js';
 import { kvoEquals, useControlledProps } from './hooks/use-controlled-kvo.js';
 import { isDev, useStaticProps } from './hooks/use-static-prop.js';
 import {
+  MAP_CONSTANTS,
   MAP_EVENTS,
   MAP_LIFECYCLE_EVENTS,
   MAP_OPTION_PROPS,
@@ -33,6 +34,7 @@ import { ClientOptionsContext } from './contexts/client-options.js';
 import { useSdkInstance } from './lifetime.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { pick } from './utils/pick.js';
+import { resolveConstants } from './constants.js';
 import {
   addMapListener,
   sdkAlive,
@@ -223,8 +225,10 @@ export interface NaverMapProps {
 /** 지도 keydown, keyup 이벤트 인자. 공식 문서 Map Events(keyboardEvent). */
 export type MapKeyboardEvent = { keyboardEvent: KeyboardEvent };
 
-export function NaverMap({ ref, children, ...props }: NaverMapProps) {
+export function NaverMap({ ref, children, ...given }: NaverMapProps) {
   const navermaps = useNavermaps();
+  // 컨트롤 옵션의 상수 이름('TOP_RIGHT')을 SDK 값으로 바꾼다. 생성 옵션과 값 동기화 모두 바꾼 값을 쓴다.
+  const props = resolveConstants(navermaps, given, MAP_CONSTANTS, 'NaverMap');
   const container = use(ContainerContext);
   const mapElementRef = useRef<HTMLElement | null>(null);
 

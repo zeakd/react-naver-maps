@@ -3,6 +3,13 @@
 // SDK drawing 서브모듈(naver.maps.drawing)의 DrawingManager.
 // <NavermapsProvider submodules={['drawing']}> 로 불러야 한다.
 import type { Ref } from 'react';
+import { resolveConstants } from '../core/constants.js';
+import type {
+  ConstantPaths,
+  DrawingModeName,
+  DrawingStyleName,
+  PositionName,
+} from '../core/constants.js';
 import { useImperativeHandle } from 'react';
 import { useNavermaps } from '../core/hooks/use-navermaps.js';
 import { useMap } from '../core/hooks/use-map.js';
@@ -45,14 +52,18 @@ export type DrawingOverlay = (
  */
 export interface DrawingManagerProps {
   ref?: Ref<Manager>;
-  /** 도구 막대에 보일 모드. `navermaps.drawing.DrawingMode` 값. */
-  drawingControl?: naver.maps.drawing.DrawingMode[];
-  drawingControlOptions?: naver.maps.drawing.DrawingControlOptions;
+  /** 도구 막대에 보일 모드. `'POLYGON'` 같은 이름이나 `navermaps.drawing.DrawingMode` 값. */
+  drawingControl?: DrawingModeName[];
+  /** 도구 막대 자리와 모양. `position`·`style` 도 이름으로 받는다. */
+  drawingControlOptions?: Omit<
+    naver.maps.drawing.DrawingControlOptions,
+    'position' | 'style'
+  > & { position?: PositionName; style?: DrawingStyleName };
   /**
    * 지금 모드. 다른 controlled prop 과 같이, 사용자가 도구 막대로 바꿔도 다시 렌더하면 이 값으로
    * 돌아간다. 받아들이려면 `onDrawingModeChanged` 로 상태를 갱신한다.
    */
-  drawingMode?: naver.maps.drawing.DrawingMode;
+  drawingMode?: DrawingModeName;
   /** 편집점 모양. 공식 문서 controlPointOptions: 꼭짓점(anchor)과 중간점(mid)의 원 스타일. */
   controlPointOptions?: {
     anchorPointOptions?: Partial<naver.maps.CircleOptions>;
@@ -70,6 +81,14 @@ export interface DrawingManagerProps {
   onDrawingSelected?: (overlay: DrawingOverlay) => void;
   onDrawingModeChanged?: (mode: naver.maps.drawing.DrawingMode) => void;
 }
+
+/** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
+const DRAWING_CONSTANTS: ConstantPaths = {
+  drawingMode: (m) => m.drawing.DrawingMode,
+  'drawingControl[]': (m) => m.drawing.DrawingMode,
+  'drawingControlOptions.position': (m) => m.Position,
+  'drawingControlOptions.style': (m) => m.drawing.DrawingStyle,
+};
 
 const OPTIONS = [
   'drawingControl',
@@ -90,15 +109,24 @@ export function DrawingManager(props: DrawingManagerProps) {
   return <DrawingManagerInner {...props} />;
 }
 
-function DrawingManagerInner({ ref, ...props }: DrawingManagerProps) {
+function DrawingManagerInner({ ref, ...given }: DrawingManagerProps) {
   const navermaps = useNavermaps();
+  const props = resolveConstants(
+    navermaps,
+    given,
+    DRAWING_CONSTANTS,
+    'DrawingManager',
+  );
   const map = useMap();
   const options = pick(props, OPTIONS);
 
   // 도구 막대는 지도 컨트롤이라 지도가 준비된 뒤 붙인다(lifetime.ts onReadyMap).
   // SDK 는 지도에서 떼면 drawingMode 를 HAND(0)로 되돌리고 다시 붙여도 그대로 둔다(3.10.5 실측).
   // 다시 붙일 때(숨겼다 보일 때, StrictMode 재실행) prop 의 drawingMode 로 맞춘다.
-  const drawingMode = props.drawingMode;
+  // resolveConstants 를 거쳐 SDK 값이다.
+  const drawingMode = props.drawingMode as
+    | naver.maps.drawing.DrawingMode
+    | undefined;
   const spec = onReadyMap<Manager>(
     map,
     () =>

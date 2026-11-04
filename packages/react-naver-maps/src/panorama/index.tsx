@@ -3,6 +3,12 @@
 // SDK panorama 서브모듈의 Panorama(거리뷰).
 // <NavermapsProvider submodules={['panorama']}> 로 불러야 한다.
 import type { ReactNode, Ref } from 'react';
+import { resolveConstants } from '../core/constants.js';
+import type { ConstantPaths } from '../core/constants.js';
+import type {
+  ControlOptionsProp,
+  ZoomControlOptionsProp,
+} from '../core/types/sdk-options.js';
 import {
   use,
   useEffect,
@@ -71,11 +77,12 @@ export interface PanoramaProps {
   maxScale?: number;
   flightSpot?: boolean;
   logoControl?: boolean;
-  logoControlOptions?: naver.maps.LogoControlOptions;
+  /** `position` 은 이름(`'BOTTOM_RIGHT'`)으로도 받는다. 아래 컨트롤 옵션도 같다. */
+  logoControlOptions?: ControlOptionsProp;
   zoomControl?: boolean;
-  zoomControlOptions?: naver.maps.ZoomControlOptions;
+  zoomControlOptions?: ZoomControlOptionsProp;
   aroundControl?: boolean;
-  aroundControlOptions?: naver.maps.AroundControlOptions;
+  aroundControlOptions?: ControlOptionsProp;
   /**
    * 거리뷰 크기(px). 주지 않으면 Container 크기다. SDK 는 Container 가 바뀌어도 따라가지 않는다
    * (window resize 도 듣지 않는다). 따라가게 하려면 이 값을 바꾸거나 `useAutoResize` 를 쓴다.
@@ -91,6 +98,14 @@ export interface PanoramaProps {
 }
 
 const CAMERA = ['position', 'panoId', 'pov', 'zoom'] as const;
+/** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
+const PANORAMA_CONSTANTS: ConstantPaths = {
+  'logoControlOptions.position': (m) => m.Position,
+  'zoomControlOptions.position': (m) => m.Position,
+  'zoomControlOptions.style': (m) => m.ZoomControlStyle,
+  'aroundControlOptions.position': (m) => m.Position,
+};
+
 const OPTIONS = [
   'size',
   'visible',
@@ -112,8 +127,14 @@ export function Panorama(props: PanoramaProps) {
   return <PanoramaRoot {...props} />;
 }
 
-function PanoramaRoot({ ref, children, ...props }: PanoramaProps) {
+function PanoramaRoot({ ref, children, ...given }: PanoramaProps) {
   const navermaps = useNavermaps();
+  const props = resolveConstants(
+    navermaps,
+    given,
+    PANORAMA_CONSTANTS,
+    'Panorama',
+  );
   const container = use(ContainerContext);
   if (!container) {
     throw new Error('Panorama must be used within <Container>');

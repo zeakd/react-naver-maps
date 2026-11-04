@@ -1,6 +1,8 @@
 'use client';
 
 import type { ReactNode, Ref } from 'react';
+import { resolveConstant } from './constants.js';
+import type { PositionName } from './constants.js';
 import { useImperativeHandle } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavermaps } from './hooks/use-navermaps.js';
@@ -14,7 +16,7 @@ import { onReadyMap, useSdkInstance } from './lifetime.js';
  * ```tsx
  * const navermaps = useNavermaps();
  * <NaverMap>
- *   <CustomControl position={navermaps.Position.TOP_RIGHT}>
+ *   <CustomControl position="TOP_RIGHT">
  *     <button onClick={goHome}>처음 위치</button>
  *   </CustomControl>
  * </NaverMap>
@@ -24,13 +26,22 @@ import { onReadyMap, useSdkInstance } from './lifetime.js';
  */
 export interface CustomControlProps {
   ref?: Ref<naver.maps.CustomControl>;
-  /** 컨트롤 자리. `navermaps.Position.TOP_RIGHT` 같은 값. 바꾸면 그 자리로 옮긴다. */
-  position: naver.maps.Position;
+  /** 컨트롤 자리. `'TOP_RIGHT'` 같은 이름이나 `navermaps.Position.TOP_RIGHT`. 바꾸면 그 자리로 옮긴다. */
+  position: PositionName;
   children?: ReactNode;
 }
 
-export function CustomControl({ ref, position, children }: CustomControlProps) {
+export function CustomControl({
+  ref,
+  position: given,
+  children,
+}: CustomControlProps) {
   const navermaps = useNavermaps();
+  const position = resolveConstant(
+    navermaps.Position,
+    given,
+    '<CustomControl position>',
+  ) as naver.maps.Position;
   const map = useMap();
 
   // 지도 init 전이면 init 을 기다렸다 붙인다(lifetime.ts onReadyMap).

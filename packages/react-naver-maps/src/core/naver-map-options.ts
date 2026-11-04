@@ -1,3 +1,4 @@
+import type { ConstantPaths } from './constants.js';
 import { changedProp } from './types/overlay-events.js';
 
 /**
@@ -127,3 +128,14 @@ export const MAP_EVENTS = [
  * layout effect 에서 붙인다.
  */
 export const MAP_LIFECYCLE_EVENTS = ['init', 'idle', 'tilesloaded'] as const;
+
+/** 이름으로도 받는 SDK 상수 자리(core/constants.ts). */
+export const MAP_CONSTANTS: ConstantPaths = {
+  'zoomControlOptions.position': (m) => m.Position,
+  'zoomControlOptions.style': (m) => m.ZoomControlStyle,
+  'mapTypeControlOptions.position': (m) => m.Position,
+  'mapTypeControlOptions.style': (m) => m.MapTypeControlStyle,
+  'scaleControlOptions.position': (m) => m.Position,
+  'logoControlOptions.position': (m) => m.Position,
+  'mapDataControlOptions.position': (m) => m.Position,
+};

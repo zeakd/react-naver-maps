@@ -11,13 +11,12 @@ import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 ## 사용법
 
 ```tsx
-import { CustomControl, useMap, useNavermaps } from 'react-naver-maps';
+import { CustomControl, useMap } from 'react-naver-maps';
 
 function HomeControl() {
-  const navermaps = useNavermaps();
   const map = useMap();
   return (
-    <CustomControl position={navermaps.Position.TOP_RIGHT}>
+    <CustomControl position="TOP_RIGHT">
       <button onClick={() => map.setCenter({ lat: 37.5, lng: 127.0 })}>
         처음 위치
       </button>
@@ -26,7 +25,7 @@ function HomeControl() {
 }
 ```
 
-`position` 을 바꾸면 그 자리로 옮깁니다. 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 붙습니다.
+`position` 은 이름(`'TOP_RIGHT'`)이나 SDK 상수(`navermaps.Position.TOP_RIGHT`)입니다. 바꾸면 그 자리로 옮깁니다. 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 붙습니다.
 
 ## Props
 

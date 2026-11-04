@@ -17,13 +17,36 @@ order: 8
 
 배열은 `[x, y]` 라서 위도·경도에서는 경도가 먼저입니다. 헷갈리면 객체 리터럴을 씁니다.
 
-## SDK 값과 상수
+## SDK 상수는 이름으로
 
-`useNavermaps()` 가 돌려주는 것은 SDK 의 `naver.maps` 그대로입니다. 상수와 값 클래스는 거기서 씁니다.
+컨트롤 자리·모양, `Marker` 의 `animation`, 그리기 모드처럼 SDK 상수를 받는 prop 은 그 이름도 받습니다. SDK 를 부를 필요가 없습니다.
+
+```tsx
+<NaverMap zoomControl zoomControlOptions={{ position: 'TOP_RIGHT', style: 'SMALL' }} />
+<Marker position={p} animation="BOUNCE" />
+<CustomControl position="TOP_RIGHT">…</CustomControl>
+<DrawingManager drawingMode="POLYGON" drawingControl={['POLYGON', 'MARKER']} />
+```
+
+- 이름은 TypeScript 가 검사합니다(`@types/navermaps` 의 enum 이름). 자동완성이 되고, 틀린 이름은 컴파일 오류입니다.
+- 라이브러리는 SDK 를 불러온 뒤 그 이름을 SDK 객체에서 찾아 넘깁니다. 값을 복사해 두지 않으므로 SDK 가 값을 바꿔도 따라갑니다. SDK 에 없는 이름이면 그 자리에서 오류를 냅니다.
+- SDK 상수(`navermaps.Position.TOP_RIGHT`) 도 그대로 받습니다.
+- 객체를 변수로 빼 두면 TypeScript 가 이름을 `string` 으로 넓힙니다. `as const` 나 `satisfies` 를 붙입니다.
+
+```ts
+import type { ZoomControlOptionsProp } from 'react-naver-maps';
+const zoomOptions = { position: 'TOP_RIGHT' } satisfies ZoomControlOptionsProp;
+```
+
+이름은 라이브러리가 prop 을 SDK 에 넘길 때만 바꿉니다. `map.setOptions(...)` 처럼 SDK 를 직접 부를 때는 SDK 상수를 씁니다.
+
+## SDK 값 클래스
+
+`useNavermaps()` 가 돌려주는 것은 SDK 의 `naver.maps` 그대로입니다. 경계 계산, 투영, 사용자 지도 유형처럼 SDK 클래스가 필요하면 거기서 씁니다.
 
 ```tsx
 const navermaps = useNavermaps();
-<CustomControl position={navermaps.Position.TOP_RIGHT}>…</CustomControl>;
+const bounds = new navermaps.LatLngBounds(sw, ne);
 ```
 
 ## 좌표계
