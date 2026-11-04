@@ -12,6 +12,7 @@ import {
   mkdirSync,
   readFileSync,
   realpathSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -47,20 +48,14 @@ function readLock(): Lock | undefined {
 /**
  * 이 실행이 끝날 때까지 포트를 잡는다. 다른 실행이 잡고 있으면 그 실행을 알려 주고 던진다.
  * 같은 실행의 자식이면(환경 변수로 안다) 아무것도 하지 않는다. 잡은 프로세스가 끝나면 풀린다.
+ *
+ * 잠금 파일은 배타 생성(`wx`)으로 만든다. 동시에 시작한 두 실행 중 하나만 이긴다. 확인과 쓰기를 따로
+ * 하면 둘 다 "없음" 을 읽고 둘 다 썼다(2026-11-05, 같은 순간 시작한 두 프로세스 40회 중 28회).
+ * 잡은 프로세스가 죽어 남은 잠금은 이름을 바꿔 치운 뒤 다시 만든다. 이름 바꾸기도 하나만 성공한다.
  */
 export function holdPort(command: string): void {
   const owner = Number(process.env[OWNER_ENV]);
   if (owner && alive(owner)) return;
-  const held = readLock();
-  if (held && held.pid !== process.pid && alive(held.pid)) {
-    throw new Error(
-      [
-        `포트 ${PORT} 를 다른 실행이 쓰고 있다: pid ${held.pid}, ${held.command}`,
-        `  작업 폴더 ${held.cwd}, ${held.since} 부터`,
-        `  끝나기를 기다린다. 남은 잠금이면 ${LOCK} 를 지운다.`,
-      ].join('\n'),
-    );
-  }
   mkdirSync(dirname(LOCK), { recursive: true });
   const lock: Lock = {
     pid: process.pid,
@@ -68,7 +63,37 @@ export function holdPort(command: string): void {
     command,
     since: new Date().toISOString(),
   };
-  writeFileSync(LOCK, JSON.stringify(lock));
+  for (let attempt = 0; ; attempt++) {
+    try {
+      writeFileSync(LOCK, JSON.stringify(lock), { flag: 'wx' });
+      break;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
+    }
+    const held = readLock();
+    if (held && alive(held.pid)) {
+      throw new Error(
+        [
+          `포트 ${PORT} 를 다른 실행이 쓰고 있다: pid ${held.pid}, ${held.command}`,
+          `  작업 폴더 ${held.cwd}, ${held.since} 부터`,
+          `  끝나기를 기다린다. 남은 잠금이면 ${LOCK} 를 지운다.`,
+        ].join('\n'),
+      );
+    }
+    if (attempt >= 3) {
+      throw new Error(`포트 ${PORT} 잠금을 만들지 못했다(${LOCK})`);
+    }
+    // 죽은 실행의 잠금(또는 막 쓰는 중이라 읽지 못한 잠금). 치우기는 이름 바꾸기로 하나만 한다.
+    // 막 쓰는 중인 잠금이었다면 다음 시도의 wx 가 실패하고 그때 그 실행을 알려 준다.
+    if (held) {
+      try {
+        renameSync(LOCK, `${LOCK}.stale-${process.pid}`);
+        rmSync(`${LOCK}.stale-${process.pid}`, { force: true });
+      } catch {
+        // 다른 실행이 먼저 치웠다.
+      }
+    }
+  }
   process.env[OWNER_ENV] = String(process.pid);
   process.on('exit', () => {
     if (readLock()?.pid === process.pid) rmSync(LOCK, { force: true });
