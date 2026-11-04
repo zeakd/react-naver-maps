@@ -24,6 +24,8 @@ export function useOverlayHost(): OverlayHost {
     };
   }
   // 지도 밖이면 useMap 이 알린다.
+  // useMap 은 안에서 use() 만 쓴다. use() 는 조건 뒤에 불러도 된다(React 문서).
+  // oxlint-disable-next-line react/hooks
   const map = useMap();
   return {
     kind: 'map',
