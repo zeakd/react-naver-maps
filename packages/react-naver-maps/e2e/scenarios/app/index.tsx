@@ -1,42 +1,24 @@
-import { Activity, StrictMode, use, useRef, useState } from 'react';
+import { Activity, Fragment, StrictMode, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
+import type { AppConfig, CoreFrame, LL, TraceFrame } from '../types.js';
+import { INITIAL_CENTER, INITIAL_ZOOM, NCP_KEY_ID, toCoord } from './common.js';
+import { FIXTURES } from './fixtures/index.js';
+import { createObserved, observe, type Observed } from './observe.js';
 import {
-  BicycleLayer,
-  Circle,
   Container,
-  CustomControl,
-  DotMap,
-  DrawingManager,
-  FlightSpot,
-  LabelLayer,
-  Layer,
-  GeoJson,
-  Gpx,
-  Kml,
   geocode,
-  GroundOverlay,
-  HeatMap,
-  InfoWindow,
   loadScript,
-  Marker,
   NaverMap,
   NavermapsProvider,
-  Panorama,
-  Polygon,
-  Polyline,
   reverseGeocode,
-  useAutoResize,
   useKVO,
   useMap,
-} from './target.js';
-import type { Submodule } from './target.js';
-import type { AppConfig, LL, TraceFrame } from './types.js';
+} from './target-imports.js';
+import type { Submodule } from '../target.js';
 
-// Maps 키. Web 서비스 URL 에 http://localhost:4321 이 등록되어 있다.
-export const NCP_KEY_ID = 'aluya4ff04';
-export const INITIAL_CENTER: LL = [37.5666, 126.9784];
-export const INITIAL_ZOOM = 15;
+// 앱 코드의 구성: 이 파일은 지도 본체(center 를 내려주는 방식, 카메라 관찰, 지도 이벤트)를 맡고,
+// 지도 안에 올리는 기능은 fixtures/ 의 픽스처가 렌더하고 읽는다.
 
 const EVENTS = [
   'center_changed',
@@ -56,73 +38,6 @@ const OBSERVED_METHODS = [
   'setZoom',
   'fitBounds',
 ];
-const OBSERVED_SHAPE_METHODS = ['setPath', 'setOptions'];
-const OBSERVED_MARKER_METHODS = ['setIcon', 'setPosition', 'setAnimation'];
-// 지도 중앙 둘레의 점들([경도, 위도]).
-const HEAT_POINTS: naver.maps.PointArrayLiteral[] = Array.from(
-  { length: 30 },
-  (_, i) => [126.9784 + 0.001 * Math.cos(i), 37.5666 + 0.001 * Math.sin(i)],
-);
-
-// 같은 점을 공식 튜토리얼의 { weight, location: [경도, 위도] } 모양으로.
-const HEAT_WEIGHTED = HEAT_POINTS.map((location) => ({ weight: 3, location }));
-
-// 지도 중앙(INITIAL_CENTER)을 덮는 사각형.
-const CENTER_SQUARE: naver.maps.GeoJSON = {
-  type: 'Feature',
-  properties: { id: 'center' },
-  geometry: {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [126.97, 37.56],
-        [126.99, 37.56],
-        [126.99, 37.575],
-        [126.97, 37.575],
-        [126.97, 37.56],
-      ],
-    ],
-  },
-} as naver.maps.GeoJSON;
-
-// 지도 중앙 근처의 작은 KML·GPX. 문서는 한 번만 만든다(렌더마다 같은 Document).
-const KML_TEXT = {
-  point:
-    '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>a</name><Point><coordinates>126.9784,37.5666</coordinates></Point></Placemark></Document></kml>',
-  line: '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>b</name><LineString><coordinates>126.97,37.56 126.98,37.57</coordinates></LineString></Placemark><Placemark><name>c</name><Point><coordinates>126.975,37.565</coordinates></Point></Placemark></Document></kml>',
-};
-const GPX_TEXT =
-  '<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>t</name><trkseg><trkpt lat="37.56" lon="126.97"></trkpt><trkpt lat="37.565" lon="126.975"></trkpt><trkpt lat="37.57" lon="126.98"></trkpt></trkseg></trk></gpx>';
-const xmlDocs = new Map<string, Document>();
-function xml(text: string): Document {
-  let doc = xmlDocs.get(text);
-  if (!doc) {
-    doc = new DOMParser().parseFromString(text, 'text/xml');
-    xmlDocs.set(text, doc);
-  }
-  return doc;
-}
-
-// 타일마다 테두리 div 를 그리는 지도 유형. 한 번만 만든다.
-let tileGrid: naver.maps.MapType | null = null;
-function tileGridType(): naver.maps.MapType {
-  tileGrid ??= {
-    name: 'TileGrid',
-    minZoom: 0,
-    maxZoom: 22,
-    tileSize: new naver.maps.Size(256, 256),
-    projection: naver.maps.EPSG3857,
-    repeatX: true,
-    getTile: () => {
-      const el = document.createElement('div');
-      el.className = 'tile-grid';
-      el.style.cssText =
-        'width:256px;height:256px;border:1px solid red;box-sizing:border-box';
-      return el;
-    },
-  } as unknown as naver.maps.MapType;
-  return tileGrid;
-}
 
 // 투영을 생략한 사용자 지도 유형(공식 예제 tutorial-3-maptypes-basic 과 같은 모양). 한 번만 만든다.
 let projectionless: naver.maps.MapTypeRegistry | null = null;
@@ -141,77 +56,6 @@ function projectionlessRegistry(): naver.maps.MapTypeRegistry {
     'mine',
   );
   return projectionless;
-}
-
-// 첫 꼭짓점이 지도 중앙(INITIAL_CENTER)인 삼각형.
-const EDITABLE_PATHS = [
-  [
-    { lat: 37.5666, lng: 126.9784 },
-    { lat: 37.5666, lng: 126.982 },
-    { lat: 37.5645, lng: 126.98 },
-  ],
-];
-
-const STABLE_PATH = [
-  { lat: 37.56, lng: 126.97 },
-  { lat: 37.57, lng: 126.98 },
-];
-
-type Observed = {
-  calls: string[];
-  /** 0.4 에서 생긴 이벤트 prop 이 불린 기록. 0.3.0 과의 비교에서 뺀다(compare-expected 의 NEW_API_FIELDS). */
-  propCalls: string[];
-  events: string[];
-  zoomReports: number[];
-  kvo: { zoom: number; lat: number };
-  markerClicks: number;
-  circleClicks: number;
-  marker: naver.maps.Marker | null;
-  recordMarker: (marker: naver.maps.Marker | null) => void;
-  /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. */
-  overlays: Record<string, { getMap(): unknown }>;
-  geoJsonClicks: number;
-  recordGeoJsonClick: () => void;
-  drawingManager: naver.maps.drawing.DrawingManager | null;
-  recordDrawingManager: (o: naver.maps.drawing.DrawingManager | null) => void;
-  drawingAdded: number;
-  recordDrawingAdded: () => void;
-  control: naver.maps.CustomControl | null;
-  recordControl: (o: naver.maps.CustomControl | null) => void;
-  groundOverlays: Set<unknown>;
-  polygon: naver.maps.Polygon | null;
-  recordPolygon: (o: naver.maps.Polygon | null) => void;
-  /** 지금까지 만들어진 Layer 인스턴스 */
-  layers: Set<unknown>;
-  recordGroundOverlay: (o: unknown) => void;
-  recordOverlay: (name: string, o: { getMap(): unknown } | null) => void;
-  recordCircleClick: () => void;
-  recordKvo: (zoom: number, lat: number) => void;
-  recordMarkerClick: () => void;
-};
-
-const OBSERVED = Symbol('observed');
-
-/** target 의 메서드 호출을 calls 에 적는다. 이미 감싼 메서드는 다시 감싸지 않는다. */
-function observe(target: object, methods: string[], calls: string[]) {
-  const proto = target as Record<
-    string,
-    ((...args: unknown[]) => unknown) & { [OBSERVED]?: true }
-  >;
-  for (const method of methods) {
-    const original = proto[method];
-    if (!original || original[OBSERVED]) continue;
-    const wrapped = function (this: unknown, ...args: unknown[]) {
-      calls.push(method);
-      return original.apply(this, args);
-    };
-    proto[method] = Object.assign(wrapped, { [OBSERVED]: true as const });
-  }
-}
-
-function AutoResize() {
-  useAutoResize(useMap());
-  return null;
 }
 
 function KvoProbe({ observed }: { observed: Observed }) {
@@ -236,31 +80,16 @@ function controlCount(map: naver.maps.Map) {
   return positions.reduce((sum, p) => sum + (p?.getLength?.() ?? 0), 0);
 }
 
-function toCoord(ll: LL) {
-  return { lat: ll[0], lng: ll[1] };
-}
-
-const suspensions = new Map<number, Promise<void>>();
-
-/** key 마다 한 번, 200ms(가상 시계) 동안 suspend 한다. */
-function Suspender({ k }: { k: number }) {
-  let p = suspensions.get(k);
-  if (!p) {
-    // 시뮬레이터에서도 가상 시계를 타도록 window 의 타이머를 쓴다.
-    p = new Promise<void>((resolve) => window.setTimeout(resolve, 200));
-    suspensions.set(k, p);
-  }
-  use(p);
-  return null;
-}
-
 function MapUnderTest({
   config,
   observed,
+  probes,
   onMap,
 }: {
   config: AppConfig;
   observed: Observed;
+  /** FIXTURES 와 같은 순서의 픽스처별 관찰 상태 */
+  probes: unknown[];
   onMap: (map: naver.maps.Map) => void;
 }) {
   const [reported, setReported] = useState<naver.maps.Coord | null>(null);
@@ -323,183 +152,14 @@ function MapUnderTest({
       onCenterChanged={onCenterChanged}
     >
       <KvoProbe observed={observed} />
-      {config.autoResize && <AutoResize />}
-      {config.suspendKey !== undefined && <Suspender k={config.suspendKey} />}
-      {config.marker && (
-        <Activity mode={config.markerActivity ?? 'visible'}>
-          <Marker
-            ref={(marker: naver.maps.Marker | null) => {
-              observed.recordMarker(marker);
-            }}
-            position={toCoord(INITIAL_CENTER)}
-            clickable={config.markerClickable}
-            draggable={config.markerDraggable}
-            {...(config.markerAnimation !== undefined
-              ? {
-                  animation:
-                    config.markerAnimation as naver.maps.Animation | null,
-                }
-              : {})}
-            {...(config.markerInlineIcon
-              ? {
-                  icon: {
-                    content:
-                      '<div style="width:20px;height:20px;background:#f00"></div>',
-                    anchor: new naver.maps.Point(10, 10),
-                  },
-                }
-              : {})}
-            onClick={() => observed.recordMarkerClick()}
-          />
-        </Activity>
-      )}
-      {config.drawingMode !== undefined && (
-        <DrawingManager
-          ref={(o: naver.maps.drawing.DrawingManager | null) =>
-            observed.recordDrawingManager(o)
-          }
-          drawingMode={config.drawingMode as naver.maps.drawing.DrawingMode}
-          onDrawingAdded={() => observed.recordDrawingAdded()}
-        />
-      )}
-      {config.dotMapFill && (
-        <DotMap
-          ref={(o: naver.maps.visualization.DotMap | null) =>
-            observed.recordOverlay('dotMap', o)
-          }
-          data={HEAT_POINTS}
-          radius={12}
-          fillColor={config.dotMapFill}
-        />
-      )}
-      {config.heatMapOpacity !== undefined && (
-        <HeatMap
-          ref={(o: naver.maps.visualization.HeatMap | null) =>
-            observed.recordOverlay('heatMap', o)
-          }
-          data={config.heatMapWeighted ? HEAT_WEIGHTED : HEAT_POINTS}
-          opacity={config.heatMapOpacity}
-          radius={20}
-        />
-      )}
-      {config.geoJsonFill && (
-        <GeoJson
-          data={CENTER_SQUARE}
-          style={{
-            fillColor: config.geoJsonFill,
-            fillOpacity: 0.3,
-            clickable: true,
-          }}
-          onClick={(e) => {
-            if (e.feature?.getProperty('id') === 'center')
-              observed.recordGeoJsonClick();
-          }}
-        />
-      )}
-      {config.kml && <Kml data={xml(KML_TEXT[config.kml])} />}
-      {config.gpx && <Gpx data={xml(GPX_TEXT)} />}
-      {config.editablePolygon && (
-        <Polygon
-          ref={(o: naver.maps.Polygon | null) => observed.recordPolygon(o)}
-          defaultPaths={EDITABLE_PATHS}
-          editable
-          fillColor="#f00"
-          fillOpacity={0.2}
-        />
-      )}
-      {config.customControlPosition !== undefined && (
-        <CustomControl
-          ref={(o: naver.maps.CustomControl | null) =>
-            observed.recordControl(o)
-          }
-          position={config.customControlPosition as naver.maps.Position}
-        >
-          <button type="button">처음 위치</button>
-        </CustomControl>
-      )}
-      {config.labelLayer && (
-        <LabelLayer
-          ref={(o: naver.maps.Layer | null) =>
-            observed.recordOverlay('label', o)
-          }
-        />
-      )}
-      {config.tileGridZIndex !== undefined && (
-        <Layer
-          ref={(o: naver.maps.Layer | null) => {
-            observed.recordOverlay('tileGrid', o);
-            if (o) observed.layers.add(o);
-          }}
-          name="tileGrid"
-          mapTypes={tileGridType()}
-          zIndex={config.tileGridZIndex}
-        />
-      )}
-      {config.flightSpot && (
-        <FlightSpot
-          ref={(o: naver.maps.FlightSpot | null) =>
-            observed.recordOverlay(
-              'flightSpot',
-              o as unknown as { getMap(): unknown },
-            )
-          }
-        />
-      )}
-      {config.bicycleLayer && (
-        <BicycleLayer
-          ref={(o: naver.maps.Layer | null) =>
-            observed.recordOverlay('bicycle', o)
-          }
-        />
-      )}
-      {config.groundOverlayUrl && (
-        <GroundOverlay
-          ref={(o: naver.maps.GroundOverlay | null) =>
-            observed.recordGroundOverlay(o)
-          }
-          url={config.groundOverlayUrl}
-          bounds={{ south: 37.56, west: 126.97, north: 37.57, east: 126.99 }}
-        />
-      )}
-      <Activity mode={config.overlaysActivity ?? 'visible'}>
-        {config.polyline && (
-          <Polyline
-            ref={(o: naver.maps.Polyline | null) =>
-              observed.recordOverlay('polyline', o)
-            }
-            path={
-              config.polylineInline
-                ? STABLE_PATH.map((p) => ({ ...p }))
-                : STABLE_PATH
-            }
-          />
-        )}
-        {config.circle && (
-          <Circle
-            ref={(o: naver.maps.Circle | null) =>
-              observed.recordOverlay('circle', o)
-            }
-            center={toCoord(INITIAL_CENTER)}
-            radius={300}
-            fillColor="#007EEA"
-            fillOpacity={0.3}
-            clickable={config.circleClickable}
-            onClick={() => observed.recordCircleClick()}
-          />
-        )}
-        {config.infoWindow && (
-          <InfoWindow
-            ref={(o: naver.maps.InfoWindow | null) =>
-              observed.recordOverlay('infoWindow', o)
-            }
-            open
-            content="info"
-            anchor={toCoord(INITIAL_CENTER)}
-            onOpen={() => observed.calls.push('infoWindowOpen')}
-            onClose={() => observed.calls.push('infoWindowClose')}
-          />
-        )}
-      </Activity>
+      {/* 렌더 순서가 effect 순서, 곧 SDK 호출 순서다. FIXTURES 의 순서를 따른다. */}
+      {/* FIXTURES 는 고정된 목록이라 인덱스 키가 안전하다. */}
+      {FIXTURES.map((fixture, i) => (
+        // oxlint-disable-next-line react/no-array-index-key
+        <Fragment key={i}>
+          {fixture.render(config, probes[i], observed)}
+        </Fragment>
+      ))}
     </NaverMap>
   );
 }
@@ -511,60 +171,9 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
     ncpKeyId,
     submodules: initial.submodules as Submodule[] | undefined,
   });
-  const observed: Observed = {
-    calls: [],
-    propCalls: [],
-    events: [],
-    zoomReports: [],
-    kvo: { zoom: 0, lat: 0 },
-    markerClicks: 0,
-    circleClicks: 0,
-    marker: null,
-    overlays: {},
-    drawingManager: null,
-    recordDrawingManager(o) {
-      if (o) observed.drawingManager = o;
-    },
-    drawingAdded: 0,
-    recordDrawingAdded() {
-      observed.drawingAdded += 1;
-    },
-    geoJsonClicks: 0,
-    recordGeoJsonClick() {
-      observed.geoJsonClicks += 1;
-    },
-    control: null,
-    recordControl(o) {
-      if (o) observed.control = o;
-    },
-    groundOverlays: new Set(),
-    polygon: null,
-    recordPolygon(o) {
-      if (o) observed.polygon = o;
-    },
-    layers: new Set(),
-    recordGroundOverlay(o) {
-      if (o) observed.groundOverlays.add(o);
-    },
-    recordOverlay(name, o) {
-      if (o) observed.overlays[name] = o;
-    },
-    recordMarker(marker) {
-      // ref 가 떨어져도(Activity 로 숨김, 언마운트) 마지막 인스턴스를 계속 본다.
-      if (marker) observed.marker = marker;
-    },
-    recordCircleClick() {
-      observed.circleClicks += 1;
-    },
-    recordKvo(zoom, lat) {
-      observed.kvo = { zoom, lat };
-    },
-    recordMarkerClick() {
-      observed.markerClicks += 1;
-    },
-  };
-  observe(maps.Polyline.prototype, OBSERVED_SHAPE_METHODS, observed.calls);
-  observe(maps.Marker.prototype, OBSERVED_MARKER_METHODS, observed.calls);
+  const observed = createObserved();
+  const probes = FIXTURES.map((fixture) => fixture.probe?.());
+  FIXTURES.forEach((fixture, i) => fixture.setup?.(maps, probes[i], observed));
 
   let map: naver.maps.Map | undefined;
   let mapId = 0;
@@ -604,7 +213,12 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           }}
         >
           <Activity mode={config.mapActivity ?? 'visible'}>
-            <MapUnderTest config={config} observed={observed} onMap={onMap} />
+            <MapUnderTest
+              config={config}
+              observed={observed}
+              probes={probes}
+              onMap={onMap}
+            />
           </Activity>
         </Container>
       </NavermapsProvider>
@@ -670,7 +284,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         'lat' in c && typeof c.lat === 'function'
           ? [c.lat(), (c as naver.maps.LatLng).lng()]
           : [(c as naver.maps.Point).y, (c as naver.maps.Point).x];
-      return {
+      const core: CoreFrame = {
         center,
         zoom: map!.getZoom(),
         events: observed.events.splice(0),
@@ -682,63 +296,14 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         mapWidth: map!.getSize().width,
         kvoZoom: observed.kvo.zoom,
         kvoLat: observed.kvo.lat,
-        markerClicks: observed.markerClicks,
-        circleClicks: observed.circleClicks,
         renderMode: (map as unknown as { get(k: string): number }).get(
           'renderMode',
         ),
         mapId,
-        markerOnMap: observed.marker ? observed.marker.getMap() === map : null,
-        heatMapOpacity:
-          (
-            observed.overlays.heatMap as unknown as {
-              getOptions?: (k: string) => number;
-            }
-          )?.getOptions?.('opacity') ?? null,
-        drawings: observed.drawingManager
-          ? Object.keys(observed.drawingManager.getDrawings() ?? {}).length
-          : null,
-        drawingAdded: observed.drawingAdded,
-        dataFeatures: map!.data.getAllFeature().length,
-        dataFillColor: (() => {
-          const overlay = map!.data.getAllFeature()[0]?.getOverlays()[0] as
-            | { getOptions?: (k: string) => unknown }
-            | undefined;
-          return (
-            (overlay?.getOptions?.('fillColor') as string | undefined) ?? null
-          );
-        })(),
-        geoJsonClicks: observed.geoJsonClicks,
-        customControlAt: (() => {
-          const el = observed.control?.getElement();
-          if (!el) return null;
-          for (const [pos, arr] of Object.entries(map!.controls ?? {})) {
-            const items =
-              (arr as { getArray?: () => unknown[] })?.getArray?.() ?? [];
-            if (items.includes(el)) return Number(pos);
-          }
-          return null;
-        })(),
-        customControlText: observed.control?.getElement().textContent ?? null,
-        groundOverlays: observed.groundOverlays.size,
-        layersCreated: observed.layers.size,
-        tileGridCells: document.querySelectorAll('.tile-grid').length,
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)
           .map(([name]) => name)
           .toSorted(),
-        polygonFirst: observed.polygon
-          ? (() => {
-              const paths = observed.polygon.getPaths() as unknown as {
-                getAt(i: number): { getAt(i: number): naver.maps.LatLng };
-              };
-              const p = paths.getAt(0).getAt(0);
-              return [p.lat(), p.lng()] as LL;
-            })()
-          : null,
-        markerAnimation: observed.marker
-          ? ((observed.marker.getAnimation() as number | null) ?? null)
-          : null,
         mapCursor: (() => {
           const rect = map!.getElement().getBoundingClientRect();
           const el = document.elementFromPoint(
@@ -747,98 +312,16 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
           );
           return el ? getComputedStyle(el).cursor : '';
         })(),
-        markerPosition: observed.marker
-          ? (() => {
-              const p = observed.marker.getPosition() as naver.maps.LatLng;
-              return [p.lat(), p.lng()] as LL;
-            })()
-          : null,
       };
+      // 이벤트·호출을 비운 뒤에 픽스처가 읽는다(읽기는 지도 메서드 호출을 만들지 않는다).
+      return Object.assign(
+        core,
+        ...FIXTURES.map((fixture, i) =>
+          fixture.read?.(map!, probes[i], observed),
+        ),
+      ) as TraceFrame;
     },
   };
 }
 
 export type MountedApp = Awaited<ReturnType<typeof mountApp>>;
-
-/**
- * 거리뷰만 올린다. 시나리오 trace 와 따로, panorama.spec.ts 가 쓴다.
- * events 에 'pano_changed:<panoId>', 'pano_status:<status>', 'pov_changed' 를 쌓는다.
- */
-export async function mountPanorama(
-  host: HTMLElement,
-  initial: { position: LL; pan?: number; marker?: LL; infoWindow?: boolean },
-) {
-  const maps = await loadScript({
-    ncpKeyId: NCP_KEY_ID,
-    submodules: ['panorama'],
-  });
-  const events: string[] = [];
-  let panorama: naver.maps.Panorama | null = null;
-  let marker: naver.maps.Marker | null = null;
-  let infoWindow: naver.maps.InfoWindow | null = null;
-  let pan = initial.pan ?? 0;
-  const root = createRoot(host);
-  const render = () =>
-    root.render(
-      <NavermapsProvider ncpKeyId={NCP_KEY_ID} submodules={['panorama']}>
-        <Container style={{ width: '600px', height: '400px' }}>
-          <Panorama
-            ref={(p: naver.maps.Panorama | null) => {
-              if (p) panorama = p;
-            }}
-            position={toCoord(initial.position)}
-            pov={{ pan, tilt: 0, fov: 100 }}
-            onPanoChanged={(id) => events.push(`pano_changed:${id}`)}
-            onPanoStatus={(status) => events.push(`pano_status:${status}`)}
-            onPovChanged={() => events.push('pov_changed')}
-            onInit={() => events.push('init')}
-          >
-            {initial.marker && (
-              <Marker
-                ref={(m: naver.maps.Marker | null) => {
-                  if (m) marker = m;
-                }}
-                position={toCoord(initial.marker)}
-              />
-            )}
-            {initial.marker && initial.infoWindow && (
-              <InfoWindow
-                ref={(o: naver.maps.InfoWindow | null) => {
-                  if (o) infoWindow = o;
-                }}
-                open
-                content="here"
-                anchor={toCoord(initial.marker)}
-                onOpen={() => events.push('infoWindowOpen')}
-              />
-            )}
-          </Panorama>
-        </Container>
-      </NavermapsProvider>,
-    );
-  render();
-  void maps;
-  return {
-    events: () => events.slice(),
-    pan: () => (panorama as naver.maps.Panorama | null)?.getPov().pan ?? null,
-    /** 튜토리얼처럼 거리뷰 투영으로 Marker 쪽을 바라본다. 화면 확인용. */
-    lookAtMarker() {
-      if (!panorama || !marker) return;
-      const pov = panorama
-        .getProjection()
-        .fromCoordToPov(marker.getPosition() as naver.maps.LatLng);
-      if (pov) panorama.setPov(pov);
-    },
-    /** Marker 가 거리뷰에 붙었는가 */
-    markerOnPano: () =>
-      !!marker && (marker.getMap() as unknown) === (panorama as unknown),
-    /** InfoWindow 가 거리뷰에 열렸는가 */
-    infoWindowOnPano: () =>
-      !!infoWindow &&
-      (infoWindow.getMap() as unknown) === (panorama as unknown),
-    setPan(next: number) {
-      pan = next;
-      flushSync(render);
-    },
-  };
-}
