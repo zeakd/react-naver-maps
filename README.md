@@ -77,6 +77,7 @@ pnpm compare:types git:v0.4      # 공개 타입(진입점마다 내보내는 �
 - 인증 실패는 지도 DOM 으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
 - Node 버전은 `package.json` 의 `devEngines.runtime` 으로 고정한다. `pnpm` 으로 실행하는 명령은 이 버전으로 돈다.
 - Playwright 브라우저는 `pnpm exec playwright install chromium` 으로 받는다.
+- 다른 React 버전으로 돌리려면 `pnpm --filter react-naver-maps add -D react@19.0.9 react-dom@19.0.9` 뒤에 단위 테스트와 `test:scenarios` 를 돌리고 `package.json`·`pnpm-lock.yaml` 을 되돌린다. React 19.2 전에는 `Activity` 가 없어 하네스가 감싸지 않고 Activity 시나리오는 건너뛴다.
 
 ## 라이선스
 

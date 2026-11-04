@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { Suspense } from 'react';
-import { renderToReadableStream } from 'react-dom/server';
+// React 19.0·19.1 의 react-dom/server(Node 빌드)에는 renderToReadableStream 이 없다. edge 빌드는 19.x 모두에 있다.
+import { renderToReadableStream } from 'react-dom/server.edge';
 import { describe, expect, test } from 'vitest';
 import { NavermapsProvider } from '../../provider.js';
 import { useNavermaps } from '../use-navermaps.js';
