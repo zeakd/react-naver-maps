@@ -6,6 +6,7 @@ import {
   Circle,
   Container,
   CustomControl,
+  DotMap,
   DrawingManager,
   GeoJson,
   geocode,
@@ -249,6 +250,16 @@ function MapUnderTest({
           }
           drawingMode={config.drawingMode as naver.maps.drawing.DrawingMode}
           onDrawingAdded={() => observed.recordDrawingAdded()}
+        />
+      )}
+      {config.dotMapFill && (
+        <DotMap
+          ref={(o: naver.maps.visualization.DotMap | null) =>
+            observed.recordOverlay('dotMap', o)
+          }
+          data={HEAT_POINTS}
+          radius={12}
+          fillColor={config.dotMapFill}
         />
       )}
       {config.heatMapOpacity !== undefined && (

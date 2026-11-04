@@ -350,3 +350,20 @@ export function drawn(expected: {
       : `그린 도형 ${f.drawings}개·onDrawingAdded ${f.drawingAdded}회, 기대 ${expected.drawings}개·${expected.added}회`;
   };
 }
+
+/** probe 로 잰 값 name 의 nth 번째(0부터)가 ok 를 만족한다. */
+export function probedAt(
+  name: string,
+  nth: number,
+  ok: (value: number) => boolean,
+): Assertion {
+  return (trace) => {
+    const values = trace
+      .map((f) => f.probes?.[name])
+      .filter((v): v is number => v !== undefined);
+    const value = values[nth];
+    if (value === undefined)
+      return `${name} 의 ${nth} 번째 값이 없다 (${values.length}개)`;
+    return ok(value) ? null : `${name} 의 ${nth} 번째 값이 ${value} 다`;
+  };
+}
