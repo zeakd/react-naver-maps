@@ -35,3 +35,22 @@ import { Panorama } from 'react-naver-maps/panorama';
 ## Props
 
 <PropsTable of="Panorama" package="react-naver-maps" />
+
+## FlightSpot
+
+`FlightSpot`은 지도 위에 항공뷰 지점 아이콘을 보여 줍니다. SDK 의 `naver.maps.FlightSpot` 이고, `NaverMap` 의 자식으로 둡니다. 아이콘을 누르면 `onPoiClicked` 로 그 지점의 파노라마 id 를 받습니다.
+
+```tsx
+import { FlightSpot } from 'react-naver-maps/panorama';
+
+<NaverMap>
+  <FlightSpot onPoiClicked={(panoId) => setPanoId(panoId)} />
+</NaverMap>;
+```
+
+- 켜고 끄는 것은 마운트로 합니다: `{on && <FlightSpot />}`.
+- 그룹 아이콘(+)을 누르면 지도가 확대되고 이벤트는 나지 않습니다.
+- `Panorama` 의 `flightSpot` prop(거리뷰 안의 항공 아이콘)과는 별개입니다.
+- 서브모듈을 불러오지 않고 쓰면 불러오는 법을 담은 에러를 던집니다.
+
+<PropsTable of="FlightSpot" package="react-naver-maps" />

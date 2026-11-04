@@ -11,12 +11,13 @@ import {
   useRef,
 } from 'react';
 import { ContainerContext } from '../core/contexts/container.js';
+import { useMap } from '../core/hooks/use-map.js';
 import { useNavermaps } from '../core/hooks/use-navermaps.js';
 import {
   kvoEquals,
   useControlledProps,
 } from '../core/hooks/use-controlled-kvo.js';
-import { useSdkInstance } from '../core/lifetime.js';
+import { onMap, useSdkInstance } from '../core/lifetime.js';
 import { omitUndefined } from '../core/utils/omit-undefined.js';
 import {
   addMapListener,
@@ -186,4 +187,48 @@ function useCameraProp<T>(value: T | undefined, apply: (value: T) => void) {
     if (value === undefined || kvoEquals(prev, value)) return;
     apply(value);
   });
+}
+
+/**
+ * 지도 위에 항공뷰 지점 아이콘을 보여 준다. SDK 의 `naver.maps.FlightSpot` 이다.
+ * `NaverMap` 의 자식으로 둔다. 그룹 아이콘(+)을 누르면 지도가 확대되고 이벤트는 나지 않는다.
+ *
+ * ```tsx
+ * <NaverMap>
+ *   <FlightSpot onPoiClicked={(panoId) => setPanoId(panoId)} />
+ * </NaverMap>
+ * ```
+ */
+export interface FlightSpotProps {
+  ref?: Ref<naver.maps.FlightSpot>;
+  /** 항공뷰 아이콘을 눌렀을 때. 인자는 그 지점의 파노라마 id(문서 `poi_clicked(panoId: string)`). */
+  onPoiClicked?: (panoId: string) => void;
+}
+
+export function FlightSpot(props: FlightSpotProps) {
+  requireSubmodule(useNavermaps(), 'panorama', 'FlightSpot');
+  return <FlightSpotRoot {...props} />;
+}
+
+function FlightSpotRoot({ ref, onPoiClicked }: FlightSpotProps) {
+  const navermaps = useNavermaps();
+  const map = useMap();
+  const flightSpot = useSdkInstance(
+    onMap(map, () => {
+      const instance = new navermaps.FlightSpot();
+      instance.setMap(map);
+      return instance;
+    }),
+    [map],
+  );
+
+  useImperativeHandle(ref, () => flightSpot!, [flightSpot]);
+
+  useEffect(() => {
+    if (!flightSpot || !onPoiClicked) return;
+    const listener = addMapListener(flightSpot, 'poi_clicked', onPoiClicked);
+    return () => removeMapListener(listener);
+  }, [flightSpot, onPoiClicked]);
+
+  return null;
 }
