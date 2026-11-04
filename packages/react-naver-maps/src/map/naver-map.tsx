@@ -556,7 +556,10 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   return <>{children}</>;
 }
 
-/** GL 로 그리는가(renderMode 2, sdk/CHANGES.md "gl: true 와 renderMode"). */
+/**
+ * GL 로 그리는가. SDK 3.10.5 의 `renderMode` 는 1 이 래스터, 2 가 GL 이다. `gl: true` 여도 WebGL 을 쓸 수
+ * 없으면(성능 경고가 있는 소프트웨어 렌더) SDK 가 래스터로 바꿔 1 이다. 시나리오의 `renderMode` 필드가 이 값을 본다.
+ */
 function isGl(map: naver.maps.Map): boolean {
   return (
     (map as unknown as { get(k: string): unknown }).get('renderMode') === 2

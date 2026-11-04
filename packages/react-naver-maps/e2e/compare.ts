@@ -166,9 +166,18 @@ function read(report: string, label: string): Map<string, Outcome> {
     throw new Error(`${label}: ${report} 가 없다. --reuse 없이 먼저 돌린다.`);
   const json = JSON.parse(readFileSync(report, 'utf8')) as {
     suites: JsonSuite[];
+    errors?: { message?: string }[];
   };
+  // 실행 자체가 성립하지 않은 보고서(globalSetup 실패, 서버를 띄우지 못함)는 비교하지 않는다. 그대로 두면
+  // 양쪽 다 빈 결과라 "차이 없음" 으로 끝났다.
+  if (json.errors && json.errors.length > 0) {
+    throw new Error(
+      `${label}: 실행이 성립하지 않았다: ${json.errors[0]?.message?.split('\n')[0] ?? '(내용 없음)'} (${report})`,
+    );
+  }
   const out = new Map<string, Outcome>();
   collect(json.suites, out);
+  if (out.size === 0) throw new Error(`${label}: 검사 결과가 하나도 없다 (${report})`);
   return out;
 }
 
@@ -264,6 +273,23 @@ function compare(
     const b = head.get(name) ?? missing;
     if (a.status === 'skipped' || b.status === 'skipped') {
       return { name, kind: '건너뜀', detail: `${a.status} / ${b.status}` };
+    }
+    // 궤적 없이 끝난 검사(SDK 를 불러오지 못함, 시간 초과)는 지도 동작을 비교하지 못했다. 양쪽이 같은
+    // 이유로 실패해도 같음이 아니다. 궤적이 없는 검사라도 통과했으면 비교할 궤적이 없는 검사다(결정성 검사 등).
+    const unrun = (
+      [
+        ['기준선', a],
+        ['소스', b],
+      ] as const
+    ).filter(([, o]) => !o.trace && o.status !== 'passed');
+    if (unrun.length > 0) {
+      const detail = unrun
+        .map(
+          ([side, o]) =>
+            `${side} 이 궤적 없이 끝났다(${o.status}${o.error ? `: ${o.error}` : ''})`,
+        )
+        .join('; ');
+      return { name, kind: '예상 밖 차이', detail };
     }
     const changed = new Map<string, string>();
     if (a.status !== b.status)
