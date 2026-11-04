@@ -10,6 +10,7 @@ import {
   fired,
   groundOverlaysCreated,
   heatMapOpacity,
+  probedAt,
   probedAtLeast,
   idleAfter,
   kvoFollowsMap,
@@ -578,5 +579,35 @@ export const scenarios: Scenario[] = [
     app: { mode: 'props', submodules: ['drawing'], drawingMode: 6 },
     steps: [{ t: 'frames', n: 5 }, { t: 'clickCenter' }, { t: 'frames', n: 5 }],
     expect: [drawn({ drawings: 1, added: 1 })],
+  },
+  {
+    // 빨강으로 찍고 화면 가운데 빨강을 센다. 다른 색으로 바꾸면 빨강이 사라져야 한다.
+    name: 'DotMap 은 visualization 서브모듈로 점을 그리고 fillColor 를 바꾸면 다시 칠하고 언마운트하면 떨어진다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      submodules: ['visualization'],
+      dotMapFill: '#ff0000',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'realtime', ms: 1500 },
+      { t: 'frames', n: 30 },
+      { t: 'shot', name: 'dotmap-red' },
+      { t: 'probe', name: 'centerRed' },
+      { t: 'props', props: { dotMapFill: '#0000ff' } },
+      { t: 'realtime', ms: 1000 },
+      { t: 'frames', n: 30 },
+      { t: 'shot', name: 'dotmap-blue' },
+      { t: 'probe', name: 'centerRed' },
+      { t: 'props', props: { dotMapFill: undefined } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      overlaysOnMap(['dotMap'], 0),
+      probedAt('centerRed', 0, (v) => v >= 50),
+      probedAt('centerRed', 1, (v) => v < 10),
+      overlaysOnMap([]),
+    ],
   },
 ];

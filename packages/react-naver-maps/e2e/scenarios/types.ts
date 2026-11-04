@@ -56,6 +56,8 @@ export type AppConfig = {
   mapActivity?: 'visible' | 'hidden';
   /** DrawingManager 를 이 drawingMode 로 올린다. submodules 에 'drawing' 이 있어야 한다. */
   drawingMode?: number;
+  /** DotMap 을 이 fillColor 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'dotMap'. */
+  dotMapFill?: string;
   /** HeatMap 을 이 opacity 로 올린다. submodules 에 'visualization' 이 있어야 한다. overlaysOnMap 에 'heatMap'. */
   heatMapOpacity?: number;
   /** 지도 중앙을 덮는 다각형 하나를 GeoJson 으로 올린다. 값은 fillColor. */

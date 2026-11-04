@@ -5,7 +5,7 @@ export * from '../../src/core/react-naver-maps.js';
 export { loadScript } from '../../src/core/load-script.js';
 export { useAutoResize } from '../../src/addons/index.js';
 export { geocode, reverseGeocode } from '../../src/geocoder/index.js';
-export { HeatMap } from '../../src/visualization/index.js';
+export { DotMap, HeatMap } from '../../src/visualization/index.js';
 export { DrawingManager } from '../../src/drawing/index.js';
 export { Panorama } from '../../src/panorama/index.js';
 
