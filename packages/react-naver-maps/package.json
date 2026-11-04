@@ -17,7 +17,8 @@
     "url": "https://github.com/zeakd/react-naver-maps"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/tsconfig.tsbuildinfo"
   ],
   "type": "module",
   "sideEffects": false,
@@ -48,11 +49,12 @@
     }
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "rm -rf dist && tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:scenarios": "playwright test --config e2e/scenarios.config.ts",
     "compare:scenarios": "node e2e/compare.ts",
+    "compare:types": "node e2e/compare-types.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt .",

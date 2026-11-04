@@ -3,10 +3,13 @@ import { createPlaywrightDriver, type Shot } from './playwright-driver.js';
 import { runScenario, violations } from './run.js';
 import { scenarios } from './scenarios.js';
 
-// 비교 실행(`e2e/compare.ts`)이 배포본을 검사할 때 그 버전. 없으면 저장소 소스다.
+// 비교 실행(`e2e/compare.ts`)이 기준선을 검사할 때 그 이름. 없으면 저장소 소스다.
+// 배포 버전은 `0.3.0`, git 커밋은 `git-<sha7>` 이다.
 const target = process.env.RNM_TARGET;
 
 function olderThan(version: string, since: string) {
+  // git 기준선은 since 를 따지지 않는다. 시나리오가 쓰는 API 가 없으면 그 시나리오가 실패로 드러난다.
+  if (!/^\d+\.\d+/.test(version)) return false;
   const [a = 0, b = 0] = version.split('.').map(Number);
   const [c = 0, d = 0] = since.split('.').map(Number);
   return a < c || (a === c && b < d);

@@ -1,26 +1,24 @@
-// 같은 시나리오(`e2e/scenarios`)를 배포된 버전과 이 저장소의 소스에 돌려 동작 차이를 표로 낸다.
+// 같은 시나리오(`e2e/scenarios`)를 기준선과 이 저장소의 소스에 돌려 동작 차이를 표로 낸다.
+// 기준선은 배포된 버전이나 git 커밋이다.
 //
-//   pnpm compare:scenarios            # 0.3.0 과 비교
-//   pnpm compare:scenarios 0.2.2      # 다른 배포 버전과 비교
-//   pnpm compare:scenarios -- -g 드래그 # playwright 인자를 덧붙인다
+//   pnpm compare:scenarios              # 배포된 0.3.0 과 비교
+//   pnpm compare:scenarios 0.2.2        # 다른 배포 버전과 비교
+//   pnpm compare:scenarios git:v0.4     # 그 커밋을 빌드해 비교(내부 정리의 동작 보존 확인)
+//   pnpm compare:scenarios -- -g 드래그  # playwright 인자를 덧붙인다
 //   pnpm compare:scenarios 0.3.0 --reuse # 다시 돌리지 않고 지난 실행 보고서로 표만 다시 낸다
 //
-// 차이는 `scenarios/compare-expected.ts` 에 이유와 함께 적은 것만 허용한다. 적지 않은 차이가
-// 있으면 실패로 끝난다. 결과는 `e2e/.compare/<버전>/` 에 남는다.
+// 배포 버전과의 차이는 `scenarios/compare-expected.ts` 에 이유와 함께 적은 것만 허용한다.
+// git 기준선에는 허용 목록이 없다. 동작을 바꾸지 않는 정리를 확인하는 용도라서 차이가 하나라도
+// 나면 실패다. 의도한 동작 변경은 정리와 다른 PR 로 나누고 배포 버전 비교에 적는다.
+// 적지 않은 차이가 있으면 실패로 끝난다. 결과는 `e2e/.compare/<기준선>/` 에 남는다.
 //
 // 실제 SDK 인증이 localhost:4321 에서만 통과하므로 두 실행을 차례로 돌린다. 포트가 쓰이고 있으면
 // 시작하지 않는다.
-import { execFileSync, spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
+import { parseBase, prepareTarget } from './baseline.ts';
 import {
   expectedDifferences,
   NEW_API_FIELDS,
@@ -36,7 +34,8 @@ const dashdash = args.indexOf('--');
 const own = dashdash === -1 ? args : args.slice(0, dashdash);
 const passthrough = dashdash === -1 ? [] : args.slice(dashdash + 1);
 const reuse = own.includes('--reuse');
-const version = own.find((a) => !a.startsWith('--')) ?? '0.3.0';
+
+const base = parseBase(own.find((a) => !a.startsWith('--')) ?? '0.3.0');
 
 type Outcome = {
   status: 'passed' | 'failed' | 'skipped' | 'missing';
@@ -46,61 +45,7 @@ type Outcome = {
   error?: string;
 };
 
-function prepareTarget(v: string): void {
-  const dir = join(here, '.targets', v);
-  if (!existsSync(join(dir, 'package', 'package.json'))) {
-    mkdirSync(dir, { recursive: true });
-    // 저장소 안에서는 devEngines 때문에 npm 이 멈추므로 임시 폴더에서 받는다.
-    const tmp = mkdtempSync(join(tmpdir(), 'rnm-pack-'));
-    const name = execFileSync(
-      'npm',
-      ['pack', `react-naver-maps@${v}`, '--silent'],
-      { cwd: tmp, encoding: 'utf8' },
-    ).trim();
-    execFileSync('tar', ['-xzf', join(tmp, name), '-C', dir]);
-    // 배포본의 source map 은 없는 소스를 가리켜 Vite 가 경고를 쏟아낸다. 검사에는 필요 없다.
-    execFileSync('find', [
-      join(dir, 'package', 'dist'),
-      '-name',
-      '*.map',
-      '-delete',
-    ]);
-  }
-  // 앱이 import 하는 이름(scenarios/target.ts)을 배포본에 맞춘다. 배포본에 없는 export 는
-  // 쓰면 바로 알 수 있게 던지는 함수로 채운다. 그런 시나리오는 since 로 건너뛴다.
-  const entry = readFileSync(
-    join(dir, 'package', 'dist', 'react-naver-maps.js'),
-    'utf8',
-  );
-  const provided = new Set(
-    [...entry.matchAll(/export\s*\{([^}]*)\}/g)].flatMap((m) =>
-      m[1]!.split(',').map((n) =>
-        n
-          .trim()
-          .split(/\s+as\s+/)
-          .at(-1)!,
-      ),
-    ),
-  );
-  const missing = imported().filter(
-    (name) => !provided.has(name) && name !== 'loadScript',
-  );
-  writeFileSync(
-    join(dir, 'target.js'),
-    [
-      `export * from './package/dist/react-naver-maps.js';`,
-      `export { loadScript } from './package/dist/load-script.js';`,
-      ...missing.map(
-        (name) =>
-          `export function ${name}() { throw new Error('${v} 에는 ${name} 이 없다'); }`,
-      ),
-      `export const TARGET = '${v}';`,
-      '',
-    ].join('\n'),
-  );
-}
-
-/** 시나리오 앱(app.tsx)이 target 에서 import 하는 이름. */
+/** 시나리오 앱(app.tsx)이 target 에서 값으로 import 하는 이름. */
 function imported(): string[] {
   const app = readFileSync(join(here, 'scenarios', 'app.tsx'), 'utf8');
   const block = app.match(/import\s*\{([^}]*)\}\s*from\s*'\.\/target\.js'/);
@@ -214,6 +159,23 @@ function read(report: string, label: string): Map<string, Outcome> {
 }
 
 /** 두 궤적에서 달라진 필드마다 처음 갈라지는 프레임과 값. */
+/**
+ * 화면 픽셀을 센 값(probes)은 같은 코드에서도 실행마다 1~2px 흔들린다(캔버스 렌더, 2026-11-04 같은
+ * 커밋끼리 네 번 실행해 확인). 동작이 아니라 측정값이라 max(3px, 1%) 안이면 같다고 본다.
+ */
+function sameProbes(a: unknown, b: unknown): boolean {
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+    return isDeepStrictEqual(a, b);
+  }
+  const x = a as Record<string, number>;
+  const y = b as Record<string, number>;
+  const keys = new Set([...Object.keys(x), ...Object.keys(y)]);
+  return [...keys].every((k) => {
+    if (typeof x[k] !== 'number' || typeof y[k] !== 'number') return false;
+    return Math.abs(x[k] - y[k]) <= Math.max(3, 0.01 * Math.max(x[k], y[k]));
+  });
+}
+
 function differences(a: TraceFrame[], b: TraceFrame[]): Map<string, string> {
   const first = new Map<string, string>();
   if (a.length !== b.length) {
@@ -224,7 +186,12 @@ function differences(a: TraceFrame[], b: TraceFrame[]): Map<string, string> {
     const fa = a[i]!;
     const fb = b[i]!;
     for (const k of Object.keys(fa) as (keyof TraceFrame)[]) {
-      if (first.has(k) || isDeepStrictEqual(fa[k], fb[k])) continue;
+      if (first.has(k)) continue;
+      const same =
+        k === 'probes'
+          ? sameProbes(fa[k], fb[k])
+          : isDeepStrictEqual(fa[k], fb[k]);
+      if (same) continue;
       first.set(
         k,
         `${k}@${i} ${JSON.stringify(fa[k])} → ${JSON.stringify(fb[k])}`,
@@ -241,12 +208,12 @@ type Row = {
 };
 
 function compare(
-  base: Map<string, Outcome>,
+  before: Map<string, Outcome>,
   head: Map<string, Outcome>,
 ): Row[] {
-  const names = [...new Set([...base.keys(), ...head.keys()])];
+  const names = [...new Set([...before.keys(), ...head.keys()])];
   return names.map((name): Row => {
-    const a: Outcome = base.get(name) ?? { status: 'missing', unstable: [] };
+    const a: Outcome = before.get(name) ?? { status: 'missing', unstable: [] };
     const b: Outcome = head.get(name) ?? { status: 'missing', unstable: [] };
     if (a.status === 'skipped' || b.status === 'skipped') {
       return { name, kind: '건너뜀', detail: `${a.status} / ${b.status}` };
@@ -258,7 +225,7 @@ function compare(
       const skip = new Set<string>([
         ...a.unstable,
         ...b.unstable,
-        ...NEW_API_FIELDS,
+        ...(base.kind === 'release' ? NEW_API_FIELDS : []),
       ]);
       for (const [field, text] of differences(a.trace, b.trace)) {
         if (!skip.has(field)) changed.set(field, text);
@@ -269,7 +236,8 @@ function compare(
     if (changed.size === 0) return { name, kind: '같음', detail: '' };
     const detail = [...changed.values()].join('; ');
     // 허용은 필드 단위다. 허용한 필드 밖에서 생긴 차이는 이유가 있어도 예상 밖으로 친다.
-    const expected = expectedDifferences[name];
+    const expected =
+      base.kind === 'release' ? expectedDifferences[name] : undefined;
     const outside = [...changed.keys()].filter(
       (f) => !expected?.fields.includes(f as never),
     );
@@ -287,9 +255,9 @@ function compare(
 
 const esc = (text: string) => text.replaceAll('|', '\\|');
 
-function table(rows: Row[], base: string): string {
+function table(rows: Row[], title: string): string {
   return [
-    `# 시나리오 비교: ${base} → 소스`,
+    `# 시나리오 비교: ${title} → 소스`,
     '',
     '| 시나리오 | 결과 | 내용 |',
     '|---|---|---|',
@@ -304,18 +272,21 @@ if (!reuse && portInUse()) {
   );
   process.exit(2);
 }
-prepareTarget(version);
-const outDir = join(here, '.compare', version);
+prepareTarget(base, imported());
+const outDir = join(here, '.compare', base.label);
 mkdirSync(outDir, { recursive: true });
-const base = run(version, version, outDir);
+const baseRun = run(base.label, base.label, outDir);
 const head = run('source', undefined, outDir);
-const rows = compare(base, head);
-const md = table(rows, version);
+const rows = compare(baseRun, head);
+const md = table(
+  rows,
+  base.kind === 'git' ? `${base.ref} (${base.label})` : base.label,
+);
 writeFileSync(join(outDir, 'report.md'), md);
 console.log(`\n${md}`);
-const stale = Object.keys(expectedDifferences).filter(
-  (name) => rows.find((r) => r.name === name)?.kind === '같음',
-);
+const stale = (
+  base.kind === 'release' ? Object.keys(expectedDifferences) : []
+).filter((name) => rows.find((r) => r.name === name)?.kind === '같음');
 if (stale.length > 0) {
   console.log(`차이가 사라진 허용 항목(지워도 된다): ${stale.join(', ')}`);
 }
