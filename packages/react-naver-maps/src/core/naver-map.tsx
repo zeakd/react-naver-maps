@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useReducer,
   useRef,
+  useState,
 } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { kvoEquals, useControlledProps } from './hooks/use-controlled-kvo.js';
@@ -32,6 +33,8 @@ import { NaverMapContext } from './contexts/naver-map.js';
 import { PanoramaHostContext } from './contexts/overlay-host.js';
 import { ClientOptionsContext } from './contexts/client-options.js';
 import { useSdkInstance } from './lifetime.js';
+import { EchoLog } from './camera/echo.js';
+import { FOLLOW_MS, planCamera } from './camera/plan.js';
 import { omitUndefined } from './utils/omit-undefined.js';
 import { pick } from './utils/pick.js';
 import { resolveConstants } from './constants.js';
@@ -393,52 +396,10 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   const requestedCenterRef = useRef<
     naver.maps.Coord | naver.maps.CoordLiteral | null
   >(null);
-  // 지도가 최근에 보고한 center(onCenterChanged 로 앱에 간 값). 앱이 이 값을 늦게 되돌려주면
-  // (setTimeout, 비동기 store, transition) 지도가 이미 지나온 자리다. 그것을 새 목표로 보고 따라가면
-  // 지도가 뒤로 당겨지고, 그 이동이 다시 보고되어 늦게 돌아오며 멈추지 않고 흔들렸다(e2e "center 를
-  // 늦게 되돌려줘도"). 그래서 최근 보고값과 화면 1px 안인 prop 은 되울림으로 보고 따르지 않는다.
-  // 앱이 일부러 그 자리로 보내려면 2초 뒤에 같은 값을 주거나 map.panTo() 를 쓴다.
-  const reportedRef = useRef<{ at: number; coord: naver.maps.Coord }[]>([]);
-  // 지도가 최근에 보고한 실수 zoom(GL 의 휠·핀치 줌). center 와 같은 되울림이다. 정수 zoom 은 거르지
-  // 않는다("15 로 되돌리기" 같은 앱 의도와 구별할 수 없고, 래스터는 늘 정수다).
-  const reportedZoomRef = useRef<{ at: number; zoom: number }[]>([]);
-  // 라이브러리가 마지막으로 카메라를 옮긴 시각(performance.now). FOLLOW_MS 참고.
+  // 지도가 최근에 보고한 center·zoom(되울림 기록, camera/echo.ts).
+  const [echo] = useState(() => new EchoLog<naver.maps.Coord>());
+  // 라이브러리가 마지막으로 카메라를 옮긴 시각(performance.now). camera/plan.ts FOLLOW_MS 참고.
   const lastCameraWriteAtRef = useRef(Number.NEGATIVE_INFINITY);
-  const rememberReported = (coord: naver.maps.Coord) => {
-    const now = performance.now();
-    const list = reportedRef.current;
-    list.push({ at: now, coord });
-    while (list.length > ECHO_MAX || now - list[0]!.at > ECHO_WINDOW_MS) {
-      list.shift();
-    }
-  };
-  const rememberReportedZoom = (zoom: number) => {
-    if (Number.isInteger(zoom)) return;
-    const now = performance.now();
-    const list = reportedZoomRef.current;
-    list.push({ at: now, zoom });
-    while (list.length > ECHO_MAX || now - list[0]!.at > ECHO_WINDOW_MS) {
-      list.shift();
-    }
-  };
-  const isZoomEcho = (zoom: number) => {
-    if (Number.isInteger(zoom)) return false;
-    const now = performance.now();
-    return reportedZoomRef.current.some(
-      (r) => now - r.at <= ECHO_WINDOW_MS && Math.abs(r.zoom - zoom) < 1e-9,
-    );
-  };
-  const isEcho = (
-    center: naver.maps.Coord | naver.maps.CoordLiteral,
-    zoom: number,
-  ) => {
-    const now = performance.now();
-    return reportedRef.current.some(
-      (r) =>
-        now - r.at <= ECHO_WINDOW_MS &&
-        sameOnScreen(map, r.coord, center, zoom),
-    );
-  };
   const prevRef = useRef({
     center: props.center,
     zoom: props.zoom,
@@ -454,91 +415,60 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     }
     if (!sdkAlive()) return;
 
-    const prev = prevRef.current;
-    const dirties: {
-      center?: naver.maps.Coord | naver.maps.CoordLiteral;
-      zoom?: number;
-      bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
-      centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
-    } = {};
+    const now = performance.now();
+    const gl = isGl(map);
+    const plan = planCamera({
+      prev: prevRef.current,
+      next: props,
+      map: {
+        center: () => map.getCenter(),
+        zoom: () => map.getZoom(),
+        bounds: () => map.getBounds(),
+        centerPoint: () => map.getCenterPoint(),
+        gl,
+        sameOnScreen: (a, b, zoom) => sameOnScreen(map, a, b, zoom),
+      },
+      isCenterEcho: (center, zoom) =>
+        echo.isCenterEcho(now, (r) => sameOnScreen(map, r, center, zoom)),
+      isZoomEcho: (zoom) => echo.isZoomEcho(zoom, now),
+      pendingMove: requestedCenterRef.current !== null,
+      gesture: gestureRef.current,
+      following: now - lastCameraWriteAtRef.current < FOLLOW_MS,
+    });
 
-    if (props.center !== undefined && !kvoEquals(props.center, prev.center)) {
-      // zoom 도 바뀌면 더 큰 zoom 에서 잰다. zoom 7 의 1px 은 zoom 18 에서 2048px 이다.
-      const zoomForCheck =
-        props.zoom !== undefined && props.zoom !== prev.zoom
-          ? Math.max(map.getZoom(), props.zoom)
-          : map.getZoom();
-      const atCenter = sameOnScreen(
-        map,
-        map.getCenter(),
-        props.center,
-        zoomForCheck,
-      );
-      if (atCenter && requestedCenterRef.current) {
-        // SDK 의 panTo 는 현재 위치로의 이동을 무시해 진행 중인 이동이 끝까지 간다.
-        map.stop();
-        requestedCenterRef.current = null;
-      } else if (!atCenter && !isEcho(props.center, zoomForCheck)) {
-        dirties.center = props.center;
-      }
+    if (plan.stop) {
+      map.stop();
+      requestedCenterRef.current = null;
     }
-    if (props.zoom !== undefined && props.zoom !== prev.zoom) {
-      if (
-        map.getZoom() !== sdkZoom(map, props.zoom) &&
-        !isZoomEcho(props.zoom)
-      ) {
-        dirties.zoom = props.zoom;
-      }
-    }
-    if (props.bounds !== undefined && !kvoEquals(props.bounds, prev.bounds)) {
-      if (!kvoEquals(map.getBounds(), props.bounds))
-        dirties.bounds = props.bounds;
-    }
-    if (
-      props.centerPoint !== undefined &&
-      !kvoEquals(props.centerPoint, prev.centerPoint)
-    ) {
-      if (!kvoEquals(map.getCenterPoint(), props.centerPoint))
-        dirties.centerPoint = props.centerPoint;
-    }
-
-    if (gestureRef.current !== 'none') {
-      // prevRef 를 그대로 두어 제스처가 끝난 뒤 다시 비교하게 한다.
-      if (Object.keys(dirties).length > 0) heldRef.current = true;
+    if (plan.kind === 'hold') {
+      if (plan.held) heldRef.current = true;
       return;
     }
-
-    const now = performance.now();
-    const following = now - lastCameraWriteAtRef.current < FOLLOW_MS;
-    if (Object.keys(dirties).length > 0) lastCameraWriteAtRef.current = now;
-
-    // 우선순위 기반 setter — 순서가 중요함
-    // bounds > center+zoom(morph) > centerPoint(setCenterPoint) > center(panTo) > zoom(setZoom)
-    if (dirties.bounds) {
-      map.fitBounds(dirties.bounds);
-    } else if (dirties.center && dirties.zoom) {
-      // morph: center+zoom을 원자적으로 변경. CSS transform으로 시각적 줌 처리 후
-      // 완료 시에만 KVO 일괄 발화. 개별 set보다 부드럽고 중간 상태 없음.
-      // GL 에서 직전 카메라 이동 뒤 곧 또 바뀌면 애니메이션 없이 바로 간다. 매 프레임 바뀌는 prop
-      // (움직이는 대상 따라가기)마다 애니메이션을 새로 시작하면 prop 보다 수십 px 뒤처졌다(e2e "GL 지도에서
-      // center 와 zoom 을 매 프레임"). 래스터는 duration 0 인 morph 뒤 수백 ms 동안 panTo 를 무시해서
-      // (3.10.5 실측) 쓰지 않는다. 래스터의 실수 zoom 변경은 sdkZoom 이 center 만 옮기게 한다.
-      requestedCenterRef.current = dirties.center;
-      if (isGl(map) && following) {
-        map.morph(toCoord(dirties.center), dirties.zoom, { duration: 0 });
-      } else {
-        map.morph(toCoord(dirties.center), dirties.zoom);
+    if (plan.kind === 'move') {
+      lastCameraWriteAtRef.current = now;
+      const c = plan.command;
+      switch (c.kind) {
+        case 'fitBounds':
+          map.fitBounds(c.bounds);
+          break;
+        case 'morph':
+          // center 와 zoom 을 한 번에 옮긴다. 개별 set 보다 부드럽고 중간 상태가 없다.
+          requestedCenterRef.current = c.center;
+          if (c.animate) map.morph(toCoord(c.center), c.zoom);
+          else map.morph(toCoord(c.center), c.zoom, { duration: 0 });
+          break;
+        case 'setCenterPoint':
+          map.setCenterPoint(c.centerPoint);
+          break;
+        case 'panTo':
+          // panTo 는 duration 0 이어도 다음 프레임에 반영된다. 그 사이 온 prop 은 requestedCenterRef 로 안다.
+          requestedCenterRef.current = c.center;
+          map.panTo(toCoord(c.center), { duration: 0 });
+          break;
+        case 'setZoom':
+          map.setZoom(c.zoom);
+          break;
       }
-    } else if (dirties.centerPoint) {
-      map.setCenterPoint(dirties.centerPoint);
-    } else if (dirties.center) {
-      // panTo 사용 이유: setCenter()는 _stopTransition()을 호출하여
-      // 드래그 중 관성 패닝을 강제 중단. panTo는 트랜지션을 관리하면서 이동.
-      // duration: 0으로 즉시 이동 (애니메이션 없이).
-      requestedCenterRef.current = dirties.center;
-      map.panTo(toCoord(dirties.center), { duration: 0 });
-    } else if (dirties.zoom) {
-      map.setZoom(dirties.zoom);
     }
 
     prevRef.current = {
@@ -608,28 +538,19 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     const listeners = [
       addMapListener(map, 'center_changed', () => {
         requestedCenterRef.current = null;
-        rememberReported(map.getCenter());
+        echo.rememberCenter(map.getCenter(), performance.now());
       }),
       // gl 서브모듈에서는 이벤트 값과 getZoom() 이 1 다르다. 앱이 받는 값(getZoom)을 기억한다.
       addMapListener(map, 'zoom_changed', () => {
-        rememberReportedZoom(map.getZoom());
+        echo.rememberZoom(map.getZoom(), performance.now());
       }),
     ];
     return () => listeners.forEach((l) => removeMapListener(l));
-  }, [map]);
+  }, [map, echo]);
 
   useOverlayEvents(map, props, MAP_EVENTS);
 
   return <>{children}</>;
-}
-
-/**
- * SDK 가 실제로 쓸 zoom. 래스터 지도는 실수 zoom 을 반올림한다(15.46 → 15, 15.52 → 16, 3.10.5 실측).
- * GL(renderMode 2)은 실수 zoom 을 그대로 쓴다. 반올림해 같으면 zoom 은 바뀌지 않은 것이다. 그러지 않으면
- * 실수 zoom 이 조금씩 바뀔 때마다 morph 를 골랐고 SDK 는 같은 정수 zoom 의 morph 를 center 째 무시했다.
- */
-function sdkZoom(map: naver.maps.Map, zoom: number): number {
-  return isGl(map) ? zoom : Math.round(zoom);
 }
 
 /** GL 로 그리는가(renderMode 2, sdk/CHANGES.md "gl: true 와 renderMode"). */
@@ -638,13 +559,6 @@ function isGl(map: naver.maps.Map): boolean {
     (map as unknown as { get(k: string): unknown }).get('renderMode') === 2
   );
 }
-
-/** GL 에서 라이브러리가 카메라를 옮긴 뒤 이 시간 안에 center·zoom 이 또 함께 바뀌면 morph 를 애니메이션 없이 한다. */
-const FOLLOW_MS = 1000;
-
-/** 되울림으로 볼 보고값의 시간 범위와 개수. */
-const ECHO_WINDOW_MS = 2000;
-const ECHO_MAX = 240;
 
 /**
  * 두 좌표가 zoom 에서 화면 1px 안이면 같은 자리로 본다. 앱이 반올림해 되돌려준 center,
