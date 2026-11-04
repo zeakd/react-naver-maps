@@ -23,6 +23,11 @@ import {
   type EditablePolygonConfig,
   type EditablePolygonFrame,
 } from './editable-polygon.js';
+import {
+  errorBoundary,
+  type ErrorBoundaryConfig,
+  type ErrorBoundaryFrame,
+} from './error-boundary.js';
 import { flightSpot, type FlightSpotConfig } from './flight-spot.js';
 import {
   groundOverlay,
@@ -31,7 +36,17 @@ import {
 } from './ground-overlay.js';
 import { infoWindow, type InfoWindowConfig } from './info-window.js';
 import { labelLayer, type LabelLayerConfig } from './label-layer.js';
+import {
+  infoWindowOnMarker,
+  type InfoWindowOnMarkerConfig,
+  type InfoWindowOnMarkerFrame,
+} from './info-window-on-marker.js';
 import { marker, type MarkerConfig, type MarkerFrame } from './marker.js';
+import {
+  markerCrowd,
+  type MarkerCrowdConfig,
+  type MarkerCrowdFrame,
+} from './marker-crowd.js';
 import { polyline, type PolylineConfig } from './polyline.js';
 import { suspend, type SuspendConfig } from './suspend.js';
 import {
@@ -68,7 +83,10 @@ export type FixtureConfig = AutoResizeConfig &
   OverlaysActivityConfig &
   PolylineConfig &
   CircleConfig &
-  InfoWindowConfig;
+  InfoWindowConfig &
+  InfoWindowOnMarkerConfig &
+  MarkerCrowdConfig &
+  ErrorBoundaryConfig;
 
 /** TraceFrame 의 기능별 부분. */
 export type FixtureFrame = MarkerFrame &
@@ -79,7 +97,10 @@ export type FixtureFrame = MarkerFrame &
   CustomControlFrame &
   TileGridLayerFrame &
   GroundOverlayFrame &
-  CircleFrame;
+  CircleFrame &
+  InfoWindowOnMarkerFrame &
+  MarkerCrowdFrame &
+  ErrorBoundaryFrame;
 
 /** 지도의 자식으로 렌더하는 순서대로. */
 export const FIXTURES: AnyFixture[] = [
@@ -100,4 +121,8 @@ export const FIXTURES: AnyFixture[] = [
     (config) => config.overlaysActivity,
     [polyline, circle, infoWindow],
   ),
+  // 뒤에 더한 것들. 위 항목의 effect 순서(calls)에 끼어들지 않도록 맨 뒤에 둔다.
+  infoWindowOnMarker,
+  markerCrowd,
+  errorBoundary,
 ];

@@ -4,12 +4,18 @@ export async function runScenario(
   driver: ScenarioDriver,
   scenario: Scenario,
 ): Promise<TraceFrame[]> {
-  await driver.mount(scenario.app);
+  await driver.mount(scenario.app, scenario.mount);
   const trace: TraceFrame[] = [];
   for (const step of scenario.steps) {
     switch (step.t) {
       case 'props':
-        await driver.setProps(step.props);
+        await driver.setProps(step.props, { transition: step.transition });
+        break;
+      case 'waitInit':
+        await driver.waitInit();
+        break;
+      case 'mouseAt':
+        await driver.mouseAt(step.kind, step.ll, step.dx ?? 0, step.dy ?? 0);
         break;
       case 'frames':
         for (let i = 0; i < step.n; i++) trace.push(await driver.frame());

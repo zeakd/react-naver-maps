@@ -5,6 +5,8 @@ export type Observed = {
   propCalls: string[];
   events: string[];
   zoomReports: number[];
+  /** 아직 프레임에 싣지 않은 pageerror·console.error 의 글 */
+  errors: string[];
   kvo: { zoom: number; lat: number };
   /** ref 로 받은 오버레이. 떨어져도 마지막 인스턴스를 본다. 여러 픽스처가 이름으로 넣는다. */
   overlays: Record<string, { getMap(): unknown }>;
@@ -18,6 +20,7 @@ export function createObserved(): Observed {
     propCalls: [],
     events: [],
     zoomReports: [],
+    errors: [],
     kvo: { zoom: 0, lat: 0 },
     overlays: {},
     recordOverlay(name, o) {

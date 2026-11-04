@@ -11,8 +11,9 @@ type Field = keyof TraceFrame | 'status' | 'frames' | 'trace';
  */
 /**
  * 0.4 에서 생긴 API 의 기록이라 배포본(0.3.0)에는 늘 비어 있는 필드. 비교에서 뺀다.
+ * addListenerCalls 는 API 가 아니라 라이브러리 구현에 따라 버전마다 달라지는 값이라 함께 뺀다.
  */
-export const NEW_API_FIELDS: Field[] = ['propCalls'];
+export const NEW_API_FIELDS: Field[] = ['propCalls', 'addListenerCalls'];
 
 export const expectedDifferences: Record<
   string,

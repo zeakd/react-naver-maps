@@ -433,3 +433,125 @@ export function frameAt<K extends keyof TraceFrame>(
       : `프레임 ${at} ${String(field)}: ${JSON.stringify(v)}`;
   };
 }
+
+// 화면 1px 에 해당하는 경도 차이를 구할 때 쓰는 Web Mercator 근사. 네이버 지도의 zoom 0 은 256px 한 장이라는
+// 가정(추정, 실측 전)이다. 허용치가 몇 px 짜리라 이 정도 오차는 판정에 영향이 없다.
+function pxPerDegreeLng(zoom: number) {
+  return (256 * 2 ** zoom) / 360;
+}
+
+/**
+ * from 프레임부터 모든 프레임에서 지도가 앱이 내려준 prop 을 따른다: center 가 propCenter 와 화면 2px 안,
+ * zoom 이 propZoom 과 0.01 안.
+ * 근거: 매 프레임 prop 이 바뀌는 시나리오는 한 프레임에 5px 안팎씩 움직이게 짠다. 한 프레임 뒤처지면
+ * 5px 이상 벌어지므로 2px 은 "같은 프레임에 따라왔다"를 가르면서 투영·반올림 오차(1px 미만)는 넘긴다.
+ * zoom 0.01 은 getZoom() 의 부동소수 오차보다 크고 시나리오의 프레임당 변화(0.02)보다 작다.
+ */
+export function followsProps(from = 0, maxPx = 2, maxZoom = 0.01): Assertion {
+  return (trace) => {
+    for (let i = from; i < trace.length; i++) {
+      const f = trace[i]!;
+      if (!f.propCenter || f.propZoom === null) {
+        return `프레임 ${i} 에 내려준 prop 이 없다`;
+      }
+      const k = pxPerDegreeLng(f.zoom);
+      const dx = (f.center[1] - f.propCenter[1]) * k;
+      const dy =
+        ((f.center[0] - f.propCenter[0]) * k) /
+        Math.cos((f.propCenter[0] * Math.PI) / 180);
+      const px = Math.hypot(dx, dy);
+      if (px > maxPx) {
+        return `프레임 ${i} 에서 center 가 prop 과 ${px.toFixed(1)}px 떨어졌다 (허용 ${maxPx}px)`;
+      }
+      if (Math.abs(f.zoom - f.propZoom) > maxZoom) {
+        return `프레임 ${i} 에서 zoom ${f.zoom} 이 prop ${f.propZoom} 과 다르다 (허용 ${maxZoom})`;
+      }
+    }
+    return null;
+  };
+}
+
+/** 모든 프레임에서 지도 element 가 보인다. */
+export function mapVisible(): Assertion {
+  return (trace) => {
+    const i = trace.findIndex((f) => !f.mapVisible);
+    return i === -1 ? null : `프레임 ${i} 에서 지도가 보이지 않는다`;
+  };
+}
+
+/**
+ * 어떤 프레임에도 pageerror·console.error 가 없다. allow 에 맞는 글은 건너뛴다
+ * (에러 경계가 일부러 잡은 에러 등).
+ */
+export function noErrors(allow?: RegExp): Assertion {
+  return (trace) => {
+    for (const [i, f] of trace.entries()) {
+      const bad = f.errors.find((e) => !allow?.test(e));
+      if (bad !== undefined)
+        return `프레임 ${i} 에서 에러: ${bad.slice(0, 200)}`;
+    }
+    return null;
+  };
+}
+
+/** infoWindowOnMarker 의 InfoWindow 가 InfoWindow 가 생긴 뒤 모든 프레임에서 열려 있다. */
+export function infoWindowAlwaysOpen(): Assertion {
+  return (trace) => {
+    const i = trace.findIndex((f) => f.infoWindowOpen === false);
+    return i === -1 ? null : `프레임 ${i} 에서 InfoWindow 가 닫혀 있다`;
+  };
+}
+
+/** 마지막 프레임에서 infoWindowOnMarker 의 InfoWindow 위치가 anchor Marker 위치다. */
+export function infoWindowAtAnchor(): Assertion {
+  return (trace) => {
+    const f = trace.at(-1)!;
+    if (!f.infoWindowPosition || !f.infoWindowAnchorAt) {
+      return 'InfoWindow 또는 anchor Marker 가 없다';
+    }
+    return near(f.infoWindowPosition, f.infoWindowAnchorAt)
+      ? null
+      : `InfoWindow 위치 ${f.infoWindowPosition}, anchor Marker ${f.infoWindowAnchorAt}`;
+  };
+}
+
+/**
+ * from 프레임부터 to 프레임 앞까지 naver.maps.Event.addListener 호출이 max 번 이하로 늘어난다.
+ * max 를 Infinity 로 두면 판정하지 않고 증가량만 실패 메시지 없이 지나간다(값은 trace.json 의
+ * addListenerCalls 로 본다).
+ */
+export function addListenerCallsWithin(
+  from: number,
+  to: number,
+  max: number,
+): Assertion {
+  return (trace) => {
+    const before = trace[Math.max(from - 1, 0)]!.addListenerCalls;
+    const after = trace[Math.min(to, trace.length) - 1]!.addListenerCalls;
+    return after - before <= max
+      ? null
+      : `프레임 ${from}~${to} 에 addListener ${after - before}회 (상한 ${max})`;
+  };
+}
+
+/**
+ * editablePolygon 의 첫 꼭짓점이 경도 줄어드는 방향(왼쪽)으로만 움직이고, 끝에서 처음보다 minDeg 이상
+ * 옮겨져 있다.
+ */
+export function polygonFirstMovesLeft(minDeg: number): Assertion {
+  return (trace) => {
+    let prev: number | undefined;
+    for (const [i, f] of trace.entries()) {
+      if (!f.polygonFirst) return `프레임 ${i} 에 Polygon 이 없다`;
+      const lng = f.polygonFirst[1];
+      if (prev !== undefined && lng > prev + EPSILON_DEG) {
+        return `프레임 ${i} 에서 꼭짓점이 끄는 반대 방향으로 갔다 (${prev} -> ${lng})`;
+      }
+      prev = lng;
+    }
+    const moved = trace[0]!.polygonFirst![1] - trace.at(-1)!.polygonFirst![1];
+    return moved >= minDeg
+      ? null
+      : `꼭짓점이 ${moved} 만 옮겨졌다 (기대 >= ${minDeg})`;
+  };
+}
