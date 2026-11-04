@@ -1,7 +1,7 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle } from 'react';
+import { useEffect, useImperativeHandle, useLayoutEffect } from 'react';
 import { useNavermaps } from './hooks/use-navermaps.js';
 import { useOverlayHost } from './hooks/use-overlay-host.js';
 import { useControlledProps } from './hooks/use-controlled-kvo.js';
@@ -152,13 +152,16 @@ function OverlayBindings<P extends object, T extends Overlay>({
 /**
  * 이벤트 prop 을 SDK 리스너로 붙인다. 핸들러가 바뀌면 그 묶음을 다시 붙인다.
  * 이름만 주면 prop 은 `on` + 이름(`click` → `onClick`), `[이벤트, prop]` 이면 그 prop 이다.
- * events 는 렌더마다 같은 목록이어야 한다.
+ * events 는 렌더마다 같은 목록이어야 한다. `timing: 'layout'` 은 paint 전에 붙인다(인스턴스를
+ * 만들며 바로 내는 이벤트를 놓치지 않게, NaverMap 의 init 등). 호출마다 고정값이어야 한다.
  */
 export function useOverlayEvents(
   target: object,
   props: object,
   events: readonly (string | readonly [event: string, prop: string])[],
+  timing: 'paint' | 'layout' = 'paint',
 ): void {
+  const useTimedEffect = timing === 'layout' ? useLayoutEffect : useEffect;
   const pairs = events.map((e) =>
     typeof e === 'string' ? ([e, eventProp(e)] as const) : e,
   );
@@ -168,7 +171,7 @@ export function useOverlayEvents(
         | PointerEventHandler
         | undefined,
   );
-  useEffect(() => {
+  useTimedEffect(() => {
     const listeners: MapListener[] = [];
     pairs.forEach(([event], i) => {
       const handler = handlers[i];

@@ -25,49 +25,73 @@ const isDev =
  * ## production DCE
  *
  * 모듈 init에서 `isDev`로 dev/prod 구현을 한 번 결정한다. production 빌드에선
- * `useStaticPropProd`(no-op)이 export되어 hook 호출 자체가 사라지므로 ref/effect 슬롯을
- * 차지하지 않는다. dev 빌드에선 `useStaticPropDev`가 사용되어 정상 동작.
+ * `useStaticPropsProd`(no-op)이 export되어 hook 호출 자체가 사라지므로 ref/effect 슬롯을
+ * 차지하지 않는다. dev 빌드에선 `useStaticPropsDev`가 사용되어 정상 동작.
  *
  * `process.env.NODE_ENV === 'production'`을 번들러(Vite/webpack)가 inline하면 모듈 최상단의
- * 분기에서 `useStaticPropDev` 가지가 dead-code-eliminate된다.
+ * 분기에서 `useStaticPropsDev` 가지가 dead-code-eliminate된다.
+ *
+ * ## 여러 prop
+ *
+ * values 의 prop 마다 위 규칙을 따로 적용한다. 값이 지난 렌더와 같으면 다시 보지 않아 한 번 바뀐
+ * 값으로 렌더가 이어져도 경고는 한 번이다. values 의 키는 렌더마다 같아야 한다.
  */
-function useStaticPropDev<T>(
+function useStaticPropsDev(
+  componentName: string,
+  values: Record<string, unknown>,
+): void {
+  type State = { initial: unknown; settled: boolean; seen: unknown };
+  const statesRef = useRef(new Map<string, State>());
+  useEffect(() => {
+    const states = statesRef.current;
+    for (const [propName, value] of Object.entries(values)) {
+      const state = states.get(propName);
+      if (!state) {
+        // 마운트: 첫 값을 기억한다(useStaticProp 의 useRef(value) 와 같다).
+        states.set(propName, {
+          initial: value,
+          settled: value !== undefined,
+          seen: value,
+        });
+        continue;
+      }
+      // useStaticProp 의 effect deps([value]) 와 같다: 값이 바뀐 렌더에서만 본다.
+      if (Object.is(state.seen, value)) continue;
+      state.seen = value;
+      if (!state.settled) {
+        if (value !== undefined) {
+          state.initial = value;
+          state.settled = true;
+        }
+        continue;
+      }
+      if (Object.is(state.initial, value)) continue;
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[react-naver-maps] <${componentName} ${propName}={...} />: '${propName}' is a static prop. Changes after mount are not applied to the SDK. To change the value, remount the component using a React 'key' prop.\n` +
+          `'${propName}'은(는) static prop입니다. 마운트 이후 변경은 SDK에 반영되지 않습니다. 값을 바꾸려면 React 'key' prop으로 컴포넌트를 재마운트하세요.`,
+      );
+    }
+  });
+}
+
+function useStaticPropsProd(
+  _componentName: string,
+  _values: Record<string, unknown>,
+): void {}
+
+export const useStaticProps: typeof useStaticPropsDev = isDev
+  ? useStaticPropsDev
+  : useStaticPropsProd;
+
+/** prop 하나짜리 useStaticProps. */
+export function useStaticProp<T>(
   componentName: string,
   propName: string,
   value: T,
 ): void {
-  const initialRef = useRef(value);
-  const settledRef = useRef(value !== undefined);
-  useEffect(() => {
-    // grace period: 첫 비-undefined 값을 mount 값으로 정착시킴
-    if (!settledRef.current) {
-      if (value !== undefined) {
-        initialRef.current = value;
-        settledRef.current = true;
-      }
-      return;
-    }
-
-    if (Object.is(initialRef.current, value)) return;
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[react-naver-maps] <${componentName} ${propName}={...} />: '${propName}' is a static prop. Changes after mount are not applied to the SDK. To change the value, remount the component using a React 'key' prop.\n` +
-        `'${propName}'은(는) static prop입니다. 마운트 이후 변경은 SDK에 반영되지 않습니다. 값을 바꾸려면 React 'key' prop으로 컴포넌트를 재마운트하세요.`,
-    );
-  }, [value, componentName, propName]);
+  useStaticProps(componentName, { [propName]: value });
 }
-
-function useStaticPropProd<T>(
-  _componentName: string,
-  _propName: string,
-  _value: T,
-): void {
-  // production: no-op. 번들러가 호출 시점부터 inline해 죽은 코드로 제거 가능.
-}
-
-export const useStaticProp: typeof useStaticPropDev = isDev
-  ? useStaticPropDev
-  : useStaticPropProd;
 
 /**
  * dev 환경 여부. 호출자도 `if (isDev) useStaticProp(...)` 가드를 둘 수 있지만,
