@@ -17,7 +17,17 @@ import {
  */
 export async function mountPanorama(
   host: HTMLElement,
-  initial: { position: LL; pan?: number; marker?: LL; infoWindow?: boolean },
+  initial: {
+    position: LL;
+    pan?: number;
+    marker?: LL;
+    infoWindow?: boolean;
+    /**
+     * onPovChanged 로 받은 pan 을 이 단위로 반올림해 pov prop 으로 되돌려준다(지도의 rounded 와 같은
+     * 앱). 없으면 pov 는 setPan 으로만 바뀐다.
+     */
+    roundPanTo?: number;
+  },
 ) {
   const maps = await loadScript({
     ncpKeyId: NCP_KEY_ID,
@@ -28,6 +38,8 @@ export async function mountPanorama(
   let marker: naver.maps.Marker | null = null;
   let infoWindow: naver.maps.InfoWindow | null = null;
   let pan = initial.pan ?? 0;
+  /** 라이브러리가 부른 setPov 의 pan 값들(사용자 드래그는 setPov 를 부르지 않는다). */
+  const setPovCalls: number[] = [];
   const root = createRoot(host);
   const render = () =>
     root.render(
@@ -35,13 +47,27 @@ export async function mountPanorama(
         <Container style={{ width: '600px', height: '400px' }}>
           <Panorama
             ref={(p: naver.maps.Panorama | null) => {
-              if (p) panorama = p;
+              if (!p || p === panorama) return;
+              panorama = p;
+              const original = p.setPov.bind(p);
+              p.setPov = (pov) => {
+                setPovCalls.push(pov.pan ?? NaN);
+                original(pov);
+              };
             }}
             position={toCoord(initial.position)}
             pov={{ pan, tilt: 0, fov: 100 }}
             onPanoChanged={(id) => events.push(`pano_changed:${id}`)}
             onPanoStatus={(status) => events.push(`pano_status:${status}`)}
-            onPovChanged={() => events.push('pov_changed')}
+            onPovChanged={(pov) => {
+              events.push('pov_changed');
+              const unit = initial.roundPanTo;
+              if (unit === undefined) return;
+              const next = Math.round((pov.pan ?? 0) / unit) * unit;
+              if (next === pan) return;
+              pan = next;
+              queueMicrotask(render);
+            }}
             onInit={() => events.push('init')}
           >
             {initial.marker && (
@@ -72,6 +98,8 @@ export async function mountPanorama(
   return {
     events: () => events.slice(),
     pan: () => (panorama as naver.maps.Panorama | null)?.getPov().pan ?? null,
+    /** 라이브러리가 부른 setPov 의 pan 값들 */
+    setPovCalls: () => setPovCalls.slice(),
     /** 튜토리얼처럼 거리뷰 투영으로 Marker 쪽을 바라본다. 화면 확인용. */
     lookAtMarker() {
       if (!panorama || !marker) return;
