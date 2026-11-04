@@ -1,0 +1,18 @@
+---
+title: 파노라마 마커 표시하기
+category: tutorial-panorama
+order: 4
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial4ImageMarkerExample from '../../../examples/panorama-tutorial-4-image-marker.tsx';
+
+거리뷰 위에 마커를 올리고 시야를 마커 쪽으로 돌립니다.
+
+> [네이버 공식 예제 - 파노라마 마커 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-panorama-image-marker.example.html)
+
+<Example of={PanoramaTutorial4ImageMarkerExample} />
+
+## 설명
+
+`Panorama` 의 자식으로 `Marker` 를 두면 거리뷰 위에 그립니다. `onInit` 에서 `getProjection().fromCoordToPov()` 로 마커 방향의 `pov` 를 구해 state 로 넘깁니다. 마커 추가·제거 버튼은 마운트로 합니다(`{show && <Marker />}`).

@@ -1,0 +1,20 @@
+---
+title: 데이터 레이어 autoStyle 활용
+category: tutorial-data
+order: 5
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MantleTutorial5PropertiesExample from '../../../examples/mantle-tutorial-5-properties.tsx';
+
+GeoJSON geometry 안의 스타일 값(`mantle_properties`)을 `autoStyle` 로 적용하는 예제입니다.
+
+> [네이버 공식 예제 - 데이터 레이어 autoStyle 활용](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-mantle-properties.example.html)
+
+<Example of={MantleTutorial5PropertiesExample} />
+
+## 설명
+
+`GeoJson` 의 `autoStyle` 을 켜면 SDK 가 geometry 의 `mantle_properties` 를 스타일로 씁니다. 클릭한 feature 만 다른 색으로 바꾸려고 `style` 함수가 원본의 `mantle_properties` 를 읽어 돌려줍니다(`feature.getGeometries()[0].getRaw()`, 타입에 없어 단언을 씁니다).
+
+공식 예제는 강원도와 경기도 GeoJSON 을 스크립트 안에 직접 적어 두어 URL 로 받을 수 없습니다. 이 예제는 공식 사이트의 시도 경계 파일(`region01`, `region02`)을 받아 같은 모양의 `mantle_properties` 를 붙여 씁니다.

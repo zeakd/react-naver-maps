@@ -1,0 +1,18 @@
+---
+title: 파노라마 크기 변경하기
+category: tutorial-panorama
+order: 2
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial2ResizeExample from '../../../examples/panorama-tutorial-2-resize.tsx';
+
+버튼으로 거리뷰 크기를 부드럽게 바꾸는 예제입니다.
+
+> [네이버 공식 예제 - 파노라마 크기 변경하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-panorama-resize.example.html)
+
+<Example of={PanoramaTutorial2ResizeExample} />
+
+## 설명
+
+SDK 는 Container 가 바뀌어도 거리뷰 크기를 따라가지 않으므로 `Container` 의 크기와 `Panorama` 의 `size` prop 을 같은 state 로 함께 바꿉니다. jQuery `animate` 에 해당하는 500ms 보간은 `requestAnimationFrame` 으로 state 를 갱신합니다.
