@@ -102,8 +102,9 @@ const EVENT_PROPS: readonly EventProp[] = [
 
 /**
  * 데이터 레이어에 feature 를 올리고 지킨다. `load` 는 SDK 의 add* 메서드로 올리고 올린 feature 를
- * 돌려준다(SDK 는 세 메서드 모두 `Feature[]` 를 돌려준다, 3.10.5). `source` 가 바뀌면(참조가 아니라
- * 값 비교, DOM 노드는 참조 비교) 이전 feature 를 빼고 `load` 를 다시 부른다.
+ * 돌려준다(SDK 는 세 메서드 모두 `Feature[]` 를 돌려준다, 3.10.5). `source` 나 `autoStyle` 이 바뀌면
+ * (참조가 아니라 값 비교, DOM 노드는 참조 비교) 이전 feature 를 빼고 `load` 를 다시 부른다. SDK 는
+ * autoStyle 을 올릴 때만 받는다.
  */
 export function useDataFeatures(
   props: DataFeaturesProps,
@@ -142,7 +143,7 @@ export function useDataFeatures(
       detach: remove,
       dispose: remove,
     },
-    [layer, source],
+    [layer, source, autoStyle ?? false],
   );
 
   useImperativeHandle(ref, () => features!, [features]);

@@ -20,7 +20,7 @@ import { TrafficLayer } from 'react-naver-maps';
 
 ## 자동 갱신
 
-`autoRefresh`를 설정하면 교통 정보를 주기적으로 자동 갱신합니다.
+`autoRefresh`를 설정하면 교통 정보를 주기적으로 자동 갱신합니다. `false` 로 두면 끕니다. SDK 는 레이어를 지도에 붙일 때마다(숨겼다 다시 보일 때 포함) 교통 정보 버전을 받은 뒤 자동 갱신을 다시 켜서, 라이브러리가 `false` 인 동안 붙인 직후 몇 번, 그 뒤로 5초마다 다시 끕니다. 응답이 늦어도 켜진 자동 갱신은 늦어도 5초 안에 꺼집니다.
 
 ```tsx
 <TrafficLayer autoRefresh interval={60000} />

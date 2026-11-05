@@ -576,7 +576,9 @@ export function overlaysStayPut(
     const first = trace[start]?.overlayDrift ?? {};
     const names =
       only ?? Object.keys(first).filter((n) => first[n] !== null);
-    if (names.length === 0) return '오버레이 위치를 한 번도 재지 못했다';
+    if (names.length === 0 || start >= end) {
+      return '오버레이 위치를 한 번도 재지 못했다';
+    }
     for (let i = start; i < end; i++) {
       const drift = trace[i]!.overlayDrift;
       for (const name of names) {

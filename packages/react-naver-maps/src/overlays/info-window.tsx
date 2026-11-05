@@ -229,8 +229,9 @@ function InfoWindowInner({
     }
   }, [infoWindow, map, open, anchor, ready]);
 
-  // content 변경 시 네이티브 setContent 호출
+  // content 변경 시 네이티브 setContent 호출. 인증 실패 뒤에는 SDK 가 죽어 있어 부르지 않는다(sdkAlive).
   useEffect(() => {
+    if (!sdkAlive()) return;
     infoWindow.setContent(content);
   }, [infoWindow, content]);
 

@@ -60,6 +60,8 @@ export type CoreConfig = {
   mapCursor?: string;
   /** NaverMap 의 mapTypes 에 렌더마다 새로 만든 같은 내용의 MapTypeRegistry(normal 하나)를 넘긴다. */
   mapTypesInline?: boolean;
+  /** true 면 'custom' 하나만 든 새 MapTypeRegistry 와 mapTypeId 'custom' 을 함께 준다(옛 레지스트리에 없는 ID). */
+  customMapTypes?: boolean;
   /** 투영(projection)을 생략한 사용자 지도 유형 하나를 mapTypes 로 주고 그 유형으로 올린다(공식 예제 "지도 유형 기본"). */
   projectionlessMapType?: boolean;
   /** 값을 바꾸지 않고 재렌더만 일으킨다. */
@@ -185,6 +187,8 @@ export type CoreFrame = {
   mapCursor: string;
   /** SDK 의 그리기 방식. 1 래스터, 2 GL. gl 을 요청해도 WebGL 을 못 쓰면 1 이다. */
   renderMode: number;
+  /** 지금 지도 유형 ID(getMapTypeId) */
+  mapTypeId: string;
 };
 
 /** CoreFrame 필드마다 비교 방법(`fields.ts`). */
@@ -215,6 +219,7 @@ export const CORE_FIELDS: FieldKinds<CoreFrame> = {
   secondInfoWindowOpen: 'behavior',
   mapCursor: 'behavior',
   renderMode: 'behavior',
+  mapTypeId: 'behavior',
 };
 
 /** 위반이 있으면 설명을, 없으면 null 을 돌려준다. */

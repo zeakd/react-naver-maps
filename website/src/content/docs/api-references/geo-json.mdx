@@ -24,7 +24,7 @@ import { GeoJson } from 'react-naver-maps';
 
 - `style` 은 객체나 feature 를 받는 함수입니다. 이 컴포넌트가 올린 feature 에만 적용됩니다.
 - 이벤트(`onClick` 등)는 이 컴포넌트가 올린 feature 에서 난 것만 받습니다. 어느 feature 인지는 `e.feature` 로 압니다.
-- `autoStyle` 을 켜면 GeoJSON `properties` 의 스타일 값을 씁니다.
+- `autoStyle` 을 켜면 GeoJSON `properties` 의 스타일 값을 씁니다. SDK 는 올릴 때만 이 값을 읽으므로, 바꾸면 feature 를 빼고 그 값으로 다시 올립니다.
 - `data` 가 값으로 바뀌면 이전 feature 를 빼고 새로 올립니다. GeoJSON 에 `bbox` 가 있으면 SDK 가 그 영역으로 지도를 맞춥니다.
 
 - `onPropertyChanged` 는 이 컴포넌트가 올린 feature 에서 `feature.setProperty` 로 속성이 바뀔 때 받습니다. 인자는 `{ feature, name, oldValue, newValue }` 입니다. `addfeature`, `removefeature` 는 라이브러리가 직접 일으키는 일이라 prop 이 없습니다.

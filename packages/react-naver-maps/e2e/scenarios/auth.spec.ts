@@ -58,6 +58,7 @@ test('인증 실패 뒤 재렌더와 언마운트에서 앱이 터지지 않는�
       mode: 'props',
       ncpKeyId: 'invalid-key',
       marker: true,
+      infoWindow: true,
     });
   });
   await response;
@@ -69,6 +70,8 @@ test('인증 실패 뒤 재렌더와 언마운트에서 앱이 터지지 않는�
   await page.evaluate(() => {
     window.app.setProps({ center: [37.57, 126.99], zoom: 12 });
     window.app.setProps({ marker: false });
+    // InfoWindow 의 content 는 옵션 동기화와 따로 맞춘다. 그 길도 SDK 가 죽은 뒤 부르면 안 된다.
+    window.app.setProps({ infoWindowContent: 'after failure' });
   });
   await page.evaluate(() => window.app.unmount());
   await page.waitForTimeout(100);

@@ -64,11 +64,13 @@ function propsWith(rule: Rule): MapOptionProp[] {
   return MAP_OPTION_PROPS.filter(([, r]) => r === rule).map(([k]) => k);
 }
 
-/** 마운트 뒤 맞추는 prop. 기본값 짝이 있는 mapTypeId, size 도 맞춘다. */
+/**
+ * 마운트 뒤 useControlledProps 로 맞추는 prop. 기본값 짝이 있는 size 도 맞춘다. mapTypes 와 mapTypeId 는
+ * 서로 기대서 함께 맞춘다(use-map-types.ts).
+ */
 export const MAP_SYNCED_PROPS = [
-  'mapTypeId',
   'size',
-  ...propsWith('sync'),
+  ...propsWith('sync').filter((k) => k !== 'mapTypes'),
 ] as const satisfies readonly string[];
 export const MAP_STATIC_PROPS = propsWith('static');
 

@@ -1,4 +1,4 @@
-import { sameMap, lastFrame } from '../assertions.js';
+import { lastFrame, mapVisible, noErrors, sameMap } from '../assertions.js';
 import type { Scenario } from '../types.js';
 import { A, rerender } from './steps.js';
 
@@ -54,5 +54,18 @@ export const mapProps: Scenario[] = [
           : `다시 렌더하는 동안 setOptions ${last - first}회`;
       },
     ],
+  },
+  // mapTypes 와 mapTypeId 는 서로 기댄다. 새 레지스트리에만 있는 ID 를 옛 레지스트리에 먼저 넣으면 SDK 가
+  // 던져 지도 트리가 내려갔다(2026-11-05 리뷰).
+  {
+    name: '옛 레지스트리에 없는 mapTypeId 를 새 mapTypes 와 함께 주면 그 유형으로 바뀐다',
+    since: '0.4',
+    app: { mode: 'props' },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { customMapTypes: true } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [noErrors(), lastFrame('mapTypeId', 'custom'), mapVisible()],
   },
 ];
