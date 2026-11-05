@@ -20,7 +20,13 @@
 // 실제 SDK 인증이 localhost:4321 에서만 통과하므로 두 실행을 차례로 돌린다. 두 실행 내내 포트를
 // 잡고(`port.ts`), 포트에 서버가 떠 있으면 시작하지 않는다.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { parseBase, prepareTarget, withTree } from './baseline.ts';
@@ -129,6 +135,9 @@ function run(
 ): Map<string, Outcome> {
   const report = join(outDir, `${label}.json`);
   if (reuse) return read(report, label);
+  // 지난 실행의 보고서를 지운다. 이번 실행이 보고서를 만들지 못하고 끝나면(설정 오류, 실행 파일 없음)
+  // 남은 보고서를 이번 결과로 읽었다(2026-11-05 리뷰).
+  rmSync(report, { force: true });
   console.log(`\n▶ ${label} 실행`);
   const r = spawnSync(
     'pnpm',
@@ -153,6 +162,12 @@ function run(
       },
     },
   );
+  // 검사 실패는 종료 코드 1 이고 보고서가 있다. 실행이 시작되지 못했거나 시그널로 끊긴 것은 결과가 아니다.
+  if (r.error || r.signal) {
+    throw new Error(
+      `${label}: playwright 를 끝까지 돌리지 못했다 (${r.error?.message ?? r.signal})`,
+    );
+  }
   if (!existsSync(report)) {
     throw new Error(
       `${label}: playwright 보고서가 없다 (종료 코드 ${r.status})`,
@@ -272,6 +287,22 @@ function compare(
     const a = before.get(name) ?? missing;
     const b = head.get(name) ?? missing;
     if (a.status === 'skipped' || b.status === 'skipped') {
+      // 건너뛴 쪽은 비교할 수 없다. 그래도 다른 쪽이 실패했거나 없으면 그것은 차이다(배포본에 없는 API 라
+      // 기준선이 건너뛴 사이 소스가 실패하는 경우 등). git·harness 기준선은 같은 환경·같은 since 로 돌므로
+      // 한쪽만 건너뛴 것 자체가 차이다.
+      const other = a.status === 'skipped' ? b : a;
+      const oneSided = a.status !== b.status;
+      if (
+        other.status === 'failed' ||
+        other.status === 'missing' ||
+        (oneSided && base.kind !== 'release')
+      ) {
+        return {
+          name,
+          kind: '예상 밖 차이',
+          detail: `판정 ${a.status} → ${b.status}${other.error ? `: ${other.error}` : ''}`,
+        };
+      }
       return { name, kind: '건너뜀', detail: `${a.status} / ${b.status}` };
     }
     // 궤적 없이 끝난 검사(SDK 를 불러오지 못함, 시간 초과)는 지도 동작을 비교하지 못했다. 양쪽이 같은
