@@ -33,7 +33,13 @@ class MockData {
     added.forEach((f) => this.addFeature(f));
     return added;
   }
-  addGeoJson(geojson: { features: { properties: { id: string } }[] }) {
+  /** add* 에 넘긴 autoStyle 들(호출 순서). */
+  autoStyles: boolean[] = [];
+  addGeoJson(
+    geojson: { features: { properties: { id: string } }[] },
+    autoStyle: boolean,
+  ) {
+    this.autoStyles.push(autoStyle);
     const added = geojson.features.map((f) => new MockFeature(f));
     added.forEach((f) => this.addFeature(f));
     return added;
@@ -138,6 +144,19 @@ describe('GeoJson', () => {
     expect(data.features).toEqual([first]);
     unmount();
     expect(data.features).toEqual([]);
+  });
+
+  // SDK 는 autoStyle 을 올릴 때(addGeoJson 등)만 받는다. 바꾸면 그 값으로 다시 올린다. 그러지 않으면 다시
+  // 마운트하거나 숨겼다 보일 때에야 새 값이 적용됐다(2026-11-05 리뷰).
+  test('autoStyle 을 바꾸면 그 값으로 다시 올린다', () => {
+    const { rerender } = render(
+      <GeoJson data={fc('a') as any} autoStyle={false} />,
+    );
+    const first = data.features[0];
+    rerender(<GeoJson data={fc('a') as any} autoStyle />);
+    expect(data.autoStyles).toEqual([false, true]);
+    expect(data.features).toHaveLength(1);
+    expect(data.features[0]).not.toBe(first);
   });
 
   test('onPropertyChanged 는 자기 feature 의 것만 받는다', () => {

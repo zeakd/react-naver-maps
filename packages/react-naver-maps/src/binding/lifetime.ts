@@ -193,13 +193,13 @@ export function onReadyHost<T extends MapAttachable>(
       attachTo(instance, host);
       return;
     }
-    waits.set(
-      instance,
-      addMapListener(host, 'init', () => {
-        waits.delete(instance);
-        attachTo(instance, host);
-      }),
-    );
+    // init 은 한 번만 기다린다. 붙인 뒤에도 리스너가 남으면 지도가 사는 동안 버린 인스턴스를 붙잡는다.
+    const wait = addMapListener(host, 'init', () => {
+      removeMapListener(wait);
+      waits.delete(instance);
+      attachTo(instance, host);
+    });
+    waits.set(instance, wait);
   };
   const detach = (instance: T) => {
     const wait = waits.get(instance);

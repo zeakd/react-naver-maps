@@ -37,6 +37,7 @@ import { PanoramaHostContext } from '../overlays/overlay-host-context.js';
 import { ClientOptionsContext } from '../sdk/client-options-context.js';
 import { useSdkInstance } from '../binding/lifetime.js';
 import { EchoLog } from './camera/echo.js';
+import { useMapTypeProps } from './use-map-types.js';
 import { FOLLOW_MS, planCamera } from './camera/plan.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
@@ -533,6 +534,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useControlledProps(map, pick(props, MAP_SYNCED_PROPS), {
     writeOnMount: ['cursor'],
   });
+  useMapTypeProps(map, props.mapTypes, props.mapTypeId);
 
   // init, idle, tilesloaded 는 지도를 만들며 바로 온다. paint 뒤에 붙이면 init 을 놓칠 수 있다.
   useOverlayEvents(map, props, MAP_LIFECYCLE_EVENTS, 'layout');

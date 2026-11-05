@@ -122,9 +122,8 @@ export function CustomOverlay({
   const navermaps = useNavermaps();
   const map = useMap();
 
-  // satisfies로 propName이 keyof CustomOverlayProps에 속함을 컴파일 시점에 강제.
-  // 정책: static 호출이 1~2회이면 satisfies, 3회 이상이면 wrapper(useXStatic).
-  // 자세한 정책은 naver-map.tsx의 useNaverMapStatic 주석 참고.
+  // 생성 때만 읽는 prop. satisfies 로 이름이 CustomOverlayProps 의 키인지 컴파일 때 본다. 여러 개면
+  // useStaticProps(binding/use-static-prop.ts)로 한 번에 넘긴다(NaverMap 처럼).
   useStaticProp(
     'CustomOverlay',
     'pane' satisfies keyof CustomOverlayProps,

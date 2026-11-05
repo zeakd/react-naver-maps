@@ -57,6 +57,15 @@ const OBSERVED_METHODS = [
 
 // 투영을 생략한 사용자 지도 유형(공식 예제 tutorial-3-maptypes-basic 과 같은 모양). 한 번만 만든다.
 let projectionless: naver.maps.MapTypeRegistry | null = null;
+let customOnly: naver.maps.MapTypeRegistry | undefined;
+/** 'custom' 하나만 든 레지스트리. 앱을 올리는 동안 같은 객체를 쓴다. */
+function customOnlyRegistry(): naver.maps.MapTypeRegistry {
+  customOnly ??= new naver.maps.MapTypeRegistry({
+    custom: naver.maps.NaverStyleMapTypeOptions.getNormalMap(),
+  });
+  return customOnly;
+}
+
 function projectionlessRegistry(): naver.maps.MapTypeRegistry {
   projectionless ??= new naver.maps.MapTypeRegistry(
     {
@@ -296,6 +305,9 @@ function MapUnderTest({
       cursor={config.mapCursor}
       {...(config.projectionlessMapType
         ? { mapTypes: projectionlessRegistry(), mapTypeId: 'mine' }
+        : {})}
+      {...(config.customMapTypes
+        ? { mapTypes: customOnlyRegistry(), mapTypeId: 'custom' }
         : {})}
       {...(config.mapTypesInline
         ? {
@@ -561,6 +573,7 @@ export async function mountApp(host: HTMLElement, initial: AppConfig) {
         renderMode: (map as unknown as { get(k: string): number }).get(
           'renderMode',
         ),
+        mapTypeId: map!.getMapTypeId(),
         mapId,
         overlaysOnMap: Object.entries(observed.overlays)
           .filter(([, o]) => o.getMap() === map)
