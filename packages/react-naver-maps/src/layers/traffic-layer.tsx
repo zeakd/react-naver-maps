@@ -45,7 +45,12 @@ function holdOff(
 ) {
   cancelHoldOff(layer);
   const end = () => {
-    if (latest.current === false && sdkAlive()) layer.endAutoRefresh();
+    // SDK 가 죽으면(인증 실패) 더 할 일이 없다. 그때는 수명 처리가 떼기를 건너뛰므로 여기서 멈춘다.
+    if (!sdkAlive()) {
+      cancelHoldOff(layer);
+      return;
+    }
+    if (latest.current === false) layer.endAutoRefresh();
   };
   holdOffTimers.set(layer, [
     ...HOLD_OFF_SOON_MS.map((ms) => setTimeout(end, ms)),
@@ -110,6 +115,12 @@ export function TrafficLayer({
     },
     [map],
   );
+
+  // 언마운트하면 다시 끄는 타이머를 멈춘다. SDK 가 죽어 있으면 수명 처리(dispose)가 돌지 않아서 따로 둔다.
+  useEffect(() => {
+    if (!layer) return;
+    return () => cancelHoldOff(layer);
+  }, [layer]);
 
   // prop 이 바뀌면 맞춘다.
   useEffect(() => {

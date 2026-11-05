@@ -113,6 +113,23 @@ describe('TrafficLayer', () => {
     expect(calls.length).toBeGreaterThan(2);
   });
 
+  // 인증 실패로 SDK 가 죽으면(naver.maps = null) 수명 처리가 떼기·버리기를 건너뛴다. 그래도 다시 끄는
+  // 타이머는 남지 않아야 한다(2026-11-05 반영 확인 리뷰).
+  test('SDK 가 죽은 뒤 언마운트해도 다시 끄는 타이머가 남지 않는다', () => {
+    vi.useFakeTimers();
+    try {
+      const { unmount } = render(<TrafficLayer autoRefresh={false} />);
+      (globalThis as Record<string, any>).naver.maps = null;
+      unmount();
+      calls.length = 0;
+      vi.advanceTimersByTime(20000);
+      expect(calls).toEqual([]);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test('언마운트하면 지도에서 뗀다', () => {
     const { unmount } = render(<TrafficLayer autoRefresh />);
     const instance = layer();
