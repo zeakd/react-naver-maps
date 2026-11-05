@@ -60,7 +60,7 @@ export type { BicycleLayerProps } from './layers/bicycle-layer.js';
 export { LabelLayer } from './layers/label-layer.js';
 export type { LabelLayerProps } from './layers/label-layer.js';
 export { Layer } from './layers/layer.js';
-export type { LayerProps } from './layers/layer.js';
+export type { LayerMapType, LayerProps } from './layers/layer.js';
 export { StreetLayer } from './layers/street-layer.js';
 export type { StreetLayerProps } from './layers/street-layer.js';
 export { TrafficLayer } from './layers/traffic-layer.js';

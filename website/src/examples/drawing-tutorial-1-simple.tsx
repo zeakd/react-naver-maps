@@ -130,7 +130,7 @@ function DrawingMapContent() {
         mapTypeControl
       >
         <Rectangle ref={setRect} defaultBounds={RECT_BOUNDS} {...FILL} />
-        <Polygon ref={setPolygon} paths={[POLYGON_PATHS]} {...FILL} />
+        <Polygon ref={setPolygon} defaultPaths={[POLYGON_PATHS]} {...FILL} />
         <DrawingManager ref={setManager} />
       </NaverMap>
       {manager && (
