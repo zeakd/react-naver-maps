@@ -38,8 +38,8 @@ function TileCheckMapContent() {
       mapTypeControl
       mapTypeControlOptions={{ style: navermaps.MapTypeControlStyle.DROPDOWN }}
     >
-      {/* projection 은 생략한다(SDK 기본). @types 는 필수로 적어 둬서 단언이 필요하다. */}
-      <Layer name="tileGrid" mapTypes={tileGrid as naver.maps.MapType} />
+      {/* projection 은 생략한다(SDK 기본). */}
+      <Layer name="tileGrid" mapTypes={tileGrid} />
     </NaverMap>
   );
 }

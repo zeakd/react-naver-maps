@@ -30,6 +30,8 @@ jobs:
       # 라이브러리 소스와 changeset 을 바꾼 PR 은 문서도 바꾼다(scripts/docs-with-changeset.mts).
       - run: node scripts/docs-with-changeset.mts origin/${{ github.base_ref }} HEAD
       - run: pnpm -r run build
+      # 빌드한 문서 사이트의 내부 링크가 실제 페이지로 가는지 본다(scripts/check-site-links.mts).
+      - run: node scripts/check-site-links.mts
       - run: pnpm -r run test
       - run: pnpm --filter react-naver-maps run check:package
 

@@ -74,6 +74,8 @@ pnpm check && pnpm -r run build && pnpm -r run test   # 단위 검사 (SDK mock)
 
 라이브러리 소스를 바꾸고 changeset 을 더한 PR 은 문서 사이트(`website/src/content/docs/`)도 함께 바꾼다. CI 가 `node scripts/docs-with-changeset.mts` 로 확인한다. 문서가 필요 없는 변경이면 PR 본문에 `docs: none (이유)` 를 한 줄 적는다.
 
+문서 사이트의 내부 링크는 `/react-naver-maps/<분류>/<이름>/` 처럼 사이트 접두사를 넣은 절대 경로로 쓴다. 빌드한 사이트의 링크가 실제 페이지로 가는지 CI 가 `node scripts/check-site-links.mts` 로 확인한다.
+
 단위 검사는 SDK 가짜 하나(`packages/react-naver-maps/src/__tests__/sdk-fake.ts`)를 쓴다. 가짜가 기대는 SDK 성질(`sdk-contract.ts`)은 가짜와 실제 SDK(`e2e/scenarios/sdk-contract.spec.ts`)에서 함께 확인한다. 테스트는 SDK 로 이벤트를 쏘고 핸들러·리스너 수·SDK 상태를 본다. 라이브러리가 SDK 를 몇 번 불렀는지는 그 횟수가 계약일 때만 본다.
 
 실제 네이버맵 SDK 를 불러오는 검사는 `http://localhost:4321` 에서 실행된다. 저장소의 Maps 키는 이 주소에서만 인증되므로 한 번에 하나씩 돌린다. 실행은 포트를 잠그고(`~/.cache/react-naver-maps/port-4321.lock`), 다른 실행이 잡고 있으면 그 실행을 알려 주고 시작하지 않는다. 강제로 끝난 실행(SIGKILL 등)이 남긴 잠금은 저절로 치우지 않고 지울 파일을 알려 준다. 떠 있는 서버를 재사용할 때는 그 서버가 이 작업 트리에서 뜬 것인지 확인한다(`e2e/port.ts`). CI 는 `test:scenarios` 와 `verify:frameworks` 를 돌리고, 스크린샷 비교와 배포본 비교는 돌리지 않는다.

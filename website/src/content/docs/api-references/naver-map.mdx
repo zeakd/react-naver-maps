@@ -28,15 +28,15 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps';
 - `defaultCenter`: 초기 중심 좌표 (uncontrolled)
 - `center`: 중심 좌표 (controlled — 외부에서 값을 관리)
 
-카메라 값(`center`, `zoom`)은 prop 이 바뀔 때만 지도에 넣고, 끌거나 핀치하는 동안과 관성이 멈출 때까지는 넣지 않습니다. 늦게 돌아온 되울림과 래스터의 실수 zoom 은 [핵심 개념](../guides/core-concepts/) 의 규칙대로 다룹니다. 그 밖의 controlled prop 은 바깥(사용자 조작, ref 호출)에서 바뀌면 다음 렌더에 prop 값으로 되돌립니다.
+카메라 값(`center`, `zoom`)은 prop 이 바뀔 때만 지도에 넣고, 끌거나 핀치하는 동안과 관성이 멈출 때까지는 넣지 않습니다. 늦게 돌아온 되울림과 래스터의 실수 zoom 은 [핵심 개념](/react-naver-maps/guides/core-concepts/) 의 규칙대로 다룹니다. 그 밖의 controlled prop 은 바깥(사용자 조작, ref 호출)에서 바뀌면 다음 렌더에 prop 값으로 되돌립니다.
 
 ## 알아 둘 것
 
 - `cursor`: SDK 는 드래그 중 커서가 손 모양(`"open"`/`"closed"`)일 때만 둘을 오갑니다. `"crosshair"` 같은 다른 값은 그대로 둡니다.
-- `mapTypes` 는 `useMemo` 로 한 번 만듭니다([지도 유형과 레이어](../guides/map-types)).
+- `mapTypes` 는 `useMemo` 로 한 번 만듭니다([지도 유형과 레이어](/react-naver-maps/guides/map-types/)).
 - `gl`, `customStyleId`, `useStyleMap`, `repeatX`, `blankTileImage`, `tileDuration` 은 생성 때만 적용됩니다. 바꾸면 개발 모드에서 경고합니다. 바꾸려면 `key` 로 다시 만듭니다.
 - 줌 효과의 시작과 끝은 `onZoomstart`, `onZoomend`, GL 의 실수 줌은 `onZoom` 입니다. 래스터 지도에서 `zoom` prop 만 바꾸면 효과 없이 맞춰 이 이벤트가 오지 않습니다. `center` 와 함께 바꾸거나(`morph`) GL 지도에서는 옵니다.
-- 이벤트 이름과 인자는 [이벤트](../guides/events).
+- 이벤트 이름과 인자는 [이벤트](/react-naver-maps/guides/events/).
 
 ## Props
 

@@ -24,6 +24,13 @@ import { omitUndefined } from '../binding/omit-undefined.js';
  * `mapTypes` 는 `useMemo` 로 한 번 만든다. 렌더마다 새 MapType 객체를 만들면
  * (getTile 이 매번 새 함수이면) 렌더마다 레이어가 다시 만들어진다.
  */
+/**
+ * 지도 유형 하나. `projection` 은 생략할 수 있다(SDK 기본 투영). @types/navermaps 3.9.2 의 MapType 은
+ * 필수로 적어 두지만 SDK 는 없어도 그린다(공식 예제 "타일 확인", e2e "투영을 생략한 사용자 지도 유형").
+ */
+export type LayerMapType = Omit<naver.maps.MapType, 'projection'> &
+  Partial<Pick<naver.maps.MapType, 'projection'>>;
+
 export interface LayerProps {
   ref?: Ref<naver.maps.Layer>;
   /** 레이어 이름. 지도의 `map.layers` 키이자 `map.<name>Layer` 키라서 지도 안에서 겹치지 않게 쓴다. */
@@ -32,7 +39,7 @@ export interface LayerProps {
    * 레이어가 그릴 지도 유형. MapTypeRegistry 이거나 MapType 하나다(SDK 가 name 을 키로 레지스트리를 만든다).
    * 문서의 생성자 인자 `MapTypeRegistry`("지도 유형의 컬렉션")다. NaverMap 의 `mapTypes` 와 같은 이름으로 쓴다.
    */
-  mapTypes: naver.maps.MapType | naver.maps.MapTypeRegistry;
+  mapTypes: LayerMapType | naver.maps.MapTypeRegistry;
   /** 고해상도 타일 사용. 문서 LayerOptions. SDK 3.10.5 코드에서 읽는 곳을 못 찾았다. */
   hd?: boolean;
   /** true 면 타일로 간주해 지도 맨 아래에 두고 타일과 같이 줌 효과를 받는다. false 면 별도 창(pane). */
