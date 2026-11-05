@@ -22,7 +22,8 @@ export interface TrafficLayerProps {
    * 한 번 `true`로 켠 뒤 `undefined`로 바꿔도 자동 갱신은 멈추지 않는다.
    * 정지하려면 명시적으로 `false`를 전달한다.
    * SDK 는 지도에 붙일 때마다(숨겼다 다시 보일 때 포함) 교통 정보 버전을 받은 뒤 자동 갱신을 다시 켠다.
-   * `false` 면 붙인 뒤 몇 번(5초까지) 다시 끈다. 응답이 그보다 늦으면 켜진 채 남을 수 있다.
+   * `false` 면 붙어 있는 동안 곧바로 몇 번, 그 뒤로 5초마다 다시 끈다. 응답이 늦어도 켜진 자동 갱신은 늦어도
+   * 5초 안에 꺼진다.
    */
   autoRefresh?: boolean;
 }
@@ -30,10 +31,12 @@ export interface TrafficLayerProps {
 /**
  * SDK 는 지도에 붙일 때마다 교통 정보 버전을 받아 온 뒤 자동 갱신을 켠다. 그 응답 전에 부른 endAutoRefresh 는
  * 소용이 없고, 응답을 알리는 공개 이벤트가 없다(3.10.5 실측: 붙인 뒤 5~43ms 에 켜짐, 생성자 옵션·붙이기 전
- * endAutoRefresh·tilesloaded 뒤 끄기 모두 실패). 그래서 autoRefresh={false} 면 붙인 뒤 몇 번 더 끈다.
- * 응답이 마지막 시도보다 늦으면 켜진 채 남는다. 그때는 ref 로 endAutoRefresh 를 부른다.
+ * endAutoRefresh·tilesloaded 뒤 끄기 모두 실패). 그래서 autoRefresh={false} 로 붙어 있는 동안은 곧바로 몇 번,
+ * 그 뒤로는 HOLD_OFF_EVERY_MS 마다 끈다. endAutoRefresh 는 이미 꺼져 있으면 아무것도 하지 않는다. 응답이 늦어도
+ * 켜진 자동 갱신은 늦어도 HOLD_OFF_EVERY_MS 안에 꺼진다. 처음 몇 번은 응답이 보통 빨라서(위 실측) 둔다.
  */
-const HOLD_OFF_MS = [100, 1000, 5000];
+const HOLD_OFF_SOON_MS = [100, 1000];
+const HOLD_OFF_EVERY_MS = 5000;
 const holdOffTimers = new WeakMap<object, ReturnType<typeof setTimeout>[]>();
 
 function holdOff(
@@ -41,17 +44,17 @@ function holdOff(
   latest: { readonly current: boolean | undefined },
 ) {
   cancelHoldOff(layer);
-  holdOffTimers.set(
-    layer,
-    HOLD_OFF_MS.map((ms) =>
-      setTimeout(() => {
-        if (latest.current === false && sdkAlive()) layer.endAutoRefresh();
-      }, ms),
-    ),
-  );
+  const end = () => {
+    if (latest.current === false && sdkAlive()) layer.endAutoRefresh();
+  };
+  holdOffTimers.set(layer, [
+    ...HOLD_OFF_SOON_MS.map((ms) => setTimeout(end, ms)),
+    setInterval(end, HOLD_OFF_EVERY_MS),
+  ]);
 }
 
 function cancelHoldOff(layer: naver.maps.TrafficLayer) {
+  // clearTimeout 은 setInterval 의 것도 지운다(같은 번호 공간).
   holdOffTimers.get(layer)?.forEach(clearTimeout);
   holdOffTimers.delete(layer);
 }
