@@ -81,25 +81,79 @@ async function portInUse() {
   return v4 || v6;
 }
 
-// 시작할 때 포트가 비어 있음을 확인했으므로 지금 포트를 쥔 프로세스는 이 스크립트가 띄운 서버다.
-// Next 는 next-server 를 자기 프로세스 그룹으로 띄워 그룹 종료 신호가 닿지 않을 수 있다.
-// listen 을 멈추고 연결만 쥔 워커도 정리한다. 이 스크립트 자신(연결의 반대편)은 뺀다.
-function portHolders(): number[] {
+/** 이 스크립트가 띄운 서버와 그 자손. 프로세스 번호와 프로세스 그룹 번호. */
+type Owned = { pids: Set<number>; groups: Set<number> };
+
+/**
+ * root 와 그 자손을 지금 찾는다. 서버를 그룹째 끈 뒤에는 남은 자손의 부모가 바뀌어(init) 찾을 수 없으므로
+ * 끄기 전에 부른다. Next 는 next-server 를 자기 프로세스 그룹으로 띄워 그룹 종료 신호가 닿지 않을 수
+ * 있어 그룹 번호도 기록한다.
+ */
+function ownedBy(root: number): Owned {
+  const rows = new Map<number, { ppid: number; pgid: number }>();
   try {
-    const out = execFileSync('lsof', ['-ti', `tcp:${PORT}`], {
+    const out = execFileSync('ps', ['-A', '-o', 'pid=,ppid=,pgid='], {
       encoding: 'utf8',
     });
-    return [...new Set(out.split('\n').filter(Boolean).map(Number))].filter(
-      (pid) => pid !== process.pid,
-    );
+    for (const line of out.trim().split('\n')) {
+      const [pid, ppid, pgid] = line.trim().split(/\s+/).map(Number);
+      if (pid) rows.set(pid, { ppid: ppid!, pgid: pgid! });
+    }
+  } catch {
+    // ps 가 없으면 root 만 안다.
+  }
+  const pids = new Set([root]);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [pid, { ppid }] of rows) {
+      if (!pids.has(pid) && pids.has(ppid)) {
+        pids.add(pid);
+        grew = true;
+      }
+    }
+  }
+  const groups = new Set(
+    [...pids].map((p) => rows.get(p)?.pgid).filter((g): g is number => !!g),
+  );
+  return { pids, groups };
+}
+
+/**
+ * 포트를 쥔 프로세스 가운데 이 스크립트가 띄운 것(owned)만. 포트에 접속한 다른 프로세스(사용자 브라우저,
+ * 다른 도구)는 연결의 반대편으로 함께 나오므로 소유를 확인하지 않으면 그것까지 죽였다(2026-11-05 리뷰).
+ * listen 을 멈추고 연결만 쥔 서버 워커도 owned 이면 정리한다.
+ */
+function portHolders(owned: Owned): number[] {
+  let out: string;
+  try {
+    out = execFileSync('lsof', ['-ti', `tcp:${PORT}`], { encoding: 'utf8' });
   } catch {
     // lsof 는 대상이 없으면 실패로 끝난다. lsof 가 없는 환경도 여기로 온다.
     return [];
   }
+  const now = ownedBy(process.pid);
+  return [...new Set(out.split('\n').filter(Boolean).map(Number))].filter(
+    (pid) => {
+      if (pid === process.pid) return false;
+      if (owned.pids.has(pid)) return true;
+      // 이 스크립트의 다른 자손(검사용 브라우저 등)은 서버가 아니다.
+      if (now.pids.has(pid)) return false;
+      try {
+        const pgid = Number(
+          execFileSync('ps', ['-o', 'pgid=', '-p', String(pid)], {
+            encoding: 'utf8',
+          }).trim(),
+        );
+        return owned.groups.has(pgid);
+      } catch {
+        return false; // 그새 끝났다
+      }
+    },
+  );
 }
 
-function killPortHolders() {
-  for (const pid of portHolders()) {
+function killPortHolders(owned: Owned) {
+  for (const pid of portHolders(owned)) {
     try {
       process.kill(pid, 'SIGKILL');
     } catch {
@@ -123,7 +177,7 @@ function describePort(): string {
   return '포트를 쥔 프로세스를 찾지 못했다 (lsof, ss 실패)';
 }
 
-async function waitForPortFree() {
+async function waitForPortFree(owned: Owned) {
   const graceEnd = Date.now() + 2000;
   const deadline = Date.now() + 15000;
   while (await portInUse()) {
@@ -131,7 +185,7 @@ async function waitForPortFree() {
       throw new Error(`포트 ${PORT} 이 비지 않았다. ${describePort()}`);
     }
     // 한 번 죽여도 서버가 자식을 다시 띄우거나 늦게 뜬 프로세스가 있을 수 있어 매번 확인한다.
-    if (Date.now() > graceEnd) killPortHolders();
+    if (Date.now() > graceEnd) killPortHolders(owned);
     await new Promise((r) => setTimeout(r, 200));
   }
 }
@@ -231,6 +285,9 @@ async function verify(
     const detail = `${err.stdout ?? ''}\n${err.stderr ?? ''}`.trim();
     report.error = (detail || err.message).slice(-400);
   } finally {
+    const owned: Owned = server?.pid
+      ? ownedBy(server.pid)
+      : { pids: new Set(), groups: new Set() };
     if (server?.pid) {
       try {
         process.kill(-server.pid);
@@ -238,7 +295,7 @@ async function verify(
         // 이미 끝난 서버
       }
     }
-    await waitForPortFree();
+    await waitForPortFree(owned);
   }
   return report;
 }

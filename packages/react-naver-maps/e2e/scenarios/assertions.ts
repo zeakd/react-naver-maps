@@ -559,8 +559,8 @@ export function polygonFirstMovesLeft(minDeg: number): Assertion {
 }
 
 /**
- * from 프레임부터 to 프레임 앞까지 모든 프레임에서 올린 오버레이마다 overlayDrift 가 maxPx 이하다.
- * overlayDrift 가 null(지도에 없음)인 프레임은 건너뛰되, 범위 안에서 하나도 못 쟀으면 실패다.
+ * from 프레임부터 to 프레임 앞까지 모든 프레임에서 잴 오버레이마다 overlayDrift 가 maxPx 이하다.
+ * 잴 오버레이는 only, 없으면 구간 첫 프레임에 잰 것이다. 구간 안에서 하나라도 null(지도에 없음)이면 실패다.
  */
 export function overlaysStayPut(
   maxPx: number,
@@ -571,17 +571,25 @@ export function overlaysStayPut(
   return (trace) => {
     const start = from < 0 ? trace.length + from : from;
     const end = Math.min(to ?? trace.length, trace.length);
-    let measured = 0;
+    // 잴 오버레이: only 를 주면 그것, 아니면 구간 첫 프레임에 잰 것. 구간 내내 모두 재져야 한다. 하나라도
+    // 사라지면(지도에서 떨어짐) 나머지로 통과하던 것을 막는다(2026-11-05 리뷰).
+    const first = trace[start]?.overlayDrift ?? {};
+    const names =
+      only ?? Object.keys(first).filter((n) => first[n] !== null);
+    if (names.length === 0) return '오버레이 위치를 한 번도 재지 못했다';
     for (let i = start; i < end; i++) {
-      for (const [name, px] of Object.entries(trace[i]!.overlayDrift)) {
-        if (px === null || (only && !only.includes(name))) continue;
-        measured++;
+      const drift = trace[i]!.overlayDrift;
+      for (const name of names) {
+        const px = drift[name];
+        if (px === null || px === undefined) {
+          return `프레임 ${i} 에서 ${name} 의 위치를 재지 못했다(지도에 없다)`;
+        }
         if (px > maxPx) {
           return `프레임 ${i} 에서 ${name} 가 지도의 자기 좌표에서 ${px.toFixed(1)}px 벗어났다 (허용 ${maxPx}px)`;
         }
       }
     }
-    return measured > 0 ? null : '오버레이 위치를 한 번도 재지 못했다';
+    return null;
   };
 }
 
