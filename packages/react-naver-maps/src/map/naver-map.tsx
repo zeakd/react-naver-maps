@@ -36,6 +36,7 @@ import { NaverMapContext } from './naver-map-context.js';
 import { PanoramaHostContext } from '../overlays/overlay-host-context.js';
 import { ClientOptionsContext } from '../sdk/client-options-context.js';
 import { useSdkInstance } from '../binding/lifetime.js';
+import { isGlRendering } from '../sdk/internals.js';
 import { EchoLog } from './camera/echo.js';
 import { useMapTypeProps } from './use-map-types.js';
 import { FOLLOW_MS, planCamera } from './camera/plan.js';
@@ -420,7 +421,7 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     if (!sdkAlive()) return;
 
     const now = performance.now();
-    const gl = isGl(map);
+    const gl = isGlRendering(map);
     const plan = planCamera({
       prev: prevRef.current,
       next: props,
@@ -556,16 +557,6 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
   useOverlayEvents(map, props, MAP_EVENTS);
 
   return <>{children}</>;
-}
-
-/**
- * GL 로 그리는가. SDK 3.10.5 의 `renderMode` 는 1 이 래스터, 2 가 GL 이다. `gl: true` 여도 WebGL 을 쓸 수
- * 없으면(성능 경고가 있는 소프트웨어 렌더) SDK 가 래스터로 바꿔 1 이다. 시나리오의 `renderMode` 필드가 이 값을 본다.
- */
-function isGl(map: naver.maps.Map): boolean {
-  return (
-    (map as unknown as { get(k: string): unknown }).get('renderMode') === 2
-  );
 }
 
 /**
