@@ -158,12 +158,11 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
     },
   });
 
-  useImperativeHandle(ref, () => infoWindow!, [infoWindow]);
-
   if (!infoWindow) return null;
 
   return (
     <InfoWindowInner
+      ref={ref}
       infoWindow={infoWindow}
       map={map}
       waitForInit={host.kind === 'panorama' ? host.isReady : undefined}
@@ -174,14 +173,24 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   );
 }
 
-interface InfoWindowInnerProps extends Omit<InfoWindowProps, 'ref'> {
+interface InfoWindowInnerProps extends InfoWindowProps {
   infoWindow: naver.maps.InfoWindow;
   map: naver.maps.Map;
   /** 거리뷰에서는 준비(init) 뒤에 연다. 준비 판정. */
   waitForInit?: () => boolean;
 }
 
+/**
+ * 한 렌더에서 맞추는 순서를 훅 순서로 정한다. open 은 가장 나중이다.
+ *
+ * 1. ref: SDK 는 open 이벤트를 open() 안에서 동기로 낸다. onOpen 에서 ref 를 읽을 수 있게 먼저 공개한다.
+ * 2. open·close 리스너
+ * 3. content, 옵션: open 이 새 값을 보게 한다. 첫 position 과 open 을 한 렌더에 줘도 열리고, content 를
+ *    함께 바꾸면 새 내용으로 연다.
+ * 4. open
+ */
 function InfoWindowInner({
+  ref,
   infoWindow,
   map,
   content,
@@ -198,8 +207,20 @@ function InfoWindowInner({
     if (waitForInit()) queueMicrotask(() => setReady(true));
     return () => removeMapListener(listener);
   }, [map, ready, waitForInit]);
+  useImperativeHandle(ref, () => infoWindow, [infoWindow]);
   // open, close 는 open() 을 부르는 아래 effect 보다 먼저, paint 전에 단다.
   useOverlayEvents(infoWindow, props, OPEN_CLOSE, 'layout');
+
+  // 인증 실패 뒤에는 SDK 가 죽어 있어 부르지 않는다(sdkAlive). 숨겼다 보여 다시 돌 때 같은 내용으로 다시
+  // 그리지 않게 SDK 값과 견준다.
+  useLayoutEffect(() => {
+    if (!sdkAlive()) return;
+    if (infoWindow.getContent() !== content) infoWindow.setContent(content);
+  }, [infoWindow, content]);
+
+  // 옵션마다 비교해 바뀐 것만 맞춘다(useControlledProps). 객체 하나로 setOptions 하면 모든 키의
+  // _changed 가 나고 다시 그린다.
+  useControlledProps(infoWindow, pick(props, OPTIONS));
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   // anchor 는 값으로 안정화한다. 인라인 anchor 는 렌더마다 새 객체라 그대로 deps 에 두면 이 effect 가
@@ -228,16 +249,6 @@ function InfoWindowInner({
       infoWindow.close();
     }
   }, [infoWindow, map, open, anchor, ready]);
-
-  // content 변경 시 네이티브 setContent 호출. 인증 실패 뒤에는 SDK 가 죽어 있어 부르지 않는다(sdkAlive).
-  useEffect(() => {
-    if (!sdkAlive()) return;
-    infoWindow.setContent(content);
-  }, [infoWindow, content]);
-
-  // 옵션마다 비교해 바뀐 것만 맞춘다(useControlledProps). 객체 하나로 setOptions 하면 모든 키의
-  // _changed 가 나고 다시 그린다.
-  useControlledProps(infoWindow, pick(props, OPTIONS));
 
   useOverlayEvents(infoWindow, props, CHANGES);
 

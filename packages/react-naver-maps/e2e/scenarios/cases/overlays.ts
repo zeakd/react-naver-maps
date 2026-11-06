@@ -32,6 +32,16 @@ export const overlays: Scenario[] = [
     expect: [calls({ infoWindowOpen: 0, infoWindowClose: 0 })],
   },
   {
+    name: '닫힌 InfoWindow 에 첫 position 과 open 을 한 렌더에 주면 열린다',
+    app: { mode: 'props', infoWindowLate: true },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { infoWindowLateOpen: true } },
+      { t: 'frames', n: 5 },
+    ],
+    expect: [calls({ infoWindowLateOpen: 1 })],
+  },
+  {
     name: 'clickable 을 나중에 켠 Marker 도 클릭을 받는다',
     app: { mode: 'props', marker: true, markerClickable: false },
     steps: [

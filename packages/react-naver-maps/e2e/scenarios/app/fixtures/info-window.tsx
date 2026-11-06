@@ -10,6 +10,9 @@ export type InfoWindowConfig = {
   infoWindowContent?: string;
   /** 두 번째 InfoWindow 를 다른 자리에 인라인 anchor 로 함께 연다. SDK 는 지도마다 하나만 연다. */
   infoWindow2?: boolean;
+  /** position 없이 닫힌 InfoWindow 를 올린다. infoWindowLateOpen 을 켜면 첫 position 과 open 을 한 렌더에 준다. */
+  infoWindowLate?: boolean;
+  infoWindowLateOpen?: boolean;
 };
 
 /**
@@ -47,6 +50,16 @@ export const infoWindow = defineFixture<InfoWindowConfig>({
           anchor={toCoord(INITIAL_CENTER)}
           onOpen={() => core.calls.push('infoWindowOpen')}
           onClose={() => core.calls.push('infoWindowClose')}
+        />
+      )}
+      {config.infoWindowLate && (
+        <InfoWindow
+          open={config.infoWindowLateOpen ?? false}
+          content="late"
+          position={
+            config.infoWindowLateOpen ? toCoord(INITIAL_CENTER) : undefined
+          }
+          onOpen={() => core.calls.push('infoWindowLateOpen')}
         />
       )}
       {config.infoWindow2 && (

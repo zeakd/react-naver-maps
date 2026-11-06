@@ -55,6 +55,17 @@ export const expectedDifferences: Record<
     fields: ['status', 'calls'],
     reason: '열린 상태를 기억해 다시 열지 않는다 (#192)',
   },
+  '닫힌 InfoWindow 에 첫 position 과 open 을 한 렌더에 주면 열린다': {
+    fields: [
+      'status',
+      'attached',
+      'calls',
+      'errors',
+      'mapCursor',
+      'mapVisible',
+    ],
+    reason: '값을 맞춘 뒤 연다. 0.3.0 은 open 이 먼저 돌아 던졌다',
+  },
   'clickable 을 나중에 켠 Marker 도 클릭을 받는다': {
     fields: ['status', 'markerClicks'],
     reason: 'Marker 를 clickable 로 만든 뒤 끈다 (#192)',

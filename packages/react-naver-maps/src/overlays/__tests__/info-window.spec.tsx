@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { createRef } from 'react';
 import type { ReactNode } from 'react';
 import {
   installSdkFake,
@@ -425,5 +426,60 @@ describe('InfoWindow 스펙 테스트', () => {
     // 붙인 close 리스너는 onClose 를 부른다
     mock.fire(instance!, 'close');
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+  describe('한 렌더에서 맞추는 순서', () => {
+    const LATLNG = { lat: 37.5, lng: 127 };
+    const view = (props: Record<string, unknown>) => (
+      <Wrapper>
+        <InfoWindow content="old" {...props} />
+      </Wrapper>
+    );
+
+    test('닫힌 창에 첫 position 과 open 을 한 렌더에 줘도 열린다', () => {
+      const { rerender } = render(view({}));
+      rerender(view({ position: LATLNG, open: true }));
+      const instance = mock.last('InfoWindow')!.instance as unknown as FakeKVO;
+      expect(instance.getMap()).toBe(mockMap);
+      expect(instance.get('position')).toEqual(LATLNG);
+    });
+
+    test('content, position, open 을 함께 바꾸면 새 값으로 연다', () => {
+      const seen: unknown[] = [];
+      const open = vi
+        .spyOn(FakeInfoWindow.prototype, 'open')
+        .mockImplementation(function (this: FakeKVO) {
+          seen.push([this.get('content'), this.get('position')]);
+        });
+      const { rerender } = render(view({ position: { lat: 1, lng: 2 } }));
+      rerender(
+        <Wrapper>
+          <InfoWindow content="new" position={LATLNG} open />
+        </Wrapper>,
+      );
+      open.mockRestore();
+      expect(seen).toEqual([['new', LATLNG]]);
+    });
+
+    test('첫 열기의 onOpen 에서 ref 를 읽을 수 있다', () => {
+      const ref = createRef<naver.maps.InfoWindow>();
+      const seen: unknown[] = [];
+      render(
+        view({
+          ref,
+          position: LATLNG,
+          open: true,
+          onOpen: () => seen.push(ref.current),
+        }),
+      );
+      expect(seen).toHaveLength(1);
+      expect(seen[0]).toBe(mock.last('InfoWindow')!.instance);
+    });
+
+    test('같은 content 로 마운트하면 setContent 를 부르지 않는다', () => {
+      const setContent = vi.spyOn(FakeInfoWindow.prototype, 'setContent');
+      render(view({}));
+      expect(setContent).not.toHaveBeenCalled();
+      setContent.mockRestore();
+    });
   });
 });
