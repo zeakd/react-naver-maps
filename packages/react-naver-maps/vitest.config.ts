@@ -11,7 +11,7 @@ export default defineConfig({
     typecheck: {
       enabled: true,
       tsconfig: './tsconfig.test.json',
-      include: ['**/event-types.spec.ts', '**/navermaps-augment.spec.ts'],
+      include: ['**/event-types.spec.ts', '**/navermaps-types.spec.ts'],
     },
   },
 });

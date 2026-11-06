@@ -18,7 +18,7 @@ function HuntersMapContent() {
         const point =
           coord instanceof navermaps.LatLng
             ? new navermaps.Point(coord.lng(), coord.lat())
-            : (coord as naver.maps.Point).clone();
+            : coord.clone();
         return point.div(256, 256).div(16, 16);
       },
       fromPointToCoord(point) {

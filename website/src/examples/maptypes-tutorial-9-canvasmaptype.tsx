@@ -43,8 +43,8 @@ function CanvasMapTypeMapContent() {
           maxZoom: 22,
           tileSize: new navermaps.Size(TILE_SIZE, TILE_SIZE),
           getTileData,
-          // projection 은 생략한다(SDK 기본). @types 는 필수로 적고 getTileData 도 인자 없이 선언한다.
-        } as unknown as naver.maps.CanvasMapTypeOptions),
+          // projection 은 생략한다(SDK 기본).
+        }),
       }),
     [navermaps],
   );

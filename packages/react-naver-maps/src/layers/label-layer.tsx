@@ -27,7 +27,7 @@ export function LabelLayer({ ref }: LabelLayerProps) {
   const map = useMap();
   const layer = useSdkInstance(
     onMap(map, () => {
-      // @types 3.9.2 는 (name, registry) 를 필수로 요구하나 SDK 3.10.5 는 인자 없이 쓴다
+      // @types 3.10.0 는 (name, registry) 를 필수로 요구하나 SDK 3.10.5 는 인자 없이 쓴다
       // (공식 튜토리얼 tutorial-5-label 이 `new naver.maps.LabelLayer()`).
       const { LabelLayer: Label } = navermaps as unknown as {
         LabelLayer: new () => naver.maps.LabelLayer;

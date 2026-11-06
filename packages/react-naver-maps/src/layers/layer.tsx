@@ -25,7 +25,7 @@ import { omitUndefined } from '../binding/omit-undefined.js';
  * (getTile 이 매번 새 함수이면) 렌더마다 레이어가 다시 만들어진다.
  */
 /**
- * 지도 유형 하나. `projection` 은 생략할 수 있다(SDK 기본 투영). @types/navermaps 3.9.2 의 MapType 은
+ * 지도 유형 하나. `projection` 은 생략할 수 있다(SDK 기본 투영). @types/navermaps 3.10.0 의 MapType 은
  * 필수로 적어 두지만 SDK 는 없어도 그린다(공식 예제 "타일 확인", e2e "투영을 생략한 사용자 지도 유형").
  */
 export type LayerMapType = Omit<naver.maps.MapType, 'projection'> &
@@ -60,7 +60,7 @@ export function Layer({
   const map = useMap();
   const layer = useSdkInstance(
     onMap(map, () => {
-      // @types 3.9.2 의 Layer 생성자는 MapTypeRegistry 만 받는다. SDK 와 공식 예제는 MapType 도 받는다.
+      // @types 3.10.0 의 Layer 생성자는 MapTypeRegistry 만 받는다. SDK 와 공식 예제는 MapType 도 받는다.
       const Custom = navermaps.Layer as unknown as new (
         name: string,
         mapTypes: LayerProps['mapTypes'],

@@ -137,15 +137,15 @@ function GeocodingMap() {
         center={center}
         onCenterChanged={(c) =>
           setCenter({
-            lat: (c as naver.maps.LatLng).y,
-            lng: (c as naver.maps.LatLng).x,
+            lat: c.y,
+            lng: c.x,
           })
         }
         defaultZoom={15}
         mapTypeControl
         cursor="pointer"
         onClick={(e) => {
-          const coord = e.coord as naver.maps.LatLng;
+          const coord = e.coord;
           void searchCoordinateToAddress({ lat: coord.y, lng: coord.x });
         }}
       >

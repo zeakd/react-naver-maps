@@ -1,13 +1,10 @@
 /**
- * @types/navermaps 보강(sdk/navermaps-augment.ts)이 패키지 진입점으로 들어가는지 타입으로 확인한다.
- * 진입점만 import 한다. 보강 파일을 직접 import 하지 않는다.
+ * 라이브러리와 문서가 기대는 SDK 멤버가 `@types/navermaps` 에 있는지 타입으로 확인한다. `@types` 를 올릴 때
+ * 멤버가 빠지거나 바뀌면 여기서 드러난다.
  */
 import { describe, test, expectTypeOf } from 'vitest';
-// 진입점만 끌어온다.
-// oxlint-disable-next-line unicorn/require-module-specifiers, import/no-empty-named-blocks
-import type {} from '../../index.js';
 
-describe('@types/navermaps 보강', () => {
+describe('@types/navermaps 멤버', () => {
   test('공식 문서에 있는 멤버를 쓸 수 있다', () => {
     expectTypeOf<naver.maps.Map['addOverlayPane']>().toBeFunction();
     expectTypeOf<naver.maps.MarkerOptions['collisionBehavior']>().toEqualTypeOf<

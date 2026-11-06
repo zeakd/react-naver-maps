@@ -1,7 +1,3 @@
-// @types/navermaps 보강 선언(타입만). 이 진입점만 가져와도 함께 들어간다(루트 index.ts 와 같다).
-// oxlint-disable-next-line unicorn/require-module-specifiers
-export type {} from '../sdk/navermaps-augment.js';
-
 // SDK geocoder 서브모듈(naver.maps.Service)을 Promise 로 쓴다.
 // <NavermapsProvider submodules={['geocoder']}> 로 불러야 한다.
 import { requireSubmodule } from '../sdk/submodule.js';
@@ -12,7 +8,7 @@ type SdkGeocodeV2 = naver.maps.Service.GeocodeResponse['v2'];
 type SdkAddressElement =
   SdkGeocodeV2['addresses'][number]['addressElements'][number];
 
-/** 주소 구성 요소. 실제 응답의 `types` 는 배열이다(공식 문서 "Geocoding" 응답 예). @types 3.9.2 는 하나로 적었다. */
+/** 주소 구성 요소. 실제 응답의 `types` 는 배열이다(공식 문서 "Geocoding" 응답 예). @types 3.10.0 는 하나로 적었다. */
 export type AddressElement = Omit<SdkAddressElement, 'types'> & {
   types: SdkAddressElement['types'][];
 };

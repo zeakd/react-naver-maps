@@ -1,9 +1,5 @@
 'use client';
 
-// @types/navermaps 보강 선언(타입만). 이 진입점만 가져와도 함께 들어간다(루트 index.ts 와 같다).
-// oxlint-disable-next-line unicorn/require-module-specifiers
-export type {} from '../sdk/navermaps-augment.js';
-
 // SDK panorama 서브모듈의 Panorama(거리뷰).
 // <NavermapsProvider submodules={['panorama']}> 로 불러야 한다.
 import type { ReactNode, Ref } from 'react';
@@ -154,9 +150,7 @@ function PanoramaRoot({ ref, children, ...given }: PanoramaProps) {
       elementRef.current = el;
       const instance = new navermaps.Panorama(
         el,
-        omitUndefined(
-          pick(props, [...CAMERA, ...OPTIONS]),
-        ) as naver.maps.PanoramaOptions,
+        omitUndefined(pick(props, [...CAMERA, ...OPTIONS])),
       );
       readyRef.current = false;
       addMapListener(instance, 'init', () => {

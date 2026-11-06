@@ -12,7 +12,7 @@
     "react-naver-maps": "__TGZ__"
   },
   "devDependencies": {
-    "@types/navermaps": "^3.9.2",
+    "@types/navermaps": "^3.10.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "typescript": "^6.0.0"

@@ -9,7 +9,7 @@ import { onMap, useSdkInstance } from '../binding/lifetime.js';
 
 /** 자전거 도로 레이어를 지도 위에 표시한다. */
 export interface BicycleLayerProps {
-  ref?: Ref<naver.maps.Layer>;
+  ref?: Ref<naver.maps.BicycleLayer>;
 }
 
 export function BicycleLayer({ ref }: BicycleLayerProps) {
@@ -18,11 +18,7 @@ export function BicycleLayer({ ref }: BicycleLayerProps) {
   useStyleMapLayerWarning(map, 'BicycleLayer');
   const layer = useSdkInstance(
     onMap(map, () => {
-      // @types/navermaps(3.9.2)에 BicycleLayer 가 없다. SDK 와 공식 문서에는 있다(Layer 를 상속).
-      const { BicycleLayer: Bicycle } = navermaps as unknown as {
-        BicycleLayer: new () => naver.maps.Layer;
-      };
-      const instance = new Bicycle();
+      const instance = new navermaps.BicycleLayer();
       instance.setMap(map);
       return instance;
     }),

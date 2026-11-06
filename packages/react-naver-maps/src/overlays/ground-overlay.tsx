@@ -40,11 +40,7 @@ export const GroundOverlay = defineOverlay<
   naver.maps.GroundOverlay
 >('GroundOverlay', {
   create: (navermaps, options, props) =>
-    new navermaps.GroundOverlay(
-      props.url,
-      props.bounds,
-      options as naver.maps.GroundOverlayOptions,
-    ),
+    new navermaps.GroundOverlay(props.url, props.bounds, options),
   // url, bounds 는 생성자 인자라 setter 가 없다. 바뀌면 다시 만든다.
   keys: (props) => [props.url, props.bounds],
   options: ['opacity', 'clickable', 'crossOrigin'],

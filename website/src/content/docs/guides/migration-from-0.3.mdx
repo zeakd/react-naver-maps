@@ -6,6 +6,14 @@ order: 8
 
 0.4 는 0.3 과 같은 구조(`NavermapsProvider` → `Container` → `NaverMap`)와 같은 키(`ncpKeyId`)를 씁니다. 대부분의 앱은 코드를 바꾸지 않고 올릴 수 있습니다. 아래에서 해당하는 것만 확인하세요.
 
+## TypeScript 를 쓰면 `@types/navermaps` 를 함께 올립니다
+
+0.4 의 타입은 `@types/navermaps` 3.10.0 에 들어간 멤버(`naver.maps.BicycleLayer` 등)를 씁니다. 그보다 낮으면 컴파일 오류가 날 수 있습니다. TypeScript 를 쓰지 않으면 설치하지 않아도 됩니다.
+
+```sh
+npm i -D @types/navermaps@^3.10.0
+```
+
 ## 바꿔야 하는 코드
 
 0.4 에서는 그대로 동작하고 개발 모드에서 한 번 경고합니다. 다음 버전에서 없어집니다.

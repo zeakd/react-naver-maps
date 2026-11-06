@@ -42,7 +42,7 @@ function PanoramaWithMap() {
           // 거리뷰가 300m 안의 가장 가까운 파노라마를 알아서 고른다.
           onClick={(e) => {
             if (!street) return;
-            const coord = e.coord as naver.maps.LatLng;
+            const coord = e.coord;
             setPanoPosition({ lat: coord.y, lng: coord.x });
           }}
         >
