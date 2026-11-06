@@ -6,7 +6,8 @@ type Field = keyof TraceFrame | 'status' | 'frames' | 'trace';
  * 배포본과 소스 사이에서 의도한 동작 차이. 시나리오 이름 → 달라져도 되는 필드와 이유.
  *
  * `e2e/compare.ts` 는 여기 없는 시나리오의 차이, 그리고 적은 필드 밖의 차이를 실패로 친다.
- * `status` 는 시나리오 판정(통과·실패)이 바뀌는 것이다. 이유에는 바뀐 동작과 근거를 적는다.
+ * `status` 는 0.3.0 에서 실패하던 시나리오가 소스에서 통과하는 것만 뜻한다. 반대 방향은 허용되지 않는다
+ * (`compare-rows.ts`). 이유에는 바뀐 동작과 근거를 적는다.
  * 기준: 0.3.0.
  */
 export const expectedDifferences: Record<
