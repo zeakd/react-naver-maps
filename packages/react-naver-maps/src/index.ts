@@ -1,10 +1,5 @@
 'use client';
 
-// @types/navermaps 보강 선언(타입만). 패키지를 쓰면 함께 들어간다.
-// 이름 없이 모듈만 끌어온다(보강은 declare global). JS 에는 남지 않는다.
-// oxlint-disable-next-line unicorn/require-module-specifiers
-export type {} from './sdk/navermaps-augment.js';
-
 // Components
 export { NavermapsProvider } from './sdk/provider.js';
 export type { NavermapsProviderProps } from './sdk/provider.js';

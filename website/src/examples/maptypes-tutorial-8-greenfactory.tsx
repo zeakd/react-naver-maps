@@ -20,7 +20,7 @@ function GreenFactoryMapContent() {
         const point =
           coord instanceof navermaps.LatLng
             ? new navermaps.Point(coord.lng(), coord.lat())
-            : (coord as naver.maps.Point).clone();
+            : coord.clone();
         return point.div(tileSize.width, tileSize.height);
       },
       fromPointToCoord(point) {

@@ -1,9 +1,5 @@
 'use client';
 
-// @types/navermaps 보강 선언(타입만). 이 진입점만 가져와도 함께 들어간다(루트 index.ts 와 같다).
-// oxlint-disable-next-line unicorn/require-module-specifiers
-export type {} from '../sdk/navermaps-augment.js';
-
 // SDK visualization 서브모듈(naver.maps.visualization)의 HeatMap, DotMap.
 // <NavermapsProvider submodules={['visualization']}> 로 불러야 한다.
 import type { Ref } from 'react';
@@ -108,12 +104,7 @@ function useColorMap(
     // 처음에는 생성자가 colorMap 을 받았다. 거꾸로 칠하기만 마운트 때 맞춘다.
     if (!last && !colorMapInReverse) return;
     if (last && last[0] === colorMap && last[1] === colorMapInReverse) return;
-    (
-      heatMap as unknown as {
-        setColorMap(name: unknown, inReverse: boolean): void;
-        getColorMap(): unknown;
-      }
-    ).setColorMap(colorMap ?? heatMap.getColorMap(), !!colorMapInReverse);
+    heatMap.setColorMap(colorMap ?? heatMap.getColorMap(), !!colorMapInReverse);
   });
 }
 

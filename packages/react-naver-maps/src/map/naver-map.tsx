@@ -299,7 +299,7 @@ export function NaverMap({ ref, children, ...given }: NaverMapProps) {
           props,
           MAP_OPTION_PROPS.map(([k]) => k),
         ),
-        // 옵션 타입은 공식 문서를 따라 @types 3.9.2 보다 넓다(sdk/sdk-options.ts). SDK 는 그대로 받는다.
+        // prop 타입은 상수 이름 등으로 @types 보다 넓다(sdk/sdk-options.ts). 상수는 이미 값으로 바꿨다.
       }) as unknown as naver.maps.MapOptions,
     );
     // centerPoint는 MapOptions에 정의되지 않으므로 생성 후 직접 설정

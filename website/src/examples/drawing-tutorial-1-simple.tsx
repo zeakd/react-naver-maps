@@ -42,7 +42,7 @@ const OVERLAY_NAMES = [
   'polygon',
   'marker',
 ];
-const EVENT_SUFFIXES = ['Added', 'Selected', 'Removed'];
+const EVENT_SUFFIXES = ['Added', 'Selected', 'Removed'] as const;
 
 /** 그리기 도구가 내는 이벤트를 모아 목록으로 보여 준다. */
 function DrawingEventLog({
@@ -61,7 +61,7 @@ function DrawingEventLog({
   useEffect(() => {
     const names = [
       ...OVERLAY_NAMES.flatMap((name) =>
-        EVENT_SUFFIXES.map((suffix) => name + suffix),
+        EVENT_SUFFIXES.map((suffix) => `${name}${suffix}` as const),
       ),
       DrawingEvents.ADD,
       DrawingEvents.SELECT,

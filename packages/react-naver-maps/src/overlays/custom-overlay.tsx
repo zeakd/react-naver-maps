@@ -76,7 +76,7 @@ function createOverlayViewClass(navermaps: typeof naver.maps) {
           : !Array.isArray(position) && 'x' in position
             ? new navermaps.Point(position.x, position.y)
             : // 0.3 과 같이 LatLng 리터럴과 [경도, 위도] 배열은 LatLng 생성자에 맡긴다.
-              new navermaps.LatLng(position as naver.maps.LatLngLiteral);
+              new navermaps.LatLng(position);
 
       const point = projection.fromCoordToOffset(coord);
       const anchorX = this._anchor?.x ?? 0;

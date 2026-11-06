@@ -89,7 +89,7 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   anchorSize?: naver.maps.Size | naver.maps.SizeLiteral;
   anchorColor?: string;
   pixelOffset?: naver.maps.Point | naver.maps.PointLiteral;
-  /** 자동 이동(autoPan) 때 지도 가장자리와 띄울 여백. SDK 기본 (20, 20). @types 3.9.2 에 없다. */
+  /** 자동 이동(autoPan) 때 지도 가장자리와 띄울 여백. SDK 기본 (20, 20). */
   autoPanPadding?: naver.maps.Point | naver.maps.PointLiteral;
   zIndex?: number;
   // 이벤트. SDK 는 열고 닫힌 위치의 포인터 이벤트를 준다.
@@ -149,7 +149,7 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
         omitUndefined({
           content,
           ...pick(props, OPTIONS),
-        }) as unknown as naver.maps.InfoWindowOptions,
+        }),
       ),
     detach: (instance) => instance.close(),
     dispose: (instance) => {

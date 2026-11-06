@@ -24,7 +24,7 @@ export function Kml(props: KmlProps) {
   useDataFeatures(
     props,
     data,
-    // @types 3.9.2 의 addKml 은 인자가 KML 타입이고 반환이 void. SDK 는 Feature[] 를 돌려준다(3.10.5).
+    // @types 3.10.0 의 addKml 은 인자가 KML 타입이고 반환이 void. SDK 는 Feature[] 를 돌려준다(3.10.5).
     (layer, autoStyle) =>
       (
         layer as unknown as {

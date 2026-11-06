@@ -17,6 +17,4 @@ import MapTypesTutorial1TileCheckExample from '../../../examples/maptypes-tutori
 
 `mapTypes` 는 `useMemo` 로 한 번만 만듭니다. 렌더마다 새 `getTile` 함수를 가진 객체를 주면 레이어가 렌더마다 다시 만들어집니다. 자세한 내용은 [Layer](/react-naver-maps/api-references/layer/) 를 보세요.
 
-한계: `@types/navermaps` 의 `MapType` 은 `projection` 을 필수로 적어서, 공식 예제처럼 생략하려면 타입 단언(`as naver.maps.MapType`)이 필요합니다.
-
 > [네이버 공식 튜토리얼 - 지도의 타일 인덱스 그리드 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-maptypes-tilecheck.example.html)

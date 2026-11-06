@@ -7,7 +7,7 @@ import { PanoramaHostContext } from './overlay-host-context.js';
  * Panorama 와 NaverMap 은 자식에게 서로의 문맥을 비우므로 둘이 겹치지 않는다.
  *
  * `target` 은 SDK 의 setMap·open 에 그대로 넘긴다. SDK 의 Marker, InfoWindow 는 Panorama 도 받는다
- * (공식 튜토리얼 "파노라마에 마커", "파노라마에 정보 창"). @types 3.9.2 는 Map 만 적어 Map 으로 둔다.
+ * (공식 튜토리얼 "파노라마에 마커", "파노라마에 정보 창"). 오버레이를 한 경로로 다루려고 타입은 Map 으로 둔다.
  */
 export type OverlayHost =
   | { kind: 'map'; target: naver.maps.Map; isReady: () => boolean }
