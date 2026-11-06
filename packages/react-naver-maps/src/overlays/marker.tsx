@@ -80,6 +80,7 @@ export const Marker = defineOverlay<MarkerProps, naver.maps.Marker>('Marker', {
   changeOnly: ['animation'],
   constants: { animation: 'Animation' },
   panorama: true,
+  extraOptions: {},
   initial: (props) => ({
     position: props.position ?? props.defaultPosition,
   }),

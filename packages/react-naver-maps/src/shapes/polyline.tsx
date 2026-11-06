@@ -91,6 +91,7 @@ export const Polyline = defineOverlay<PolylineProps, naver.maps.Polyline>(
         'Polyline',
         props.path === undefined ? undefined : 'path',
       ),
+    extraOptions: { ownProps: ['editable'] },
     events: SHAPE_EVENTS,
     changes: ['clickable', 'visible', 'zIndex'],
   },

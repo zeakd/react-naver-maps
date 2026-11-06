@@ -14,6 +14,12 @@ import { useControlledProps } from '../binding/use-controlled-kvo.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
 import {
+  extraSdkOptions,
+  handledProps,
+  setExtraSdkOptions,
+  useExtraSdkOptions,
+} from '../binding/extra-sdk-options.js';
+import {
   sdkAlive,
   addMapListener,
   removeMapListener,
@@ -117,6 +123,9 @@ const OPTIONS = [
   'zIndex',
 ] as const satisfies readonly (keyof InfoWindowProps)[];
 
+/** content, open 은 InfoWindow 가 먼저 꺼내므로 여기 없다. */
+const HANDLED = handledProps([...OPTIONS, 'anchor']);
+
 /** 열고 닫힘 이벤트. 목록을 상수로 두어 렌더마다 만들지 않는다. */
 const OPEN_CLOSE = ['open', 'close'] as const;
 
@@ -147,6 +156,7 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
     create: () =>
       new navermaps.InfoWindow(
         omitUndefined({
+          ...extraSdkOptions(props, HANDLED),
           content,
           ...pick(props, OPTIONS),
         }),
@@ -221,6 +231,11 @@ function InfoWindowInner({
   // 옵션마다 비교해 바뀐 것만 맞춘다(useControlledProps). 객체 하나로 setOptions 하면 모든 키의
   // _changed 가 나고 다시 그린다.
   useControlledProps(infoWindow, pick(props, OPTIONS));
+  useExtraSdkOptions(
+    infoWindow,
+    extraSdkOptions(props, HANDLED),
+    setExtraSdkOptions,
+  );
 
   // open/close 상태 동기화 — open이 undefined이면 skip (ref로 직접 제어)
   // anchor 는 값으로 안정화한다. 인라인 anchor 는 렌더마다 새 객체라 그대로 deps 에 두면 이 effect 가

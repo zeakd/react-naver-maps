@@ -67,6 +67,7 @@ export const Rectangle = defineOverlay<RectangleProps, naver.maps.Rectangle>(
     initial: (props) => ({ bounds: props.bounds ?? props.defaultBounds }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
     sync: (shape, props) => useEditable(shape, props.editable, 'Rectangle'),
+    extraOptions: { ownProps: ['editable'] },
     events: SHAPE_EVENTS,
     changes: ['bounds', 'clickable', 'visible', 'zIndex'],
   },

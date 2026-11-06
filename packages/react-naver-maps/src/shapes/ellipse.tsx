@@ -65,6 +65,7 @@ export const Ellipse = defineOverlay<EllipseProps, naver.maps.Ellipse>(
     initial: (props) => ({ bounds: props.bounds ?? props.defaultBounds }),
     derived: (props) => ({ clickable: shapeClickable(props) }),
     sync: (shape, props) => useEditable(shape, props.editable, 'Ellipse'),
+    extraOptions: { ownProps: ['editable'] },
     events: SHAPE_EVENTS,
     changes: ['bounds', 'clickable', 'visible', 'zIndex'],
   },

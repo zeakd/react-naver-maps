@@ -84,6 +84,7 @@ export const Polygon = defineOverlay<PolygonProps, naver.maps.Polygon>(
         'Polygon',
         props.paths === undefined ? undefined : 'paths',
       ),
+    extraOptions: { ownProps: ['editable'] },
     events: SHAPE_EVENTS,
     changes: ['clickable', 'visible', 'zIndex'],
   },

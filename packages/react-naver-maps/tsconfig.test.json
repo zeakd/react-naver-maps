@@ -12,6 +12,7 @@
     // 문서와 코드를 맞대는 검사(naver-map-docs.spec.ts)가 파일을 읽는다.
     "types": ["navermaps", "node"]
   },
-  "include": ["src/**/*.spec.ts"],
+  // 표가 공개 prop 을 빠짐없이 적었는지를 컴파일로 본다.
+  "include": ["src/**/*.spec.ts", "src/binding/__tests__/extra-sdk-options.spec.tsx"],
   "exclude": ["node_modules", "dist"]
 }

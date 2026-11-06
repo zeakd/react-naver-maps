@@ -36,6 +36,12 @@ import { NaverMapContext } from './naver-map-context.js';
 import { PanoramaHostContext } from '../overlays/overlay-host-context.js';
 import { ClientOptionsContext } from '../sdk/client-options-context.js';
 import { useSdkInstance } from '../binding/lifetime.js';
+import {
+  extraSdkOptions,
+  handledProps,
+  setExtraSdkOptions,
+  useExtraSdkOptions,
+} from '../binding/extra-sdk-options.js';
 import { isGlRendering } from '../sdk/internals.js';
 import { EchoLog } from './camera/echo.js';
 import { useMapTypeProps } from './use-map-types.js';
@@ -233,6 +239,17 @@ export interface NaverMapProps {
 /** 지도 keydown, keyup 이벤트 인자. 공식 문서 Map Events(keyboardEvent). */
 export type MapKeyboardEvent = { keyboardEvent: KeyboardEvent };
 
+/** 지도가 처리하는 prop. 그 밖의 prop 은 SDK 옵션으로 넘긴다(binding/extra-sdk-options.ts). */
+export const MAP_HANDLED_PROPS = handledProps([
+  'center',
+  'zoom',
+  'bounds',
+  'centerPoint',
+  'mapTypeId',
+  'size',
+  ...MAP_OPTION_PROPS.map(([key]) => key),
+]);
+
 export function NaverMap({ ref, children, ...given }: NaverMapProps) {
   const navermaps = useNavermaps();
   // 컨트롤 옵션의 상수 이름('TOP_RIGHT')을 SDK 값으로 바꾼다. 생성 옵션과 값 동기화 모두 바꾼 값을 쓴다.
@@ -288,6 +305,7 @@ export function NaverMap({ ref, children, ...given }: NaverMapProps) {
     const instance = new navermaps.Map(
       el,
       omitUndefined({
+        ...extraSdkOptions(props, MAP_HANDLED_PROPS),
         // 리터럴은 SDK 객체로 바꿔 넘긴다. SDK 는 리터럴을 지금 지도 유형의 투영으로 바꾸는데,
         // 투영을 생략한 사용자 지도 유형이면 그 자리에서 던진다(3.10.5 실측).
         center: initialBounds
@@ -539,6 +557,11 @@ function NaverMapInner({ map, children, ...props }: NaverMapInnerProps) {
     writeOnMount: ['cursor'],
   });
   useMapTypeProps(map, props.mapTypes, props.mapTypeId);
+  useExtraSdkOptions(
+    map,
+    extraSdkOptions(props, MAP_HANDLED_PROPS),
+    setExtraSdkOptions,
+  );
 
   // init, idle, tilesloaded 는 지도를 만들며 바로 온다. paint 뒤에 붙이면 init 을 놓칠 수 있다.
   useOverlayEvents(map, props, MAP_LIFECYCLE_EVENTS, 'layout');
