@@ -224,3 +224,73 @@ describe('waitForExistingSdk', () => {
     await expect(promise).resolves.toBe(maps);
   });
 });
+
+describe('loadScript 의 스크립트 하나', () => {
+  type Loader = typeof import('../load-script.js');
+  let fresh: Loader;
+  let scripts: HTMLScriptElement[];
+
+  beforeEach(async () => {
+    vi.stubGlobal('naver', undefined);
+    vi.resetModules();
+    fresh = await import('../load-script.js');
+    scripts = [];
+    vi.spyOn(document.head, 'appendChild').mockImplementation((node) => {
+      scripts.push(node as HTMLScriptElement);
+      return node;
+    });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  const finish = () => {
+    const maps = { jsContentLoaded: true } as typeof naver.maps;
+    vi.stubGlobal('naver', { maps });
+    scripts.at(-1)!.dispatchEvent(new Event('load'));
+    return maps;
+  };
+
+  test('로딩 중에 다른 옵션으로 부르면 스크립트를 더 넣지 않고 함께 끝난다', async () => {
+    const first = fresh.loadScript({ ncpKeyId: 'k', language: 'ko' });
+    const second = fresh.loadScript({ ncpKeyId: 'k', language: 'en' });
+    expect(second).not.toBe(first);
+    expect(scripts).toHaveLength(1);
+    expect(scripts[0]!.src).toContain('language=ko');
+    const maps = finish();
+    await expect(first).resolves.toBe(maps);
+    await expect(second).resolves.toBe(maps);
+  });
+
+  test('로드 뒤 naver.maps 가 없으면 실패를 캐시에 남기지 않고 다시 넣는다', async () => {
+    const options = { ncpKeyId: 'k' };
+    const first = fresh.loadScript(options);
+    scripts[0]!.dispatchEvent(new Event('load'));
+    await expect(first).rejects.toThrow('naver.maps not available');
+    const second = fresh.loadScript(options);
+    expect(second).not.toBe(first);
+    expect(scripts).toHaveLength(2);
+    const maps = finish();
+    await expect(second).resolves.toBe(maps);
+  });
+
+  test('스크립트 오류면 합류한 요청도 함께 실패하고 둘 다 다시 시도할 수 있다', async () => {
+    const a = { ncpKeyId: 'k', language: 'ko' } as const;
+    const b = { ncpKeyId: 'k', language: 'en' } as const;
+    const first = fresh.loadScript(a);
+    const second = fresh.loadScript(b);
+    scripts[0]!.dispatchEvent(new Event('error'));
+    await expect(first).rejects.toThrow('Failed to load');
+    await expect(second).rejects.toThrow('Failed to load');
+    expect(fresh.loadScript(a)).not.toBe(first);
+    expect(fresh.loadScript(b)).not.toBe(second);
+    expect(scripts).toHaveLength(2);
+  });
+
+  test('같은 옵션을 다시 부르면 같은 Promise 다', () => {
+    const options = { ncpKeyId: 'k' };
+    expect(fresh.loadScript(options)).toBe(fresh.loadScript(options));
+    expect(scripts).toHaveLength(1);
+  });
+});
