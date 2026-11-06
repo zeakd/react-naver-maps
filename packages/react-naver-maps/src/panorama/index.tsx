@@ -169,10 +169,11 @@ function PanoramaRoot({ ref, children, ...given }: PanoramaProps) {
       if (elementRef.current) elementRef.current.style.display = 'none';
     },
     dispose: (instance) => {
-      const el = elementRef.current;
-      elementRef.current = null;
       clearMapListeners(instance);
-      el?.remove();
+    },
+    release: () => {
+      elementRef.current?.remove();
+      elementRef.current = null;
     },
   });
 

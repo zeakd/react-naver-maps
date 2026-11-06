@@ -261,13 +261,16 @@ export function NaverMap({ ref, children, ...given }: NaverMapProps) {
       if (mapElementRef.current) mapElementRef.current.style.display = 'none';
     },
     dispose: (instance) => {
-      const el = mapElementRef.current;
-      mapElementRef.current = null;
       queueMicrotask(() => {
         clearMapListeners(instance);
         if (sdkAlive()) instance.destroy();
-        el?.remove();
       });
+    },
+    // destroy 뒤에 뺀다. dispose 의 microtask 가 먼저 돈다.
+    release: () => {
+      const el = mapElementRef.current;
+      mapElementRef.current = null;
+      queueMicrotask(() => el?.remove());
     },
   });
 

@@ -77,3 +77,42 @@ test('인증 실패 뒤 재렌더와 언마운트에서 앱이 터지지 않는�
   await page.waitForTimeout(100);
   expect(errors).toEqual([]);
 });
+
+test('인증 실패 뒤 NaverMap 만 내려도 지도 element 가 빠진다', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.addInitScript(() => {
+    Object.assign(window, { navermap_authFailure: () => {} });
+  });
+  await page.goto('/');
+  await page.waitForFunction(() => window.mountApp !== undefined);
+  const response = page.waitForResponse((r) => r.url().includes('/v3/auth'));
+  await page.evaluate(async () => {
+    window.app = await window.mountApp(document.getElementById('host')!, {
+      mode: 'props',
+      ncpKeyId: 'invalid-key',
+    });
+  });
+  await response;
+  await page.waitForFunction(() => window.naver?.maps === null, undefined, {
+    timeout: 10000,
+  });
+  // Container 의 내부 div 와 지도마다 만드는 div 가 같은 모양이다. 지도 div 하나가 빠지는 것을 본다.
+  const absoluteChildren = () =>
+    page.evaluate(
+      () =>
+        [...document.querySelectorAll('#host div')].filter(
+          (el) =>
+            (el as HTMLElement).style.position === 'absolute' &&
+            (el as HTMLElement).style.width === '100%' &&
+            (el as HTMLElement).style.height === '100%',
+        ).length,
+    );
+  const before = await absoluteChildren();
+  await page.evaluate(() => window.app.setProps({ showMap: false }));
+  await page.waitForTimeout(100);
+  expect(await absoluteChildren()).toBe(before - 1);
+  expect(errors).toEqual([]);
+});
