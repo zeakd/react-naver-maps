@@ -12,8 +12,10 @@ function maps(status: number, response: unknown) {
   return {
     LatLng,
     Point: class {
-      x = 0;
-      y = 0;
+      constructor(
+        public x = 0,
+        public y = 0,
+      ) {}
     },
     Service: {
       Status: { OK: 200, ERROR: 500 },
@@ -40,6 +42,14 @@ describe('geocoder', () => {
     const passed = (m.Service.reverseGeocode as any).mock.calls[0][0].coords;
     expect(passed).toBeInstanceOf(LatLng);
     expect([passed.y, passed.x]).toEqual([37.5, 127]);
+  });
+
+  test('reverseGeocode 의 { x, y } coords 는 Point 로 바꿔 넘긴다', async () => {
+    const m = maps(200, { v2: {} });
+    await reverseGeocode(m, { coords: { x: 127, y: 37.5 } });
+    const passed = (m.Service.reverseGeocode as any).mock.calls[0][0].coords;
+    expect(passed).toBeInstanceOf(m.Point);
+    expect([passed.x, passed.y]).toEqual([127, 37.5]);
   });
 
   test('OK 가 아니면 상태와 응답을 담아 reject 한다', async () => {

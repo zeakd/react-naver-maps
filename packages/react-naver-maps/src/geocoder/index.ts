@@ -85,6 +85,10 @@ function toCoords(
     return coords;
   // 배열 리터럴은 [경도, 위도] 순서다(PointArrayLiteral).
   if (Array.isArray(coords)) return new navermaps.LatLng(coords[1], coords[0]);
+  // { x, y } 는 Point 다(NaverMap 의 center 와 같다). { lat, lng } 로 읽으면 undefined 로 찾는다.
+  if ('x' in coords && !('lat' in coords)) {
+    return new navermaps.Point(coords.x, coords.y);
+  }
   const { lat, lng } = coords as { lat: number; lng: number };
   return new navermaps.LatLng(lat, lng);
 }
