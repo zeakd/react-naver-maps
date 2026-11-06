@@ -61,6 +61,7 @@ export const Circle = defineOverlay<CircleProps, naver.maps.Circle>('Circle', {
     radius: props.radius ?? props.defaultRadius,
   }),
   derived: (props) => ({ clickable: shapeClickable(props) }),
+  extraOptions: {},
   events: SHAPE_EVENTS,
   changes: ['center', 'clickable', 'radius', 'visible', 'zIndex'],
 });

@@ -12,6 +12,12 @@ import { resolveConstants } from '../sdk/constants.js';
 import type { ConstantPaths } from '../sdk/constants.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
+import {
+  extraSdkOptions,
+  handledProps,
+  setExtraSdkOptions,
+  useExtraSdkOptions,
+} from '../binding/extra-sdk-options.js';
 import { addMapListener, removeMapListener } from '../sdk/listeners.js';
 import type { MapListener } from '../sdk/listeners.js';
 import { changedProp, eventProp } from './overlay-events.js';
@@ -73,6 +79,12 @@ export type OverlaySpec<P, T> = {
   /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create 에 map 을 넣지 않는다. */
   waitForReadyMap?: boolean;
   /**
+   * 목록에 없는 SDK 옵션을 받는다(`binding/extra-sdk-options.ts`). SDK 에 공개 `setOptions` 가 있는
+   * 오버레이만 켠다. `ownProps` 는 options·initial·derived 밖에서 컴포넌트가 처리하는 prop 이다.
+   * 빠뜨리면 그 prop 이 SDK 로 샌다.
+   */
+  extraOptions?: { ownProps?: readonly (keyof P & string)[] };
+  /**
    * Panorama(거리뷰) 안에서도 쓸 수 있다. SDK 가 거리뷰에 붙는 것을 받는 오버레이만 켠다(Marker).
    * 거리뷰에는 준비(init) 뒤에 붙인다.
    */
@@ -103,6 +115,7 @@ export function defineOverlay<P extends object, T extends Overlay>(
       const created = spec.create(
         navermaps,
         omitUndefined({
+          ...extraOptionsOf(props, spec),
           map: waitForReady || spec.attachTo ? undefined : map,
           ...pick(props, spec.options),
           ...spec.initial?.(props),
@@ -129,6 +142,27 @@ export function defineOverlay<P extends object, T extends Overlay>(
   return OverlayComponent;
 }
 
+/** spec 마다 처리하는 prop 이름. initial·derived 가 돌려주는 키는 렌더마다 같다. */
+const handledBySpec = new WeakMap<object, ReadonlySet<string>>();
+
+function extraOptionsOf<P extends object, T>(
+  props: P,
+  spec: OverlaySpec<P, T>,
+): Record<string, unknown> {
+  if (!spec.extraOptions) return {};
+  let handled = handledBySpec.get(spec);
+  if (!handled) {
+    handled = handledProps([
+      ...spec.options,
+      ...Object.keys(spec.initial?.(props) ?? {}),
+      ...Object.keys(spec.derived?.(props) ?? {}),
+      ...(spec.extraOptions.ownProps ?? []),
+    ]);
+    handledBySpec.set(spec, handled);
+  }
+  return extraSdkOptions(props, handled);
+}
+
 function OverlayBindings<P extends object, T extends Overlay>({
   instance,
   props,
@@ -145,6 +179,11 @@ function OverlayBindings<P extends object, T extends Overlay>({
       ...spec.derived?.(props),
     },
     { changeOnly: spec.changeOnly },
+  );
+  useExtraSdkOptions(
+    instance,
+    extraOptionsOf(props, spec),
+    spec.extraOptions ? setExtraSdkOptions : undefined,
   );
   spec.sync?.(instance, props);
   useOverlayEvents(instance, props, eventsOf(spec));

@@ -60,13 +60,14 @@ prop 을 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 
 
 ## 새로 쓸 수 있는 것
 
-| 무엇                                       | 어디서                           |
-| ------------------------------------------ | -------------------------------- |
-| `BicycleLayer`, `CustomControl`, `GeoJson` | `react-naver-maps`               |
-| `useAutoResize` (영역 크기 따라가기)       | `react-naver-maps/addons`        |
-| `geocode`, `reverseGeocode`                | `react-naver-maps/geocoder`      |
-| `HeatMap`, `DotMap`                        | `react-naver-maps/visualization` |
-| `DrawingManager`                           | `react-naver-maps/drawing`       |
-| `Panorama`                                 | `react-naver-maps/panorama`      |
+| 무엇                                        | 어디서                                              |
+| ------------------------------------------- | --------------------------------------------------- |
+| `BicycleLayer`, `CustomControl`, `GeoJson`  | `react-naver-maps`                                  |
+| `useAutoResize` (영역 크기 따라가기)        | `react-naver-maps/addons`                           |
+| `geocode`, `reverseGeocode`                 | `react-naver-maps/geocoder`                         |
+| `HeatMap`, `DotMap`                         | `react-naver-maps/visualization`                    |
+| `DrawingManager`                            | `react-naver-maps/drawing`                          |
+| `Panorama`                                  | `react-naver-maps/panorama`                         |
+| 라이브러리에 아직 없는 SDK 옵션을 prop 으로 | [핵심 개념](/react-naver-maps/guides/core-concepts) |
 
 서브모듈 경로는 `<NavermapsProvider submodules={['visualization']}>` 처럼 해당 서브모듈을 불러야 씁니다. 빠뜨리면 불러오는 법을 담은 에러를 던집니다.

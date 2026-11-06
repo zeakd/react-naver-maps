@@ -136,6 +136,31 @@ NaverMap 의 controlled `bounds` 와 `centerPoint`, `defaultCenterPoint` 는 0.4
 - `center` 와 `zoom` 을 함께 바꾸면 `morph` 로 한 번에 옮깁니다. 따로 떨어진 변경은 애니메이션합니다. GL 에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
 - prop 은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
+## 라이브러리에 아직 없는 SDK 옵션
+
+SDK 는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기면 라이브러리를 올리지 않고 prop 으로 씁니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)에서 됩니다. 컴포넌트가 모르는 prop 은 생성자에 넘기고, 값이 바뀌면 SDK 의 `setOptions({ ... })` 로 넘깁니다.
+
+```tsx
+// futureOption 은 설명용 이름이고 실제 옵션이 아닙니다.
+<Marker position={position} futureOption={{ enabled: true }} />
+```
+
+TypeScript 에서는 그 컴포넌트의 Props 를 보강합니다. `naver.maps.MarkerOptions` 를 보강해도 `MarkerProps` 로 이어지지 않습니다.
+
+```ts
+declare module 'react-naver-maps' {
+  interface MarkerProps {
+    futureOption?: { enabled: boolean };
+  }
+}
+```
+
+- 값이 바뀔 때만 넘기고, 비교는 `Object.is` 입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
+- 지도에서 값이 바뀌어도 되돌리지 않습니다. prop 을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
+- `ref`, `key`, `children`, `map`, `onX`, `defaultX` 꼴의 이름은 넘기지 않습니다.
+- 새 옵션이 `setOptions` 로 충분하지 않으면(지도 유형처럼 전용 메서드가 있는 경우) `ref` 로 SDK 메서드를 부릅니다. 그 밖의 컴포넌트에서도 `ref` 를 씁니다.
+- `<Marker {...row} />` 처럼 펼치면 `row` 의 다른 필드도 SDK 로 갑니다. 필요한 값만 넘기세요.
+
 ## 숨김과 수명
 
 지도와 오버레이는 React 가 트리를 숨겼다 다시 보여도 같은 인스턴스를 씁니다. 지도 안의 컴포넌트가 suspend 하거나 `<Activity mode="hidden">` 으로 숨기면 지도는 영역만 숨기고, 오버레이는 지도에서 떨어집니다. 다시 보이면 같은 지도가 같은 center 와 zoom 으로 돌아오고 오버레이도 다시 붙습니다. `open` 인 `InfoWindow` 는 다시 열립니다. 인스턴스는 컴포넌트가 정말로 사라질 때만 정리합니다.

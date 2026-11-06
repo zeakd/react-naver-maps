@@ -372,6 +372,34 @@ export async function sdkRoutes(
     },
   );
 
+  // 목록에 없는 옵션(`src/binding/extra-sdk-options.ts`)이 기대는 것: 생성자와 객체 setOptions 가 모르는
+  // 키도 받아 저장한다. 이름은 SDK 에 없는 가상 옵션이다.
+  for (const [cls, read] of [
+    ['Marker', (t: Any) => t.get('rnmFuture')],
+    ['Circle', (t: Any) => t.get('rnmFuture')],
+    ['Rectangle', (t: Any) => t.get('rnmFuture')],
+    ['Ellipse', (t: Any) => t.get('rnmFuture')],
+    ['Polyline', (t: Any) => t.get('rnmFuture')],
+    ['Polygon', (t: Any) => t.get('rnmFuture')],
+    ['InfoWindow', (t: Any) => t.get('rnmFuture')],
+  ] as const) {
+    check(`${cls}: 객체 setOptions 는 모르는 옵션도 받는다`, () => {
+      const target = instances[cls]!();
+      target.setOptions({ rnmFuture: 2 });
+      return same(read(target), 2, 'rnmFuture');
+    });
+  }
+  const extraMap = await newMap({ rnmFuture: 1 });
+  check('Map: 생성자와 객체 setOptions 는 모르는 옵션도 받는다', () => {
+    const atCreate = extraMap.getOptions('rnmFuture');
+    extraMap.setOptions({ rnmFuture: 2 });
+    return same(
+      [atCreate, extraMap.getOptions('rnmFuture')],
+      [1, 2],
+      '[생성, 변경]',
+    );
+  });
+
   check('KVO.setValues 는 키 사이에 통지한다(원자적이지 않다)', () => {
     const kvo = new m.KVO();
     const seen: unknown[] = [];
