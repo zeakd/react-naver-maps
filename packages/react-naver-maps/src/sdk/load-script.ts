@@ -138,22 +138,16 @@ export function waitForExistingSdk(
   });
 }
 
-export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
-  if (typeof document === 'undefined') {
-    return new Promise<typeof naver.maps>(() => {});
-  }
+/**
+ * 페이지에 넣은 SDK 스크립트. 페이지에 SDK 는 하나뿐이고 URL 을 바꿔 다시 넣을 수 없으므로 로딩 중인
+ * 스크립트는 하나만 둔다. 다른 옵션의 요청도 여기에 합류해 처음 요청의 언어와 서브모듈을 쓴다(로드가 끝난
+ * 뒤 다른 옵션으로 부른 것과 같다). 없는 서브모듈은 쓸 때 requireSubmodule 이 알려 준다.
+ */
+let inFlight: Promise<typeof naver.maps> | null = null;
 
-  const key = cacheKey(options);
-  const existing = cache.get(key);
-  if (existing) return existing;
-
-  installAuthFailureHook();
-  const promise = new Promise<typeof naver.maps>((resolve, reject) => {
-    if (typeof naver !== 'undefined' && naver.maps) {
-      waitForExistingSdk(naver.maps).then(resolve);
-      return;
-    }
-
+function insertScript(options: LoadOptions): Promise<typeof naver.maps> {
+  if (inFlight) return inFlight;
+  const loading = new Promise<typeof naver.maps>((resolve, reject) => {
     const script = document.createElement('script');
     script.src = buildUrl(options);
     script.async = true;
@@ -165,12 +159,37 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
       }
     });
     script.addEventListener('error', () => {
-      cache.delete(key);
       reject(new Error('Failed to load naver maps script'));
     });
     document.head.appendChild(script);
   });
+  inFlight = loading;
+  const settled = () => {
+    inFlight = null;
+  };
+  loading.then(settled, settled);
+  return loading;
+}
 
+export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
+  if (typeof document === 'undefined') {
+    return new Promise<typeof naver.maps>(() => {});
+  }
+
+  const key = cacheKey(options);
+  const existing = cache.get(key);
+  if (existing) return existing;
+
+  installAuthFailureHook();
+  const loading =
+    typeof naver !== 'undefined' && naver.maps
+      ? waitForExistingSdk(naver.maps)
+      : insertScript(options);
+  // 실패는 캐시에 남기지 않는다. 다음 렌더(useNavermaps)가 다시 시도한다.
+  const promise = loading.catch((error: unknown) => {
+    cache.delete(key);
+    throw error;
+  });
   cache.set(key, promise);
   return promise;
 }
