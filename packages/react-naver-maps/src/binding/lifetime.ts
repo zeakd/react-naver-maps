@@ -36,6 +36,13 @@ import { isMapReady } from '../sdk/internals.js';
  * 숨김(Suspense 재중단, Activity hidden)과 StrictMode 재실행에서는 돌지 않고, 진짜 언마운트와
  * 숨긴 채 제거될 때만 돈다. React 문서가 약속한 동작은 아니다. React 가 바꾸면 e2e 수명
  * 시나리오가 깨진다.
+ *
+ * 떼기·버리기는 그 인스턴스를 만든 렌더의 spec 으로 한다. 옛 인스턴스의 정리가 새 렌더의 값을 보지 않게 한다.
+ * 붙이기와 만들기는 최신 spec 이다(다시 붙일 때 최신 prop 을 쓴다).
+ *
+ * 인증에 실패하면 SDK 메서드가 던지므로 detach, dispose 는 SDK 가 살아 있을 때만 돈다. SDK 를 부르지 않는
+ * 자체 자원(직접 만든 element, 타이머)은 release 에서 치운다. 가드를 spec 마다 두지 않으니 빠뜨려서 인증
+ * 실패 앱이 언마운트에서 던질 일이 없다.
  */
 export type SdkInstanceSpec<T> = {
   create: () => T;
@@ -43,7 +50,15 @@ export type SdkInstanceSpec<T> = {
   attach?: (instance: T) => void;
   detach: (instance: T) => void;
   dispose: (instance: T) => void;
+  /** 버릴 때 dispose 다음에 늘 돈다. SDK 를 부르면 안 된다. */
+  release?: (instance: T) => void;
 };
+
+/** 버린다. SDK 가 죽었으면 SDK 를 부르는 dispose 는 건너뛰고 자체 자원만 치운다. */
+function retire<T>(spec: SdkInstanceSpec<T>, instance: T): void {
+  if (sdkAlive()) spec.dispose(instance);
+  spec.release?.(instance);
+}
 
 /**
  * spec 에 따라 인스턴스를 만들고 돌려준다. 첫 layout effect 전에는 null 이다.
@@ -60,9 +75,12 @@ export function useSdkInstance<T>(
   // drawingMode 가 HAND 로, 3.10.5 실측) 자식의 값 동기화가 다시 돌아 prop 으로 맞춰야 한다. StrictMode
   // 재실행은 렌더 없이 effect 만 다시 돈다.
   const [, rerender] = useReducer((n: number) => n + 1, 0);
-  const currentRef = useRef<{ instance: T; keys: readonly unknown[] } | null>(
-    null,
-  );
+  const currentRef = useRef<{
+    instance: T;
+    keys: readonly unknown[];
+    /** 이 인스턴스를 만든 spec. 떼고 버릴 때 쓴다. */
+    owner: SdkInstanceSpec<T>;
+  } | null>(null);
   const specRef = useRef(spec);
 
   // 최신 spec 을 effect 보다 먼저 넣는다. insertion effect 는 layout effect 보다 먼저 돈다.
@@ -80,18 +98,23 @@ export function useSdkInstance<T>(
     if (!sdkAlive()) return;
     const current = currentRef.current;
     let next: T;
+    let owner: SdkInstanceSpec<T>;
     if (current && kvoEquals(current.keys, stableKeys)) {
       next = current.instance;
+      owner = current.owner;
       specRef.current.attach?.(next);
       rerender();
     } else {
-      if (current) specRef.current.dispose(current.instance);
-      next = specRef.current.create();
-      currentRef.current = { instance: next, keys: stableKeys };
+      // 먼저 비운다. create 가 던져도 언마운트에서 옛 인스턴스를 또 버리지 않는다.
+      currentRef.current = null;
+      if (current) retire(current.owner, current.instance);
+      owner = specRef.current;
+      next = owner.create();
+      currentRef.current = { instance: next, keys: stableKeys, owner };
     }
     setInstance(next);
     return () => {
-      if (sdkAlive()) specRef.current.detach(next);
+      if (sdkAlive()) owner.detach(next);
     };
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, stableKeys);
@@ -100,7 +123,7 @@ export function useSdkInstance<T>(
     () => () => {
       const current = currentRef.current;
       currentRef.current = null;
-      if (current && sdkAlive()) specRef.current.dispose(current.instance);
+      if (current) retire(current.owner, current.instance);
     },
     [],
   );
