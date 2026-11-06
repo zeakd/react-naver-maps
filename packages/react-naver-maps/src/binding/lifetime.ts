@@ -14,6 +14,7 @@ import {
   sdkAlive,
 } from '../sdk/listeners.js';
 import type { MapListener } from '../sdk/listeners.js';
+import { isMapReady } from '../sdk/internals.js';
 
 /**
  * SDK 인스턴스(지도, 오버레이, 레이어)를 React 수명에 맞추는 규칙. 컴포넌트마다 따로 두지 않고
@@ -154,8 +155,6 @@ export function onMap<T extends MapAttachable>(
   };
 }
 
-type ReadyMap = naver.maps.Map & { isReady?: boolean };
-
 /**
  * onMap 과 같되 지도가 준비(init)된 뒤에 붙인다. 준비 전에 붙이면 SDK 가 조용히 무시하는
  * 인스턴스가 있다: CustomControl 은 setMap 을 거절하고(콘솔에 다시 하라고만 남김),
@@ -167,7 +166,7 @@ export function onReadyMap<T extends MapAttachable>(
   create: () => T,
   attachTo?: AttachTo<T>,
 ): SdkInstanceSpec<T> {
-  return onReadyHost(map, () => !!(map as ReadyMap).isReady, create, attachTo);
+  return onReadyHost(map, () => isMapReady(map), create, attachTo);
 }
 
 /**

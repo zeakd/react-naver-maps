@@ -13,9 +13,11 @@ type MapWithValues = naver.maps.Map & { setValues(values: object): void };
  *
  * 둘은 서로 기댄다. 레지스트리에 없는 ID 를 넣거나, 지금 ID 가 없는 레지스트리를 넣으면 SDK 가 던진다.
  * 하나씩 넣으면 어느 순서든 그 사이에 이 상태가 생긴다(3.10.5 실측: setMapTypeId 먼저, setOptions('mapTypes')
- * 먼저, setOptions 객체 모두 던짐). KVO 의 setValues 는 값을 다 넣은 뒤 알려서 던지지 않는다. 다만
- * Map 의 옵션 저장은 바꾸지 않아 getOptions('mapTypes') 가 옛 레지스트리를 돌려준다. 그래서 setValues 로
- * 둘을 넣은 뒤, 이제 ID 가 들어 있는 레지스트리를 setOptions 로 한 번 더 넣는다(던지지 않고 getOptions 의
+ * 먼저, setOptions 객체 모두 던짐). setValues({ mapTypes, mapTypeId }) 는 던지지 않는다. 원자적이어서가
+ * 아니다. KVO 의 setValues 는 키마다 setX 나 set 을 차례로 부른다. mapTypes 는 setX 가 없어 Map 자체 슬롯만
+ * 바꾸고(옵션 쪽 검사를 타지 않는다), 그다음 setMapTypeId 가 새 레지스트리에서 ID 를 찾는다. 키 순서가 뜻을
+ * 가지므로 바꾸지 않는다. 옵션 저장은 그대로라 getOptions('mapTypes') 가 옛 레지스트리를 돌려준다. 그래서
+ * 이제 ID 가 들어 있는 레지스트리를 setOptions 로 한 번 더 넣는다(던지지 않고 getOptions 의
  * mapTypes·mapTypeId 가 맞춰진다, 3.10.5 실측). e2e "옛 레지스트리에 없는 mapTypeId".
  *
  * 그 밖은 다른 controlled prop 과 같다(useControlledProps). 마운트 때는 생성자가 넣었으므로 하지 않는다.

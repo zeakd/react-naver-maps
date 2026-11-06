@@ -272,15 +272,31 @@ function syncProp(
  * 읽기와 쓰기 경로는 따로 고른다. "전용 getter는 없지만 전용 setter는 있는" prop 에서는
  * 읽기는 getOptions/get, 쓰기는 setX 를 탄다. 현재 SDK 에서는 같은 KVO 슬롯을 보므로 일관되지만,
  * SDK 가 setX 와 setOptions/set 을 같은 슬롯에 라우팅한다는 전제에 의존한다.
+ *
+ * 경로는 이름으로 고르므로 SDK 에 setX 가 새로 생기면 조용히 그쪽으로 옮겨 간다. 클래스별 경로와 경로마다
+ * 다른 뜻은 실제 SDK 에서 `e2e/scenarios/sdk-routes.ts` 가 지킨다. setOptions 로 묶지 않는 이유도 거기 있다.
  */
+export function syncRoute(target: object, property: string) {
+  const t = target as Record<string, unknown>;
+  const hasOptions =
+    typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+  const hasSetter = typeof t[`set${capitalize(property)}`] === 'function';
+  const hasGetter = typeof t[`get${capitalize(property)}`] === 'function';
+  return {
+    write: hasSetter ? 'setX' : hasOptions ? 'setOptions' : 'set',
+    read: hasGetter ? 'getX' : hasOptions ? 'getOptions' : 'get',
+  } as const;
+}
+
 function accessors(target: naver.maps.KVO, property: string) {
   const setterName = `set${capitalize(property)}`;
   const getterName = `get${capitalize(property)}`;
   const t = target as unknown as Record<string, unknown>;
-  const hasSetter = typeof t[setterName] === 'function';
-  const hasGetter = typeof t[getterName] === 'function';
+  const route = syncRoute(target, property);
+  const hasSetter = route.write === 'setX';
+  const hasGetter = route.read === 'getX';
   const hasOptions =
-    typeof t.setOptions === 'function' && typeof t.getOptions === 'function';
+    route.write === 'setOptions' || route.read === 'getOptions';
   return {
     read(): unknown {
       if (hasGetter) return (t[getterName] as () => unknown).call(target);

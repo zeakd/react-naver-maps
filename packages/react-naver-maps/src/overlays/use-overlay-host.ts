@@ -1,3 +1,4 @@
+import { isMapReady } from '../sdk/internals.js';
 import { use } from 'react';
 import { useMap } from '../hooks/use-map.js';
 import { PanoramaHostContext } from './overlay-host-context.js';
@@ -30,6 +31,6 @@ export function useOverlayHost(): OverlayHost {
   return {
     kind: 'map',
     target: map,
-    isReady: () => !!(map as naver.maps.Map & { isReady?: boolean }).isReady,
+    isReady: () => isMapReady(map),
   };
 }
