@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { sdkAlive } from '../sdk/listeners.js';
+import { createdOptionsOf } from './created-options.js';
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -132,6 +133,8 @@ function snapshot(v: unknown): unknown {
  *
  * 컴포넌트 생성자(new navermaps.Marker(options) 등)에서 이미 옵션이 적용된다.
  * 마운트 때는 setter 를 부르지 않고 SDK 가 가진 값만 기록한다. 마운트 뒤에 처음 prop 이 생기면 맞춘다.
+ * 생성과 첫 동기화 사이에 prop 이 바뀌었으면 맞춘다(created-options.ts). 생성자가 받은 값과 견주므로
+ * SDK 가 값을 바꿔 저장한 prop(minZoom 3 → 6)은 그대로 둔다.
  *
  * ## 되돌림
  *
@@ -226,8 +229,14 @@ function syncProp(
   if (synced === undefined) {
     // 마운트 때는 생성자 옵션으로 이미 들어갔으므로 SDK 가 가진 값을 기록만 한다.
     // SDK 가 값을 바꿔 저장했어도(minZoom 3 → 6) 다시 부르지 않는다.
-    // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다.
-    if ((!rule.mounting || rule.writeOnMount) && !kvoEquals(current, value))
+    // 마운트 뒤에 처음 prop 이 생겼으면 맞춘다. 생성 뒤에 바뀐 prop 도 맞춘다.
+    const createdWith = createdOptionsOf(target);
+    const changedSinceCreated =
+      createdWith !== undefined && !kvoEquals(createdWith[property], value);
+    if (
+      (!rule.mounting || rule.writeOnMount || changedSinceCreated) &&
+      !kvoEquals(current, value)
+    )
       io.write(value);
     states.set(property, {
       prop: value,

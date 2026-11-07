@@ -12,6 +12,7 @@ import { resolveConstants } from '../sdk/constants.js';
 import type { ConstantPaths } from '../sdk/constants.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 import {
   extraSdkOptions,
   handledProps,
@@ -112,17 +113,15 @@ export function defineOverlay<P extends object, T extends Overlay>(
     const map = host.target;
     const waitForReady = spec.waitForReadyMap || host.kind === 'panorama';
     const make = () => {
-      const created = spec.create(
-        navermaps,
-        omitUndefined({
-          ...extraOptionsOf(props, spec),
-          map: waitForReady || spec.attachTo ? undefined : map,
-          ...pick(props, spec.options),
-          ...spec.initial?.(props),
-          ...spec.derived?.(props),
-        }),
-        props,
-      );
+      const options = omitUndefined({
+        ...extraOptionsOf(props, spec),
+        map: waitForReady || spec.attachTo ? undefined : map,
+        ...pick(props, spec.options),
+        ...spec.initial?.(props),
+        ...spec.derived?.(props),
+      });
+      const created = spec.create(navermaps, options, props);
+      rememberCreatedOptions(created, options);
       spec.afterCreate?.(created, props);
       return created;
     };

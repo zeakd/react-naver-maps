@@ -14,6 +14,7 @@ import { useImperativeHandle } from 'react';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { useMap } from '../hooks/use-map.js';
 import { useControlledProps } from '../binding/use-controlled-kvo.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 import { useOverlayEvents } from '../overlays/overlay-spec.js';
 import { pick } from '../binding/pick.js';
 import { useLatest } from '../binding/use-latest.js';
@@ -132,7 +133,13 @@ function DrawingManagerInner({ ref, ...given }: DrawingManagerProps) {
   );
   const spec = onReadyMap<Manager>(
     map,
-    () => new navermaps.drawing.DrawingManager(omitUndefined(options)),
+    () => {
+      const created = omitUndefined(options);
+      return rememberCreatedOptions(
+        new navermaps.drawing.DrawingManager(created),
+        created,
+      );
+    },
     (manager, host) => {
       manager.setMap(host);
       const mode = drawingMode.current;
