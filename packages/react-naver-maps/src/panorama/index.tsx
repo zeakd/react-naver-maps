@@ -28,6 +28,7 @@ import {
   useControlledProps,
 } from '../binding/use-controlled-kvo.js';
 import { onMap, useSdkInstance } from '../binding/lifetime.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 import { useOverlayEvents, type EventDecl } from '../overlays/overlay-spec.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
@@ -148,9 +149,10 @@ function PanoramaRoot({ ref, children, ...given }: PanoramaProps) {
         'position:absolute;top:0;left:0;width:100%;height:100%';
       container.appendChild(el);
       elementRef.current = el;
-      const instance = new navermaps.Panorama(
-        el,
-        omitUndefined(pick(props, [...CAMERA, ...OPTIONS])),
+      const options = omitUndefined(pick(props, [...CAMERA, ...OPTIONS]));
+      const instance = rememberCreatedOptions(
+        new navermaps.Panorama(el, options),
+        options,
       );
       readyRef.current = false;
       addMapListener(instance, 'init', () => {

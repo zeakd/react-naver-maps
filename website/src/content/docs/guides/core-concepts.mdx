@@ -148,6 +148,8 @@ SDK 는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기�
 TypeScript 에서는 그 컴포넌트의 Props 를 보강합니다. `naver.maps.MarkerOptions` 를 보강해도 `MarkerProps` 로 이어지지 않습니다.
 
 ```ts
+import 'react-naver-maps'; // 없으면 .d.ts 파일에서 보강이 아니라 새 모듈 선언이 됩니다.
+
 declare module 'react-naver-maps' {
   interface MarkerProps {
     futureOption?: { enabled: boolean };
