@@ -32,6 +32,8 @@ jobs:
       - run: pnpm -r run build
       # 빌드한 문서 사이트의 내부 링크가 실제 페이지로 가는지 본다(scripts/check-site-links.mts).
       - run: node scripts/check-site-links.mts
+      # 문서 코드 블록의 import 와 prop 이 공개 API 와 맞는지 본다(scripts/check-doc-code.mts).
+      - run: node scripts/check-doc-code.mts
       - run: pnpm -r run test
       - run: pnpm --filter react-naver-maps run check:package
 
