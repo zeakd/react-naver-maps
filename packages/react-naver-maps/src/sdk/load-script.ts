@@ -181,10 +181,12 @@ export function loadScript(options: LoadOptions): Promise<typeof naver.maps> {
   if (existing) return existing;
 
   installAuthFailureHook();
+  // 로딩 중이면 전역이 이미 생겼어도(서브모듈을 기다리는 중) 그 스크립트가 끝나기를 기다린다.
   const loading =
-    typeof naver !== 'undefined' && naver.maps
+    inFlight ??
+    (typeof naver !== 'undefined' && naver.maps
       ? waitForExistingSdk(naver.maps)
-      : insertScript(options);
+      : insertScript(options));
   // 실패는 캐시에 남기지 않는다. 다음 렌더(useNavermaps)가 다시 시도한다.
   const promise = loading.catch((error: unknown) => {
     cache.delete(key);

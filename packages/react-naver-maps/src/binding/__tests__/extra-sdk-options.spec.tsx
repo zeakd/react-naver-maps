@@ -8,6 +8,7 @@ import { Polygon } from '../../shapes/polygon.js';
 import { Polyline } from '../../shapes/polyline.js';
 import { Rectangle } from '../../shapes/rectangle.js';
 import { InfoWindow } from '../../overlays/info-window.js';
+import { rememberCreatedOptions } from '../created-options.js';
 import { MAP_OPTION_PROPS } from '../../map/naver-map-options.js';
 import type { MapOptionProp } from '../../map/naver-map-options.js';
 import type { NaverMapProps } from '../../map/naver-map.js';
@@ -135,6 +136,7 @@ test('새 SDK 옵션의 Date·Map·순환 객체 내부 구조를 추측하지 �
     useExtraSdkOptions(target, { future: value }, apply);
     return null;
   }
+  rememberCreatedOptions(target, { future: null });
   const { rerender } = render(<Probe value={null} />);
   const cyclic: { self?: unknown } = {};
   cyclic.self = cyclic;
@@ -171,6 +173,7 @@ test('타깃 교체는 새 생성자 값으로 시작하고, 나중에 추가한
   const { rerender } = render(<Probe target={first} options={{}} />);
   rerender(<Probe target={first} options={{ future: 1 }} />);
   expect(apply).toHaveBeenLastCalledWith(first, { future: 1 });
+  rememberCreatedOptions(second, { future: 2 });
   rerender(<Probe target={second} options={{ future: 2 }} />);
   expect(apply).toHaveBeenCalledTimes(1);
   rerender(<Probe target={second} options={{ future: 3 }} />);

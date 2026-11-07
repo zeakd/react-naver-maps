@@ -288,6 +288,25 @@ describe('loadScript 의 스크립트 하나', () => {
     expect(scripts).toHaveLength(2);
   });
 
+  test('전역이 생겼어도 로딩 중이면 그 스크립트가 끝나기를 기다린다', async () => {
+    const first = fresh.loadScript({ ncpKeyId: 'k', language: 'ko' });
+    const maps = {
+      jsContentLoaded: false,
+    } as unknown as typeof naver.maps;
+    vi.stubGlobal('naver', { maps });
+    const second = fresh.loadScript({ ncpKeyId: 'k', language: 'en' });
+    let settled = false;
+    void second.then(() => {
+      settled = true;
+    });
+    scripts[0]!.dispatchEvent(new Event('load'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(settled).toBe(false);
+    maps.onJSContentLoaded?.();
+    await expect(first).resolves.toBe(maps);
+    await expect(second).resolves.toBe(maps);
+  });
+
   test('같은 옵션을 다시 부르면 같은 Promise 다', () => {
     const options = { ncpKeyId: 'k' };
     expect(fresh.loadScript(options)).toBe(fresh.loadScript(options));

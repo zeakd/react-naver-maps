@@ -13,6 +13,7 @@ import { useOverlayHost } from './use-overlay-host.js';
 import { useControlledProps } from '../binding/use-controlled-kvo.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 import {
   extraSdkOptions,
   handledProps,
@@ -153,14 +154,19 @@ export function InfoWindow({ ref, content, open, ...props }: InfoWindowProps) {
   // 수명은 lifetime.ts 규칙을 따른다. 숨길 때는 닫고, 다시 보일 때는 open prop 동기화가 다시 연다
   // (InfoWindowInner 의 open layout effect 가 닫힌 것을 보고 연다).
   const infoWindow = useSdkInstance<naver.maps.InfoWindow>({
-    create: () =>
-      new navermaps.InfoWindow(
-        omitUndefined({
-          ...extraSdkOptions(props, HANDLED),
-          content,
-          ...pick(props, OPTIONS),
-        }),
-      ),
+    create: () => {
+      const options = omitUndefined({
+        ...extraSdkOptions(props, HANDLED),
+        content,
+        ...pick(props, OPTIONS),
+      });
+      return rememberCreatedOptions(
+        new navermaps.InfoWindow(
+          options as unknown as naver.maps.InfoWindowOptions,
+        ),
+        options,
+      );
+    },
     detach: (instance) => instance.close(),
     dispose: (instance) => {
       instance.close();

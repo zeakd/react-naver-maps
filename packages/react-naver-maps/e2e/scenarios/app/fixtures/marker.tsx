@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Activity } from '../activity.js';
 import type { CoreConfig, LL } from '../../types.js';
 import { INITIAL_CENTER, toCoord } from '../common.js';
@@ -26,6 +26,8 @@ export type MarkerConfig = {
   markerActivity?: 'visible' | 'hidden';
   /** Marker 의 animation (naver.maps.Animation 값, null 은 끔). marker 가 있어야 한다. */
   markerAnimation?: number | string | null;
+  /** 부모의 layout effect 가 마운트 중에 title 을 바꾸는 Marker. 렌더마다 SDK 의 title 을 calls 에 남긴다. */
+  markerTitleDuringMount?: boolean;
 };
 
 export type MarkerFrame = {
@@ -136,21 +138,41 @@ function FeedbackMarker({
   );
 }
 
+function MarkerTitleDuringMount({ log }: { log: (call: string) => void }) {
+  const [title, setTitle] = useState('red');
+  const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
+  // 일부러 layout effect 에서 바꾼다. 인스턴스 생성과 첫 값 동기화 사이에 prop 이 바뀐다.
+  // oxlint-disable-next-line react/set-state-in-effect
+  useLayoutEffect(() => setTitle('blue'), []);
+  useEffect(() => {
+    if (marker) log(`title:${marker.getTitle()}`);
+  });
+  return (
+    <Marker ref={setMarker} position={toCoord(INITIAL_CENTER)} title={title} />
+  );
+}
+
 export const marker = defineFixture<MarkerConfig, MarkerProbe, MarkerFrame>({
   probe: () => ({ marker: null, clicks: 0 }),
   setup: (maps, _probe, core) =>
     observe(maps.Marker.prototype, OBSERVED_MARKER_METHODS, core.calls),
-  render: (config, probe, core) =>
-    config.marker && (
-      <Activity mode={config.markerActivity ?? 'visible'}>
-        {config.markerPositionMode === 'controlled' ||
-        config.markerPositionMode === 'delayed' ? (
-          <FeedbackMarker config={config} probe={probe} core={core} />
-        ) : (
-          markerElement(config, probe, core, toCoord(INITIAL_CENTER))
-        )}
-      </Activity>
-    ),
+  render: (config, probe, core) => (
+    <>
+      {config.marker && (
+        <Activity mode={config.markerActivity ?? 'visible'}>
+          {config.markerPositionMode === 'controlled' ||
+          config.markerPositionMode === 'delayed' ? (
+            <FeedbackMarker config={config} probe={probe} core={core} />
+          ) : (
+            markerElement(config, probe, core, toCoord(INITIAL_CENTER))
+          )}
+        </Activity>
+      )}
+      {config.markerTitleDuringMount && (
+        <MarkerTitleDuringMount log={(call) => core.calls.push(call)} />
+      )}
+    </>
+  ),
   fields: {
     markerClicks: 'behavior',
     markerPosition: 'behavior',

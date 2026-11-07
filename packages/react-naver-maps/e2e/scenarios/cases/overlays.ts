@@ -42,6 +42,15 @@ export const overlays: Scenario[] = [
     expect: [calls({ infoWindowLateOpen: 1 })],
   },
   {
+    name: '마운트 중에 부모가 바꾼 prop 이 SDK 에 들어간다',
+    app: { mode: 'props', markerTitleDuringMount: true },
+    steps: [
+      { t: 'props', props: { tick: 1 } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ 'title:red': 0, 'title:blue': 1 })],
+  },
+  {
     name: 'clickable 을 나중에 켠 Marker 도 클릭을 받는다',
     app: { mode: 'props', marker: true, markerClickable: false },
     steps: [

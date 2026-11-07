@@ -36,6 +36,7 @@ import { NaverMapContext } from './naver-map-context.js';
 import { PanoramaHostContext } from '../overlays/overlay-host-context.js';
 import { ClientOptionsContext } from '../sdk/client-options-context.js';
 import { useSdkInstance } from '../binding/lifetime.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 import {
   extraSdkOptions,
   handledProps,
@@ -302,27 +303,26 @@ export function NaverMap({ ref, children, ...given }: NaverMapProps) {
     // bounds가 있으면 center/zoom 대신 bounds로 초기화
     const initialBounds = props.bounds ?? props.defaultBounds;
 
-    const instance = new navermaps.Map(
-      el,
-      omitUndefined({
-        ...extraSdkOptions(props, MAP_HANDLED_PROPS),
-        // 리터럴은 SDK 객체로 바꿔 넘긴다. SDK 는 리터럴을 지금 지도 유형의 투영으로 바꾸는데,
-        // 투영을 생략한 사용자 지도 유형이면 그 자리에서 던진다(3.10.5 실측).
-        center: initialBounds
-          ? undefined
-          : optionalCoord(props.center ?? props.defaultCenter),
-        zoom: initialBounds
-          ? undefined
-          : (props.zoom ?? props.defaultZoom ?? 16),
-        bounds: initialBounds,
-        mapTypeId: props.mapTypeId ?? props.defaultMapTypeId,
-        size: props.size ?? props.defaultSize,
-        ...pick(
-          props,
-          MAP_OPTION_PROPS.map(([k]) => k),
-        ),
-        // prop 타입은 상수 이름 등으로 @types 보다 넓다(sdk/sdk-options.ts). 상수는 이미 값으로 바꿨다.
-      }) as unknown as naver.maps.MapOptions,
+    const options = omitUndefined({
+      ...extraSdkOptions(props, MAP_HANDLED_PROPS),
+      // 리터럴은 SDK 객체로 바꿔 넘긴다. SDK 는 리터럴을 지금 지도 유형의 투영으로 바꾸는데,
+      // 투영을 생략한 사용자 지도 유형이면 그 자리에서 던진다(3.10.5 실측).
+      center: initialBounds
+        ? undefined
+        : optionalCoord(props.center ?? props.defaultCenter),
+      zoom: initialBounds ? undefined : (props.zoom ?? props.defaultZoom ?? 16),
+      bounds: initialBounds,
+      mapTypeId: props.mapTypeId ?? props.defaultMapTypeId,
+      size: props.size ?? props.defaultSize,
+      ...pick(
+        props,
+        MAP_OPTION_PROPS.map(([k]) => k),
+      ),
+      // prop 타입은 상수 이름 등으로 @types 보다 넓다(sdk/sdk-options.ts). 상수는 이미 값으로 바꿨다.
+    });
+    const instance = rememberCreatedOptions(
+      new navermaps.Map(el, options as unknown as naver.maps.MapOptions),
+      options,
     );
     // centerPoint는 MapOptions에 정의되지 않으므로 생성 후 직접 설정
     const initialCenterPoint = props.centerPoint ?? props.defaultCenterPoint;
