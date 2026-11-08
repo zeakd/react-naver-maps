@@ -1,13 +1,17 @@
 'use client';
 
 import type { Ref } from 'react';
-import { useEffect, useImperativeHandle, useRef } from 'react';
+import { useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { useMap } from '../hooks/use-map.js';
 import { kvoEquals } from '../binding/use-controlled-kvo.js';
 import { useStaticProp } from '../binding/use-static-prop.js';
 import { onMap, useSdkInstance } from '../binding/lifetime.js';
+import {
+  createdOptionsOf,
+  rememberCreatedOptions,
+} from '../binding/created-options.js';
 
 /**
  * React children을 지도 위 특정 좌표에 렌더링한다. Portal 기반.
@@ -134,6 +138,7 @@ export function CustomOverlay({
     onMap(map, () => {
       const OverlayViewClass = createOverlayViewClass(navermaps);
       const instance = new OverlayViewClass({ position, pane, anchor, zIndex });
+      rememberCreatedOptions(instance, { position, anchor, zIndex });
       instance.setMap(map);
       return instance;
     }),
@@ -141,26 +146,30 @@ export function CustomOverlay({
 
   useImperativeHandle(ref, () => overlay!, [overlay]);
 
-  // 인라인 LatLng/Point 객체로 매 렌더 새 참조가 들어와도 LatLng.equals/Point.equals로
-  // 실제 값이 같으면 setter를 건너뛴다. setPosition/setAnchor는 draw()를 호출하므로
-  // 빈 호출은 좌표 변환 + DOM 갱신 비용이 든다.
-  const prevPositionRef = useRef<typeof position | null>(null);
-  useEffect(() => {
+  // 값은 layout 단계에서 맞춘다. 같은 렌더의 부모 layout effect 가 ref 로 읽을 때 새 값으로 그려져 있고,
+  // 타이머 등으로 바뀐 렌더에서도 화면이 한 프레임 늦지 않다(Marker 등 다른 오버레이와 같은 시점).
+  // position, anchor 의 비교 기준은 마지막으로 넘긴 값이고, 처음에는 생성자에 넘긴 값이다. 그래서 마운트
+  // 직후에 같은 값을 다시 넘겨 draw 하지 않고, 생성과 첫 동기화 사이에 바뀐 prop 은 넘긴다
+  // (binding/created-options.ts). 인라인 LatLng/Point 객체로 매 렌더 새 참조가 들어와도 값이 같으면
+  // 건너뛴다(setPosition, setAnchor 는 draw 를 부른다).
+  const appliedRef = useRef<{
+    instance: ReactOverlayViewInstance;
+    values: Record<string, unknown>;
+  } | null>(null);
+  useLayoutEffect(() => {
     if (!overlay) return;
-    if (kvoEquals(prevPositionRef.current, position)) return;
-    prevPositionRef.current = position;
-    overlay.setPosition(position);
-  }, [overlay, position]);
+    const applied =
+      appliedRef.current?.instance === overlay
+        ? appliedRef.current.values
+        : (createdOptionsOf(overlay) ?? {});
+    if (!kvoEquals(applied.position, position)) overlay.setPosition(position);
+    if (!kvoEquals(applied.anchor, anchor)) overlay.setAnchor(anchor);
+    appliedRef.current = { instance: overlay, values: { position, anchor } };
+  }, [overlay, position, anchor]);
 
-  const prevAnchorRef = useRef<typeof anchor | null>(null);
-  useEffect(() => {
-    if (!overlay) return;
-    if (kvoEquals(prevAnchorRef.current, anchor)) return;
-    prevAnchorRef.current = anchor;
-    overlay.setAnchor(anchor);
-  }, [overlay, anchor]);
-
-  useEffect(() => {
+  // zIndex 는 비교하지 않고 이 effect 가 돌 때마다 넣는다. 숨겼다 보일 때(Activity, Suspense)와 StrictMode
+  // 재실행에도 돌아, 바깥에서 컨테이너 style 을 바꿨어도 prop 값으로 되돌린다. draw 를 부르지 않아 싸다.
+  useLayoutEffect(() => {
     overlay?.setZIndex(zIndex);
   }, [overlay, zIndex]);
 
