@@ -1,4 +1,5 @@
-import { addListenerCallsWithin, calls } from '../assertions.js';
+import { addListenerCallsWithin, calls, callsIn } from '../assertions.js';
+import { DATA_CROWD_FEATURES } from '../app/fixtures/data-layer.js';
 import type { AppConfig, Scenario, Step } from '../types.js';
 import { dragLeftAndRelease } from './steps.js';
 
@@ -27,6 +28,26 @@ const drag = (name: string, app: Partial<AppConfig>, extra = {}): Scenario => ({
 });
 
 export const performance: Scenario[] = [
+  {
+    // 데이터 레이어는 지도마다 하나다. 한 GeoJson 의 style 이 바뀌면 그 feature 만 다시 칠한다.
+    // 시간은 CPU 프로파일로 남긴다(profile-1: 50개 마운트, profile-2: 하나의 style 변경). props 단계는
+    // page.evaluate 로 들어와 scriptMs(CDP ScriptDuration)에 잡히지 않는다.
+    name: '성능: GeoJson 50개(각 사각형 20개)를 올리고 하나의 style 을 바꾼다',
+    since: '0.4',
+    app: { mode: 'props', dataCrowd: 0 },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'profile', kind: 'start' },
+      { t: 'props', props: { dataCrowd: 50 } },
+      { t: 'frames', n: 3 },
+      { t: 'profile', kind: 'stop' },
+      { t: 'profile', kind: 'start' },
+      { t: 'props', props: { dataCrowdFirstFill: '#0000ff' } },
+      { t: 'frames', n: 3 },
+      { t: 'profile', kind: 'stop' },
+    ],
+    expect: [callsIn(5, 8, { crowdFirst: DATA_CROWD_FEATURES, crowdOther: 0 })],
+  },
   drag('성능: 오버레이 없이 controlled center 로 끈다', {}),
   {
     ...drag(

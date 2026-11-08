@@ -33,7 +33,7 @@ import { GeoJson } from 'react-naver-maps';
 
 ## style 함수와 hover
 
-`style` 함수의 참조가 바뀌면 이 컴포넌트가 올린 레이어 전체를 다시 스타일합니다(SDK 가 `setStyle` 때 모든 feature 에 스타일을 다시 매깁니다). 인라인 화살표 함수는 부모가 렌더될 때마다 참조가 바뀌므로 feature 가 많으면 느려집니다. `style` 함수는 컴포넌트 밖에 두거나 `useCallback` 으로 고정하세요.
+`style` 함수의 참조가 바뀌면 이 컴포넌트가 올린 feature 를 모두 다시 칠합니다. 다른 `GeoJson` 의 feature 는 다시 칠하지 않습니다. 레이어 전체를 다시 칠하는 때는 지도에서 처음 `style` 을 쓸 때와, `map.data.setStyle` 로 바뀐 레이어를 라이브러리가 되찾을 때뿐입니다. 인라인 화살표 함수는 부모가 렌더될 때마다 참조가 바뀌므로 feature 가 많으면 느려집니다. `style` 함수는 컴포넌트 밖에 두거나 `useCallback` 으로 고정하세요.
 
 ```tsx
 const regionStyle = (feature: naver.maps.Feature) => ({
@@ -56,7 +56,7 @@ const map = useMap();
 ```
 
 - `overrideStyle` 의 값은 레이어 전체에 하나뿐이라 마지막 호출이 이깁니다.
-- `style` 함수 참조가 바뀌어 다시 스타일하면 `overrideStyle` 로 칠한 것이 덮입니다. 위처럼 `style` 을 고정해 두세요.
+- `style` 함수 참조가 바뀌어 다시 칠하면 그 컴포넌트의 feature 에 `overrideStyle` 로 칠한 것이 덮입니다. 위처럼 `style` 을 고정해 두세요.
 - `style` 이 없는 GeoJson 만 있으면 라이브러리가 레이어에 스타일을 걸지 않아 `revertStyle` 이 되돌릴 것이 없습니다.
 
 ## KML, GPX

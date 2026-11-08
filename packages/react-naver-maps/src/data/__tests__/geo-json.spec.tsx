@@ -54,6 +54,10 @@ class MockData {
   removeFeature(f: MockFeature) {
     this.features = this.features.filter((x) => x !== f);
   }
+  /** SDK 처럼 함수 스타일이면 그 함수를 돌려준다(3.10.5 Data.getStyle). */
+  getStyle() {
+    return this.styleFn;
+  }
   setStyle(fn: (f: MockFeature) => unknown) {
     this.setStyleCalls++;
     this.styleFn = fn;
@@ -69,7 +73,16 @@ class MockData {
 
 let data: MockData;
 
-vi.mock('../../hooks/use-map.js', () => ({ useMap: () => ({ data }) }));
+// 지도를 둘 쓰는 테스트는 LayerContext 로 GeoJson 마다 다른 레이어를 준다. 없으면 모듈 변수 data 다.
+const { LayerContext } = vi.hoisted(() => {
+  // oxlint-disable-next-line typescript/no-require-imports
+  const { createContext } = require('react') as typeof import('react');
+  return { LayerContext: createContext<MockData | null>(null) };
+});
+vi.mock('../../hooks/use-map.js', async () => {
+  const { useContext } = await import('react');
+  return { useMap: () => ({ data: useContext(LayerContext) ?? data }) };
+});
 
 const fc = (id: string) => ({
   type: 'FeatureCollection',
@@ -175,17 +188,162 @@ describe('GeoJson', () => {
     expect(onB).not.toHaveBeenCalled();
   });
 
-  test('style 함수 참조가 렌더마다 바뀌면 렌더마다 전체를 다시 스타일하고, 같으면 하지 않는다', () => {
-    const stable = () => ({ fillColor: 'red' });
+  test('style 함수 참조가 렌더마다 바뀌면 렌더마다 자기 feature 를 다시 칠하고, 같으면 하지 않는다', () => {
+    let calls = 0;
+    const counted = () => {
+      calls++;
+      return { fillColor: 'red' };
+    };
     const { rerender } = render(
-      <GeoJson data={fc('a') as any} style={stable} />,
+      <GeoJson data={fc('a') as any} style={counted} />,
     );
-    const afterMount = data.setStyleCalls;
-    rerender(<GeoJson data={fc('a') as any} style={stable} />);
-    expect(data.setStyleCalls).toBe(afterMount);
-    rerender(<GeoJson data={fc('a') as any} style={() => ({})} />);
-    rerender(<GeoJson data={fc('a') as any} style={() => ({})} />);
-    expect(data.setStyleCalls).toBe(afterMount + 2);
+    const afterMount = calls;
+    rerender(<GeoJson data={fc('a') as any} style={counted} />);
+    expect(calls).toBe(afterMount);
+    rerender(<GeoJson data={fc('a') as any} style={() => counted()} />);
+    rerender(<GeoJson data={fc('a') as any} style={() => counted()} />);
+    expect(calls).toBe(afterMount + 2);
+    // 레이어 전체 setStyle 은 처음 한 번뿐이다.
+    expect(data.setStyleCalls).toBe(1);
+  });
+
+  test('한 컴포넌트의 style 이 바뀌어도 다른 컴포넌트의 style 함수는 불리지 않는다', () => {
+    const seen: string[] = [];
+    const styleOf = (name: string, color: string) => (f: MockFeature) => {
+      seen.push(`${name}:${f.getProperty('id')}`);
+      return { fillColor: color };
+    };
+    const view = render(
+      <>
+        <GeoJson data={fc('a') as any} style={styleOf('A', 'red')} />
+        <GeoJson data={fc('b') as any} style={styleOf('B', 'red')} />
+      </>,
+    );
+    seen.length = 0;
+    view.rerender(
+      <>
+        <GeoJson data={fc('a') as any} style={styleOf('A', 'blue')} />
+        <GeoJson data={fc('b') as any} style={styleOf('B', 'red')} />
+      </>,
+    );
+    // B 는 style 함수가 새 참조라 자기 것만 다시 칠한다. A 의 갱신이 B 를 부르지 않는다.
+    expect(seen).toEqual(['A:a', 'B:b']);
+    expect(data.features.map((f) => f.style)).toEqual([
+      { fillColor: 'blue' },
+      { fillColor: 'red' },
+    ]);
+  });
+
+  test('같은 commit 에 여럿을 올리면 레이어 전체는 한 번만 칠하고 나머지는 자기 것만 칠한다', () => {
+    const seen: string[] = [];
+    const styleOf = (name: string) => {
+      const fn = (f: MockFeature) => {
+        seen.push(`${name}:${f.getProperty('id')}`);
+        return { fillColor: name };
+      };
+      return fn;
+    };
+    const A = styleOf('A');
+    const B = styleOf('B');
+    const C = styleOf('C');
+    render(
+      <>
+        <GeoJson data={fc('a') as any} style={A} />
+        <GeoJson data={fc('b') as any} style={B} />
+        <GeoJson data={fc('c') as any} style={C} />
+      </>,
+    );
+    // 첫 컴포넌트가 dispatcher 를 달 때 레이어 전체(a, b, c)를 칠하고, 나머지는 자기 것만 칠한다.
+    expect(seen).toEqual(['A:a', 'B:b', 'C:c', 'B:b', 'C:c']);
+    expect(data.setStyleCalls).toBe(1);
+  });
+
+  test('style 을 쓴 적이 있으면 바깥 setStyle 뒤 style 이 없어져도 레이어를 되찾는다', () => {
+    const view = render(
+      <GeoJson data={fc('a') as any} style={{ fillColor: 'red' }} />,
+    );
+    const external = () => ({ fillColor: 'black' });
+    data.setStyle(external);
+    view.rerender(<GeoJson data={fc('a') as any} />);
+    expect(data.styleFn).not.toBe(external);
+    // 자기 style 이 없으니 a 는 바깥 스타일 그대로다.
+    expect(data.features[0].style).toEqual({ fillColor: 'black' });
+  });
+
+  test('style 을 쓴 적이 없으면 바깥 setStyle 을 뺏지 않는다', () => {
+    const external = () => ({ fillColor: 'black' });
+    data.setStyle(external);
+    const view = render(<GeoJson data={fc('a') as any} />);
+    view.rerender(<GeoJson data={fc('b') as any} />);
+    expect(data.styleFn).toBe(external);
+  });
+
+  test('바깥 setStyle 뒤 style 이 바뀌면 레이어를 되찾아 전체를 다시 칠한다', () => {
+    const view = render(
+      <>
+        <GeoJson data={fc('a') as any} style={{ fillColor: 'red' }} />
+        <GeoJson data={fc('b') as any} style={{ fillColor: 'green' }} />
+      </>,
+    );
+    data.setStyle(() => ({ fillColor: 'black' }));
+    view.rerender(
+      <>
+        <GeoJson data={fc('a') as any} style={{ fillColor: 'blue' }} />
+        <GeoJson data={fc('b') as any} style={{ fillColor: 'green' }} />
+      </>,
+    );
+    expect(data.features.map((f) => f.style)).toEqual([
+      { fillColor: 'blue' },
+      { fillColor: 'green' },
+    ]);
+  });
+
+  test('지도가 다르면 한 지도의 style 갱신이 다른 지도의 레이어를 건드리지 않는다', () => {
+    const first = new MockData();
+    const second = new MockData();
+    const seen: string[] = [];
+    const styleOf = (name: string, color: string) => (f: MockFeature) => {
+      seen.push(`${name}:${f.getProperty('id')}`);
+      return { fillColor: color };
+    };
+    const second2 = styleOf('second', 'red');
+    const view = render(
+      <>
+        <LayerContext value={first}>
+          <GeoJson data={fc('a') as any} style={styleOf('first', 'red')} />
+        </LayerContext>
+        <LayerContext value={second}>
+          <GeoJson data={fc('b') as any} style={second2} />
+        </LayerContext>
+      </>,
+    );
+    const secondSetStyle = second.setStyleCalls;
+    seen.length = 0;
+    view.rerender(
+      <>
+        <LayerContext value={first}>
+          <GeoJson data={fc('a') as any} style={styleOf('first', 'blue')} />
+        </LayerContext>
+        <LayerContext value={second}>
+          <GeoJson data={fc('b') as any} style={second2} />
+        </LayerContext>
+      </>,
+    );
+    expect(seen).toEqual(['first:a']);
+    expect(second.setStyleCalls).toBe(secondSetStyle);
+    expect(first.features[0].style).toEqual({ fillColor: 'blue' });
+    expect(second.features[0].style).toEqual({ fillColor: 'red' });
+  });
+
+  test('SDK 가 죽은 뒤 style 이 바뀌어도 칠하지 않는다', () => {
+    const view = render(
+      <GeoJson data={fc('a') as any} style={{ fillColor: 'red' }} />,
+    );
+    (globalThis as any).naver.maps = null;
+    view.rerender(
+      <GeoJson data={fc('a') as any} style={{ fillColor: 'blue' }} />,
+    );
+    expect(data.features[0].style).toEqual({ fillColor: 'red' });
   });
 });
 
