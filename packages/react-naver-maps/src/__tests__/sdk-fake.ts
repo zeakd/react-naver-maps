@@ -280,10 +280,13 @@ export class FakeOverlayView extends kvoClass(
     };
   }
 
+  // SDK 처럼 붙일 때 onAdd 다음 draw 를 바로 부른다(3.10.5 OverlayView.setMap).
   override setMap(map: unknown): void {
     this.set('map', map);
-    if (map) this.onAdd();
-    else this.onRemove();
+    if (map) {
+      this.onAdd();
+      this.draw();
+    } else this.onRemove();
   }
 
   onAdd() {}

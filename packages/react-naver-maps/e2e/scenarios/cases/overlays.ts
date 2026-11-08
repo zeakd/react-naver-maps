@@ -51,6 +51,79 @@ export const overlays: Scenario[] = [
     expect: [calls({ 'title:red': 0, 'title:blue': 1 })],
   },
   {
+    name: 'CustomOverlay 의 position 을 바꾸면 같은 렌더의 부모 layout effect 에서 새 자리에 그려져 있다',
+    since: '0.4',
+    app: { mode: 'props', customOverlayProbe: true },
+    steps: [
+      { t: 'frames', n: 3 },
+      { t: 'props', props: { customOverlayShift: 1 } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ 'layout:1:match': 1, 'layout:1:stale': 0 })],
+  },
+  {
+    name: 'StrictMode 에서도 CustomOverlay 의 position 을 바꾸면 부모 layout effect 에서 새 자리에 그려져 있다',
+    since: '0.4',
+    app: { mode: 'props', strict: true, customOverlayProbe: true },
+    steps: [
+      { t: 'frames', n: 3 },
+      { t: 'props', props: { customOverlayShift: 1 } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ 'layout:1:match': 1, 'layout:1:stale': 0 })],
+  },
+  {
+    name: '마운트 중에 부모가 바꾼 CustomOverlay 의 position 이 그려진다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      customOverlayProbe: true,
+      customOverlayShiftDuringMount: true,
+    },
+    steps: [
+      { t: 'props', props: { tick: 1 } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ 'paint:1:match': 1, 'paint:1:stale': 0 })],
+  },
+  {
+    name: '숨긴 동안 바꾼 CustomOverlay 의 position 이 다시 보일 때 그려진다',
+    since: '0.4',
+    app: { mode: 'props', customOverlayProbe: true },
+    steps: [
+      { t: 'frames', n: 3 },
+      { t: 'props', props: { customOverlayActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { customOverlayShift: 1 } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { customOverlayActivity: 'visible' } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [
+      calls({
+        'layout:1:match': 1,
+        'layout:1:stale': 0,
+        'paint:1:match': 1,
+        'paint:1:stale': 0,
+      }),
+    ],
+  },
+  {
+    name: '숨겼다 다시 보인 CustomOverlay 는 바깥에서 바꾼 컨테이너 zIndex 를 prop 으로 되돌린다',
+    since: '0.4',
+    app: { mode: 'props', customOverlayProbe: true },
+    steps: [
+      { t: 'frames', n: 3 },
+      { t: 'props', props: { customOverlayExternalZ: true } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { customOverlayActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { customOverlayActivity: 'visible' } },
+      { t: 'frames', n: 3 },
+    ],
+    expect: [calls({ 'z:99': 1, 'z:5': 1 })],
+  },
+  {
     name: 'clickable 을 나중에 켠 Marker 도 클릭을 받는다',
     app: { mode: 'props', marker: true, markerClickable: false },
     steps: [

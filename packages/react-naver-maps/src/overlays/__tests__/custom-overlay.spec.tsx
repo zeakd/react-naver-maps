@@ -1,6 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createRef, type ReactNode } from 'react';
+import {
+  createRef,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   installSdkFake,
   type SdkFake,
@@ -343,5 +349,131 @@ describe('CustomOverlay 스펙 테스트', () => {
     );
 
     expect(setPositionSpy).toHaveBeenCalledWith(p2);
+  });
+
+  describe('값 동기화 시점과 기준', () => {
+    type Spied = { setPosition: (p: unknown) => void };
+    const LL = (lat: number, lng: number) =>
+      new (mock.maps.LatLng as any)(lat, lng) as naver.maps.LatLng;
+
+    test('마운트 직후 같은 값을 다시 넘기지 않는다(생성자 값이 기준)', () => {
+      // ref 는 값 동기화보다 먼저 붙으므로 그 인스턴스의 setPosition 을 감싸 센다.
+      const calls: unknown[] = [];
+      function Probe() {
+        return (
+          <CustomOverlay
+            position={{ lat: 37.5, lng: 127.0 }}
+            ref={(o) => {
+              if (!o) return;
+              const own = o as unknown as Spied;
+              const original = own.setPosition.bind(own);
+              own.setPosition = (p) => {
+                calls.push(p);
+                original(p);
+              };
+            }}
+          >
+            <span />
+          </CustomOverlay>
+        );
+      }
+      render(
+        <Wrapper>
+          <Probe />
+        </Wrapper>,
+      );
+      expect(calls).toEqual([]);
+    });
+
+    test('같은 렌더의 부모 layout effect 가 ref 로 읽을 때 새 자리에 그려져 있다', () => {
+      const seen: string[] = [];
+      function Parent({ lng }: { lng: number }) {
+        const ref = useRef<naver.maps.OverlayView | null>(null);
+        useLayoutEffect(() => {
+          // 첫 렌더에는 인스턴스가 아직 없다(useSdkInstance 는 첫 layout effect 뒤에 돌려준다).
+          if (!ref.current) return;
+          const el = (
+            ref.current as unknown as { getContainerElement(): HTMLElement }
+          ).getContainerElement();
+          seen.push(el.style.left);
+        });
+        return (
+          <CustomOverlay
+            position={LL(37.5, lng)}
+            ref={(o) => {
+              ref.current = o;
+            }}
+          >
+            <span />
+          </CustomOverlay>
+        );
+      }
+      const view = render(
+        <Wrapper>
+          <Parent lng={127} />
+        </Wrapper>,
+      );
+      view.rerender(
+        <Wrapper>
+          <Parent lng={130} />
+        </Wrapper>,
+      );
+      expect(seen.slice(-1)).toEqual(['103px']);
+    });
+
+    test('생성과 첫 동기화 사이에 부모가 바꾼 position 을 넘긴다', () => {
+      function Parent() {
+        const [lng, setLng] = useState(127);
+        // 일부러 layout effect 에서 바꾼다. 인스턴스 생성과 첫 값 동기화 사이다.
+        // oxlint-disable-next-line react/set-state-in-effect
+        useLayoutEffect(() => setLng(131), []);
+        return (
+          <CustomOverlay position={LL(37.5, lng)}>
+            <span data-testid="race" />
+          </CustomOverlay>
+        );
+      }
+      render(
+        <Wrapper>
+          <Parent />
+        </Wrapper>,
+      );
+      const container = document.querySelector(
+        '[data-testid="race"]',
+      )!.parentElement!;
+      expect(container.style.left).toBe('104px');
+    });
+
+    test('anchor 를 빼면 오프셋이 0 이 되고 zIndex 를 빼면 스타일이 빈다', () => {
+      const view = render(
+        <Wrapper>
+          <CustomOverlay
+            position={{ lat: 37.5, lng: 127.0 }}
+            anchor={{ x: 10, y: 20 } as naver.maps.Point}
+            zIndex={3}
+          >
+            <span data-testid="remove" />
+          </CustomOverlay>
+        </Wrapper>,
+      );
+      const container = document.querySelector(
+        '[data-testid="remove"]',
+      )!.parentElement!;
+      expect([container.style.left, container.style.zIndex]).toEqual([
+        '90px',
+        '3',
+      ]);
+      view.rerender(
+        <Wrapper>
+          <CustomOverlay position={{ lat: 37.5, lng: 127.0 }}>
+            <span data-testid="remove" />
+          </CustomOverlay>
+        </Wrapper>,
+      );
+      expect([container.style.left, container.style.zIndex]).toEqual([
+        '100px',
+        '',
+      ]);
+    });
   });
 });
