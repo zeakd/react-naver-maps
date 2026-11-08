@@ -42,7 +42,8 @@ import { isMapReady } from '../sdk/internals.js';
  *
  * 인증에 실패하면 SDK 메서드가 던지므로 detach, dispose 는 SDK 가 살아 있을 때만 돈다. SDK 를 부르지 않는
  * 자체 자원(직접 만든 element, 타이머)은 release 에서 치운다. 가드를 spec 마다 두지 않으니 빠뜨려서 인증
- * 실패 앱이 언마운트에서 던질 일이 없다.
+ * 실패 앱이 언마운트에서 던질 일이 없다. dispose 가 던져도 release 는 돌고, 예외는 삼키지 않고 React 로
+ * 보낸다(가까운 error boundary).
  */
 export type SdkInstanceSpec<T> = {
   create: () => T;
@@ -50,21 +51,28 @@ export type SdkInstanceSpec<T> = {
   attach?: (instance: T) => void;
   detach: (instance: T) => void;
   dispose: (instance: T) => void;
-  /** 버릴 때 dispose 다음에 늘 돈다. SDK 를 부르면 안 된다. */
+  /**
+   * 버릴 때 dispose 다음에 돈다. SDK 가 죽었거나 dispose 가 던져도 돈다. SDK 를 부르면 안 된다.
+   * 이것이 던지면 그 예외가 나간다(dispose 의 예외와 겹치면 이것이 이긴다).
+   */
   release?: (instance: T) => void;
 };
 
 /** 버린다. SDK 가 죽었으면 SDK 를 부르는 dispose 는 건너뛰고 자체 자원만 치운다. */
 function retire<T>(spec: SdkInstanceSpec<T>, instance: T): void {
-  if (sdkAlive()) spec.dispose(instance);
-  spec.release?.(instance);
+  try {
+    if (sdkAlive()) spec.dispose(instance);
+  } finally {
+    spec.release?.(instance);
+  }
 }
 
 /**
  * spec 에 따라 인스턴스를 만들고 돌려준다. 첫 layout effect 전에는 null 이다.
  *
  * keys 는 값으로 비교한다. 바뀌면 옛 인스턴스를 버리고 새로 만든다(GroundOverlay 의 url 등).
- * spec 의 함수는 매 렌더 최신 것을 쓴다.
+ * create, attach 는 그 렌더의 최신 spec 을 쓰고, detach, dispose, release 는 그 인스턴스를 만든 렌더의
+ * spec 을 쓴다.
  */
 export function useSdkInstance<T>(
   spec: SdkInstanceSpec<T>,
@@ -198,9 +206,10 @@ export function onReadyMap<T extends MapAttachable>(
  */
 /**
  * 준비(init)를 기다리는 인스턴스와 그 init 리스너. 모듈에 하나만 둔다. onReadyHost 는 렌더마다
- * 새 spec 을 만들고 useSdkInstance 는 최신 spec 으로 뗀다. spec 마다 따로 두면 init 전에 내리거나
- * 숨길 때 앞 렌더의 spec 이 단 리스너를 찾지 못해, init 이 오면 내린 인스턴스가 지도에 붙었다
- * (e2e "init 전에 올렸다 내린 HeatMap 과 CustomControl").
+ * 새 spec 을 만들고, 리스너를 다는 spec 과 떼는 spec 이 다를 수 있다. 다시 보일 때 붙이기는 최신
+ * spec 이고 떼기·버리기는 인스턴스를 만든 렌더의 spec 이다. spec 마다 따로 두면 떼는 쪽이 리스너를
+ * 찾지 못해, init 이 오면 내린 인스턴스가 지도에 붙는다(e2e "init 전에 올렸다 내린 HeatMap 과
+ * CustomControl").
  */
 const waits = new WeakMap<object, MapListener>();
 
