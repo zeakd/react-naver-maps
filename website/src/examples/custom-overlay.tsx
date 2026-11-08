@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Activity, useState } from 'react';
 import {
   NavermapsProvider,
   Container as MapDiv,
@@ -30,7 +30,7 @@ function BrownCard() {
   );
 }
 
-function CustomOverlayMapContent() {
+function CustomOverlayMapContent({ visible }: { visible: boolean }) {
   // 클릭한 위치마다 오버레이를 하나씩 더한다. 처음에는 중심에 하나가 있다.
   const [positions, setPositions] = useState([start]);
 
@@ -42,21 +42,28 @@ function CustomOverlayMapContent() {
         setPositions((prev) => [...prev, { lat: e.coord.y, lng: e.coord.x }])
       }
     >
-      {positions.map((position, i) => (
-        <CustomOverlay key={i} position={position} pane="overlayLayer">
-          <BrownCard />
-        </CustomOverlay>
-      ))}
+      {/* 숨겨도 오버레이를 버리지 않고 지도에서만 뗀다. 다시 보이면 같은 자리에 붙는다. */}
+      <Activity mode={visible ? 'visible' : 'hidden'}>
+        {positions.map((position, i) => (
+          <CustomOverlay key={i} position={position} pane="overlayLayer">
+            <BrownCard />
+          </CustomOverlay>
+        ))}
+      </Activity>
     </NaverMap>
   );
 }
 
 export default function CustomOverlayExample() {
+  const [visible, setVisible] = useState(true);
   return (
     <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapDiv style={{ width: '100%', height: '400px' }}>
-        <CustomOverlayMapContent />
+        <CustomOverlayMapContent visible={visible} />
       </MapDiv>
+      <button onClick={() => setVisible((v) => !v)}>
+        {visible ? '오버레이 숨기기' : '오버레이 보이기'}
+      </button>
     </NavermapsProvider>
   );
 }

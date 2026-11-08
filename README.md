@@ -4,7 +4,7 @@
 
 네이버맵의 기본 기능을 최대한 유지하면서, React에서 다루기 쉬운 인터페이스를 제공합니다.
 
-- React 19 전용, 런타임 의존성 없음 (peerDeps: react, react-dom)
+- React 19.0 이상, 런타임 의존성 없음 (peerDeps: react, react-dom. TypeScript 를 쓰면 `@types/navermaps` 3.10.0 이상)
 - TypeScript 지원 (`@types/navermaps` 기반)
 - Suspense 기반 스크립트 로딩
 
