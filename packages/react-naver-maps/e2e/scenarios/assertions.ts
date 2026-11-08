@@ -355,6 +355,23 @@ export function dataLayer(
 }
 
 /** at 프레임(음수면 끝에서부터)에 HeatMap opacity 가 expected 다. */
+/** at 번째 프레임의 feature 별 fillColor(`dataFills`)와 공용 override 슬롯. */
+export function dataFills(
+  expected: string,
+  at = -1,
+  override?: string | null,
+): Assertion {
+  return (trace) => {
+    const f = trace.at(at)!;
+    const where = `프레임 ${at < 0 ? trace.length + at : at}`;
+    if (f.dataFills !== expected)
+      return `${where} 칠 ${f.dataFills}, 기대 ${expected}`;
+    if (override !== undefined && f.dataOverride !== override)
+      return `${where} override ${f.dataOverride}, 기대 ${override}`;
+    return null;
+  };
+}
+
 export function heatMapOpacity(expected: number | null, at = -1): Assertion {
   return (trace) => {
     const actual = trace.at(at)!.heatMapOpacity;

@@ -1,4 +1,6 @@
 import {
+  calls,
+  dataFills,
   dataLayer,
   groundOverlaysCreated,
   overlaysOnMap,
@@ -39,6 +41,133 @@ export const layersData: Scenario[] = [
       { t: 'frames', n: 2 },
     ],
     expect: [overlaysOnMap(['bicycle'], 0), overlaysOnMap([])],
+  },
+  {
+    name: 'GeoJson 둘 중 하나의 style 을 바꾸면 그 feature 만 다시 칠하고 다른 GeoJson 의 style 함수는 부르지 않는다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      dataStyleProbe: true,
+      dataStyleA: '#ff0000',
+      dataStyleB: '#00ff00',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleA: '#0000ff' } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      calls({ styleA: 2, styleB: 0 }),
+      dataFills('a0:#0000ff a1:#0000ff b0:#00ff00 b1:#00ff00 b2:#000'),
+    ],
+  },
+  {
+    name: '다른 GeoJson 의 feature 에 직접 준 스타일과 override 는 이 GeoJson 의 style 변경이 덮지 않고 공용 override 도 그대로다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      dataStyleProbe: true,
+      dataStyleA: '#ff0000',
+      dataStyleB: '#00ff00',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataAction: 'b-imperative' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleA: '#0000ff' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleB: '#00ffff' } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      dataFills(
+        'a0:#ff0000 a1:#ff0000 b0:#123456 b1:#ff00ff b2:#000',
+        3,
+        '#ff00ff',
+      ),
+      dataFills(
+        'a0:#0000ff a1:#0000ff b0:#123456 b1:#ff00ff b2:#000',
+        5,
+        '#ff00ff',
+      ),
+      // B 자신의 style 이 바뀌면 지금처럼 자기 feature 를 다시 칠한다.
+      dataFills(
+        'a0:#0000ff a1:#0000ff b0:#00ffff b1:#00ffff b2:#000',
+        -1,
+        '#ff00ff',
+      ),
+    ],
+  },
+  {
+    name: 'setProperty 뒤에는 그 GeoJson 의 지금 style 로 칠하고, 바깥 setStyle 뒤 style 을 없애도 레이어를 되찾는다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      dataStyleProbe: true,
+      dataStyleA: '#ff0000',
+      dataStyleB: '#00ff00',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleB: '#00ffff' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataAction: 'b-hot' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataAction: 'external' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleA: undefined } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      dataFills('a0:#ff0000 a1:#ff0000 b0:#00ffff b1:#ffa500 b2:#000', 5),
+      dataFills('a0:#000000 a1:#000000 b0:#000000 b1:#000000 b2:#000000', 7),
+      // A 는 style 이 없어 바깥 스타일 그대로, B 는 레이어를 되찾아 자기 style 로, b2 는 undefined 라 그대로.
+      dataFills('a0:#000000 a1:#000000 b0:#00ffff b1:#ffa500 b2:#000000'),
+    ],
+  },
+  {
+    name: '같은 commit 에 GeoJson 둘을 올리거나 둘의 style 을 함께 바꾸면 각자 자기 style 로 칠한다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      dataStyleProbe: true,
+      dataStyleA: '#ff0000',
+      dataStyleB: '#00ff00',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleA: '#0000ff', dataStyleB: '#00ffff' } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      dataFills('a0:#ff0000 a1:#ff0000 b0:#00ff00 b1:#00ff00 b2:#000', 1),
+      calls({ styleA: 2, styleB: 3 }),
+      dataFills('a0:#0000ff a1:#0000ff b0:#00ffff b1:#00ffff b2:#000'),
+    ],
+  },
+  {
+    name: '숨긴 동안 style 이 바뀐 GeoJson 은 다시 보일 때 새 style 로 칠한다',
+    since: '0.4',
+    app: {
+      mode: 'props',
+      dataStyleProbe: true,
+      dataStyleA: '#ff0000',
+      dataStyleB: '#00ff00',
+    },
+    steps: [
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataBActivity: 'hidden' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataStyleB: '#00ffff', dataStyleA: '#0000ff' } },
+      { t: 'frames', n: 2 },
+      { t: 'props', props: { dataBActivity: 'visible' } },
+      { t: 'frames', n: 2 },
+    ],
+    expect: [
+      dataFills('a0:#ff0000 a1:#ff0000', 3),
+      dataFills('a0:#0000ff a1:#0000ff', 5),
+      dataFills('a0:#0000ff a1:#0000ff b0:#00ffff b1:#00ffff b2:#000'),
+    ],
   },
   {
     name: 'GeoJson 은 데이터 레이어에 feature 를 올리고 style 을 바꾸면 다시 칠하고 클릭에 feature 를 주고 언마운트하면 뺀다',
