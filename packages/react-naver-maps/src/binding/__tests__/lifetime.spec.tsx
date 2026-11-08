@@ -128,3 +128,80 @@ test('교체 중 create 가 던져도 옛 인스턴스를 두 번 버리지 않�
     'release:A:by:A',
   ]);
 });
+
+function throwingDispose(
+  owner: string,
+  log: string[],
+): SdkInstanceSpec<Instance> {
+  return {
+    ...logSpec(owner, log),
+    dispose: (i) => {
+      log.push(`dispose:${i.createdBy}:by:${owner}`);
+      throw new Error('dispose 실패');
+    },
+  };
+}
+
+class Catch extends Component<{ children: ReactNode; caught: unknown[] }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: unknown) {
+    this.props.caught.push(error);
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+test('교체 중 dispose 가 던져도 자체 자원은 치우고 예외는 경계로 간다', () => {
+  const log: string[] = [];
+  const caught: unknown[] = [];
+  function Owner({ keyValue }: { keyValue: number }) {
+    useSdkInstance(throwingDispose('A', log), [keyValue]);
+    return null;
+  }
+  const silent = vi.spyOn(console, 'error').mockImplementation(() => {});
+  const view = render(
+    <Catch caught={caught}>
+      <Owner keyValue={1} />
+    </Catch>,
+  );
+  view.rerender(
+    <Catch caught={caught}>
+      <Owner keyValue={2} />
+    </Catch>,
+  );
+  silent.mockRestore();
+  expect(log).toEqual([
+    'create:A',
+    'detach:A:by:A',
+    'dispose:A:by:A',
+    'release:A:by:A',
+  ]);
+  expect(caught.map((e) => (e as Error).message)).toEqual(['dispose 실패']);
+});
+
+test('언마운트에서 dispose 가 던져도 자체 자원은 치우고 예외는 경계로 간다', () => {
+  const log: string[] = [];
+  const caught: unknown[] = [];
+  function Owner() {
+    useSdkInstance(throwingDispose('A', log));
+    return null;
+  }
+  const silent = vi.spyOn(console, 'error').mockImplementation(() => {});
+  const view = render(
+    <Catch caught={caught}>
+      <Owner />
+    </Catch>,
+  );
+  view.rerender(<Catch caught={caught}>{null}</Catch>);
+  silent.mockRestore();
+  expect(log.filter((l) => !l.startsWith('detach'))).toEqual([
+    'create:A',
+    'dispose:A:by:A',
+    'release:A:by:A',
+  ]);
+  expect(caught.map((e) => (e as Error).message)).toEqual(['dispose 실패']);
+});
