@@ -9,6 +9,7 @@ import { useNavermaps } from '../hooks/use-navermaps.js';
 import { useMap } from '../hooks/use-map.js';
 import { useControlledProps } from '../binding/use-controlled-kvo.js';
 import { onReadyMap, useSdkInstance } from '../binding/lifetime.js';
+import { rememberCreatedOptions } from '../binding/created-options.js';
 
 /**
  * 지도의 컨트롤 자리에 React 내용을 그린다. SDK 의 CustomControl 이다.
@@ -47,7 +48,12 @@ export function CustomControl({
 
   // 지도 init 전이면 init 을 기다렸다 붙인다(lifetime.ts onReadyMap).
   const control = useSdkInstance<naver.maps.CustomControl>(
-    onReadyMap(map, () => new navermaps.CustomControl('', { position })),
+    onReadyMap(map, () =>
+      // 생성자가 받은 position 을 기록해 첫 동기화가 그 값과 견주게 한다(binding/created-options.ts).
+      rememberCreatedOptions(new navermaps.CustomControl('', { position }), {
+        position,
+      }),
+    ),
     [map],
   );
 
