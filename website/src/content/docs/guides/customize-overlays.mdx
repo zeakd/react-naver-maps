@@ -4,11 +4,11 @@ category: guides
 order: 6
 ---
 
-제공되는 컴포넌트(`Marker`, `Circle` 등)로 충분하지 않은 경우, 네이버맵 네이티브 API와 React를 조합하여 커스텀 오버레이를 만들 수 있습니다.
+제공되는 컴포넌트(`Marker`, `Circle` 등) 외에 네이버 지도 API와 React를 조합해 사용자 정의 오버레이를 만듭니다.
 
 ## CustomOverlay 컴포넌트
 
-가장 간단한 방법은 `CustomOverlay`를 사용하는 것입니다. React children을 지도 좌표에 Portal로 렌더링합니다.
+`CustomOverlay`는 children을 포털로 지도 좌표에 렌더링합니다.
 
 ```tsx
 import { CustomOverlay } from 'react-naver-maps';

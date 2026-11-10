@@ -7,7 +7,7 @@ order: 2
 ## 사전 준비
 
 네이버맵 API를 사용하려면 NCP(Naver Cloud Platform)에서 클라이언트 ID를 발급받아야 합니다.
-[공식 가이드](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html)를 참고하여 발급을 진행해주세요.
+[공식 가이드](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html)를 참고해 발급해 주세요.
 
 1. [Naver Cloud Platform 콘솔](https://console.ncloud.com)에 로그인
 2. [Maps > Application](https://console.ncloud.com/maps/application) 에서 Application 등록, API 는 **Dynamic Map** 선택
@@ -22,7 +22,7 @@ React 19.0 이상이 필요합니다.
 npm install react-naver-maps
 ```
 
-TypeScript 를 쓰면 SDK 타입(3.10.0 이상)도 설치합니다.
+TypeScript를 쓰면 SDK 타입(3.10.0 이상)도 설치해 주세요.
 
 ```bash
 npm install -D @types/navermaps
@@ -30,7 +30,7 @@ npm install -D @types/navermaps
 
 ## Provider 설정
 
-앱의 루트에 `NavermapsProvider`를 추가합니다. `ncpKeyId`에 발급받은 Client ID를 전달합니다.
+앱 최상위를 `NavermapsProvider`로 감싸고, 발급받은 Client ID를 `ncpKeyId`에 넣어 주세요.
 
 ```tsx
 import { NavermapsProvider } from 'react-naver-maps';

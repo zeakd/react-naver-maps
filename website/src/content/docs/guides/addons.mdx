@@ -4,11 +4,11 @@ category: guides
 order: 9
 ---
 
-`react-naver-maps` 는 네이버맵 SDK 를 React 에서 사용할 수 있도록 제공합니다. SDK 에 없는 기능은 `react-naver-maps/addons` 에서 별도로 제공합니다.
+`react-naver-maps`는 네이버 지도 SDK를 React에서 사용하도록 돕습니다. SDK에 없는 기능은 `react-naver-maps/addons`에서 별도로 제공합니다.
 
 ## useAutoResize
 
-SDK 는 window resize 이벤트를 받습니다. 패널을 접는 등 지도 영역의 크기만 달라지는 경우 `useAutoResize` 로 지도 크기를 맞출 수 있습니다. 거리뷰(`Panorama` 인스턴스)에도 사용할 수 있습니다. 거리뷰는 window resize 이벤트도 받지 않습니다.
+SDK는 window resize 이벤트를 받습니다. 패널을 접는 등 지도 영역의 크기만 달라지면 `useAutoResize`로 지도 크기를 맞춥니다. 거리뷰(`Panorama` 인스턴스)에도 사용하며, 거리뷰는 window resize 이벤트도 받지 않습니다.
 
 ```tsx
 import { NaverMap, useMap } from 'react-naver-maps';
