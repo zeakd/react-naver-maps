@@ -4,13 +4,13 @@ category: tutorial-overlay
 order: 24
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-overlay-pattern.example.html
 changes:
-  - official: '`document.body` 에 붙인 SVG 의 `innerHTML` 로 `<pattern>` 을 넣는다'
-    react: '`PatternDefs` 컴포넌트가 JSX 로 `<pattern>` 을 그린다'
-  - official: '`getElement().style.fill` 을 직접 바꾼다'
-    react: '도형별 무늬 state 를 `fillColor` 에 `url(#id)` 로 준다'
-  - official: '`polygon.setOptions()` 로 선 색과 투명도를 바꾼다'
-    react: '`polygonHover` state 로 `strokeColor`, `strokeOpacity` 를 고른다'
-  - official: "`Event.addListener(shape, 'mouseover')` 와 `'mouseout'` 리스너"
+  - official: '`document.body`에 붙인 SVG의 `innerHTML`로 `<pattern>` 추가'
+    react: '`PatternDefs` 컴포넌트에서 JSX로 `<pattern>` 표시'
+  - official: '`getElement().style.fill` 직접 변경'
+    react: '도형별 무늬 state를 `fillColor`에 `url(#id)`로 전달'
+  - official: '`polygon.setOptions()`로 선 색과 투명도 변경'
+    react: '`polygonHover` state로 `strokeColor`, `strokeOpacity` 설정'
+  - official: "`Event.addListener(shape, 'mouseover')`와 `'mouseout'` 리스너"
     react: '`onMouseover`, `onMouseout` prop'
 limits:
   - 공식 예제의 무늬 20종은 쓰지 않고 간단한 무늬 5종을 직접 그렸습니다.
@@ -22,6 +22,6 @@ additions:
 import Example from 'astro-component-docs/components/Example.astro';
 import OverlayPatternExample from '../../../examples/overlay-pattern.tsx';
 
-SVG 무늬로 도형을 채우고, 마우스를 올리거나 벗어나면 무늬를 바꾸는 예제입니다.
+SVG 무늬로 도형을 채우고 마우스를 올리거나 벗어나면 무늬를 바꿉니다.
 
 <Example of={OverlayPatternExample} />
