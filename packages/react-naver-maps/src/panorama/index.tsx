@@ -28,7 +28,10 @@ import {
   useControlledProps,
 } from '../binding/use-controlled-kvo.js';
 import { onMap, useSdkInstance } from '../binding/lifetime.js';
-import { rememberCreatedOptions } from '../binding/created-options.js';
+import {
+  createdOptionsOf,
+  rememberCreatedOptions,
+} from '../binding/created-options.js';
 import { useOverlayEvents, type EventDecl } from '../overlays/overlay-spec.js';
 import { omitUndefined } from '../binding/omit-undefined.js';
 import { pick } from '../binding/pick.js';
@@ -207,10 +210,21 @@ function PanoramaBindings({
 }) {
   useControlledProps(panorama, pick(props, OPTIONS));
   const hold = useGestureHold(panorama);
-  useCameraProp(props.position, (v) => panorama.setPosition(v), hold);
-  useCameraProp(props.panoId, (v) => panorama.setPanoId(v), hold);
-  useCameraProp(props.pov, (v) => panorama.setPov(v), hold);
-  useCameraProp(props.zoom, (v) => panorama.setZoom(v), hold);
+  const created = createdOptionsOf(panorama) ?? {};
+  useCameraProp(
+    created.position,
+    props.position,
+    (v) => panorama.setPosition(v),
+    hold,
+  );
+  useCameraProp(
+    created.panoId,
+    props.panoId,
+    (v) => panorama.setPanoId(v),
+    hold,
+  );
+  useCameraProp(created.pov, props.pov, (v) => panorama.setPov(v), hold);
+  useCameraProp(created.zoom, props.zoom, (v) => panorama.setZoom(v), hold);
 
   // init 은 비동기로 오지만 NaverMap 과 같이 layout effect 로 먼저 단다.
   useOverlayEvents(panorama, props, PANORAMA_LIFECYCLE_EVENTS, 'layout');
@@ -247,17 +261,19 @@ type GestureHold = {
  * 당겼다(e2e "pov 를 늦게 되돌려줘도 놓은 직후 다시 끄는"). 손을 떼면 마지막 prop 으로 맞춘다.
  */
 function useGestureHold(panorama: naver.maps.Panorama): GestureHold {
-  const activeRef = useRef(false);
+  // 거리뷰에서 누른 포인터들. 마지막 포인터를 뗄 때 보류를 푼다(두 손가락 중 하나만 떼면 아직 누르는 중).
+  const pointersRef = useRef(new Set<number>());
   const heldRef = useRef(false);
   const [, resume] = useReducer((n: number) => n + 1, 0);
   useLayoutEffect(() => {
     const el = panorama.getElement();
-    const down = () => {
-      activeRef.current = true;
+    const pointers = pointersRef.current;
+    const idOf = (e: Event) => (e as PointerEvent).pointerId ?? -1;
+    const down = (e: Event) => {
+      pointers.add(idOf(e));
     };
-    const up = () => {
-      if (!activeRef.current) return;
-      activeRef.current = false;
+    const up = (e: Event) => {
+      if (!pointers.delete(idOf(e)) || pointers.size > 0) return;
       if (heldRef.current) {
         heldRef.current = false;
         resume();
@@ -271,11 +287,11 @@ function useGestureHold(panorama: naver.maps.Panorama): GestureHold {
       window.removeEventListener('pointerup', up, true);
       window.removeEventListener('pointercancel', up, true);
       // 숨길 때도 여기로 온다. 떼는 것을 못 보므로 비운다(NaverMap 의 제스처 상태와 같다).
-      activeRef.current = false;
+      pointers.clear();
     };
   }, [panorama]);
   return {
-    active: () => activeRef.current,
+    active: () => pointersRef.current.size > 0,
     held: () => {
       heldRef.current = true;
     },
@@ -284,11 +300,13 @@ function useGestureHold(panorama: naver.maps.Panorama): GestureHold {
 
 /** prop 이 바뀔 때만 쓴다. 누르고 있는 동안은 보류하고(prev 를 그대로 둔다) 뗀 뒤 다시 비교한다. */
 function useCameraProp<T>(
+  createdValue: unknown,
   value: T | undefined,
   apply: (value: T) => void,
   hold: GestureHold,
 ) {
-  const prevRef = useRef(value);
+  // 첫 비교 기준은 생성자가 받은 값이다. 생성 뒤 첫 동기화 전에 부모가 바꾼 값도 들어간다.
+  const prevRef = useRef<unknown>(createdValue);
   useLayoutEffect(() => {
     const prev = prevRef.current;
     if (value === undefined || kvoEquals(prev, value)) {

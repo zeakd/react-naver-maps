@@ -591,8 +591,7 @@ export function overlaysStayPut(
     // 잴 오버레이: only 를 주면 그것, 아니면 구간 첫 프레임에 잰 것. 구간 내내 모두 재져야 한다. 하나라도
     // 사라지면(지도에서 떨어짐) 나머지로 통과하던 것을 막는다(2026-11-05 리뷰).
     const first = trace[start]?.overlayDrift ?? {};
-    const names =
-      only ?? Object.keys(first).filter((n) => first[n] !== null);
+    const names = only ?? Object.keys(first).filter((n) => first[n] !== null);
     if (names.length === 0 || start >= end) {
       return '오버레이 위치를 한 번도 재지 못했다';
     }
@@ -624,10 +623,12 @@ export function overlaysMoveWithMarker(
 ): Assertion {
   return (trace) => {
     const base = trace[0]!.overlayOffsetFromMarker;
-    const names = Object.keys(base).filter(
-      (n) => base[n] && (!only || only.includes(n)),
-    );
+    // only 를 주면 그 오버레이는 반드시 재야 한다. 첫 프레임에 없는 것을 빼고 넘어가지 않는다.
+    const names = only ?? Object.keys(base).filter((n) => base[n]);
     if (names.length === 0) return 'Marker 와의 간격을 재지 못했다';
+    const missing = names.find((n) => !base[n]);
+    if (missing)
+      return `첫 프레임에 ${missing} 와 Marker 의 간격을 재지 못했다(지도에 없다)`;
     const from = frames === 'last' ? trace.length - 1 : 0;
     for (let i = from; i < trace.length; i++) {
       for (const name of names) {
