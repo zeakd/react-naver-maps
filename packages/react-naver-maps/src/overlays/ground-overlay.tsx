@@ -28,7 +28,7 @@ export interface GroundOverlayProps extends EventHandlerProps<GroundOverlayEvent
   bounds: naver.maps.LatLngBounds | naver.maps.LatLngBoundsLiteral;
   /** 이미지 불투명도(0~1). */
   opacity?: number;
-  /** 마우스·터치 이벤트를 받을지 여부. 끄면 아래에 있는 지도가 이벤트를 받는다. */
+  /** 마우스·터치 이벤트를 받을지 여부. 끄면 아래에 있는 지도가 이벤트를 받습니다. */
   clickable?: boolean;
   /**
    * 이미지 요청의 CORS 모드. SDK 패턴: controlled (`_crossOrigin_changed` KVO 핸들러).

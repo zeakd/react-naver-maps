@@ -5,7 +5,7 @@ export interface StrokeStyle {
   strokeOpacity?: number;
   /** 선 색(CSS 색 값). */
   strokeColor?: string;
-  /** 선 모양. `'solid'`, `'shortdash'`, `'dot'` 같은 SDK 의 `StrokeStyleType` 값. */
+  /** 선 모양. `'solid'`, `'shortdash'`, `'dot'` 같은 SDK의 `StrokeStyleType` 값. */
   strokeStyle?: naver.maps.StrokeStyleType;
   /** 선 끝 모양(`'butt'`, `'round'`, `'square'`). */
   strokeLineCap?: naver.maps.StrokeLineCapType;

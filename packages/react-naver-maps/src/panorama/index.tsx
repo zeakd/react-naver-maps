@@ -66,7 +66,7 @@ export interface PanoramaProps {
   position?: naver.maps.LatLng | naver.maps.LatLngLiteral;
   /** 보여 줄 거리뷰 사진의 id. 좌표 대신 사진을 고를 때. */
   panoId?: string;
-  /** 보는 방향(`{ pan, tilt, fov }`). 주면 이 값으로 붙잡아 둔다. */
+  /** 보는 방향(`{ pan, tilt, fov }`). prop으로 값을 관리합니다. */
   pov?: naver.maps.PanoramaPov;
   /** 거리뷰 확대 정도. */
   zoom?: number;

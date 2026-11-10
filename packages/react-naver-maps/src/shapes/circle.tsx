@@ -27,15 +27,15 @@ export interface CircleProps
   ref?: Ref<naver.maps.Circle>;
 
   // Controlled
-  /** 원의 중심. 주면 이 값으로 붙잡아 둔다. 처음 값만 주려면 `defaultCenter`. */
+  /** 원의 중심. prop으로 값을 관리합니다. 초기값만 지정하려면 `defaultCenter`를 사용합니다. */
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
-  /** 반지름(m). 주면 이 값으로 붙잡아 둔다. 처음 값만 주려면 `defaultRadius`. */
+  /** 반지름(m). prop으로 값을 관리합니다. 초기값만 지정하려면 `defaultRadius`를 사용합니다. */
   radius?: number;
 
   // Uncontrolled
-  /** 처음 중심. 그 뒤로는 SDK 가 관리한다. */
+  /** 처음 중심. 이후에는 SDK가 관리합니다. */
   defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
-  /** 처음 반지름(m). 그 뒤로는 SDK 가 관리한다. */
+  /** 처음 반지름(m). 이후에는 SDK가 관리합니다. */
   defaultRadius?: number;
 
   // Options
@@ -43,7 +43,7 @@ export interface CircleProps
   clickable?: boolean;
   /** 보일지 여부. */
   visible?: boolean;
-  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그린다. */
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그립니다. */
   zIndex?: number;
 }
 

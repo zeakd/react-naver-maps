@@ -64,7 +64,7 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   anchorColor: string;
   /** 꼬리 크기(`{ width, height }`). */
   anchorSize: naver.maps.Size;
-  /** 꼬리를 기울여 그린다. */
+  /** 꼬리를 기울여 그립니다. */
   anchorSkew: boolean;
   /** 정보 창 바탕색. */
   backgroundColor: string;
@@ -73,9 +73,9 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   /** 정보 창 테두리 두께(px). */
   borderWidth: number;
   content: HTMLElement;
-  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않는다. */
+  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않습니다. */
   disableAnchor: boolean;
-  /** 열 때 정보 창이 보이도록 지도를 옮기지 않는다. */
+  /** 열 때 정보 창이 보이도록 지도를 옮기지 않습니다. */
   disableAutoPan: boolean;
   /** 정보 창 최대 너비(px). */
   maxWidth: number;
@@ -105,11 +105,11 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   borderColor?: string;
   /** 정보 창 테두리 두께(px). */
   borderWidth?: number;
-  /** 열 때 정보 창이 보이도록 지도를 옮기지 않는다. */
+  /** 열 때 정보 창이 보이도록 지도를 옮기지 않습니다. */
   disableAutoPan?: boolean;
-  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않는다. */
+  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않습니다. */
   disableAnchor?: boolean;
-  /** 꼬리를 기울여 그린다. */
+  /** 꼬리를 기울여 그립니다. */
   anchorSkew?: boolean;
   /** 꼬리 크기(`{ width, height }`). */
   anchorSize?: naver.maps.Size | naver.maps.SizeLiteral;
@@ -124,7 +124,7 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   // 이벤트. SDK 는 열고 닫힌 위치의 포인터 이벤트를 준다.
   /** 정보 창이 열렸을 때. */
   onOpen?: (e: naver.maps.PointerEvent) => void;
-  /** 정보 창이 닫혔을 때. 닫기로 바뀐 `open` 을 state 에 맞출 때 쓴다. */
+  /** 정보 창이 닫혔을 때. 닫기로 바뀐 `open`을 state에 맞출 때 사용합니다. */
   onClose?: (e: naver.maps.PointerEvent) => void;
 }
 

@@ -30,7 +30,7 @@ export interface MarkerProps
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Uncontrolled default
-  /** 처음 좌표. 그 뒤로는 SDK 가 관리한다(끌어 옮긴 위치를 되돌리지 않는다). */
+  /** 처음 좌표. 이후에는 SDK가 관리합니다(끌어 옮긴 위치를 되돌리지 않음). */
   defaultPosition?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Options
@@ -47,13 +47,13 @@ export interface MarkerProps
   title?: string;
   /** 마우스를 올렸을 때의 커서(CSS cursor 값). */
   cursor?: string;
-  /** 마우스·터치 이벤트를 받을지 여부. 끄면 아래에 있는 지도가 이벤트를 받는다. */
+  /** 마우스·터치 이벤트를 받을지 여부. 끄면 아래에 있는 지도가 이벤트를 받습니다. */
   clickable?: boolean;
   /** 끌어서 옮길 수 있는지 여부. */
   draggable?: boolean;
   /** 보일지 여부. */
   visible?: boolean;
-  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그린다. */
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그립니다. */
   zIndex?: number;
   /** GL 서브모듈에서 다른 마커와 겹치면 숨긴다(공식 문서 MarkerOptions). GL 이 아니면 SDK 가 무시한다. */
   collisionBehavior?: boolean;
