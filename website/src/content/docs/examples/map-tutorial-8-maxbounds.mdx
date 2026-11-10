@@ -5,13 +5,13 @@ order: 8
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-map-maxbounds.example.html
 changes:
   - official: '`new naver.maps.LatLngBounds(LatLng, LatLng)`'
-    react: '`{ south, west, north, east }` 리터럴을 `maxBounds`, `Rectangle`, `Marker` 에 사용'
+    react: '`{ south, west, north, east }` 리터럴을 `maxBounds`, `Rectangle`, `Marker`에 사용'
   - official: '`new naver.maps.Marker({ map, position: dokdo.getSW() })`'
     react: '`<Marker position>`'
   - official: '`new naver.maps.Rectangle({ map, bounds })`'
     react: '`<Rectangle bounds>`'
-  - official: '`zoom_changed` 리스너가 jQuery 로 패널 글자를 바꾼다'
-    react: '`onZoomChanged` 로 받은 값을 state 에 저장하고 JSX 로 표시'
+  - official: '`zoom_changed` 리스너에서 jQuery로 패널 글자 변경'
+    react: '`onZoomChanged`로 받은 값을 state에 저장하고 JSX로 표시'
 limits:
   - 공식 예제는 지도 중심을 정하지 않는데, 여기서는 독도 가운데로 정했습니다.
 ---
@@ -19,10 +19,10 @@ limits:
 import Example from 'astro-component-docs/components/Example.astro';
 import MapTutorial8MaxBoundsExample from '../../../examples/map-tutorial-8-maxbounds.tsx';
 
-`minZoom` 과 `maxBounds` 로 지도를 독도 영역으로 제한하는 예제입니다.
+`minZoom`과 `maxBounds`로 지도를 독도 영역으로 제한합니다.
 
 <Example of={MapTutorial8MaxBoundsExample} />
 
 ## 설명
 
-`NaverMap` 의 `maxBounds`, `minZoom` prop 을 사용합니다. 초기 줌은 16 입니다. `minZoom` 과 같은 14 에서 시작하면 더 축소할 수 없어 줌아웃이 되돌아갑니다.
+`NaverMap`의 `maxBounds`, `minZoom` prop을 사용합니다. 초기 줌은 16 입니다. `minZoom`과 같은 14 에서 시작하면 더 축소할 수 없어 줌아웃이 되돌아갑니다.

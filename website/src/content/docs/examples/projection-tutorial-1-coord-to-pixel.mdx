@@ -4,12 +4,12 @@ category: tutorial-map
 order: 1
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-projection-coord-to-pixel.example.html
 changes:
-  - official: "`Event.once(map, 'init')` 안에서 `Rectangle` 과 `Marker` 두 개를 만든다"
-    react: '`onInit` 에서 `bounds` state 를 설정하고 `<Rectangle>`, `<Marker>` 에 전달'
-  - official: '`rect.setBounds()`, `sw.setPosition()`, `ne.setPosition()` 으로 갱신한다'
-    react: '새 `LatLngBounds` 를 state 에 저장'
+  - official: "`Event.once(map, 'init')` 안에서 `Rectangle`과 `Marker` 두 개 생성"
+    react: '`onInit`에서 `bounds` state를 설정하고 `<Rectangle>`, `<Marker>`에 전달'
+  - official: '`rect.setBounds()`, `sw.setPosition()`, `ne.setPosition()`으로 갱신'
+    react: '새 `LatLngBounds`를 state에 저장'
   - official: '`init` 때 받아 둔 전역 `projection`'
-    react: '버튼을 누를 때마다 `ref` 로 받은 지도의 `getProjection()` 호출'
+    react: '버튼을 누를 때마다 `ref`로 받은 지도의 `getProjection()` 호출'
   - official: 'jQuery 버튼 핸들러와 `control-on` 클래스'
     react: '마지막으로 누른 버튼을 state(`last`)로 저장하고 표시'
 ---
@@ -17,14 +17,14 @@ changes:
 import Example from 'astro-component-docs/components/Example.astro';
 import ProjectionTutorial1CoordToPixelExample from '../../../examples/projection-tutorial-1-coord-to-pixel.tsx';
 
-투영법으로 경계의 모서리를 픽셀로 바꿔 안쪽(reduce)이나 바깥쪽(expand)으로 50px 씩 옮긴 뒤 다시 좌표로 되돌리는 예제입니다.
+투영법으로 경계의 모서리를 픽셀로 바꾸고 안쪽(reduce)이나 바깥쪽(expand)으로 50px씩 옮긴 뒤 다시 좌표로 변환합니다.
 
 <Example of={ProjectionTutorial1CoordToPixelExample} />
 
 ## 설명
 
-`ref` 로 받은 지도의 `getProjection()` 을 호출하고 `fromCoordToOffset()`, `fromOffsetToCoord()` 로 좌표와 픽셀을 변환합니다. 경계는 React state(`bounds`)로 관리하고 `Rectangle` 과 두 `Marker` 에 전달합니다.
+`ref`로 받은 지도의 `getProjection()`을 호출하고 `fromCoordToOffset()`, `fromOffsetToCoord()`로 좌표와 픽셀을 변환합니다. 경계는 React state(`bounds`)로 관리하고 `Rectangle`과 두 `Marker`에 전달합니다.
 
-처음 경계는 지도 `init` 뒤에 읽을 수 있어 `onInit` 에서 `getBounds()` 로 채웁니다.
+처음 경계는 지도 `init` 뒤에 읽을 수 있어 `onInit`에서 `getBounds()`로 채웁니다.
 
-`getBounds()`, `fromOffsetToCoord()` 의 반환값은 `LatLngBounds`, `LatLng` 로 타입을 단언합니다. `@types` 에서는 상위 타입으로 선언되어 있습니다.
+`getBounds()`, `fromOffsetToCoord()`의 반환값은 `LatLngBounds`, `LatLng`로 타입을 단언합니다. `@types` 에서는 상위 타입으로 선언되어 있습니다.
