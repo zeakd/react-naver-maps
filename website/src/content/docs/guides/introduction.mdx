@@ -17,6 +17,10 @@ import BasicMap from '../../../examples/basic-map.tsx';
 npm install react-naver-maps
 ```
 
+React 19.0 이상(`react`, `react-dom`)이 필요합니다. TypeScript 를 쓰면 `@types/navermaps` 3.10.0 이상도 설치합니다. 키 발급부터는 [Quickstart](/react-naver-maps/guides/quickstart/) 를 보세요.
+
+0.3 에서 올린다면 [0.3에서 0.4로](/react-naver-maps/guides/migration-from-03/) 에서 바뀐 동작과 새로 쓸 수 있는 것을 먼저 확인하세요.
+
 ## 기본 사용법
 
 <Example of={BasicMap} />
@@ -98,6 +102,8 @@ function MyMap() {
 - **TypeScript 지원**: `@types/navermaps` 기반의 완전한 타입 지원
 - **Suspense 지원**: 스크립트 로딩을 React 19 Suspense와 통합
 - **Controlled/Uncontrolled**: React 패턴에 맞는 상태 관리
+- **숨겼다 보여도 같은 지도**: Suspense, `<Activity>` 로 숨겼다 보여도 지도와 오버레이를 새로 만들지 않습니다
+- **서브모듈**: 시각화(`HeatMap`, `DotMap`), 그리기(`DrawingManager`), 파노라마(`Panorama`), 주소 변환(`geocode`)을 `react-naver-maps/visualization` 처럼 따로 가져옵니다
 
 ## 이전 버전
 

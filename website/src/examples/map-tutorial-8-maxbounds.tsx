@@ -16,14 +16,14 @@ const dokdo = {
 };
 
 function MaxBoundsMapContent() {
-  const [zoom, setZoom] = useState(14);
+  const [zoom, setZoom] = useState(16);
 
   return (
     <>
       <NaverMap
         // 영역 밖으로 나가지 못하게 maxBounds, 너무 멀어지지 않게 minZoom.
         defaultCenter={{ lat: 37.2412, lng: 131.8674 }}
-        defaultZoom={14}
+        defaultZoom={16}
         minZoom={14}
         maxBounds={dokdo}
         onZoomChanged={setZoom}

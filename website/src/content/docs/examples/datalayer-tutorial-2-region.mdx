@@ -16,3 +16,5 @@ import DatalayerTutorial2RegionExample from '../../../examples/datalayer-tutoria
 ## 설명
 
 17개 파일을 `Promise.all` 로 받아 한 FeatureCollection 으로 합쳐 `GeoJson` 하나에 넘깁니다(합친 값은 `useMemo`). 선택 상태는 `feature.setProperty('focus', ...)` 로 두고 `style` 함수가 읽습니다. 공식 예제가 `floatPane` 에 붙이는 이름표는 지도 위에 놓은 일반 `div` 이고, 위치는 이벤트의 `e.offset` 입니다.
+
+아래 버튼은 `style` 에 넘기는 함수를 바꿔 경계선 색을 바꿉니다. 색마다 함수를 컴포넌트 밖에 하나씩 두어, 버튼을 누를 때만 이 `GeoJson` 의 feature 를 다시 칠합니다. 클릭으로 고른 지역(`focus`)은 그대로 남습니다. 공식 예제에는 없는 부분입니다.

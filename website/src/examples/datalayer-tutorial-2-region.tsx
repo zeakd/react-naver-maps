@@ -13,22 +13,30 @@ const REGION_PATHS = Array.from(
   (_, i) => `data/region${String(i + 1).padStart(2, '0')}.json`,
 );
 
-const regionStyle = (feature: naver.maps.Feature) => {
+// 색마다 style 함수를 컴포넌트 밖에 하나씩 둔다. 렌더마다 새 함수를 만들면 매번 다시 칠한다.
+const makeRegionStyle = (color: string) => (feature: naver.maps.Feature) => {
   const focus = feature.getProperty('focus');
   return {
-    fillColor: focus ? '#0f0' : '#ff0000',
+    fillColor: focus ? '#0f0' : color,
     fillOpacity: focus ? 0.6 : 0.0001,
-    strokeColor: focus ? '#0f0' : '#ff0000',
+    strokeColor: focus ? '#0f0' : color,
     strokeWeight: focus ? 4 : 2,
     strokeOpacity: focus ? 1 : 0.4,
   };
 };
+const regionStyles = {
+  red: makeRegionStyle('#ff0000'),
+  blue: makeRegionStyle('#0050ff'),
+};
+type RegionColor = keyof typeof regionStyles;
 
 type Tooltip = { x: number; y: number; text: string };
 
 function Regions({
+  color,
   onTooltip,
 }: {
+  color: RegionColor;
   onTooltip: (tooltip: Tooltip | null) => void;
 }) {
   const map = useMap();
@@ -49,7 +57,7 @@ function Regions({
   return (
     <GeoJson
       data={regions as unknown as naver.maps.GeoJSON}
-      style={regionStyle}
+      style={regionStyles[color]}
       onClick={(e) =>
         e.feature.setProperty('focus', !e.feature.getProperty('focus'))
       }
@@ -75,6 +83,7 @@ function Regions({
 
 export default function DatalayerTutorial2RegionExample() {
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
+  const [color, setColor] = useState<RegionColor>('red');
   return (
     <NavermapsProvider ncpKeyId="aluya4ff04">
       <MapDiv style={{ width: '100%', height: '600px', position: 'relative' }}>
@@ -82,7 +91,7 @@ export default function DatalayerTutorial2RegionExample() {
           defaultCenter={{ lat: 36.4203004, lng: 128.31796 }}
           defaultZoom={7}
         >
-          <Regions onTooltip={setTooltip} />
+          <Regions color={color} onTooltip={setTooltip} />
         </NaverMap>
         {tooltip && (
           <div
@@ -102,6 +111,9 @@ export default function DatalayerTutorial2RegionExample() {
           </div>
         )}
       </MapDiv>
+      <button onClick={() => setColor((c) => (c === 'red' ? 'blue' : 'red'))}>
+        경계선 색 바꾸기
+      </button>
     </NavermapsProvider>
   );
 }

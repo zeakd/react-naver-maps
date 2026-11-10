@@ -13,4 +13,6 @@ import CustomOverlayExample from '../../../examples/custom-overlay.tsx';
 
 `CustomOverlay` 가 React children 을 지도 위 `position` 에 그립니다. 공식 예제의 `OverlayView` 서브클래스(`onAdd`/`draw`/`onRemove`)와 jQuery 가 필요 없고, 클릭한 곳마다 오버레이를 더하는 부분은 위치 배열 state 를 `map` 으로 그립니다. `pane="overlayLayer"` 로 공식 예제와 같은 레이어에 둡니다.
 
+아래 버튼은 오버레이들을 `<Activity mode="hidden">` 으로 숨깁니다(React 19.2 이상). 숨기는 동안 오버레이는 지도에서만 떨어지고, 다시 보이면 같은 인스턴스가 같은 자리에 붙습니다. 공식 예제에는 없는 부분입니다.
+
 > [네이버 공식 예제 - 사용자 정의 오버레이 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-custom-overlay.example.html)
