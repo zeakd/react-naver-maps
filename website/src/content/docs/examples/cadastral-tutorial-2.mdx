@@ -4,19 +4,19 @@ category: tutorial-layer
 order: 2
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-cadastral.example.html
 changes:
-  - official: '`new naver.maps.CadastralLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
-    react: '`<CadastralLayer />` 를 조건부 렌더링으로 켜고 끄기'
+  - official: '`new naver.maps.CadastralLayer()`를 만들고 `setMap(map)`, `setMap(null)`로 켜고 끄기'
+    react: '`<CadastralLayer />`를 조건부 렌더링으로 켜고 끄기'
   - official: jQuery 클릭 리스너에서 버튼 클래스와 글자(`val`) 바꾸기
-    react: 버튼의 `onClick` 에서 React state(`cadastral`)를 변경하고 state 에 따라 버튼 글자와 모양 표시
+    react: 버튼의 `onClick`에서 React state(`cadastral`)를 변경하고 state에 따라 버튼 글자와 모양 표시
   - official: '`cadastralLayer_changed` 이벤트로 버튼 갱신'
-    react: state 로 켜짐 여부를 관리하므로 이벤트 구독 없이 표시
+    react: state로 켜짐 여부를 관리하므로 이벤트 구독 없이 표시
   - official: 지도 `init` 이벤트에서 레이어 켜기
-    react: state 초기값을 `true` 로 설정해 처음부터 렌더링
+    react: state 초기값을 `true`로 설정해 처음부터 렌더링
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import CadastralTutorial2Example from '../../../examples/cadastral-tutorial-2.tsx';
 
-지도에 지적도 레이어를 켜고 끄는 예제입니다.
+지도에서 지적도 레이어를 켜고 끕니다.
 
 <Example of={CadastralTutorial2Example} />

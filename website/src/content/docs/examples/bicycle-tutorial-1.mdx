@@ -4,23 +4,23 @@ category: tutorial-layer
 order: 1
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-bicycle.example.html
 changes:
-  - official: '`new naver.maps.BicycleLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
-    react: '`<BicycleLayer />` 를 조건부 렌더링으로 켜고 끄기'
-  - official: jQuery 로 버튼에 클릭 리스너 붙이기
-    react: 버튼의 `onClick` 에서 React state(`bicycle`) 변경
+  - official: '`new naver.maps.BicycleLayer()`를 만들고 `setMap(map)`, `setMap(null)`로 켜고 끄기'
+    react: '`<BicycleLayer />`를 조건부 렌더링으로 켜고 끄기'
+  - official: jQuery로 버튼에 클릭 리스너 붙이기
+    react: 버튼의 `onClick`에서 React state(`bicycle`) 변경
   - official: '`bicycleLayer_changed` 이벤트로 버튼 모양 맞추기'
-    react: state 에 따라 버튼 모양 표시
+    react: state에 따라 버튼 모양 표시
   - official: 지도 `init` 이벤트에서 레이어 켜기
-    react: state 초기값을 `true` 로 설정해 처음부터 렌더링
+    react: state 초기값을 `true`로 설정해 처음부터 렌더링
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import BicycleTutorial1Example from '../../../examples/bicycle-tutorial-1.tsx';
 
-지도에 자전거 도로 레이어를 켜고 끄는 예제입니다.
+지도에서 자전거 도로 레이어를 켜고 끕니다.
 
 <Example of={BicycleTutorial1Example} />
 
 ## 설명
 
-지도 유형 컨트롤은 `mapTypeControl` 과 `mapTypeControlOptions` 로 설정합니다. 스타일 상수는 `useNavermaps()` 로 받은 `navermaps.MapTypeControlStyle` 을 사용합니다.
+지도 유형 컨트롤은 `mapTypeControl`과 `mapTypeControlOptions`로 설정합니다. 스타일 상수는 `useNavermaps()`로 받은 `navermaps.MapTypeControlStyle`을 사용합니다.
