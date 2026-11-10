@@ -34,11 +34,11 @@ function useKVO<T>(target: naver.maps.KVO, property: string): T;
 
 네이버맵의 KVO `set()`은 완전 동기이고 배치 처리가 없습니다. 드래그 중 일부 프로퍼티는 **매 프레임(~60fps)** 변경 이벤트를 발화합니다.
 
-**고주기 KVO** (드래그/줌 시 매 프레임 발화 — 구독 시 매 프레임 리렌더):
+**고주기 KVO** (드래그/줌 시 매 프레임 발생, 구독 시 매 프레임 리렌더):
 
 - `center`, `centerPoint`, `bounds`, `projectionTopLeft`, `containerTopLeft`
 
-**저주기 KVO** (사용자 액션 시에만 변경 — 이 훅 사용 OK):
+**저주기 KVO** (사용자 액션 시에만 변경, 이 훅 사용 가능):
 
 - `mapTypeId`, `zoom` (줌 애니메이션 완료 시), `draggable`, `visible` 등
 

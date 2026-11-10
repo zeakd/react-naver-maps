@@ -26,7 +26,7 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps';
 `NaverMap`은 `center`/`defaultCenter`, `zoom`/`defaultZoom` 등 controlled/uncontrolled 패턴을 지원합니다.
 
 - `defaultCenter`: 초기 중심 좌표 (uncontrolled)
-- `center`: 중심 좌표 (controlled — 외부에서 값을 관리)
+- `center`: 중심 좌표 (controlled, 외부에서 값을 관리)
 
 카메라 값(`center`, `zoom`)은 prop 이 바뀔 때만 지도에 넣고, 끌거나 핀치하는 동안과 관성이 멈출 때까지는 넣지 않습니다. 늦게 돌아온 되울림과 래스터의 실수 zoom 은 [핵심 개념](/react-naver-maps/guides/core-concepts/) 의 규칙대로 다룹니다. 그 밖의 controlled prop 은 바깥(사용자 조작, ref 호출)에서 바뀌면 다음 렌더에 prop 값으로 되돌립니다.
 

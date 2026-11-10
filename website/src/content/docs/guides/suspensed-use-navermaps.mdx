@@ -38,7 +38,7 @@ order: 4
 이 동작이 올바르게 작동하려면 **`useNavermaps()`를 반드시 `<Container>` 안에서 호출**해야 합니다. Container의 내장 Suspense가 스크립트 로딩을 처리합니다.
 
 ```tsx
-// ✅ 올바른 구조 — useNavermaps()가 Container 안
+// ✅ 올바른 구조: useNavermaps()가 Container 안
 function MyMap() {
   return (
     <Container style={{ width: '100%', height: '400px' }}>
@@ -59,7 +59,7 @@ function MapContent() {
 ```
 
 ```tsx
-// ❌ 잘못된 구조 — useNavermaps()가 Container 밖
+// ❌ 잘못된 구조: useNavermaps()가 Container 밖
 function MyMap() {
   const navermaps = useNavermaps(); // Suspense boundary 없음!
   return (
