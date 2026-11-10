@@ -2,6 +2,14 @@
 title: 네이버 라벨 레이어 표시하기
 category: tutorial-layer
 order: 5
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-label.example.html
+changes:
+  - official: '`new naver.maps.LabelLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
+    react: '`<LabelLayer />` 를 조건부로 렌더해 마운트로 켜고 끈다'
+  - official: 지도 생성 옵션 `mapTypes` 에 벡터 지도 레지스트리 넣기
+    react: '`useMemo` 로 한 번 만든 레지스트리를 `NaverMap` 의 `mapTypes` prop 에 준다'
+  - official: jQuery 클릭 리스너에서 버튼 클래스 바꾸기
+    react: 버튼의 `onClick` 이 React state(`label`)를 바꾸고, 버튼 모양은 state 에서 그린다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +21,4 @@ import LabelTutorial5Example from '../../../examples/label-tutorial-5.tsx';
 
 ## 설명
 
-`<LabelLayer />` 는 벡터 지도에 얹는 레이어라서 `NaverMap` 의 `mapTypes` 에 `NaverStyleMapTypeOptions.getVectorMap()` 을 `normal` 로 등록합니다. 레지스트리는 `useMemo` 로 한 번만 만듭니다.
-
-켜고 끄는 것은 마운트로 합니다. 자세한 내용은 [LabelLayer](/react-naver-maps/api-references/label-layer/) 를 보세요.
-
-> [네이버 공식 튜토리얼 - 네이버 라벨 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-label.example.html)
+`<LabelLayer />` 는 벡터 지도에 얹는 레이어라서 `NaverMap` 의 `mapTypes` 에 `NaverStyleMapTypeOptions.getVectorMap()` 을 `normal` 로 등록합니다. 자세한 내용은 [LabelLayer](/react-naver-maps/api-references/label-layer/) 를 보세요.

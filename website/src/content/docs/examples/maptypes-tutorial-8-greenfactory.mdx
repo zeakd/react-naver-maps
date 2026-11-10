@@ -2,6 +2,16 @@
 title: NAVER 그린팩토리 지도 유형
 category: tutorial-maptype
 order: 8
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-maptypes-greenfactory.example.html
+changes:
+  - official: '`$.extend` 로 공통 옵션과 층별 옵션 합치기'
+    react: 층 이름을 받는 함수가 `ImageMapType` 옵션 객체를 바로 만든다
+  - official: 투영법과 레지스트리를 스크립트에서 한 번 만들기
+    react: '`useMemo` 로 한 번만 만든다'
+  - official: '`new naver.maps.Map` 의 `mapTypes`, `mapTypeId`, `mapTypeControlOptions`, `zoomControlOptions` 옵션'
+    react: '`NaverMap` 의 `mapTypes`, `defaultMapTypeId`, `mapTypeControlOptions`, `zoomControlOptions` prop'
+  - official: '`HOME_PATH` 기준 상대 경로로 타일 이미지 불러오기'
+    react: 공식 문서 사이트의 타일 이미지를 절대 URL 로 불러온다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +23,4 @@ import MapTypesTutorial8GreenFactoryExample from '../../../examples/maptypes-tut
 
 ## 설명
 
-층마다 `ImageMapType` 을 만들어 `MapTypeRegistry`(`+1F`, `+2F`, `+4F`, `+5F`)에 넣고 `mapTypes`, `defaultMapTypeId` 에 줍니다. 컨트롤은 `mapTypeControlOptions` 의 `mapTypeIds`, `position`, `style` 입니다.
-
-투영법(좌표를 타일 크기로 나눔)과 레지스트리는 `useMemo` 로 한 번만 만듭니다. 타일 이미지는 공식 문서 사이트의 파일을 URL 로 불러옵니다.
-
-> [네이버 공식 튜토리얼 - NAVER 그린팩토리 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-maptypes-greenfactory.example.html)
+층마다 `ImageMapType` 을 만들어 `MapTypeRegistry`(`+1F`, `+2F`, `+4F`, `+5F`)에 넣습니다. 컨트롤은 `mapTypeControlOptions` 의 `mapTypeIds`, `position`, `style` 로 정합니다. 투영법은 평면 좌표를 타일 크기로 나눠 타일 좌표로 씁니다.

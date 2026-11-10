@@ -2,15 +2,23 @@
 title: 이미지 아이콘 사용하기
 category: tutorial-marker
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-marker-image-icon.example.html
+changes:
+  - official: '`new naver.maps.Marker` 에 `map`·`icon` 옵션'
+    react: '`<Marker>` 의 `icon` prop'
+  - official: '`new naver.maps.Size`·`new naver.maps.Point` 로 아이콘 크기와 좌표'
+    react: '`{ width, height }`·`{ x, y }` 리터럴'
+  - official: '전역에서 `position.destinationPoint(90, 15)` 를 한 번 계산'
+    react: '`useNavermaps()` 로 받은 `LatLng` 에서 `useMemo` 로 한 번 계산'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial3ImageIconExample from '../../../examples/marker-tutorial-3-image-icon.tsx';
 
+이미지를 마커 아이콘으로 쓰는 예제입니다.
+
 <Example of={MarkerTutorial3ImageIconExample} />
 
 ## 설명
 
-`Marker` 의 `icon` 에 `{ url, size, origin, anchor }` 를 줍니다. 좌표와 크기는 리터럴(`{ x, y }`, `{ width, height }`)로 씁니다. 공식 예제의 `destinationPoint(90, 15)` 는 `useNavermaps()` 로 받은 `LatLng` 에 `useMemo` 로 한 번만 부릅니다.
-
-> [네이버 공식 예제 - 이미지 아이콘 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-marker-image-icon.example.html)
+`Marker` 의 `icon` 에 `{ url, size, origin, anchor }` 를 주면 이미지 아이콘입니다.

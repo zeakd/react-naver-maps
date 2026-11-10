@@ -2,6 +2,12 @@
 title: 지도 컨트롤 위치 설정하기
 category: tutorial-control
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-control-positioning.example.html
+changes:
+  - official: '옵션 객체 하나(`mapOptions`)를 `new naver.maps.Map` 에 넘긴다'
+    react: '컨트롤마다 `NaverMap` 의 `*Control`, `*ControlOptions` prop 으로 준다'
+  - official: '전역 `naver.maps.Position`, `MapTypeControlStyle`, `ZoomControlStyle` 상수'
+    react: '`useNavermaps()` 가 주는 `navermaps` 의 상수'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -14,7 +20,3 @@ import ControlTutorial3PositioningExample from '../../../examples/control-tutori
 ## 설명
 
 컨트롤마다 `*ControlOptions` prop(`mapTypeControlOptions`, `zoomControlOptions`, `scaleControlOptions`, `logoControlOptions`, `mapDataControlOptions`)에 `position` 과 `style` 을 줍니다.
-
-`navermaps.Position`, `navermaps.MapTypeControlStyle`, `navermaps.ZoomControlStyle` 상수는 `useNavermaps()` 에서 받습니다.
-
-> [네이버 공식 튜토리얼 - 지도 컨트롤 위치 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-control-positioning.example.html)

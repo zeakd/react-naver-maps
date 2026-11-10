@@ -2,6 +2,12 @@
 title: GL 기본 예제
 category: tutorial-gl
 order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-gl-simple.example.html
+changes:
+  - official: '`new naver.maps.Map` 의 `gl: true`, `center`, `zoom` 옵션'
+    react: '`NaverMap` 의 `gl`, `defaultCenter`, `defaultZoom` prop'
+  - official: 페이지의 `<script>` 태그로 SDK 불러오기
+    react: '`NavermapsProvider` 가 `submodules` 에 지정한 `gl` 서브모듈과 함께 SDK 를 불러온다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +19,4 @@ import GlTutorial1SimpleExample from '../../../examples/gl-tutorial-1-simple.tsx
 
 ## 설명
 
-`NavermapsProvider` 에 `submodules={['gl']}` 를 주어 GL 서브모듈을 불러오고, `NaverMap` 에 `gl` prop 을 줍니다. `gl` 은 지도를 만들 때만 적용됩니다.
-
-GL 은 다른 서브모듈(`drawing`, `visualization` 등)과 함께 쓰지 않습니다. 자세한 내용은 [NavermapsProvider](/react-naver-maps/api-references/navermaps-provider/) 를 보세요.
-
-> [네이버 공식 튜토리얼 - GL 기본 예제](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-gl-simple.example.html)
+`gl` 은 지도를 만들 때만 적용됩니다. GL 은 다른 서브모듈(`drawing`, `visualization` 등)과 함께 쓰지 않습니다. 자세한 내용은 [NavermapsProvider](/react-naver-maps/api-references/navermaps-provider/) 를 보세요.

@@ -2,14 +2,18 @@
 title: 거리/항공뷰 전환하기
 category: tutorial-panorama
 order: 7
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-panorama-aroundcontrol.example.html
+changes:
+  - official: "`pano.getOptions('aroundControl')` 을 보고 `setOptions({ aroundControl })`"
+    react: '`aroundControl` prop 에 state 를 넘긴다'
+  - official: jQuery `val` · `addClass` · `removeClass` 로 버튼 상태 바꾸기
+    react: 버튼 글자를 같은 state 로 정한다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PanoramaTutorial7AroundcontrolExample from '../../../examples/panorama-tutorial-7-aroundcontrol.tsx';
 
 거리뷰와 항공뷰를 전환하는 컨트롤을 켜고 끕니다.
-
-> [네이버 공식 예제 - 거리/항공뷰 전환하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-panorama-aroundcontrol.example.html)
 
 <Example of={PanoramaTutorial7AroundcontrolExample} />
 

@@ -45,6 +45,8 @@ function PanoramaResize() {
           width: size.width,
           height: size.height,
           maxWidth: '100%',
+          // 화면이 거리뷰보다 좁으면 넘치지 않고 잘리게 한다.
+          overflow: 'hidden',
         }}
       >
         {/* Container 가 바뀌어도 거리뷰는 따라가지 않아 size 로 함께 바꾼다. */}

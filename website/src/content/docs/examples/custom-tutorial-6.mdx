@@ -2,6 +2,14 @@
 title: 사용자 정의 레이어 만들기
 category: tutorial-maptype
 order: 6
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-custom.example.html
+changes:
+  - official: '`new naver.maps.Layer(name, MapTypeRegistry)` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
+    react: '`<Layer name mapTypes />` 를 조건부로 렌더해 마운트로 켜고 끈다'
+  - official: 지도 유형 레지스트리와 레이어 유형 레지스트리를 스크립트에서 한 번 만들기
+    react: 두 레지스트리를 각각 `useMemo` 로 한 번만 만들어 prop 으로 준다
+  - official: jQuery 클릭 리스너에서 버튼 클래스와 글자(`POI 켜기`, `POI 끄기`) 바꾸기
+    react: 버튼의 `onClick` 이 React state(`poi`)를 바꾸고, 버튼 글자는 state 에서 그린다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +21,4 @@ import CustomTutorial6Example from '../../../examples/custom-tutorial-6.tsx';
 
 ## 설명
 
-`<Layer name mapTypes />` 가 `new naver.maps.Layer(name, MapTypeRegistry)` 입니다. 레이어 유형 레지스트리(`label`)는 `useMemo` 로 한 번만 만듭니다.
-
-켜고 끄는 것은 `ref.setMap` 이 아니라 마운트로 합니다. 자세한 내용은 [Layer](/react-naver-maps/api-references/layer/) 를 보세요.
-
-> [네이버 공식 튜토리얼 - 사용자 정의 레이어 만들기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-custom.example.html)
+벡터 지도(`getVectorMap()`)를 `normal` 로 둔 레지스트리는 `NaverMap` 의 `mapTypes` 에, `getNormalLabelLayer()` 를 `label` 로 둔 레지스트리는 `<Layer>` 의 `mapTypes` 에 줍니다. 자세한 내용은 [Layer](/react-naver-maps/api-references/layer/) 를 보세요.

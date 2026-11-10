@@ -2,6 +2,14 @@
 title: 지도 이동
 category: tutorial-map
 order: 6
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-map-moves.example.html
+changes:
+  - official: '`new naver.maps.Map` 이 돌려준 전역 `map` 변수'
+    react: '`<NaverMap ref>` 로 받은 지도'
+  - official: "jQuery `on('click')` 핸들러"
+    react: '버튼 `onClick`'
+  - official: '좌표와 경계를 전역 변수로 미리 만든다'
+    react: '누를 때 `useNavermaps()` 의 `navermaps` 로 만든다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -9,10 +17,8 @@ import MapMovesExample from '../../../examples/map-moves.tsx';
 
 다양한 방법으로 지도를 이동하는 예제입니다.
 
-> [네이버 공식 튜토리얼 - 지도 이동](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-map-moves.example.html)
-
 <Example of={MapMovesExample} />
 
 ## 설명
 
-`ref`로 map 인스턴스에 접근하여 `setCenter()`, `setZoom(6, true)`(두 번째 인자가 줌 효과), `fitBounds()`, `panTo()`, `panBy()` 등의 메서드를 직접 호출합니다.
+`ref` 로 받은 지도에 `setCenter()`, `setZoom(6, true)`(두 번째 인자가 줌 효과), `fitBounds()`, `panTo()`, `panToBounds()`, `panBy()` 를 직접 부릅니다.

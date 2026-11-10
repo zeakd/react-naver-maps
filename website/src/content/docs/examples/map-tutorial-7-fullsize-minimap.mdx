@@ -2,6 +2,21 @@
 title: 전체 화면 지도와 미니 맵
 category: tutorial-map
 order: 7
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-map-fullsize-minimap.example.html
+changes:
+  - official: 'jQuery 로 찾은 미니 맵 요소를 `map.controls[BOTTOM_RIGHT].push()` 로 넣는다'
+    react: '`<CustomControl position={BOTTOM_RIGHT}>` 의 children 으로 두 번째 `Container` 와 `NaverMap` 을 둔다'
+  - official: '`init` 뒤에 `new naver.maps.Map` 으로 미니 맵을 만들고 처음 영역을 큰 지도의 `getBounds()` 로 준다'
+    react: '미니 맵도 큰 지도와 함께 렌더한다. 처음 영역은 `defaultCenter`, `defaultZoom={12}` 이다'
+  - official: '`bounds_changed`, `mapTypeId_changed`, `drag` 리스너'
+    react: '큰 지도의 `onBoundsChanged`, `onMapTypeIdChanged` 와 미니 맵의 `onDrag` prop'
+  - official: '`minimap.setMapTypeId()` 로 미니 맵 유형을 바꾼다'
+    react: '큰 지도 유형 state 에서 고른 값을 미니 맵 `mapTypeId` prop 으로 준다'
+  - official: "전역 `semaphore` 와 `Event.once(map, 'idle')`"
+    react: '`ref` 플래그와 큰 지도의 `onIdle`'
+limits:
+  - 공식 예제는 전체 화면(새 창)으로 보여 주며, 여기서는 600px 높이의 영역에 담았습니다.
+  - 공식 예제는 미니 맵을 넣을 때 축척, 로고 컨트롤을 잠시 껐다 켜서 미니 맵이 오른쪽 아래 맨 끝에 오게 합니다. 여기서는 그렇게 하지 않습니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,10 +28,6 @@ import MapTutorial7FullsizeMinimapExample from '../../../examples/map-tutorial-7
 
 ## 설명
 
-미니 맵은 큰 `NaverMap` 의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap` 입니다. 공식 예제의 `map.controls[...].push(element)` 가 `CustomControl` 의 children 이 됩니다.
+미니 맵은 큰 `NaverMap` 의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap` 입니다.
 
-동기화는 큰 지도의 `onBoundsChanged` 에서 미니 맵 `ref` 에 `fitBounds()`, `onMapTypeIdChanged` 로 미니 맵 `mapTypeId` prop, 미니 맵의 `onDrag` 에서 큰 지도 `ref` 에 `panTo()` 입니다. 끄는 동안 서로 되먹임하지 않도록 `ref` 플래그(공식 예제의 `semaphore`)를 쓰고 `onIdle` 에서 풉니다.
-
-공식 예제는 전체 화면(새 창)으로 보여 주며 여기서는 600px 높이의 영역에 담았습니다.
-
-> [네이버 공식 튜토리얼 - 전체 화면 지도와 미니 맵](https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-map-fullsize-minimap.example.html)
+큰 지도의 `onBoundsChanged` 에서 미니 맵 `ref` 에 `fitBounds()` 를 부르고, `onMapTypeIdChanged` 로 받은 유형을 state 에 두어 미니 맵의 `mapTypeId` prop 을 고릅니다. 미니 맵의 `onDrag` 에서는 큰 지도 `ref` 에 `panTo()` 를 부릅니다. 끄는 동안 서로 되먹임하지 않도록 `ref` 플래그를 세우고 큰 지도의 `onIdle` 에서 풉니다.

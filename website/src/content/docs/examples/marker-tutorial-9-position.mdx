@@ -2,15 +2,21 @@
 title: 클릭한 지점으로 마커 옮기기
 category: tutorial-marker
 order: 9
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-marker-position.example.html
+changes:
+  - official: "`naver.maps.Event.addListener(map, 'click')`"
+    react: '`NaverMap` 의 `onClick` prop'
+  - official: 클릭 핸들러에서 `marker.setPosition(e.coord)` 호출
+    react: 마커 위치를 state 로 두고 `<Marker position>` 이 그 state 를 따른다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial9PositionExample from '../../../examples/marker-tutorial-9-position.tsx';
 
+지도를 클릭하면 그 지점으로 마커를 옮기는 예제입니다.
+
 <Example of={MarkerTutorial9PositionExample} />
 
 ## 설명
 
-마커 위치를 state 로 두고 `NaverMap` 의 `onClick` 에서 `e.coord` 로 바꿉니다(`marker.setPosition` 을 부르지 않습니다). 클릭 좌표는 `e.coord.y`(위도), `e.coord.x`(경도) 입니다.
-
-> [네이버 공식 예제 - 클릭한 지점으로 마커 옮기기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-marker-position.example.html)
+클릭 좌표는 `e.coord.y`(위도), `e.coord.x`(경도) 이고, state 에는 `{ lat, lng }` 리터럴로 담습니다.

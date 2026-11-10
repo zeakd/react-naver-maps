@@ -2,14 +2,20 @@
 title: 지도와 파노라마 연동하기
 category: tutorial-panorama
 order: 9
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-panorama-map.example.html
+changes:
+  - official: '`pano_changed` 리스너에서 `map.setCenter(pano.getPosition())`'
+    react: '`onPanoChanged` 에서 읽은 위치를 state 에 두고 `NaverMap` 의 `center` 로 넘긴다'
+  - official: 지도 `click` 리스너에서 `pano.setPosition(e.coord)`
+    react: '`NaverMap` 의 `onClick` 에서 좌표를 state 에 두고 `Panorama` 의 `position` 으로 넘긴다'
+  - official: '`streetLayer.setMap(map)` · `setMap(null)` 과 `streetLayer_changed` 로 버튼 상태 바꾸기'
+    react: '`street` state 로 `<StreetLayer>` 를 마운트 · 언마운트하고, 버튼 스타일도 같은 state 로 정한다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PanoramaTutorial9MapExample from '../../../examples/panorama-tutorial-9-map.tsx';
 
 지도와 거리뷰를 나란히 두고 서로의 위치를 따라가게 합니다.
-
-> [네이버 공식 예제 - 지도와 파노라마 연동하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-panorama-map.example.html)
 
 <Example of={PanoramaTutorial9MapExample} />
 

@@ -2,14 +2,18 @@
 title: 열지도 시각화하기
 category: tutorial-visualization
 order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-visualization-heatmap.example.html
+changes:
+  - official: '`naver.maps.onJSContentLoaded` 에서 `$.ajax` 로 데이터 받기'
+    react: '`useJson` 으로 받고, 도착하기 전에는 `HeatMap` 을 그리지 않는다'
+  - official: '`new naver.maps.visualization.HeatMap({ map, data })`'
+    react: '`NaverMap` 자식 `<HeatMap data>`'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import VisualizationTutorial1HeatmapExample from '../../../examples/visualization-tutorial-1-heatmap.tsx';
 
 국내 지진 발생 지점을 열지도로 보여 줍니다.
-
-> [네이버 공식 예제 - 열지도 시각화하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-visualization-heatmap.example.html)
 
 <Example of={VisualizationTutorial1HeatmapExample} />
 

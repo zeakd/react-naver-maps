@@ -53,6 +53,8 @@ function ShapeMeasuresMapContent() {
   const [mouse, setMouse] = useState<Pt | null>(null);
   const [done, setDone] = useState<Done[]>([]);
   const [labels, setLabels] = useState<Label[]>([]);
+  // 재는 중인 구간의 이정표. 끝내면 labels 로 옮기고, 그만두면 버린다.
+  const [segments, setSegments] = useState<Label[]>([]);
 
   // 길이·면적은 SDK 가 잰다. 지도에 올리지 않는 도형을 이벤트 안에서 잠깐 만든다.
   const distanceOf = (points: Pt[]) =>
@@ -67,6 +69,7 @@ function ShapeMeasuresMapContent() {
   function reset() {
     setPath([]);
     setMouse(null);
+    setSegments([]);
   }
 
   function finish() {
@@ -74,6 +77,7 @@ function ShapeMeasuresMapContent() {
       setDone((d) => [...d, { kind: 'distance', path }]);
       setLabels((l) => [
         ...l,
+        ...segments,
         {
           position: path[path.length - 1],
           kind: 'distance',
@@ -110,7 +114,7 @@ function ShapeMeasuresMapContent() {
     const next = [...path, point];
     if (mode === 'distance' && path.length > 0) {
       // 직전 점부터 이번 점까지의 거리를 이정표로 단다.
-      setLabels((l) => [
+      setSegments((l) => [
         ...l,
         {
           position: point,
@@ -190,7 +194,7 @@ function ShapeMeasuresMapContent() {
             fillOpacity={0.3}
           />
         )}
-        {labels.map((label, i) => (
+        {[...labels, ...segments].map((label, i) => (
           <CustomOverlay key={i} position={label.position}>
             <div
               style={{

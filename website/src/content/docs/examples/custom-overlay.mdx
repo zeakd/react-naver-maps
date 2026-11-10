@@ -2,17 +2,23 @@
 title: 사용자 정의 오버레이 표시하기
 category: tutorial-overlay
 order: 15
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-custom-overlay.example.html
+changes:
+  - official: '`OverlayView` 하위 클래스(`onAdd`, `draw`, `onRemove`)'
+    react: '`<CustomOverlay position>` 의 children 으로 React 요소를 그린다'
+  - official: 'jQuery 로 오버레이 요소 만들기'
+    react: 'JSX(`BrownCard`)'
+  - official: '지도 click 리스너에서 `new CustomOverlay()` 와 `setMap(map)`'
+    react: '`NaverMap` 의 `onClick` 이 위치 배열 state 에 더하고, 배열을 `map` 으로 그린다'
+  - official: '`onAdd` 에서 `getPanes().overlayLayer` 에 붙인다'
+    react: '`pane="overlayLayer"` prop'
+additions:
+  - '오버레이 숨기기 버튼. `<Activity mode="hidden">` 으로 숨기면 오버레이는 지도에서만 떨어지고, 다시 보이면 같은 인스턴스가 같은 자리에 붙습니다(React 19.2 이상).'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import CustomOverlayExample from '../../../examples/custom-overlay.tsx';
 
+지도를 클릭한 곳마다 직접 만든 오버레이(Brown 카드)를 더하는 예제입니다.
+
 <Example of={CustomOverlayExample} />
-
-## 설명
-
-`CustomOverlay` 가 React children 을 지도 위 `position` 에 그립니다. 공식 예제의 `OverlayView` 서브클래스(`onAdd`/`draw`/`onRemove`)와 jQuery 가 필요 없고, 클릭한 곳마다 오버레이를 더하는 부분은 위치 배열 state 를 `map` 으로 그립니다. `pane="overlayLayer"` 로 공식 예제와 같은 레이어에 둡니다.
-
-아래 버튼은 오버레이들을 `<Activity mode="hidden">` 으로 숨깁니다(React 19.2 이상). 숨기는 동안 오버레이는 지도에서만 떨어지고, 다시 보이면 같은 인스턴스가 같은 자리에 붙습니다. 공식 예제에는 없는 부분입니다.
-
-> [네이버 공식 예제 - 사용자 정의 오버레이 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-custom-overlay.example.html)

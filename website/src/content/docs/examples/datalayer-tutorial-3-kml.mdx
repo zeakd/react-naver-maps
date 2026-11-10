@@ -2,14 +2,18 @@
 title: KML 데이터 레이어 표시하기
 category: tutorial-data
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-datalayer-kml.example.html
+changes:
+  - official: "`$.ajax` 에 `dataType: 'xml'` 을 주어 XML 받기"
+    react: '`useXml` 이 받은 텍스트를 `DOMParser` 로 한 번 파싱해 `Document` 를 만든다'
+  - official: '`map.data.addKml(xmlDoc)`'
+    react: '`NaverMap` 자식 `<Kml data>`. 받기 전에는 그리지 않는다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import DatalayerTutorial3KmlExample from '../../../examples/datalayer-tutorial-3-kml.tsx';
 
 설악산 KML 을 데이터 레이어에 올립니다.
-
-> [네이버 공식 예제 - KML 데이터 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-datalayer-kml.example.html)
 
 <Example of={DatalayerTutorial3KmlExample} />
 

@@ -2,15 +2,21 @@
 title: 폴리라인 옵션 사용하기
 category: tutorial-shape
 order: 6
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-polyline-options.example.html
+changes:
+  - official: "`naver.maps.Event.addListener(polyline, 'mouseover')`·`('mouseout')`"
+    react: '`onMouseover`·`onMouseout` prop'
+  - official: 핸들러에서 `polyline.setOptions` 로 선 색·모양·투명도 변경
+    react: 마우스 올림 state 를 두고 `strokeColor`·`strokeStyle`·`strokeOpacity` 가 그 state 를 따른다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PolylineTutorial6OptionsExample from '../../../examples/polyline-tutorial-6-options.tsx';
 
+폴리라인에 마우스를 올리면 선 스타일을 바꾸는 예제입니다.
+
 <Example of={PolylineTutorial6OptionsExample} />
 
 ## 설명
 
-`Polyline` 의 `strokeColor`·`strokeStyle`·`strokeOpacity` 를 마우스 올림 state 로 바꿉니다. `strokeStyle` 은 `'longdash'` 같은 이름 문자열입니다.
-
-> [네이버 공식 예제 - 폴리라인 옵션 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-polyline-options.example.html)
+`strokeStyle` 은 `'longdash'` 같은 이름 문자열입니다.

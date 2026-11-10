@@ -53,6 +53,7 @@ function RestoreMaps() {
           defaultCenter={CENTER}
           defaultZoom={15}
           zoomControl
+          zoomControlOptions={{ style: 'LARGE', position: 'TOP_RIGHT' }}
           mapTypeControl
         >
           <DrawingManager
@@ -87,6 +88,7 @@ function RestoreMaps() {
           defaultCenter={CENTER}
           defaultZoom={15}
           zoomControl
+          zoomControlOptions={{ style: 'LARGE', position: 'TOP_RIGHT' }}
           mapTypeControl
         >
           {geojson && <GeoJson data={geojson} autoStyle />}

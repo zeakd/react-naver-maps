@@ -2,14 +2,18 @@
 title: 점지도 시각화하기
 category: tutorial-visualization
 order: 2
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-visualization-dotmap.example.html
+changes:
+  - official: "`Event.once(map, 'init')` 안에서 `$.ajax` 로 데이터 받기"
+    react: '`useJson` 으로 받고, 도착하기 전에는 `DotMap` 을 그리지 않는다'
+  - official: '`new naver.maps.visualization.DotMap({ map, data })`'
+    react: '`NaverMap` 자식 `<DotMap data>`'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import VisualizationTutorial2DotmapExample from '../../../examples/visualization-tutorial-2-dotmap.tsx';
 
 국내 지진 발생 지점을 점지도로 보여 줍니다.
-
-> [네이버 공식 예제 - 점지도 시각화하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-visualization-dotmap.example.html)
 
 <Example of={VisualizationTutorial2DotmapExample} />
 

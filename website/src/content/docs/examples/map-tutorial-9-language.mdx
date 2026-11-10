@@ -2,6 +2,14 @@
 title: 언어 설정하기
 category: tutorial-map
 order: 9
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-map-language.example.html
+changes:
+  - official: '스크립트 주소에 `language=en` 쿼리를 붙인다'
+    react: '`NavermapsProvider` 의 `language="en"`'
+  - official: '`window` 의 `load` 이벤트에서 `createMap()` 으로 지도를 만든다'
+    react: '`<NaverMap>` 을 렌더한다'
+  - official: '생성 옵션 `mapTypes` 에 `new naver.maps.MapTypeRegistry()` 를 준다'
+    react: '`useMemo` 로 한 번 만든 레지스트리를 `mapTypes` prop 으로 준다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +21,6 @@ import MapTutorial9LanguageExample from '../../../examples/map-tutorial-9-langua
 
 ## 설명
 
-스크립트를 불러올 때 정하는 언어는 `NavermapsProvider` 의 `language="en"` 입니다(`ko` 기본, `en`, `zh`, `ja`). 한 페이지에서는 처음 불러온 언어가 쓰입니다.
+스크립트를 불러올 때 정하는 언어는 `NavermapsProvider` 의 `language` 입니다(`ko` 기본, `en`, `zh`, `ja`). 한 페이지에서는 처음 불러온 언어가 쓰입니다.
 
-지도 글자의 언어는 지도 유형의 `overlayType` 입니다. 공식 예제처럼 `getNormalMap({ overlayType })` 를 `mapTypes` 의 `normal` 로 등록합니다.
-
-> [네이버 공식 튜토리얼 - 언어 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-map-language.example.html)
+지도 글자의 언어는 지도 유형의 `overlayType` 입니다. `getNormalMap({ overlayType })` 을 `mapTypes` 의 `normal` 로 등록합니다.

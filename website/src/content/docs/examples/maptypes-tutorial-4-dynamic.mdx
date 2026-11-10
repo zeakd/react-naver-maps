@@ -2,6 +2,16 @@
 title: 투영법과 타일의 크기를 동적으로 변경하기
 category: tutorial-maptype
 order: 4
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-maptypes-dynamic.example.html
+changes:
+  - official: 두 지도 유형 인스턴스를 스크립트 변수로 들고 있기
+    react: '`useMemo` 로 한 번 만들어 레지스트리와 배열(`mapTypeList`)에 함께 둔다'
+  - official: jQuery 로 라디오 버튼에 클릭 리스너 붙이기
+    react: 라디오는 React state(`tileSize`)로 제어하고 `onChange` 에서 타일 크기를 바꾼다
+  - official: '`map.refresh(true)` 로 다시 그리기'
+    react: '`ref` 로 받은 지도의 `refresh(true)` 를 부른다'
+  - official: '`new naver.maps.Marker` 를 지도 중심에 만들기'
+    react: '`<Marker position>` 을 `NaverMap` 의 children 으로 렌더한다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,8 +23,6 @@ import MapTypesTutorial4DynamicExample from '../../../examples/maptypes-tutorial
 
 ## 설명
 
-지도 유형 컨트롤(`mapTypeControlOptions`)로 투영법이 다른 두 유형을 전환합니다. 두 유형은 `useMemo` 로 한 번 만들어 레지스트리에 넣고 인스턴스도 따로 들고 있습니다.
+지도 유형 컨트롤(`mapTypeControlOptions`)로 투영법이 다른 두 유형을 전환합니다.
 
-타일 크기는 선언적 prop 이 없어서 유형 인스턴스의 `getMapTypeOptions()`, `setMapTypeOptions()` 를 부른 뒤 `ref` 로 받은 지도에 `refresh(true)` 를 부릅니다(문서 원칙: SDK 메서드는 인스턴스에 직접).
-
-> [네이버 공식 튜토리얼 - 투영법과 타일의 크기를 동적으로 변경하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-maptypes-dynamic.example.html)
+타일 크기는 선언적 prop 이 없어서 지도 유형 인스턴스의 `getMapTypeOptions()`, `setMapTypeOptions()` 로 바꿉니다.

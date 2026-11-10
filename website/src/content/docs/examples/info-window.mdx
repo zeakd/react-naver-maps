@@ -1,18 +1,18 @@
 ---
-title: 정보 창
-category: examples
+title: 정보 창 열고 닫기
+category: react-examples
 order: 3
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import InfoWindowExample from '../../../examples/info-window-example.tsx';
 
-마커를 클릭하면 정보 창이 토글되는 예제입니다.
+마커를 누르면 정보 창이 열리고 닫힙니다. 열림 여부는 state 하나입니다.
 
 <Example of={InfoWindowExample} />
 
 ## 설명
 
-`InfoWindow`의 `content`에 문자열을 전달하면 해당 텍스트가 정보 창에 표시됩니다. `onClose` 이벤트로 닫기를 감지할 수 있습니다.
+`InfoWindow` 의 `open` prop 이 열림 여부입니다. 마커의 `onClick` 이 state 를 뒤집고, 정보 창이 닫히면 오는 `onClose` 로 state 를 맞춥니다. `content` 에는 문자열이나 HTML 요소를 줍니다.
 
-마커를 클릭하면 정보 창이 열리고 닫힙니다.
+마커 여러 개 중 하나의 정보 창만 열려면 열린 마커의 id 를 state 로 두고 `<InfoWindow open anchor>` 하나를 그립니다([오버레이의 이벤트](/react-naver-maps/examples/event-tutorial-3-overlay/)).

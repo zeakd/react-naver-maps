@@ -2,6 +2,14 @@
 title: 열지도 스펙트럼 변경하기
 category: tutorial-visualization
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-visualization-spectrum.example.html
+changes:
+  - official: "`Event.once(map, 'init')` 안에서 `$.ajax` 로 데이터 받기"
+    react: '`useJson` 으로 받고, 도착하기 전에는 `HeatMap` 을 그리지 않는다'
+  - official: '`new naver.maps.visualization.HeatMap({ map, data, colorMap })`'
+    react: '`NaverMap` 자식 `<HeatMap data colorMap>`. `colorMap` 은 state 로 둔다'
+additions:
+  - 스펙트럼 선택 상자와 거꾸로 칠하기 체크박스(`colorMapInReverse`). 공식 예제는 `HOT` 하나만 보입니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -9,10 +17,8 @@ import VisualizationTutorial3SpectrumExample from '../../../examples/visualizati
 
 열지도의 색 스펙트럼을 바꿉니다.
 
-> [네이버 공식 예제 - 열지도 스펙트럼 변경하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-visualization-spectrum.example.html)
-
 <Example of={VisualizationTutorial3SpectrumExample} />
 
 ## 설명
 
-`HeatMap` 의 `colorMap` 에 `navermaps.visualization.SpectrumStyle` 값(공식 예제는 `HOT`)을 주고, `colorMapInReverse` 로 색을 거꾸로 칠합니다. 공식 예제는 `HOT` 하나지만 여기서는 선택 상자와 체크박스로 다른 스펙트럼도 볼 수 있게 했습니다.
+`HeatMap` 의 `colorMap` 에 `navermaps.visualization.SpectrumStyle` 값을 주고, `colorMapInReverse` 로 색을 거꾸로 칠합니다. `SpectrumStyle` 은 `useNavermaps()` 로 받습니다.

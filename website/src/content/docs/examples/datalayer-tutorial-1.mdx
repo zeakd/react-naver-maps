@@ -2,6 +2,14 @@
 title: GeoJSON 데이터 레이어 표시하기
 category: tutorial-data
 order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-datalayer.example.html
+changes:
+  - official: "`Event.once(map, 'init')` 안에서 `$.ajax` 로 GeoJSON 받기"
+    react: '`useJson` 으로 받고, 도착하기 전에는 `GeoJson` 을 그리지 않는다'
+  - official: '`map.data.addGeoJson` 과 `map.data.setStyle`'
+    react: '`<GeoJson data style>`. `style` 함수는 컴포넌트 밖에 둔다'
+  - official: '`map.data.addListener` 로 click · dblclick · mouseover · mouseout 듣기'
+    react: '`GeoJson` 의 `onClick`, `onDblclick`, `onMouseover`, `onMouseout` prop. 지도는 `useMap()` 으로 받는다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -9,12 +17,10 @@ import DatalayerTutorial1Example from '../../../examples/datalayer-tutorial-1.ts
 
 GeoJSON 글자 도형을 데이터 레이어에 올립니다. 클릭하면 색이 켜지고, 더블클릭하면 그 도형으로 이동하고, 마우스를 올리면 강조됩니다.
 
-> [네이버 공식 예제 - GeoJSON 데이터 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-datalayer.example.html)
-
 <Example of={DatalayerTutorial1Example} />
 
 ## 설명
 
 `GeoJson` 의 `data` 에 받아 온 GeoJSON 을 넘깁니다. `style` 함수는 컴포넌트 밖에 두어 참조가 바뀌지 않게 하고, 클릭은 `onClick` 에서 `feature.setProperty` 로 속성을 바꿉니다(속성이 바뀌면 SDK 가 다시 스타일합니다). 더블클릭 이동은 `useMap()` 으로 받은 지도에 `panToBounds` 를 부릅니다.
 
-hover 강조는 상태로 `style` 을 바꾸지 않고 `onMouseover`, `onMouseout` 에서 `map.data.overrideStyle`, `revertStyle` 을 부릅니다. 데이터에 점(Point) 도형이 있어 공식 예제처럼 스타일에 `icon: null` 을 주어 기본 마커를 숨깁니다. `StyleOptions.icon` 타입이 `null` 을 받지 않아 타입 단언을 씁니다.
+hover 강조는 상태로 `style` 을 바꾸지 않고 `onMouseover`, `onMouseout` 에서 `map.data.overrideStyle`, `revertStyle` 을 부릅니다. 데이터에 점(Point) 도형이 있어 스타일에 `icon: null` 을 주어 기본 마커를 숨깁니다. `StyleOptions.icon` 타입이 `null` 을 받지 않아 타입 단언을 씁니다.

@@ -2,6 +2,16 @@
 title: 네이버 지적도 레이어 표시하기
 category: tutorial-layer
 order: 2
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-cadastral.example.html
+changes:
+  - official: '`new naver.maps.CadastralLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
+    react: '`<CadastralLayer />` 를 조건부로 렌더해 마운트로 켜고 끈다'
+  - official: jQuery 클릭 리스너에서 버튼 클래스와 글자(`val`) 바꾸기
+    react: 버튼의 `onClick` 이 React state(`cadastral`)를 바꾸고, 버튼 글자와 모양은 state 에서 그린다
+  - official: '`cadastralLayer_changed` 이벤트로 버튼 갱신'
+    react: state 가 곧 켜짐 여부라 이벤트를 듣지 않는다
+  - official: 지도 `init` 이벤트에서 레이어 켜기
+    react: state 초기값을 `true` 로 두어 처음부터 렌더한다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -10,11 +20,3 @@ import CadastralTutorial2Example from '../../../examples/cadastral-tutorial-2.ts
 지도에 지적도 레이어를 켜고 끄는 예제입니다.
 
 <Example of={CadastralTutorial2Example} />
-
-## 설명
-
-`<CadastralLayer />` 를 렌더하면 켜지고 언마운트하면 꺼집니다. 켜짐 여부와 버튼 글자는 React state 에서 나옵니다.
-
-공식 예제가 `cadastralLayer_changed` 이벤트로 하던 버튼 갱신은 state 를 그대로 쓰므로 필요 없습니다.
-
-> [네이버 공식 튜토리얼 - 네이버 지적도 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-cadastral.example.html)

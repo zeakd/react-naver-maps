@@ -2,14 +2,20 @@
 title: 파노라마 줌 컨트롤 표시하기
 category: tutorial-panorama
 order: 6
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-panorama-zoomcontrol.example.html
+changes:
+  - official: "`pano.getOptions('zoomControl')` 을 보고 `setOptions({ zoomControl })`"
+    react: '`zoomControl` prop 에 state 를 넘긴다'
+  - official: '`setOptions({ zoomControlOptions: { style } })` 로 크기 바꾸기'
+    react: '`zoomControlOptions` 의 `style` 을 `large` state 로 고른다'
+  - official: jQuery `val` · `addClass` · `hasClass('control-on')` 로 버튼 상태 다루기
+    react: 버튼 글자와 `disabled` 를 state 로 정한다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PanoramaTutorial6ZoomcontrolExample from '../../../examples/panorama-tutorial-6-zoomcontrol.tsx';
 
 거리뷰 줌 컨트롤을 켜고 끄고 크기를 바꿉니다.
-
-> [네이버 공식 예제 - 파노라마 줌 컨트롤 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-panorama-zoomcontrol.example.html)
 
 <Example of={PanoramaTutorial6ZoomcontrolExample} />
 

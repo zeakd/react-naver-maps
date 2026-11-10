@@ -2,6 +2,16 @@
 title: 네이버 거리뷰 레이어 표시하기
 category: tutorial-layer
 order: 4
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-street.example.html
+changes:
+  - official: '`new naver.maps.StreetLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
+    react: '`<StreetLayer />` 를 조건부로 렌더해 마운트로 켜고 끈다'
+  - official: jQuery 로 버튼에 클릭 리스너 붙이기
+    react: 버튼의 `onClick` 이 React state(`street`)를 바꾼다
+  - official: '`streetLayer_changed` 이벤트로 버튼 모양 맞추기'
+    react: 버튼 모양을 state 에서 바로 그린다
+  - official: 지도 `init` 이벤트에서 레이어 켜기
+    react: state 초기값을 `true` 로 두어 처음부터 렌더한다
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -10,9 +20,3 @@ import StreetTutorial4Example from '../../../examples/street-tutorial-4.tsx';
 거리뷰가 있는 길을 지도에 표시하는 레이어 예제입니다.
 
 <Example of={StreetTutorial4Example} />
-
-## 설명
-
-`<StreetLayer />` 를 렌더하면 켜지고 언마운트하면 꺼집니다. 켜짐 여부는 React state 입니다.
-
-> [네이버 공식 튜토리얼 - 네이버 거리뷰 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-street.example.html)

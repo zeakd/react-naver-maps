@@ -1,0 +1,18 @@
+---
+title: 숨겨도 같은 지도
+category: react-examples
+order: 5
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ActivityTabsExample from '../../../examples/react-activity-tabs.tsx';
+
+지도 탭과 목록 탭을 오가도 지도가 처음부터 다시 만들어지지 않습니다. 옮긴 위치, 줌, 더한 마커가 그대로 남습니다.
+
+<Example of={ActivityTabsExample} />
+
+## 설명
+
+React 19.2 의 `<Activity mode="hidden">` 으로 지도를 감쌉니다. 숨기는 동안 react-naver-maps 는 지도와 오버레이를 버리지 않고 화면에서만 뗍니다. 다시 보이면 같은 SDK 인스턴스가 같은 자리로 돌아옵니다.
+
+조건부 렌더(`{tab === 'map' && <NaverMap />}`)로 숨기면 탭을 바꿀 때마다 지도를 새로 만들어 위치와 줌이 처음 값으로 돌아갑니다. 숨긴 동안 바뀐 prop 은 다시 보일 때 한 번에 반영합니다. 자세한 동작은 [핵심 개념](/react-naver-maps/guides/core-concepts/)의 숨김과 수명을 봅니다.

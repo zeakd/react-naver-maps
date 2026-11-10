@@ -2,19 +2,29 @@
 title: 커스텀 컨트롤
 category: tutorial-control
 order: 8
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-control-custom-p1.example.html
+changes:
+  - official: '`new naver.maps.CustomControl(html, { position })` 과 `setMap(map)`'
+    react: '`<CustomControl position>` 의 children 으로 React 요소를 그린다'
+  - official: 'jQuery 로 만든 요소를 `map.controls[position].push()` 로 넣는다'
+    react: '두 번째 `<CustomControl>`. 두 방식이 한 컴포넌트가 된다'
+  - official: '`Event.addDOMListener` 로 붙이는 click 리스너'
+    react: '버튼의 `onClick`'
+  - official: "`Event.once(map, 'init')` 안에서 컨트롤을 만든다"
+    react: '지도가 준비되기 전에 마운트해도 준비된 뒤 붙는다'
+  - official: '전역 `map` 변수의 `setCenter()`'
+    react: '`useMap()` 으로 받은 지도의 `setCenter()`'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import CustomControlExample from '../../../examples/custom-control.tsx';
 
-지도의 컨트롤 자리에 직접 만든 버튼을 넣고, 누르면 NAVER 그린팩토리로 이동하는 예제입니다. 공식 예제처럼 컨트롤 두 개를 `TOP_LEFT` 와 `LEFT_CENTER` 에 둡니다.
-
-> [네이버 공식 튜토리얼 - 커스텀 컨트롤](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-control-custom-p1.example.html)
+지도의 컨트롤 자리에 직접 만든 버튼을 넣고, 누르면 NAVER 그린팩토리로 이동하는 예제입니다. 컨트롤 두 개를 `TOP_LEFT` 와 `LEFT_CENTER` 에 둡니다.
 
 <Example of={CustomControlExample} />
 
 ## 설명
 
-`CustomControl` 의 children 이 컨트롤 자리(`position`)에 그려집니다. 공식 예제의 `new CustomControl(html, { position })` 과 `map.controls[position].push(element)` 두 방식이 모두 `CustomControl` 하나로 됩니다. 일반 React 요소라 `onClick` 을 그대로 씁니다. 버튼은 `useMap()` 으로 받은 지도에 `setCenter()` 를 부릅니다.
+`CustomControl` 의 children 이 컨트롤 자리(`position`)에 그려집니다. 일반 React 요소라 `onClick` 을 그대로 씁니다. 버튼은 `useMap()` 으로 받은 지도에 `setCenter()` 를 부릅니다.
 
 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 붙습니다. SDK 의 `CustomControl.setMap` 은 준비 전에는 붙이지 않기 때문입니다.

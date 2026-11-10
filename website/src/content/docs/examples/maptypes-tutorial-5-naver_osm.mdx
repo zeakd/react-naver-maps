@@ -2,6 +2,14 @@
 title: 두 가지의 지도 유형을 함께 사용하기
 category: tutorial-maptype
 order: 5
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-maptypes-naver_osm.example.html
+changes:
+  - official: '`map.mapTypes.set` 으로 지도의 기본 레지스트리에 `osm` 더하기'
+    react: 기본 네 유형과 `osm` 을 넣은 레지스트리를 `useMemo` 로 만들어 `mapTypes` 에 준다
+  - official: '`idle` 리스너에서 `getMapTypeId()`, `setMapTypeId()` 로 지도 유형 바꾸기'
+    react: '`mapTypeId` 를 state 로 두고 `onIdle` 에서 정한다. 컨트롤로 바꾼 값은 `onMapTypeIdChanged` 로 state 에 맞춘다'
+  - official: '`zooming` 동안 `idle` 리스너를 떼었다가 다음 `idle` 에 다시 붙이기'
+    react: '`onZoomstart` 에서 ref 플래그를 세워 다음 `idle` 한 번을 건너뛴다'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -13,10 +21,4 @@ import MapTypesTutorial5NaverOsmExample from '../../../examples/maptypes-tutoria
 
 ## 설명
 
-`mapTypeId` 를 state 로 두고 `onIdle` 에서 `ref` 로 받은 지도의 `getBounds()` 와 한국 경계(`LatLngBounds.hasBounds`)를 비교해 `normal` 과 `osm` 을 정합니다. 지도 유형 컨트롤로 바꾼 값은 `onMapTypeIdChanged` 로 state 에 맞춥니다.
-
-공식 예제가 `zooming` 동안 idle 리스너를 떼던 것은 `onZoomstart` 에서 다음 idle 을 한 번 건너뛰는 것으로 바꿨습니다.
-
-`mapTypes` 레지스트리(기본 네 유형 + `osm`)와 경계는 `useMemo` 로 한 번만 만듭니다.
-
-> [네이버 공식 튜토리얼 - 두 가지의 지도 유형을 함께 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-maptypes-naver_osm.example.html)
+`onIdle` 에서 `ref` 로 받은 지도의 `getBounds()` 를 한국 경계와 `LatLngBounds.hasBounds` 로 비교해 `normal` 과 `osm` 중 하나를 고릅니다. 경계는 레지스트리와 함께 `useMemo` 로 한 번만 만듭니다.

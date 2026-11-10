@@ -2,15 +2,26 @@
 title: 오버레이 SVG 패턴 적용하기
 category: tutorial-overlay
 order: 24
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-overlay-pattern.example.html
+changes:
+  - official: '`document.body` 에 붙인 SVG 의 `innerHTML` 로 `<pattern>` 을 넣는다'
+    react: '`PatternDefs` 컴포넌트가 JSX 로 `<pattern>` 을 그린다'
+  - official: '`getElement().style.fill` 을 직접 바꾼다'
+    react: '도형별 무늬 state 를 `fillColor` 에 `url(#id)` 로 준다'
+  - official: '`polygon.setOptions()` 로 선 색과 투명도를 바꾼다'
+    react: '`polygonHover` state 로 `strokeColor`, `strokeOpacity` 를 고른다'
+  - official: "`Event.addListener(shape, 'mouseover')` 와 `'mouseout'` 리스너"
+    react: '`onMouseover`, `onMouseout` prop'
+limits:
+  - 공식 예제의 무늬 20종은 쓰지 않고 간단한 무늬 5종을 직접 그렸습니다.
+  - 공식 예제는 처음 무늬도 무작위로 고르는데, 여기서는 도형마다 정해 둡니다.
+additions:
+  - 다각형을 누르면 무늬를 무작위로 바꿉니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import OverlayPatternExample from '../../../examples/overlay-pattern.tsx';
 
+SVG 무늬로 도형을 채우고, 마우스를 올리거나 벗어나면 무늬를 바꾸는 예제입니다.
+
 <Example of={OverlayPatternExample} />
-
-## 설명
-
-SVG `<pattern>` 을 문서에 두고 도형의 `fillColor` 에 `url(#id)` 를 줍니다. 마우스를 올리거나 벗어날 때 무늬를 바꾸는 부분은 `getElement().style.fill` 대신 도형별 무늬 state 입니다. 한계: 공식 예제의 무늬 20종은 쓰지 않고 간단한 무늬 5종을 직접 그렸습니다.
-
-> [네이버 공식 예제 - 오버레이 SVG 패턴 적용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-overlay-pattern.example.html)

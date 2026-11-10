@@ -1,0 +1,22 @@
+---
+title: 목록과 지도 연동
+category: react-examples
+order: 1
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ListSyncExample from '../../../examples/react-list-sync.tsx';
+
+목록에 마우스를 올리면 그 장소의 마커가 커지고, 마커를 누르면 목록이 그 항목으로 스크롤합니다. 가게 찾기, 매물 목록처럼 목록과 지도를 함께 보여 주는 화면의 기본형입니다.
+
+<Example of={ListSyncExample} />
+
+## 설명
+
+강조할 장소는 `hovered`, `selected` 두 state 가 정합니다. 목록과 마커가 같은 state 를 읽고 바꾸므로 어느 쪽에서 움직여도 다른 쪽이 따라옵니다.
+
+- 마커의 `icon` 과 `zIndex` 는 state 에서 계산합니다. `pin(active)` 는 렌더마다 새 객체를 만들지만, 라이브러리가 값으로 비교해 바뀐 마커에만 `setIcon` 을 부릅니다.
+- 목록을 누르면 `ref` 로 받은 지도에 `panTo` 를 부릅니다. 지도 이동처럼 한 번 일어나는 동작은 state 보다 이벤트 핸들러에서 SDK 메서드를 부르는 편이 단순합니다.
+- 마커를 누르면 목록 항목의 DOM `ref` 로 `scrollIntoView` 합니다.
+
+장소가 수백 개를 넘으면 [마커가 많을 때](/react-naver-maps/examples/react-many-markers/)처럼 보이는 것만 그립니다.

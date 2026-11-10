@@ -2,14 +2,18 @@
 title: 파노라마 기본 예제
 category: tutorial-panorama
 order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-panorama-simple.example.html
+changes:
+  - official: "`naver.maps.onJSContentLoaded` 에서 `new naver.maps.Panorama('pano', ...)`"
+    react: '`Container` 안의 `<Panorama>`. 거리뷰 모듈은 `NavermapsProvider` 의 `submodules` 로 불러온다'
+  - official: 생성자 옵션 `position`, `pov`, `flightSpot`
+    react: 같은 이름의 prop
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PanoramaTutorial1SimpleExample from '../../../examples/panorama-tutorial-1-simple.tsx';
 
 기본 거리뷰를 만드는 예제입니다.
-
-> [네이버 공식 예제 - 파노라마 기본 예제](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-panorama-simple.example.html)
 
 <Example of={PanoramaTutorial1SimpleExample} />
 

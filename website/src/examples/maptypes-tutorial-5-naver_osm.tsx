@@ -54,7 +54,11 @@ function NaverOsmMapContent() {
     }
     const bounds = mapRef.current?.getBounds();
     if (!bounds) return;
-    setMapTypeId(korea.hasBounds(bounds) ? 'normal' : 'osm');
+    // 한국 안으로 돌아오면 OSM 일 때만 일반 지도로 돌린다. 사용자가 고른 위성·지형은 그대로 둔다.
+    const inKorea = korea.hasBounds(bounds);
+    setMapTypeId((prev) =>
+      inKorea ? (prev === 'osm' ? 'normal' : prev) : 'osm',
+    );
   }
 
   return (

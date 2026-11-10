@@ -15,6 +15,8 @@ function TileIndexMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [tileIndex, setTileIndex] = useState<[number, number] | null>(null);
+  // 정보 창은 공식 예제처럼 마커에 붙여 연다(꼬리가 마커 위를 가리킨다).
+  const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
 
   const tileGrid = useMemo<Omit<naver.maps.MapType, 'projection'>>(
     () => ({
@@ -62,11 +64,11 @@ function TileIndexMapContent() {
     >
       {/* projection 은 생략한다(SDK 기본). */}
       <Layer name="tileGrid" mapTypes={tileGrid} />
-      <Marker position={CENTER} />
-      {tileIndex && (
+      <Marker ref={setMarker} position={CENTER} />
+      {tileIndex && marker && (
         <InfoWindow
           open
-          position={CENTER}
+          anchor={marker}
           content={`<div style="width:150px;text-align:center;padding:10px;">(xIndex, yIndex) <b>(${tileIndex[0]}, ${tileIndex[1]})</b></div>`}
         />
       )}

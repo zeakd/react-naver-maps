@@ -2,15 +2,32 @@
 title: 폴리라인, 폴리곤의 거리/면적 재기
 category: tutorial-shape
 order: 29
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-shape-measures.example.html
+changes:
+  - official: '`Measure` 클래스가 jQuery 로 버튼과 문서 이벤트를 붙이고 도형 인스턴스를 직접 만들고 지운다'
+    react: 모드·찍은 점·마우스 위치·끝난 도형·이정표를 state 로 두고 `Polyline`·`Polygon`·`CustomOverlay` 로 그린다
+  - official: 모드마다 `Event.addListener(map, 'click')`·`'rightclick'` 을 붙였다 뗀다
+    react: '`onClick`·`onRightclick` prop 은 늘 두고 핸들러가 지금 모드를 본다'
+  - official: "`$(document).on('mousemove')` 와 `fromPageXYToCoord` 로 안내선을 마우스에 맞춘다"
+    react: '`NaverMap` 의 `onMousemove` 가 주는 `e.coord`'
+  - official: '`map.setCursor` 호출'
+    react: '`NaverMap` 의 `cursor` prop'
+  - official: 이정표는 HTML 아이콘 `Marker` 로 만들고 jQuery 로 글자 스타일 지정
+    react: '`CustomOverlay` 의 children 으로 그리고 JSX 스타일 지정'
+limits:
+  - '공식 예제는 안내선 점선을 `strokeStyle: [4, 4]` 배열로 주는데, 여기서는 `strokeStyle="shortdash"` 를 씁니다.'
+additions:
+  - 지우기 버튼. 끝난 도형과 이정표를 모두 지웁니다.
+  - 사용법 안내 문구(지도를 눌러 점을 찍고 오른쪽 버튼으로 끝냄)를 버튼 아래에 표시합니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import ShapeMeasuresExample from '../../../examples/shape-measures.tsx';
 
+지도에 점을 찍어 폴리라인의 거리와 폴리곤의 면적을 재는 예제입니다.
+
 <Example of={ShapeMeasuresExample} />
 
 ## 설명
 
-점을 찍는 동안의 경로·마우스 위치·끝난 도형·이정표를 모두 state 로 두고 `Polyline`/`Polygon`/`CustomOverlay` 로 그립니다. 길이와 면적은 SDK 의 `getDistance()`/`getAreaSize()` 로 재는데, 이를 위해 지도에 올리지 않는 도형 인스턴스를 클릭 처리 안에서 잠깐 만듭니다. 마우스를 따라가는 안내선은 `onMousemove`, 끝내기는 `onRightclick`, 커서는 `cursor` prop 입니다. 한계: 안내선의 점선은 SDK 문서의 `[4, 4]` 배열 대신 `strokeStyle="shortdash"` 입니다.
-
-> [네이버 공식 예제 - 폴리라인, 폴리곤의 거리/면적 재기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-shape-measures.example.html)
+길이와 면적은 SDK 의 `getDistance()`/`getAreaSize()` 로 재는데, 이를 위해 지도에 올리지 않는 도형 인스턴스를 클릭 처리 안에서 잠깐 만듭니다. 거리재기는 점을 찍을 때마다 직전 점부터의 거리를, 끝낼 때 전체 거리를 이정표로 답니다.
