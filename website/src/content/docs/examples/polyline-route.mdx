@@ -7,7 +7,7 @@ changes:
   - official: '`$.get` 으로 경로 JSON 받기, 받은 구간은 전역 변수에 캐시'
     react: '`fetch` 로 받고, 구간별 좌표 배열은 `useRef` 에 캐시'
   - official: 만든 `Polyline` 인스턴스를 전역 배열에 두고 삭제할 때 `setMap(null)`
-    react: 그릴 경로 배열을 state 로 두고 `map` 으로 `<Polyline>` 을 렌더, 삭제는 배열을 비운다
+    react: 경로 배열을 state 로 관리하고 `map` 으로 `<Polyline>` 을 렌더링, 삭제할 때 배열 비우기
   - official: jQuery 로 버튼에 `click` 핸들러 붙이기
     react: 버튼의 `onClick`
 limits:

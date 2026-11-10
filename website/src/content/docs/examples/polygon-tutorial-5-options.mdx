@@ -7,7 +7,7 @@ changes:
   - official: "`naver.maps.Event.addListener(polygon, 'mouseover')`·`('mouseout')`"
     react: '`onMouseover`·`onMouseout` prop'
   - official: 핸들러에서 `polygon.setOptions` 로 선 색과 투명도 변경
-    react: 마우스 올림 state 를 두고 `strokeColor`·`strokeOpacity` 가 그 state 를 따른다
+    react: 마우스 올림 여부를 state 로 관리하고 `strokeColor`·`strokeOpacity` 에 반영
 limits:
   - 공식 예제는 마우스가 벗어나면 선 색을 처음 색(`#0072FF`)이 아닌 `#ff0000` 으로 바꾸는데, 여기서는 처음 색으로 되돌립니다.
 ---
