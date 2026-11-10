@@ -297,3 +297,34 @@ pre {
   white-space: nowrap;
   color: var(--text-3);
 }
+
+/* 본문 코드 블록의 복사 단추(BaseLayout 스크립트가 감싼다) */
+.code-wrap {
+  position: relative;
+}
+.code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-3);
+  font: 500 12.5px var(--font);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.code-wrap:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+.code-copy:hover {
+  color: var(--text);
+}
+@media (hover: none) {
+  .code-copy {
+    opacity: 1;
+  }
+}

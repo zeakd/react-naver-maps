@@ -33,6 +33,10 @@ const nav = [
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={new URL(`${base}/og.png`, Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32x32.png`} />
     <link rel="apple-touch-icon" sizes="180x180" href={`${base}/apple-touch-icon.png`} />
@@ -110,6 +114,23 @@ const nav = [
     </dialog>
 
     <script is:inline define:vars={{ base }}>
+      // 본문 코드 블록에 복사 단추를 단다(예제 상자는 자체 단추가 있다).
+      document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+        if (pre.closest('.acd-example') || pre.parentElement.classList.contains('code-wrap')) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'code-wrap';
+        pre.parentNode.insertBefore(wrap, pre);
+        wrap.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = '복사';
+        btn.addEventListener('click', function () {
+          navigator.clipboard && navigator.clipboard.writeText(pre.innerText).then(function () {
+            btn.textContent = '복사됨';
+            setTimeout(function () { btn.textContent = '복사'; }, 1200);
+          });
+        });
+        wrap.appendChild(btn);
+      });
       // 밝기 전환
       document.querySelector('[data-theme-toggle]')?.addEventListener('click', function () {
         var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
