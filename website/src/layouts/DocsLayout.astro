@@ -109,13 +109,30 @@ const officialStart = groups.findIndex((g) => g.collapsible);
     var btn = document.querySelector('[data-docs-menu]');
     var side = document.querySelector('[data-docs-side]');
     var scrim = document.querySelector('[data-docs-scrim]');
+    var narrow = matchMedia('(max-width: 860px)');
+    // 좁은 화면에서 닫힌 목록은 화면 밖에 있으므로 키보드 초점과 접근성 탐색에서도 뺀다.
+    function sync() {
+      side.inert = narrow.matches && !side.classList.contains('open');
+    }
     function set(open) {
       side.classList.toggle('open', open);
       scrim.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', String(open));
+      sync();
+      if (open) {
+        var first = side.querySelector('[aria-current="page"]') || side.querySelector('a');
+        if (first) first.focus();
+      } else if (side.contains(document.activeElement)) {
+        btn.focus();
+      }
     }
+    sync();
+    narrow.addEventListener('change', sync);
     if (btn) btn.addEventListener('click', function () { set(!side.classList.contains('open')); });
     if (scrim) scrim.addEventListener('click', function () { set(false); });
+    addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && side.classList.contains('open')) set(false);
+    });
     // 현재 문서가 사이드바 아래쪽이면 보이게 스크롤한다.
     var cur = side && side.querySelector('[aria-current="page"]');
     if (cur && cur.offsetTop > side.clientHeight - 80) side.scrollTop = cur.offsetTop - side.clientHeight / 3;

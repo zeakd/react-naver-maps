@@ -61,6 +61,11 @@ const { __code, title } = Astro.props;
   .acd-example-preview {
     padding: 16px;
     font-size: 15px;
+    /* 예제 코드는 밝은 바탕을 전제로 배경·글자색을 고정한 것이 많다. 사이트가 어두운 화면이어도 미리보기는
+       밝게 두어 글자가 바탕에 묻히지 않게 한다. */
+    color-scheme: light;
+    background: #fff;
+    color: #1c2024;
   }
 
   .acd-example-details {
