@@ -1,5 +1,5 @@
 ---
-// 문서 페이지 틀: 영역(시작하기·예제·API)별 사이드바, 본문, "이 페이지" 목차, GitHub 에서 고치기, 이전/다음.
+// 문서 페이지 틀: 영역(시작하기·예제·API)별 사이드바, 본문, "이 페이지" 목차, GitHub에서 고치기, 이전/다음.
 import { getCollection } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 import BaseLayout from './BaseLayout.astro';
@@ -83,7 +83,7 @@ const officialStart = groups.findIndex((g) => g.collapsible);
         <slot />
       </article>
       <div class="docs-meta">
-        {editPath && <a href={`${GITHUB}/edit/main/${editPath}`} target="_blank" rel="noopener">GitHub 에서 이 페이지 고치기</a>}
+        {editPath && <a href={`${GITHUB}/edit/main/${editPath}`} target="_blank" rel="noopener">GitHub에서 이 페이지 고치기</a>}
         <a href={`${GITHUB}/issues/new`} target="_blank" rel="noopener">문제 알리기</a>
       </div>
       {(prev || next) && (
