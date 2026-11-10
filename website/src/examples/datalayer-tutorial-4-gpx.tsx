@@ -7,7 +7,7 @@ import {
 import { useXml } from '../samples/remote-data';
 
 function Seorak() {
-  // Document 를 한 번만 파싱합니다. 참조가 같으면 데이터를 다시 추가하지 않습니다.
+  // Document를 한 번만 파싱합니다. 참조가 같으면 데이터를 다시 추가하지 않습니다.
   const gpx = useXml('data/seorak.gpx');
   return gpx ? <Gpx data={gpx} /> : null;
 }

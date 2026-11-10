@@ -17,9 +17,9 @@ function EventMapContent() {
       <NaverMap
         defaultZoom={5}
         defaultCenter={{ lat: 37.3614483, lng: 127.1114883 }}
-        // 클릭한 자리에 마커를 더한다.
+        // 클릭한 위치에 마커를 추가합니다.
         onClick={(e) => setMarkers((list) => [...list, e.coord])}
-        // ESC 로 마커와 메뉴를 지운다. keydown 은 지도에 초점이 있을 때 온다.
+        // ESC로 마커와 메뉴를 지웁니다. keydown은 지도에 초점이 있을 때 발생합니다.
         onKeydown={(e) => {
           if (e.keyboardEvent.key === 'Escape') {
             e.keyboardEvent.preventDefault();
@@ -28,7 +28,7 @@ function EventMapContent() {
           }
         }}
         onMousedown={() => setMenu(null)}
-        // 오른쪽 클릭 자리(지도 안 픽셀 offset)에 좌표 정보를 띄운다.
+        // 오른쪽 클릭 위치(지도 안의 픽셀 offset)에 좌표를 표시합니다.
         onRightclick={(e) =>
           setMenu({
             x: e.offset.x,

@@ -76,7 +76,7 @@ function RestoreMaps() {
         >
           <button
             style={buttonStyle}
-            // 그린 도형의 지리 형상을 GeoJSON 으로 뽑아 오른쪽 지도에 올린다.
+            // 그린 도형의 지리 형상을 GeoJSON으로 추출해 오른쪽 지도에 표시합니다.
             onClick={() => manager && setGeojson(manager.toGeoJson())}
           >
             추출 및 복원

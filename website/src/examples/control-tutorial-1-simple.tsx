@@ -14,7 +14,7 @@ function ControlMapContent() {
   return (
     <>
       <NaverMap
-        // logoControl={false} 는 SDK 가 거부한다(로고는 항상 보인다). 위치만 바꿀 수 있다.
+        // SDK가 logoControl={false}를 거부하므로 로고는 항상 표시됩니다. 위치만 바꿀 수 있습니다.
         logoControl={false}
         scaleControl={scaleControl}
         mapDataControl={mapDataControl}

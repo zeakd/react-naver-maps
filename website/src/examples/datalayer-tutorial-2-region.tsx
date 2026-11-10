@@ -13,7 +13,7 @@ const REGION_PATHS = Array.from(
   (_, i) => `data/region${String(i + 1).padStart(2, '0')}.json`,
 );
 
-// 색마다 style 함수를 컴포넌트 밖에 하나씩 둔다. 렌더마다 새 함수를 만들면 매번 다시 칠한다.
+// 색마다 style 함수를 컴포넌트 밖에 둡니다. 렌더마다 새 함수를 만들면 매번 다시 칠합니다.
 const makeRegionStyle = (color: string) => (feature: naver.maps.Feature) => {
   const focus = feature.getProperty('focus');
   return {
@@ -43,7 +43,7 @@ function Regions({
   const files = useJsonAll<naver.maps.GeoJSON & { features: unknown[] }>(
     REGION_PATHS,
   );
-  // 17개 파일의 feature 를 한 FeatureCollection 으로 합친다.
+  // 17개 파일의 feature를 한 FeatureCollection으로 합칩니다.
   const regions = useMemo(
     () =>
       files && {

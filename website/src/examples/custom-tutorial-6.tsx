@@ -12,7 +12,7 @@ function CustomLayerMapContent() {
   const navermaps = useNavermaps();
   const [poi, setPoi] = useState(false);
 
-  // 지도 유형과 레이어 유형 레지스트리는 각각 한 번만 만든다.
+  // 지도 유형과 레이어 유형 레지스트리는 각각 한 번만 만듭니다.
   const mapTypes = useMemo(
     () =>
       new navermaps.MapTypeRegistry({
