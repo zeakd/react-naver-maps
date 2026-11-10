@@ -89,7 +89,7 @@ export interface NaverMapProps {
   defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
   /** 처음 줌 레벨. `defaultBounds` 도 없으면 16. */
   defaultZoom?: number;
-  /** 처음에 보일 영역. 주면 `defaultCenter`, `defaultZoom` 대신 이 영역이 보이게 맞춘다. */
+  /** 처음에 보일 영역. 지정하면 `defaultCenter`, `defaultZoom` 대신 이 영역이 보이게 맞춥니다. */
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
   /** 처음 지도 유형. */
   defaultMapTypeId?: MapTypeIdProp;
