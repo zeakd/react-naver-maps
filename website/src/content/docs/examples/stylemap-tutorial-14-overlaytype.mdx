@@ -4,19 +4,19 @@ category: tutorial-gl
 order: 2
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-14-stylemap-overlaytype.example.html
 changes:
-  - official: 지도 생성 옵션 `mapTypes` 에 레지스트리 넣기
-    react: '`useMemo` 로 한 번 만든 `MapTypeRegistry` 를 `NaverMap` 의 `mapTypes` prop 에 준다'
-  - official: '`new naver.maps.Map` 의 `zoom` 옵션'
-    react: '`NaverMap` 의 `defaultZoom` prop'
+  - official: 지도 생성 옵션 `mapTypes`에 레지스트리 넣기
+    react: '`useMemo`로 한 번 만든 `MapTypeRegistry`를 `NaverMap`의 `mapTypes` prop에 전달'
+  - official: '`new naver.maps.Map`의 `zoom` 옵션'
+    react: '`NaverMap`의 `defaultZoom` prop'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import StyleMapTutorial14OverlayTypeExample from '../../../examples/stylemap-tutorial-14-overlaytype.tsx';
 
-일반 지도 배경에 실시간 혼잡 교통 정보를 얹는 `overlayType` 을 지정하는 예제입니다.
+일반 지도 배경에 실시간 혼잡 교통 정보를 얹는 `overlayType`을 지정합니다.
 
 <Example of={StyleMapTutorial14OverlayTypeExample} />
 
 ## 설명
 
-`NaverStyleMapTypeOptions.getNormalMap({ overlayType })` 로 만든 지도 유형을 `normal` 로 등록합니다. 렌더마다 레지스트리를 새로 만들면 지도 유형이 매번 바뀌므로 `useMemo` 로 한 번만 만듭니다.
+`NaverStyleMapTypeOptions.getNormalMap({ overlayType })`로 만든 지도 유형을 `normal`로 등록합니다. 렌더마다 레지스트리를 새로 만들면 지도 유형이 매번 바뀌므로 `useMemo`로 한 번만 만듭니다.
