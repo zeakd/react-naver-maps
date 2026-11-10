@@ -22,14 +22,14 @@ import { GeoJson } from 'react-naver-maps';
 </NaverMap>;
 ```
 
-- `style`은 객체나 feature 를 받는 함수입니다. 이 컴포넌트가 올린 feature 에만 적용됩니다.
-- 이벤트(`onClick` 등)는 이 컴포넌트가 올린 feature 에서 난 것만 받습니다. 어느 feature 인지는 `e.feature`로 압니다.
-- `autoStyle`을 켜면 GeoJSON `properties`의 스타일 값을 씁니다. SDK는 올릴 때만 이 값을 읽으므로, 바꾸면 feature 를 빼고 그 값으로 다시 올립니다.
-- `data`가 값으로 바뀌면 이전 feature 를 빼고 새로 올립니다. GeoJSON 에 `bbox`가 있으면 SDK가 그 영역으로 지도를 맞춥니다.
+- `style`은 객체나 feature를 받는 함수입니다. 이 컴포넌트가 추가한 feature에만 적용됩니다.
+- 이벤트(`onClick` 등)는 이 컴포넌트가 추가한 feature에서 발생한 것만 받습니다. `e.feature`로 대상을 확인합니다.
+- `autoStyle`을 켜면 GeoJSON `properties`의 스타일 값을 사용합니다. SDK는 추가할 때만 이 값을 읽으므로, 바꾸면 feature를 제거하고 새 값으로 다시 추가합니다.
+- `data`의 값이 바뀌면 이전 feature를 제거하고 새로 추가합니다. GeoJSON에 `bbox`가 있으면 SDK가 그 영역으로 지도를 맞춥니다.
 
 - `onPropertyChanged`는 이 컴포넌트가 올린 feature 에서 `feature.setProperty`로 속성이 바뀔 때 받습니다. 인자는 `{ feature, name, oldValue, newValue }` 입니다. `addfeature`, `removefeature`는 라이브러리가 직접 일으키는 일이라 prop이 없습니다.
 
-지도마다 데이터 레이어는 하나라서 `style`을 컴포넌트마다 나누려고 `map.data.setStyle`은 라이브러리가 씁니다. `GeoJson`과 함께 `map.data.setStyle`을 직접 부르면 덮어씁니다.
+지도마다 데이터 레이어는 하나입니다. 컴포넌트마다 `style`을 적용하기 위해 라이브러리가 `map.data.setStyle`을 사용하므로, `GeoJson`과 함께 직접 호출하면 서로 덮어씁니다.
 
 ## style 함수와 hover
 
