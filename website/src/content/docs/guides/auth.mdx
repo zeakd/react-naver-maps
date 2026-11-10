@@ -30,7 +30,7 @@ Client ID는 브라우저에 그대로 보이는 값입니다. 다른 사이트�
 | Application 에서 고른 API            | 지도는 Dynamic Map, 주소 검색은 Geocoding 을 골라야 합니다.                                                                                                                                                                                    |
 | Maps 상품의 키인가                   | 예전 AI·NAVER API 상품 안의 지도 API 는 2026-11-24 18:00 에 종료됩니다([네이버 클라우드 공지](https://www.ncloud.com/support/notice/all/2200)). 그 키(`ncpClientId`)는 쓸 수 없으니 Maps 상품에서 Application 을 만들어 `ncpKeyId`로 넘깁니다. |
 
-인증 실패는 지도 영역에 문구로 나오고, `NavermapsProvider`의 `onAuthFailure` 로도 받을 수 있습니다.
+인증 실패는 지도 영역에 문구로 표시되며, `NavermapsProvider`의 `onAuthFailure`로도 받습니다.
 
 ```tsx
 <NavermapsProvider ncpKeyId={key} onAuthFailure={() => setAuthFailed(true)}>
@@ -38,7 +38,7 @@ Client ID는 브라우저에 그대로 보이는 값입니다. 다른 사이트�
 
 ## 지금 주소가 등록됐는지 확인하기
 
-SDK의 인증 주소를 직접 열어 현재 주소가 인증을 통과하는지 확인할 수 있습니다. `url` 에는 지도를 표시할 페이지의 주소를 넣습니다. 인증에 성공하면 200, 실패하면 401 응답을 받습니다.
+SDK의 인증 주소를 직접 열어 현재 주소가 인증을 통과하는지 확인합니다. `url`에는 지도를 표시할 페이지의 주소를 넣어 주세요. 인증에 성공하면 200, 실패하면 401 응답을 받습니다.
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" \
