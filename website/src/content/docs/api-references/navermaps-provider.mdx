@@ -6,7 +6,7 @@ order: 17
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`NavermapsProvider`는 네이버맵 스크립트 로딩에 필요한 인증 정보를 하위 컴포넌트에 제공합니다. 앱의 루트에 배치합니다.
+`NavermapsProvider`는 네이버 지도 스크립트 로딩에 필요한 인증 정보를 하위 컴포넌트에 제공합니다. 앱 최상위에 배치해 주세요.
 
 ## 사용법
 
@@ -24,8 +24,8 @@ function App() {
 
 ## 인증 키
 
-NCP 콘솔 [Maps > Application](https://console.ncloud.com/maps/application) 에서 발급한 Client ID 를 `ncpKeyId` 로 전달합니다.
-Application 의 Web 서비스 URL 에 지도를 띄울 주소(로컬 개발 주소 포함)를 등록해야 인증됩니다.
+NCP 콘솔 [Maps > Application](https://console.ncloud.com/maps/application)에서 발급한 Client ID를 `ncpKeyId`로 전달해 주세요.
+Application의 Web 서비스 URL에 지도를 띄울 주소(로컬 개발 주소 포함)를 등록해야 인증됩니다.
 
 AI NAVER API 의 지도 API 가 2026-11-24 에 종료되어, 0.3.0 에서 `ncpClientId`·`govClientId`·`finClientId` 는 제거되었습니다. 기존 키는 Maps 로 옮겨지지 않으므로 Maps 에서 Application 을 새로 등록해야 합니다. ([#174](https://github.com/zeakd/react-naver-maps/issues/174))
 

@@ -6,7 +6,7 @@ order: 16
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`react-naver-maps/panorama` 는 SDK 의 panorama 서브모듈인 `Panorama`(거리뷰)를 컴포넌트로 씁니다. `NaverMap` 처럼 `Container` 안에 둡니다.
+`react-naver-maps/panorama`는 SDK의 panorama 서브모듈인 `Panorama`(거리뷰)를 컴포넌트로 제공합니다. `NaverMap`처럼 `Container` 안에 배치해 주세요.
 
 ```tsx
 <NavermapsProvider ncpKeyId="..." submodules={['panorama']}>
@@ -27,7 +27,7 @@ import { Panorama } from 'react-naver-maps/panorama';
 </Container>;
 ```
 
-- 자리와 DOM 은 `Container` 가, 거리뷰 옵션과 이벤트는 `Panorama` 가 맡습니다.
+- 영역과 DOM은 `Container`가, 거리뷰 옵션과 이벤트는 `Panorama`가 담당합니다.
 - `position`, `panoId`, `pov`, `zoom` 은 지도의 카메라처럼 prop 이 바뀔 때만 맞춥니다. 사용자가 돌려 보거나 길을 눌러 옮긴 것을 다시 렌더로 되돌리지 않습니다. 사용자가 거리뷰를 누르고 있는 동안(끌기, 핀치)에는 바뀐 prop 을 넣지 않고 손을 뗀 뒤 맞춥니다.
 - 숨겼다 보여도 같은 거리뷰를 씁니다.
 - 서브모듈을 불러오지 않고 쓰면 불러오는 법을 담은 에러를 던집니다.
