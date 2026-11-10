@@ -1,0 +1,88 @@
+---
+// 패키지 관리자별 설치 명령(탭·복사). 여러 개가 한 페이지에 있어도 각자 동작한다.
+interface Props { pkg?: string }
+const { pkg = 'react-naver-maps' } = Astro.props;
+const tools = [
+  ['npm', `npm install ${pkg}`],
+  ['pnpm', `pnpm add ${pkg}`],
+  ['yarn', `yarn add ${pkg}`],
+  ['bun', `bun add ${pkg}`],
+];
+---
+
+<div class="install" data-install>
+  <div class="install-tabs" role="tablist" aria-label="패키지 관리자">
+    {tools.map(([k], i) => <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-cmd={tools[i][1]}>{k}</button>)}
+  </div>
+  <div class="install-cmd"><code data-install-cmd>{tools[0][1]}</code><button type="button" data-install-copy>복사</button></div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-install]').forEach((box) => {
+    const out = box.querySelector('[data-install-cmd]')!;
+    box.querySelectorAll<HTMLButtonElement>('[role=tab]').forEach((tab) =>
+      tab.addEventListener('click', () => {
+        box.querySelectorAll('[role=tab]').forEach((t) => t.setAttribute('aria-selected', 'false'));
+        tab.setAttribute('aria-selected', 'true');
+        out.textContent = tab.dataset.cmd ?? '';
+      }),
+    );
+    const copy = box.querySelector<HTMLButtonElement>('[data-install-copy]')!;
+    copy.addEventListener('click', () => {
+      navigator.clipboard?.writeText(out.textContent ?? '').then(() => {
+        copy.textContent = '복사됨';
+        setTimeout(() => (copy.textContent = '복사'), 1200);
+      });
+    });
+  });
+</script>
+
+<style>
+  .install {
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 1px 2px #0000000a, 0 8px 24px -12px #0000001f;
+  }
+  .install-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 6px 6px 0;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .install-tabs button {
+    border: 0;
+    background: none;
+    padding: 7px 12px 8px;
+    font: 500 13px var(--mono);
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .install-tabs button[aria-selected='true'] {
+    color: var(--text);
+    border-bottom-color: var(--brand);
+  }
+  .install-cmd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    font: 500 14px var(--mono);
+  }
+  .install-cmd button {
+    border: 0;
+    background: none;
+    color: var(--text-3);
+    font: 500 12.5px var(--font);
+    cursor: pointer;
+  }
+  .install-cmd button:hover {
+    color: var(--text);
+  }
+</style>

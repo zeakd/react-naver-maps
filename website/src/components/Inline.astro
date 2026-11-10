@@ -1,0 +1,7 @@
+---
+// frontmatter 의 한 줄 문자열에서 `코드` 를 <code> 로 그린다(마크다운 인라인 코드만 지원).
+interface Props { text: string }
+const parts = Astro.props.text.split(/(`[^`]+`)/g).filter(Boolean);
+---
+
+{parts.map((p) => (p.startsWith('`') && p.endsWith('`') ? <code>{p.slice(1, -1)}</code> : p))}

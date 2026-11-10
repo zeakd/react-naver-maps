@@ -1,0 +1,131 @@
+---
+// 예제 목록. React 예제(우리가 만든 것)와 공식 예제(네이버 공식 튜토리얼을 옮긴 것)를 나눠 보여 준다.
+import { getCollection } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Thumb from '../../components/Thumb.astro';
+import { exampleCategories, REACT_EXAMPLES } from '../../nav';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const docs = (await getCollection('docs')).filter((d) => d.id.startsWith('examples/') && !d.data.hidden);
+const byOrder = (a: (typeof docs)[number], b: (typeof docs)[number]) => (a.data.order ?? 99) - (b.data.order ?? 99);
+const reactExamples = docs.filter((d) => d.data.category === REACT_EXAMPLES).sort(byOrder);
+const groups = exampleCategories
+  .map((c) => ({ ...c, items: docs.filter((d) => d.data.category === c.id).sort(byOrder) }))
+  .filter((g) => g.items.length);
+const officialCount = groups.reduce((n, g) => n + g.items.filter((d) => d.data.official).length, 0);
+const headings: MarkdownHeading[] = [
+  { depth: 2, slug: 'react', text: 'React 예제' },
+  { depth: 2, slug: 'official', text: '공식 예제' },
+  ...groups.map((g) => ({ depth: 3, slug: g.id, text: g.label })),
+];
+---
+
+<DocsLayout title="예제" slug="examples" section="examples" headings={headings} description="react-naver-maps 예제. 네이버 공식 튜토리얼을 옮긴 예제와 React 앱에서 자주 하는 일.">
+  <h1>예제</h1>
+  <p class="exl-lede">모든 예제는 페이지에서 바로 동작하고, 코드를 그대로 가져다 쓸 수 있습니다.</p>
+
+  <h2 id="react">React 예제 <small>{reactExamples.length}</small></h2>
+  <p class="exl-note">공식 예제에는 없지만 React 앱에서 자주 하는 일입니다. 목록과 지도 연동, 지도 여러 개, 숨겨도 같은 지도처럼 GitHub 이슈에서 많이 물어본 것을 모았습니다.</p>
+  <div class="exl-grid">
+    {reactExamples.map((d) => (
+      <a class="exl-card" href={`${base}/${d.id}/`}>
+        <Thumb slug={d.id.replace('examples/', '')} label="React" />
+        <b>{d.data.title}</b>
+      </a>
+    ))}
+  </div>
+
+  <h2 id="official">공식 예제 <small>{officialCount}</small></h2>
+  <p class="exl-note">네이버 지도 공식 튜토리얼과 같은 분류·순서입니다. jQuery, 직접 붙이는 리스너 같은 코드는 React 답게 다시 쓰고, 무엇을 바꿨는지 페이지마다 적었습니다.</p>
+  <nav class="exl-chips" aria-label="공식 예제 분류" data-pagefind-ignore>
+    {groups.map((g) => <a href={`#${g.id}`}>{g.label}<em>{g.items.length}</em></a>)}
+  </nav>
+  {groups.map((g) => (
+    <section class="exl-cat">
+      <h3 id={g.id}>{g.label} <small>{g.items.length}</small></h3>
+      <div class="exl-grid">
+        {g.items.map((d) => (
+          <a class="exl-card" href={`${base}/${d.id}/`}>
+            <Thumb slug={d.id.replace('examples/', '')} label={g.label} />
+            <b>{d.data.title}</b>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</DocsLayout>
+
+<style is:global>
+  .exl-lede {
+    font-size: 18px;
+    color: var(--text-2);
+  }
+  .prose h2 small,
+  .prose h3 small {
+    margin-left: 6px;
+    font: 500 14px var(--mono);
+    color: var(--text-3);
+  }
+  .exl-note {
+    font-size: 15px;
+    color: var(--text-2);
+  }
+  .exl-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 4px 0 8px;
+  }
+  .prose .exl-chips a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 550;
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  .prose .exl-chips a:hover {
+    border-color: var(--brand);
+    color: var(--text);
+  }
+  .exl-chips em {
+    font: 500 11.5px var(--mono);
+    font-style: normal;
+    color: var(--text-3);
+  }
+  .exl-cat h3 {
+    margin-top: 36px;
+  }
+  .exl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+    gap: 20px 16px;
+    margin: 14px 0 8px;
+  }
+  .prose a.exl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .exl-card b {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .exl-card:hover .thumb {
+    border-color: var(--brand);
+  }
+  @media (max-width: 640px) {
+    .exl-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 12px;
+    }
+  }
+</style>

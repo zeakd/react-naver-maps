@@ -1,0 +1,15 @@
+---
+// 사이트 로고(초록→청록 그라데이션). id 가 겹치지 않게 그라데이션 id 를 받는다.
+interface Props { size?: number; id?: string }
+const { size = 22, id = 'logo-grad' } = Astro.props;
+---
+
+<svg width={size} height={Math.round(size * 1.15)} viewBox="0 0 158 182" fill="none" aria-hidden="true">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M105.423 15.2554L79 0L12.2551 38.5352L49.3537 146.046L111.099 97.2991L105.423 15.2554ZM111.433 102.131L50.7358 150.051L57.4715 169.571L79 182L115.501 160.926L111.433 102.131ZM46.0282 148.671L8.72658 40.5724L0.19165 45.5V136.5L35.5712 156.926L46.0282 148.671ZM39.2998 159.079L47.4103 152.676L52.1873 166.52L39.2998 159.079ZM115.235 99.1299L157.808 65.5197V136.5L119.357 158.7L115.235 99.1299ZM157.808 60.4234L114.901 94.2976L109.6 17.6667L157.808 45.5V60.4234Z" fill={`url(#${id})`}></path>
+  <defs>
+    <linearGradient id={id} x1="0.5" y1="46" x2="79" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66DE6F"></stop>
+      <stop offset="1" stop-color="#66DEDE"></stop>
+    </linearGradient>
+  </defs>
+</svg>

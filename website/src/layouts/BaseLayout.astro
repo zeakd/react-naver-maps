@@ -1,0 +1,397 @@
+---
+// 모든 페이지의 바깥 틀: <head>, 위쪽 막대(검색·영역 메뉴·버전·밝기·GitHub), 아래쪽 바닥글.
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+import { GITHUB, type Section } from '../nav';
+import { githubStats } from '../stats';
+
+interface Props {
+  title: string;
+  description?: string;
+  section?: Section | 'home';
+}
+
+const { title, description, section } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pageTitle = section === 'home' ? `${title}` : `${title} - React Naver Maps`;
+const desc = description ?? '네이버 지도 JavaScript API v3 를 위한 React 컴포넌트 라이브러리';
+const stats = await githubStats();
+const nav = [
+  { key: 'docs', label: '시작하기', href: `${base}/guides/introduction/` },
+  { key: 'examples', label: '예제', href: `${base}/examples/` },
+  { key: 'api', label: 'API', href: `${base}/api-references/naver-map/` },
+];
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32x32.png`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${base}/apple-touch-icon.png`} />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.2.8/400.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.2.8/500.css" />
+    <script is:inline>
+      // 깜빡임 없이 밝기를 정한다: 저장한 선택 → 운영체제 설정.
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('rnm-theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-51RCXPWJLZ"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-51RCXPWJLZ');
+    </script>
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="site-head-left">
+        <slot name="menu-button" />
+        <a class="site-brand" href={`${base}/`}><Logo size={22} /><span>React Naver Maps</span></a>
+        <button class="site-search" type="button" data-search-open aria-label="문서 검색">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <span>검색</span><kbd>⌘K</kbd>
+        </button>
+      </div>
+      <nav class="site-nav" aria-label="영역">
+        {nav.map((n) => <a href={n.href} aria-current={section === n.key ? 'page' : undefined}>{n.label}</a>)}
+      </nav>
+      <div class="site-tools">
+        <select class="site-ver" aria-label="문서 버전" onchange="if (this.value) location.href = this.value">
+          <option value="" selected>v0.4</option>
+          <option value={`${base}/0.1.0/`}>v0.1</option>
+        </select>
+        <button class="site-icon" type="button" data-theme-toggle aria-label="밝기 바꾸기">
+          <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+          <svg class="i-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+        <a class="site-gh" href={GITHUB} target="_blank" rel="noopener" aria-label="GitHub 저장소">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          {stats.stars != null && <span>{stats.stars}</span>}
+        </a>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-foot">
+      <div class="site-foot-in">
+        <div class="site-foot-brand">
+          <a class="site-brand" href={`${base}/`}><Logo size={20} /><span>React Naver Maps</span></a>
+          <p>네이버 지도 JavaScript API v3 의 비공식 React 라이브러리</p>
+        </div>
+        <div><b>문서</b><a href={`${base}/guides/introduction/`}>소개</a><a href={`${base}/guides/quickstart/`}>빠른 시작</a><a href={`${base}/guides/migration-from-03/`}>0.3에서 0.4로</a><a href={`${base}/api-references/naver-map/`}>API</a></div>
+        <div><b>예제</b><a href={`${base}/examples/`}>모든 예제</a><a href={`${base}/examples/#official`}>공식 예제</a><a href={`${base}/examples/#react`}>React 예제</a></div>
+        <div><b>커뮤니티</b><a href={GITHUB}>GitHub</a><a href={`${GITHUB}/issues`}>이슈</a><a href={`${base}/guides/contributing/`}>참여하기</a><a href="https://www.npmjs.com/package/react-naver-maps">npm</a></div>
+        <p class="site-foot-legal">MIT 라이선스. 지도 데이터와 SDK 는 NAVER Corp. 의 것이며, 이 라이브러리는 NAVER 와 관계없는 오픈소스입니다.</p>
+      </div>
+    </footer>
+
+    <dialog class="search-dialog" data-search-dialog aria-label="문서 검색">
+      <div class="search-box">
+        <div id="search-ui"></div>
+        <p class="search-empty" data-search-empty hidden>검색은 빌드한 사이트에서 동작합니다.</p>
+        <button class="search-close" type="button" data-search-close>닫기 <kbd>Esc</kbd></button>
+      </div>
+    </dialog>
+
+    <script is:inline define:vars={{ base }}>
+      // 밝기 전환
+      document.querySelector('[data-theme-toggle]')?.addEventListener('click', function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('rnm-theme', next); } catch (e) {}
+      });
+      // 검색: Pagefind 의 UI 를 처음 열 때 불러온다(빌드 때 pagefind 가 /pagefind/ 에 색인을 만든다).
+      var dialog = document.querySelector('[data-search-dialog]');
+      var loaded = false;
+      function openSearch() {
+        dialog.showModal();
+        if (loaded) { var input = dialog.querySelector('input'); if (input) input.focus(); return; }
+        loaded = true;
+        var css = document.createElement('link');
+        css.rel = 'stylesheet'; css.href = base + '/pagefind/pagefind-ui.css';
+        document.head.appendChild(css);
+        var s = document.createElement('script');
+        s.src = base + '/pagefind/pagefind-ui.js';
+        s.onload = function () {
+          new window.PagefindUI({ element: '#search-ui', showSubResults: true, showImages: false, translations: { placeholder: '문서 검색', zero_results: '"[SEARCH_TERM]" 에 맞는 문서가 없습니다' } });
+          var input = dialog.querySelector('input'); if (input) input.focus();
+        };
+        s.onerror = function () { dialog.querySelector('[data-search-empty]').hidden = false; };
+        document.head.appendChild(s);
+      }
+      document.querySelectorAll('[data-search-open]').forEach(function (b) { b.addEventListener('click', openSearch); });
+      document.querySelector('[data-search-close]').addEventListener('click', function () { dialog.close(); });
+      dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+      addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openSearch(); }
+        if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); openSearch(); }
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .site-head {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-head-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  .site-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    font-size: 16px;
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .site-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    min-width: 220px;
+    padding: 0 10px 0 12px;
+    margin-left: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg-soft);
+    color: var(--text-3);
+    font: 500 14px var(--font);
+    cursor: pointer;
+  }
+  .site-search:hover {
+    border-color: color-mix(in srgb, var(--text) 22%, var(--line));
+  }
+  .site-search kbd {
+    margin-left: auto;
+    font: 500 11.5px var(--mono);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    background: var(--bg);
+  }
+  .site-nav {
+    display: flex;
+    gap: 24px;
+    margin-left: auto;
+    font-weight: 550;
+    font-size: 15px;
+  }
+  .site-nav a {
+    color: var(--text-2);
+    padding: 6px 0;
+  }
+  .site-nav a:hover,
+  .site-nav a[aria-current='page'] {
+    color: var(--text);
+  }
+  .site-nav a[aria-current='page'] {
+    box-shadow: 0 2px 0 var(--brand);
+  }
+  .site-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .site-ver {
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text-2);
+    font: 500 13px var(--mono);
+    padding: 0 8px;
+  }
+  .site-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .site-icon:hover {
+    background: var(--bg-soft);
+    color: var(--text);
+  }
+  .i-sun,
+  :root[data-theme='dark'] .i-moon {
+    display: none;
+  }
+  :root[data-theme='dark'] .i-sun {
+    display: block;
+  }
+  .site-gh {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: 600 13px var(--mono);
+    color: var(--text-2);
+  }
+  .site-gh:hover {
+    color: var(--text);
+  }
+  .site-foot {
+    border-top: 1px solid var(--line);
+    background: var(--bg-soft);
+    margin-top: 72px;
+  }
+  .site-foot-in {
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 40px 24px 48px;
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 28px;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .site-foot-in > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .site-foot-in b {
+    color: var(--text);
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .site-foot-in a:hover {
+    color: var(--text);
+  }
+  .site-foot-brand p {
+    margin: 4px 0 0;
+    color: var(--text-3);
+    font-size: 13.5px;
+    max-width: 260px;
+  }
+  .site-foot-legal {
+    grid-column: 1 / -1;
+    margin: 8px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  .search-dialog {
+    width: min(640px, calc(100vw - 32px));
+    max-height: min(640px, calc(100vh - 80px));
+    margin: 72px auto auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 30px 80px -20px #00000059;
+  }
+  .search-dialog::backdrop {
+    background: #0b0d0f66;
+    backdrop-filter: blur(2px);
+  }
+  .search-box {
+    padding: 18px 18px 14px;
+    --pagefind-ui-scale: 0.85;
+    --pagefind-ui-primary: var(--brand-text);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--line);
+    --pagefind-ui-tag: var(--bg-soft);
+    --pagefind-ui-font: var(--font);
+  }
+  .search-empty {
+    color: var(--text-3);
+    margin: 4px 0 0;
+  }
+  .search-close {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 12px 0 0 auto;
+    border: 0;
+    background: none;
+    color: var(--text-3);
+    font: 500 13px var(--font);
+    cursor: pointer;
+  }
+  .search-close kbd {
+    font: 500 11.5px var(--mono);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0 5px;
+  }
+  @media (max-width: 960px) {
+    .site-search {
+      min-width: 0;
+      width: 38px;
+      padding: 0;
+      justify-content: center;
+      margin-left: 0;
+    }
+    .site-search span,
+    .site-search kbd,
+    .site-ver {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .site-head {
+      padding: 0 12px;
+      gap: 8px;
+    }
+    .site-brand span {
+      display: none;
+    }
+    .site-nav {
+      gap: 14px;
+      font-size: 14px;
+    }
+    .site-gh span {
+      display: none;
+    }
+    .site-foot-in {
+      grid-template-columns: 1fr 1fr;
+    }
+    .site-foot-brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
