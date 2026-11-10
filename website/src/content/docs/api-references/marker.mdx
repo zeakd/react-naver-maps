@@ -36,11 +36,11 @@ const navermaps = useNavermaps();
 <Marker position={p} icon={{ content: '<div class="pin">1</div>', anchor: { x: 12, y: 12 } }} />  {/* HtmlIcon */}
 ```
 
-이미지 아이콘을 다 불러오면 `onIconLoaded`가 옵니다. `shape`로 클릭 영역을 정합니다.
+이미지 아이콘을 다 불러오면 `onIconLoaded`가 호출됩니다. `shape`로 클릭 영역을 정합니다.
 
 ## 애니메이션
 
-`animation`은 바뀔 때만 적용합니다. DROP 이 끝나면 SDK가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지 않습니다. `null`을 주면 BOUNCE 를 멈춥니다. 이름(`'BOUNCE'`, `'DROP'`) 대신 SDK 상수(`navermaps.Animation.BOUNCE`)도 받습니다.
+`animation`은 값이 바뀔 때만 적용합니다. DROP이 끝나면 SDK가 값을 `null`로 바꾸지만 다시 렌더링해도 다시 떨어지지 않습니다. `null`을 주면 BOUNCE를 멈춥니다. 이름(`'BOUNCE'`, `'DROP'`) 대신 SDK 상수(`navermaps.Animation.BOUNCE`)도 받습니다.
 
 ```tsx
 <Marker position={p} animation={bouncing ? 'BOUNCE' : null} />
@@ -48,7 +48,7 @@ const navermaps = useNavermaps();
 
 ## 위치 읽기
 
-`position`을 주면 그 값이 기준입니다. 끌어 놓아도 다시 렌더하면 돌아가므로 `onDragend`로 상태를 바꿉니다. `defaultPosition`으로 두고 위치만 읽으려면 `onPositionChanged`를 씁니다.
+`position`을 주면 그 값이 기준입니다. 끌어 놓아도 다시 렌더링하면 돌아가므로 `onDragend`로 state를 바꿔 주세요. `defaultPosition`으로 두고 위치만 읽으려면 `onPositionChanged`를 사용합니다.
 
 ```tsx
 <Marker
