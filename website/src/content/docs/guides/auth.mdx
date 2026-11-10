@@ -8,10 +8,10 @@ order: 3
 
 ## 키 만들기
 
-1. [네이버 클라우드 콘솔](https://console.ncloud.com)의 [Maps > Application](https://console.ncloud.com/maps/application) 에서 Application 을 등록합니다.
-2. API 는 **Dynamic Map** 을 고릅니다. 주소 검색(`react-naver-maps/geocoder`)을 쓰면 **Geocoding**, **Reverse Geocoding** 도 고릅니다.
-3. **Web 서비스 URL** 에 지도를 띄울 주소를 모두 등록합니다. 배포 주소뿐 아니라 개발 주소(`http://localhost:5173` 등)도 넣습니다.
-4. **인증 정보**의 Client ID 를 `NavermapsProvider`의 `ncpKeyId`로 넘깁니다.
+1. [네이버 클라우드 콘솔](https://console.ncloud.com)의 [Maps > Application](https://console.ncloud.com/maps/application)에서 Application을 등록해 주세요.
+2. API는 **Dynamic Map**을 선택해 주세요. 주소 검색(`react-naver-maps/geocoder`)을 쓰면 **Geocoding**, **Reverse Geocoding**도 선택해 주세요.
+3. **Web 서비스 URL**에 지도를 띄울 주소를 모두 등록해 주세요. 배포 주소뿐 아니라 개발 주소(`http://localhost:5173` 등)도 넣어 주세요.
+4. **인증 정보**의 Client ID를 `NavermapsProvider`의 `ncpKeyId`로 넘겨 주세요.
 
 ```tsx
 <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
@@ -19,7 +19,7 @@ order: 3
 </NavermapsProvider>
 ```
 
-Client ID 는 브라우저에 그대로 보이는 값입니다. 다른 사이트가 쓰지 못하게 막는 것은 Web 서비스 URL 입니다. Client Secret 은 지도 표시에 쓰지 않으니 코드에 넣지 않습니다.
+Client ID는 브라우저에 그대로 보이는 값입니다. 다른 사이트의 사용은 Web 서비스 URL로 제한합니다. Client Secret은 지도 표시에 쓰지 않으니 코드에 넣지 마세요.
 
 ## 인증이 실패할 때
 
