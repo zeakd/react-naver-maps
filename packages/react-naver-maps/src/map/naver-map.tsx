@@ -64,9 +64,9 @@ export interface NaverMapProps {
   children?: ReactNode;
 
   // Controlled KVO
-  /** 지도 중심. 주면 이 값으로 붙잡아 둔다. 사용자가 옮긴 위치를 따르려면 `onCenterChanged` 로 state 를 바꾼다. 처음 값만 주려면 `defaultCenter`. */
+  /** 지도 중심. prop 이 바뀌면 해당 위치로 이동합니다. 사용자가 이동한 위치를 반영하려면 `onCenterChanged` 로 state 를 변경합니다. 초기값만 지정하려면 `defaultCenter` 를 사용합니다. */
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
-  /** 줌 레벨. 주면 이 값으로 붙잡아 둔다. 처음 값만 주려면 `defaultZoom`. */
+  /** 줌 레벨. prop 이 바뀌면 해당 줌으로 변경합니다. 초기값만 지정하려면 `defaultZoom` 을 사용합니다. */
   zoom?: number;
   /**
    * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. bounds 는 지도가 계산해 내는 값이라

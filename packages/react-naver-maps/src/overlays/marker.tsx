@@ -26,7 +26,7 @@ export interface MarkerProps
   ref?: Ref<naver.maps.Marker>;
 
   // Controlled
-  /** 마커 좌표. 주면 이 값으로 붙잡아 둔다. 끌어 옮긴 위치를 지키려면 `onDragend` 로 state 를 바꾸거나 `defaultPosition` 을 쓴다. */
+  /** 마커 좌표. 렌더링할 때 이 값으로 위치를 맞춥니다. 끌어 옮긴 위치를 유지하려면 `onDragend` 로 state 를 변경하거나 `defaultPosition` 을 사용합니다. */
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Uncontrolled default
@@ -34,7 +34,7 @@ export interface MarkerProps
   defaultPosition?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Options
-  /** 마커 모양. 이미지 주소, `ImageIcon`, `SymbolIcon`, `HtmlIcon`(`{ content, size, anchor }`). 값이 같으면 다시 넣지 않는다. */
+  /** 마커 모양. 이미지 주소, `ImageIcon`, `SymbolIcon`, `HtmlIcon`(`{ content, size, anchor }`)을 사용할 수 있습니다. 값이 같으면 다시 설정하지 않습니다. */
   icon?: MarkerIcon;
   /**
    * 바뀔 때만 적용한다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지
