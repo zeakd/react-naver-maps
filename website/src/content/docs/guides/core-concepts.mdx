@@ -58,14 +58,14 @@ window.naver.maps.Event.removeListener(zoomListener);
 
 ### 도형의 clickable
 
-네이버맵 SDK 의 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)은 기본이 `clickable: false` 라서 포인터 이벤트를 버립니다. 이 라이브러리는 포인터 핸들러가 있으면 `clickable`을 켭니다. 끄려면 `clickable={false}`를 명시합니다.
+네이버 지도 SDK의 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)은 기본값이 `clickable: false`라서 포인터 이벤트를 받지 않습니다. 라이브러리는 포인터 핸들러가 있으면 `clickable`을 켭니다. 끄려면 `clickable={false}`를 명시해 주세요.
 
 ```tsx
 <Circle center={center} radius={300} fillOpacity={0.3} onClick={handleClick} />
 ```
 
-- 켜진 도형을 누르면 지도의 `onClick`은 호출되지 않습니다.
-- 채우기가 없는 도형은 선을 눌러야 이벤트가 옵니다. 안쪽도 누르게 하려면 `fillColor`, `fillOpacity`를 지정합니다.
+- 클릭 가능한 도형을 누르면 지도의 `onClick`은 호출되지 않습니다.
+- 채우기가 없는 도형은 선을 눌러야 이벤트가 발생합니다. 안쪽도 누르게 하려면 `fillColor`, `fillOpacity`를 지정해 주세요.
 
 ```tsx
 <Marker
@@ -126,7 +126,7 @@ NaverMap 의 controlled `bounds`와 `centerPoint`, `defaultCenterPoint`는 0.4 �
 
 ### 규칙
 
-- **하나의 prop에 대해 controlled와 uncontrolled을 혼용하지 마세요.** `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
+- 하나의 prop에 controlled와 uncontrolled을 혼용하지 마세요. `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
 - Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
 - 오버레이(Marker, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop 으로 되돌립니다. 예를 들어 `draggable` Marker 를 끌어 놓아도 `onDragend`로 state 를 바꾸지 않으면 다시 렌더할 때 `position`으로 돌아갑니다.
 - 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
@@ -165,7 +165,7 @@ declare module 'react-naver-maps' {
 
 ## 숨김과 수명
 
-지도와 오버레이는 React 가 트리를 숨겼다 다시 보여도 같은 인스턴스를 씁니다. 지도 안의 컴포넌트가 suspend 하거나 `<Activity mode="hidden">`으로 숨기면 지도는 영역만 숨기고, 오버레이는 지도에서 떨어집니다. 다시 보이면 같은 지도가 같은 center 와 zoom 으로 돌아오고 오버레이도 다시 붙습니다. `open` 인 `InfoWindow`는 다시 열립니다. 인스턴스는 컴포넌트가 정말로 사라질 때만 정리합니다.
+지도와 오버레이는 React가 트리를 숨겼다 다시 보여도 같은 인스턴스를 사용합니다. 지도 안의 컴포넌트가 suspend하거나 `<Activity mode="hidden">`으로 숨기면 지도 영역은 숨겨지고 오버레이는 지도에서 분리됩니다. 다시 표시하면 같은 지도가 같은 center와 zoom으로 돌아오고 오버레이도 다시 붙습니다. `open`인 `InfoWindow`는 다시 열립니다. 인스턴스는 컴포넌트가 사라질 때 정리합니다.
 
 ## 컴포넌트 계층 구조
 
