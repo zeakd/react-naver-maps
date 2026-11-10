@@ -9,11 +9,19 @@ export type Stats = {
 
 let cached: Promise<Stats> | null = null;
 
+// GitHub API 는 인증 없이 시간당 60회라 CI 에서 자주 막힌다. 배포 워크플로가 넘기는 GITHUB_TOKEN 이 있으면 쓴다.
+// 빌드(Node)에서만 돈다. 사이트 타입 검사에는 Node 타입이 없어 globalThis 로 읽는다.
+const githubToken = (
+  globalThis as { process?: { env: Record<string, string | undefined> } }
+).process?.env.GITHUB_TOKEN;
+
 async function getJson(url: string): Promise<unknown> {
-  const res = await fetch(url, {
-    signal: AbortSignal.timeout(5000),
-    headers: { 'user-agent': 'react-naver-maps-docs' },
-  });
+  const headers: Record<string, string> = {
+    'user-agent': 'react-naver-maps-docs',
+  };
+  if (githubToken && url.startsWith('https://api.github.com/'))
+    headers.authorization = `Bearer ${githubToken}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(5000), headers });
   if (!res.ok) throw new Error(`${url} ${res.status}`);
   return res.json();
 }
