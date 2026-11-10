@@ -128,17 +128,17 @@ NaverMap 의 controlled `bounds`와 `centerPoint`, `defaultCenterPoint`는 0.4 �
 
 - 하나의 prop에 controlled와 uncontrolled을 혼용하지 마세요. `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
 - Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
-- 오버레이(Marker, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop 으로 되돌립니다. 예를 들어 `draggable` Marker 를 끌어 놓아도 `onDragend`로 state 를 바꾸지 않으면 다시 렌더할 때 `position`으로 돌아갑니다.
-- 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
-- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 prop 을 넣지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 자리로 봅니다. `zoom` 도 함께 바뀌면 큰 쪽 zoom 에서 잽니다.
-- `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 자리로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center 와 1px 안인 `center` prop 은 그 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 지난 prop 으로 치므로 2초 뒤 같은 값으로 다시 렌더해도 움직이지 않습니다. 일부러 그 자리로 보내려면 `map.panTo()`를 씁니다. GL 의 실수 zoom 도 같습니다(정수 zoom 은 늘 따릅니다).
+- 오버레이(Marker, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop으로 되돌립니다. 예를 들어 `draggable` Marker 를 끌어 놓아도 `onDragend`로 state를 바꾸지 않으면 다시 렌더할 때 `position`으로 돌아갑니다.
+- 지도의 카메라(`center`, `zoom`)는 prop이 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
+- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 prop을 넣지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 자리로 봅니다. `zoom` 도 함께 바뀌면 큰 쪽 zoom 에서 잽니다.
+- `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 자리로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center 와 1px 안인 `center` prop은 그 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 지난 prop으로 치므로 2초 뒤 같은 값으로 다시 렌더해도 움직이지 않습니다. 일부러 그 자리로 보내려면 `map.panTo()`를 씁니다. GL 의 실수 zoom 도 같습니다(정수 zoom 은 늘 따릅니다).
 - 래스터 지도는 실수 zoom 을 반올림해 씁니다(15.4 → 15). 반올림해 같으면 zoom 은 그대로 두고 center 만 옮깁니다. GL 지도는 실수 zoom 을 그대로 씁니다.
 - `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. 따로 떨어진 변경은 애니메이션합니다. GL 에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
-- prop 은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
+- prop은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 라이브러리에 아직 없는 SDK 옵션
 
-SDK 는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기면 라이브러리를 올리지 않고 prop 으로 씁니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)에서 됩니다. 컴포넌트가 모르는 prop 은 생성자에 넘기고, 값이 바뀌면 SDK 의 `setOptions({ ... })`로 넘깁니다.
+SDK는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기면 라이브러리를 올리지 않고 prop으로 씁니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)에서 됩니다. 컴포넌트가 모르는 prop은 생성자에 넘기고, 값이 바뀌면 SDK의 `setOptions({ ... })`로 넘깁니다.
 
 ```tsx
 // futureOption 은 설명용 이름이고 실제 옵션이 아닙니다.
@@ -158,10 +158,10 @@ declare module 'react-naver-maps' {
 ```
 
 - 값이 바뀔 때만 넘기고, 비교는 `Object.is` 입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
-- 지도에서 값이 바뀌어도 되돌리지 않습니다. prop 을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
+- 지도에서 값이 바뀌어도 되돌리지 않습니다. prop을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
 - `ref`, `key`, `children`, `map`, `onX`, `defaultX` 꼴의 이름은 넘기지 않습니다.
 - 새 옵션이 `setOptions`로 충분하지 않으면(지도 유형처럼 전용 메서드가 있는 경우) `ref`로 SDK 메서드를 부릅니다. 그 밖의 컴포넌트에서도 `ref`를 씁니다.
-- `<Marker {...row} />` 처럼 펼치면 `row`의 다른 필드도 SDK 로 갑니다. 필요한 값만 넘기세요.
+- `<Marker {...row} />` 처럼 펼치면 `row`의 다른 필드도 SDK로 갑니다. 필요한 값만 넘기세요.
 
 ## 숨김과 수명
 

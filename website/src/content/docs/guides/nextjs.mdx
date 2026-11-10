@@ -8,7 +8,7 @@ React Naver Maps는 서버 렌더링을 하는 프레임워크에서도 사용�
 
 ## Next.js App Router
 
-라이브러리 진입점에 `'use client'`가 있어 서버 컴포넌트에서 import 해도 클라이언트 컴포넌트로 동작합니다. 다만 이벤트 핸들러나 state 는 서버 컴포넌트에서 넘길 수 없으므로, 지도를 그리는 컴포넌트를 `'use client'` 파일로 따로 둡니다.
+라이브러리 진입점에 `'use client'`가 있어 서버 컴포넌트에서 import 해도 클라이언트 컴포넌트로 동작합니다. 다만 이벤트 핸들러나 state는 서버 컴포넌트에서 넘길 수 없으므로, 지도를 그리는 컴포넌트를 `'use client'` 파일로 따로 둡니다.
 
 ```tsx
 // app/store-map.tsx
