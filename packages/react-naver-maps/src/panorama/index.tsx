@@ -57,27 +57,42 @@ import { requireSubmodule } from '../sdk/submodule.js';
  */
 export interface PanoramaProps {
   ref?: Ref<naver.maps.Panorama>;
+  /** 거리뷰 위에 그릴 마커·정보 창. */
   children?: ReactNode;
   /**
    * 보는 곳. `position`, `pov`, `zoom`, `panoId` 는 지도의 카메라처럼 prop 이 바뀔 때만 맞춘다.
    * 사용자가 돌려 보거나 길을 눌러 옮긴 것을 다시 렌더로 되돌리지 않는다.
    */
   position?: naver.maps.LatLng | naver.maps.LatLngLiteral;
+  /** 보여 줄 거리뷰 사진의 id. 좌표 대신 사진을 고를 때. */
   panoId?: string;
+  /** 보는 방향(`{ pan, tilt, fov }`). 주면 이 값으로 붙잡아 둔다. */
   pov?: naver.maps.PanoramaPov;
+  /** 거리뷰 확대 정도. */
   zoom?: number;
+  /** 거리뷰를 보일지 여부. */
   visible?: boolean;
+  /** 거리뷰 최소 확대 정도. */
   minZoom?: number;
+  /** 거리뷰 최대 확대 정도. */
   maxZoom?: number;
+  /** 최소 배율. */
   minScale?: number;
+  /** 최대 배율. */
   maxScale?: number;
+  /** 거리뷰 안에 항공뷰 지점 아이콘을 보일지 여부. */
   flightSpot?: boolean;
+  /** 로고 컨트롤을 보일지 여부. */
   logoControl?: boolean;
   /** `position` 은 이름(`'BOTTOM_RIGHT'`)으로도 받는다. 아래 컨트롤 옵션도 같다. */
   logoControlOptions?: ControlOptionsProp;
+  /** 확대 컨트롤을 보일지 여부. */
   zoomControl?: boolean;
+  /** 확대 컨트롤의 위치·모양. */
   zoomControlOptions?: ZoomControlOptionsProp;
+  /** 주변 사진으로 옮기는 컨트롤을 보일지 여부. */
   aroundControl?: boolean;
+  /** 주변 사진 컨트롤의 위치. */
   aroundControlOptions?: ControlOptionsProp;
   /**
    * 거리뷰 크기(px). 주지 않으면 Container 크기다. SDK 는 Container 가 바뀌어도 따라가지 않는다
@@ -90,6 +105,7 @@ export interface PanoramaProps {
   onPanoChanged?: (panoId: string) => void;
   /** 불러오기 결과. SDK 는 'OK' 나 'ERROR' 를 준다. */
   onPanoStatus?: (status: 'OK' | 'ERROR') => void;
+  /** 보는 방향이 바뀌었을 때. 인자는 새 `pov`. */
   onPovChanged?: (pov: naver.maps.PanoramaPov) => void;
 }
 

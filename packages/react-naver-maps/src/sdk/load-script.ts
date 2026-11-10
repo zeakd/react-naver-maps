@@ -7,6 +7,7 @@
  * https://github.com/zeakd/react-naver-maps/issues/174
  */
 export type LoadOptions = {
+  /** 네이버 클라우드 콘솔 Maps Application 의 Client ID. 지도를 띄울 주소가 Web 서비스 URL 에 등록돼 있어야 한다. */
   ncpKeyId: string;
   /** SDK 서브모듈. 공식 문서 "서브 모듈 시스템" 의 이름이다. */
   submodules?: Submodule[];

@@ -26,12 +26,14 @@ export interface PolygonProps
   ref?: Ref<naver.maps.Polygon>;
 
   // Controlled
+  /** 꼭짓점 배열의 배열. 첫 배열이 바깥선, 나머지는 구멍. 주면 이 값으로 붙잡아 둔다. */
   paths?:
     | naver.maps.ArrayOfCoords[]
     | naver.maps.KVOArray<naver.maps.KVOArrayOfCoords>
     | naver.maps.ArrayOfCoordsLiteral[];
 
   // Uncontrolled
+  /** 처음 꼭짓점. 그 뒤로는 SDK 가 관리한다(편집으로 바뀐 값을 되돌리지 않는다). */
   defaultPaths?:
     | naver.maps.ArrayOfCoords[]
     | naver.maps.KVOArray<naver.maps.KVOArrayOfCoords>
@@ -47,7 +49,9 @@ export interface PolygonProps
   // Options
   /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
+  /** 보일지 여부. */
   visible?: boolean;
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그린다. */
   zIndex?: number;
   /**
    * 꼭짓점을 끌어 고칠 수 있게 한다(drawing 서브모듈 필요). 편집은 SDK 가 path 를 제자리에서 고쳐

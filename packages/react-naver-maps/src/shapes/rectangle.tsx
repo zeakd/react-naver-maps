@@ -27,15 +27,19 @@ export interface RectangleProps
   ref?: Ref<naver.maps.Rectangle>;
 
   // Controlled
+  /** 도형이 차지하는 영역. 주면 이 값으로 붙잡아 둔다. 처음 값만 주려면 `defaultBounds`. */
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
 
   // Uncontrolled
+  /** 처음 영역. 그 뒤로는 SDK 가 관리한다(편집으로 바뀐 값을 되돌리지 않는다). */
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
 
   // Options
   /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
+  /** 보일지 여부. */
   visible?: boolean;
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그린다. */
   zIndex?: number;
   /**
    * 꼭짓점을 끌어 고칠 수 있게 한다(drawing 서브모듈 필요). 편집은 SDK 가 path 를 제자리에서 고쳐

@@ -32,7 +32,9 @@ export interface HeatMapProps {
   ref?: Ref<naver.maps.visualization.HeatMap>;
   /** 좌표 목록. `LatLng`, `[경도, 위도]`, `WeightedLocation`. 값으로 비교해 바뀌면 다시 그린다. */
   data: VisualizationData;
+  /** 불투명도(0~1). */
   opacity?: number;
+  /** 점 하나가 퍼지는 반지름(px). */
   radius?: number;
   /** 색 이름. `navermaps.visualization.SpectrumStyle.JET` 같은 값. */
   colorMap?: naver.maps.visualization.SpectrumStyle;
@@ -45,12 +47,19 @@ export interface DotMapProps {
   ref?: Ref<naver.maps.visualization.DotMap>;
   /** 좌표 목록. `LatLng`, `[경도, 위도]`, `WeightedLocation`. 값으로 비교해 바뀌면 다시 그린다. */
   data: VisualizationData;
+  /** 불투명도(0~1). */
   opacity?: number;
+  /** 점 하나가 퍼지는 반지름(px). */
   radius?: number;
+  /** 선 두께(px). */
   strokeWeight?: number;
+  /** 선 색(CSS 색 값). */
   strokeColor?: string;
+  /** 선 끝 모양(`'butt'`, `'round'`, `'square'`). */
   strokeLineCap?: naver.maps.StrokeLineCapType;
+  /** 선이 꺾이는 곳의 모양(`'miter'`, `'round'`, `'bevel'`). */
   strokeLineJoin?: naver.maps.StrokeLineJoinType;
+  /** 면 색(CSS 색 값). */
   fillColor?: string;
 }
 

@@ -28,6 +28,7 @@ export interface CustomControlProps {
   ref?: Ref<naver.maps.CustomControl>;
   /** 컨트롤 자리. `'TOP_RIGHT'` 같은 이름이나 `navermaps.Position.TOP_RIGHT`. 바꾸면 그 자리로 옮긴다. */
   position: PositionName;
+  /** 컨트롤로 그릴 React 요소. */
   children?: ReactNode;
 }
 
