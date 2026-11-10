@@ -26,7 +26,7 @@ export interface MarkerProps
   ref?: Ref<naver.maps.Marker>;
 
   // Controlled
-  /** 마커 좌표. 렌더링할 때 이 값으로 위치를 맞춥니다. 끌어 옮긴 위치를 유지하려면 `onDragend` 로 state 를 변경하거나 `defaultPosition` 을 사용합니다. */
+  /** 마커 좌표. 렌더링할 때 이 값으로 위치를 맞춥니다. 끌어 옮긴 위치를 유지하려면 `onDragend`로 state를 변경하거나 `defaultPosition`을 사용합니다. */
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Uncontrolled default
@@ -55,9 +55,9 @@ export interface MarkerProps
   visible?: boolean;
   /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그립니다. */
   zIndex?: number;
-  /** GL 서브모듈에서 다른 마커와 겹치면 숨긴다(공식 문서 MarkerOptions). GL 이 아니면 SDK 가 무시한다. */
+  /** GL 서브모듈에서 다른 마커와 겹치면 숨긴다(공식 문서 MarkerOptions). GL이 아니면 SDK가 무시한다. */
   collisionBehavior?: boolean;
-  /** collisionBehavior 에서 겹침을 재는 크기. */
+  /** collisionBehavior에서 겹침을 재는 크기. */
   collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
   /** 이미지 아이콘을 다 불러왔을 때(SDK `icon_loaded`). */
   onIconLoaded?: (marker: naver.maps.Marker) => void;

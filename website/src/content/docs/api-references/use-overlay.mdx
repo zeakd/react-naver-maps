@@ -89,7 +89,7 @@ function MyOverlay({ position, onPositionChanged }) {
 ## 생명주기
 
 - **mount**: `factory()` 호출 → 인스턴스 생성 (`useLayoutEffect`로 paint 전 실행)
-- **숨김** (Suspense 가 다시 걸림, `<Activity mode="hidden">`, StrictMode 재실행): `instance.setMap(null)`로 지도에서 뗀다. 인스턴스는 버리지 않는다.
+- **숨김** (Suspense가 다시 걸림, `<Activity mode="hidden">`, StrictMode 재실행): `instance.setMap(null)`로 지도에서 뗀다. 인스턴스는 버리지 않는다.
 - **다시 보임**: 같은 인스턴스를 떼기 전 지도에 다시 붙인다. `factory()`를 다시 부르지 않는다.
 - **unmount**: `clearInstanceListeners(instance)` + `instance.setMap(null)`
 

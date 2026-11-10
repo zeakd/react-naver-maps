@@ -46,7 +46,7 @@ GL(`gl`)은 다른 서브모듈과 함께 쓰지 않습니다(공식 문서 "GL 
 
 ## 언어
 
-지도 글자와 컨트롤의 언어를 `language`로 정합니다. SDK가 받는 값은 `ko`(기본), `en`, `zh`, `ja` 입니다.
+지도 글자와 컨트롤의 언어를 `language`로 정합니다. SDK가 받는 값은 `ko`(기본), `en`, `zh`, `ja`입니다.
 
 ```tsx
 <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID" language="en">
@@ -58,7 +58,7 @@ SDK는 한 페이지에서 한 번만 불러오므로, 처음 불러온 언어�
 
 ## 인증 실패
 
-키가 틀렸거나, Web 서비스 URL 이 등록되지 않았거나, Application 에서 Dynamic Map 을 선택하지 않았으면 SDK가 인증에 실패합니다. 지도는 그려지지 않고 SDK는 곧 `naver.maps`를 비웁니다. `onAuthFailure`로 알아챌 수 있습니다.
+키가 틀렸거나, Web 서비스 URL이 등록되지 않았거나, Application에서 Dynamic Map을 선택하지 않았으면 SDK가 인증에 실패합니다. 지도는 그려지지 않고 SDK는 곧 `naver.maps`를 비웁니다. `onAuthFailure`로 알아챌 수 있습니다.
 
 ```tsx
 <NavermapsProvider
@@ -73,7 +73,7 @@ SDK는 전역 `window.navermap_authFailure`를 부릅니다. 페이지가 먼저
 
 ## TypeScript
 
-SDK 타입은 [`@types/navermaps`](https://www.npmjs.com/package/@types/navermaps) 를 씁니다. TypeScript 에서는 함께 설치합니다.
+SDK 타입은 [`@types/navermaps`](https://www.npmjs.com/package/@types/navermaps)를 씁니다. TypeScript를 쓰면 함께 설치해 주세요.
 
 ```sh
 npm i -D @types/navermaps

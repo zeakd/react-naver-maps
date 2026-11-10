@@ -56,7 +56,7 @@ export interface DrawingManagerProps {
   ref?: Ref<Manager>;
   /** 도구 막대에 보일 모드. `'POLYGON'` 같은 이름이나 `navermaps.drawing.DrawingMode` 값. */
   drawingControl?: DrawingModeName[];
-  /** 도구 막대 자리와 모양. `position`·`style` 도 이름으로 받는다. */
+  /** 도구 막대 자리와 모양. `position`·`style`도 이름으로 받는다. */
   drawingControlOptions?: Omit<
     naver.maps.drawing.DrawingControlOptions,
     'position' | 'style'

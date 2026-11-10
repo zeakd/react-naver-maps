@@ -7,7 +7,7 @@ changes:
   - official: '`new DrawingManager({ map, rectangleOptions, ... })`'
     react: '`<DrawingManager>`의 `rectangleOptions` 등 prop'
   - official: 전역 변수 `drawingManager`, `geojson`
-    react: '`ref`로 받아 state에 둔 매니저와, 뽑은 GeoJSON 을 담은 state'
+    react: '`ref`로 받아 state에 둔 매니저와, 뽑은 GeoJSON을 담은 state'
   - official: jQuery로 버튼 `click`을 듣고 `removeGeoJson` 뒤 `addGeoJson(geojson, true)`
     react: '`<button onClick>`에서 `toGeoJson()` 결과를 state에 저장하고 `<GeoJson data autoStyle>`로 표시'
 ---
@@ -15,7 +15,7 @@ changes:
 import Example from 'astro-component-docs/components/Example.astro';
 import DrawingTutorial3RestoreExample from '../../../examples/drawing-tutorial-3-restore.tsx';
 
-왼쪽 지도에 그린 도형을 GeoJSON 으로 뽑아 오른쪽 지도의 데이터 레이어에 복원합니다.
+왼쪽 지도에 그린 도형을 GeoJSON으로 뽑아 오른쪽 지도의 데이터 레이어에 복원합니다.
 
 <Example of={DrawingTutorial3RestoreExample} />
 

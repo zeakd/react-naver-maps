@@ -21,6 +21,6 @@ GeoJSON 글자 도형을 데이터 레이어에 올립니다. 클릭하면 색�
 
 ## 설명
 
-`GeoJson`의 `data`에 받아 온 GeoJSON 을 넘깁니다. `style` 함수는 컴포넌트 밖에 두어 참조가 바뀌지 않게 하고, 클릭은 `onClick`에서 `feature.setProperty`로 속성을 바꿉니다(속성이 바뀌면 SDK가 다시 스타일합니다). 더블클릭 이동은 `useMap()`으로 받은 지도에 `panToBounds`를 부릅니다.
+`GeoJson`의 `data`에 받아 온 GeoJSON을 넘깁니다. `style` 함수는 컴포넌트 밖에 두어 참조가 바뀌지 않게 하고, 클릭은 `onClick`에서 `feature.setProperty`로 속성을 바꿉니다(속성이 바뀌면 SDK가 다시 스타일합니다). 더블클릭 이동은 `useMap()`으로 받은 지도에 `panToBounds`를 부릅니다.
 
 hover 강조는 상태로 `style`을 바꾸지 않고 `onMouseover`, `onMouseout`에서 `map.data.overrideStyle`, `revertStyle`을 부릅니다. 데이터에 점(Point) 도형이 있어 스타일에 `icon: null`을 주어 기본 마커를 숨깁니다. `StyleOptions.icon` 타입이 `null`을 받지 않아 타입 단언을 씁니다.

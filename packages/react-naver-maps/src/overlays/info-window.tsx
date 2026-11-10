@@ -86,7 +86,7 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
   zIndex: number;
 }> {
   ref?: Ref<naver.maps.InfoWindow>;
-  /** HTML 문자열 또는 HTML 요소. SDK 의 content 파싱을 그대로 쓴다. */
+  /** HTML 문자열 또는 HTML 요소. SDK의 content 파싱을 그대로 쓴다. */
   content: string | HTMLElement;
   /** 위치 (anchor 없을 때) */
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
@@ -148,7 +148,7 @@ const OPTIONS = [
   'zIndex',
 ] as const satisfies readonly (keyof InfoWindowProps)[];
 
-/** content, open 은 InfoWindow 가 먼저 꺼내므로 여기 없다. */
+/** content, open은 InfoWindow가 먼저 꺼내므로 여기 없다. */
 const HANDLED = handledProps([...OPTIONS, 'anchor']);
 
 /** 열고 닫힘 이벤트. 목록을 상수로 두어 렌더마다 만들지 않는다. */

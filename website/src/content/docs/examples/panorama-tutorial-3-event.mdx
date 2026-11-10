@@ -10,7 +10,7 @@ changes:
     react: 읽은 값을 state 객체에 모아 표로 표시
   - official: '`updateZoomState`에서 `addClass` · `removeClass`로 버튼 상태 바꾸기'
     react: 렌더할 때 `getScale()`을 `getMaxScale()` · `getMinScale()`과 비교해 버튼 스타일 설정
-  - official: 상태가 OK 가 아니면 `alert`
+  - official: 상태가 OK가 아니면 `alert`
     react: 상태 값을 표에 표시
 ---
 
@@ -23,4 +23,4 @@ import PanoramaTutorial3EventExample from '../../../examples/panorama-tutorial-3
 
 ## 설명
 
-`onPanoChanged`, `onPovChanged`, `onPanoStatus` prop으로 이벤트를 받고, 값은 `ref`로 받은 인스턴스에서 읽습니다(`getLocation()`, `getPov()`, `getZoom()` 등). 확대·축소 버튼은 같은 인스턴스의 `zoomIn()`, `zoomOut()` 입니다.
+`onPanoChanged`, `onPovChanged`, `onPanoStatus` prop으로 이벤트를 받고, 값은 `ref`로 받은 인스턴스에서 읽습니다(`getLocation()`, `getPov()`, `getZoom()` 등). 확대·축소 버튼은 같은 인스턴스의 `zoomIn()`, `zoomOut()`입니다.

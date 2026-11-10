@@ -4,7 +4,7 @@ category: guides
 order: 3
 ---
 
-React Naver Maps는 네이버 지도의 기본 기능을 React에서 사용할 수 있도록 제공합니다.
+React Naver Maps는 네이버 지도의 기본 기능을 React 컴포넌트로 제공합니다.
 
 ## React 컴포넌트 인터페이스
 
@@ -54,7 +54,7 @@ window.naver.maps.Event.removeListener(zoomListener);
 <NaverMap />
 ```
 
-모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 각 컴포넌트에서 사용 가능한 이벤트는 API Reference를 참고하세요.
+모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 컴포넌트별 이벤트는 API 문서의 Props 표에서 확인해 주세요.
 
 ### 도형의 clickable
 
@@ -75,7 +75,7 @@ window.naver.maps.Event.removeListener(zoomListener);
 />
 ```
 
-핸들러가 변경되면 이전 리스너는 자동으로 해제되고 새 핸들러가 등록됩니다.
+핸들러가 바뀌어도 리스너를 다시 붙이지 않고, 붙어 있는 리스너가 최신 핸들러를 부릅니다. 핸들러를 더하거나 뺄 때만 리스너를 붙이고 뗍니다.
 
 ## Controlled / Uncontrolled
 
@@ -101,7 +101,7 @@ function MyMap() {
     <>
       <NaverMap
         center={center}
-        onCenterChanged={(center) => setCenter(center)}
+        onCenterChanged={(c) => setCenter({ lat: c.y, lng: c.x })}
       />
       <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
         제주도로 이동하기
@@ -133,8 +133,8 @@ function MyMap() {
 - 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 props를 적용하지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 위치로 봅니다. `zoom`도 함께 바뀌면 큰 쪽 zoom에서 측정합니다.
 - `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 위치로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 이전 prop으로 취급하므로 2초 뒤 같은 값으로 다시 렌더링해도 움직이지 않습니다. 해당 위치로 이동하려면 `map.panTo()`를 사용해 주세요. GL의 실수 zoom도 같습니다(정수 zoom은 항상 따릅니다).
 - 래스터 지도는 실수 zoom을 반올림해 사용합니다(15.4 → 15). 반올림한 값이 같으면 zoom은 그대로 두고 center만 옮깁니다. GL 지도는 실수 zoom을 그대로 사용합니다.
-- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. 따로 변경하면 애니메이션으로 이동합니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
-- prop은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
+- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. `center`만 바꾸면 `panTo`로 이동하고, 래스터 지도에서 `zoom`만 바꾸면 애니메이션 없이 맞춥니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
+- prop은 값으로 비교합니다. `center={{ lat, lng }}`처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 라이브러리에 아직 없는 SDK 옵션
 
@@ -157,11 +157,11 @@ declare module 'react-naver-maps' {
 }
 ```
 
-- 값이 바뀔 때만 넘기고, 비교는 `Object.is` 입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
+- 값이 바뀔 때만 넘기고, 비교는 `Object.is`입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
 - 지도에서 값이 바뀌어도 되돌리지 않습니다. prop을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
 - `ref`, `key`, `children`, `map`, `onX`, `defaultX` 꼴의 이름은 넘기지 않습니다.
 - 새 옵션이 `setOptions`로 충분하지 않으면(지도 유형처럼 전용 메서드가 있는 경우) `ref`로 SDK 메서드를 부릅니다. 그 밖의 컴포넌트에서도 `ref`를 씁니다.
-- `<Marker {...row} />` 처럼 펼치면 `row`의 다른 필드도 SDK로 갑니다. 필요한 값만 넘기세요.
+- `<Marker {...row} />`처럼 펼치면 `row`의 다른 필드도 SDK로 갑니다. 필요한 값만 넘기세요.
 
 ## 숨김과 수명
 

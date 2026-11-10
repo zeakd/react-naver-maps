@@ -63,7 +63,7 @@ export type EventHandlerProps<E extends string> = {
   [K in E as `on${Capitalize<K>}`]?: PointerEventHandler;
 };
 
-/** `click` → `onClick`. EventHandlerProps 의 키와 같은 규칙이다. */
+/** `click` → `onClick`. EventHandlerProps의 키와 같은 규칙이다. */
 export function eventProp<E extends string>(event: E): `on${Capitalize<E>}` {
   return `on${event.charAt(0).toUpperCase()}${event.slice(1)}` as `on${Capitalize<E>}`;
 }
@@ -78,7 +78,7 @@ export type ChangeHandlerProps<M> = {
   ) => void;
 };
 
-/** `position` → `onPositionChanged`. ChangeHandlerProps 의 키와 같은 규칙이다. */
+/** `position` → `onPositionChanged`. ChangeHandlerProps의 키와 같은 규칙이다. */
 export function changedProp(key: string): string {
   return `on${key.charAt(0).toUpperCase()}${key.slice(1)}Changed`;
 }

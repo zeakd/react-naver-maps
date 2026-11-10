@@ -35,15 +35,15 @@ export type CameraProps = {
   centerPoint?: PointValue;
 };
 
-/** 판정에 필요한 지도의 지금 상태. naver-map.tsx 가 지도에서 읽어 준다. */
+/** 판정에 필요한 지도의 지금 상태. naver-map.tsx가 지도에서 읽어 준다. */
 export interface MapView {
   center(): CoordValue;
   zoom(): number;
   bounds(): BoundsValue;
   centerPoint(): PointValue;
-  /** GL 로 그리는가(renderMode 2). */
+  /** GL로 그리는가(renderMode 2). */
   gl: boolean;
-  /** 두 좌표가 그 zoom 에서 화면 1px 안인가. */
+  /** 두 좌표가 그 zoom에서 화면 1px 안인가. */
   sameOnScreen(a: CoordValue, b: CoordValue, zoom: number): boolean;
 }
 
@@ -55,10 +55,10 @@ export type CameraInput = {
   /** 최근 보고값과 같은 자리인가(echo.ts). */
   isCenterEcho(center: CoordValue, zoom: number): boolean;
   isZoomEcho(zoom: number): boolean;
-  /** 지도에 요청했지만 아직 반영되지 않은 center 가 있는가. */
+  /** 지도에 요청했지만 아직 반영되지 않은 center가 있는가. */
   pendingMove: boolean;
   gesture: 'none' | 'active' | 'settling';
-  /** 라이브러리가 마지막으로 카메라를 옮긴 뒤 FOLLOW_MS 가 지나지 않았는가. */
+  /** 라이브러리가 마지막으로 카메라를 옮긴 뒤 FOLLOW_MS가 지나지 않았는가. */
   following: boolean;
 };
 
@@ -75,15 +75,15 @@ export type CameraPlan = {
 } & (
   | /** 넣을 것이 없다. prev 를 next 로 바꾼다. */
     { kind: 'none' }
-  /** 제스처 중이라 미룬다. prev 를 그대로 둔다. held 면 제스처가 끝난 뒤 다시 렌더한다. */
+  /** 제스처 중이라 미룬다. prev를 그대로 둔다. held 면 제스처가 끝난 뒤 다시 렌더한다. */
   | { kind: 'hold'; held: boolean }
-  /** 명령 하나를 넣고 prev 를 next 로 바꾼다. */
+  /** 명령 하나를 넣고 prev를 next로 바꾼다. */
   | { kind: 'move'; command: CameraCommand }
 );
 
 export const FOLLOW_MS = 1000;
 
-/** SDK 가 실제로 쓸 zoom. 래스터 지도는 실수 zoom 을 반올림한다(15.46 → 15, 15.52 → 16, 3.10.5 실측). */
+/** SDK가 실제로 쓸 zoom. 래스터 지도는 실수 zoom을 반올림한다(15.46 → 15, 15.52 → 16, 3.10.5 실측). */
 export function sdkZoom(gl: boolean, zoom: number): number {
   return gl ? zoom : Math.round(zoom);
 }

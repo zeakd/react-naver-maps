@@ -9,7 +9,7 @@ changes:
   - official: jQuery `css`로 가운데 표시(`#origin-marker`) 옮기기
     react: 50% 위치에 둔 십자선 `div`. 크기가 바뀌어도 위치 유지
 limits:
-  - 버튼의 크기는 공식 예제(600 x 600, 400 x 500, 400 x 200)와 다른 네 가지(200 x 200 부터 800 x 500)이고, 처음 크기도 공식의 400 x 400 대신 400 x 300 입니다.
+  - 버튼의 크기는 공식 예제(600 x 600, 400 x 500, 400 x 200)와 다른 네 가지(200 x 200부터 800 x 500)이고, 처음 크기도 공식의 400 x 400 대신 400 x 300입니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import PanoramaTutorial2ResizeExample from '../../../examples/panorama-tutorial-
 
 ## 설명
 
-SDK는 Container 가 바뀌어도 거리뷰 크기를 따라가지 않으므로 `Container`의 크기와 `Panorama`의 `size` prop을 같은 state로 함께 바꿉니다. 500ms 보간은 `useAnimatedSize`가 `requestAnimationFrame` 마다 state를 갱신해 만듭니다.
+SDK는 Container가 바뀌어도 거리뷰 크기를 따라가지 않으므로 `Container`의 크기와 `Panorama`의 `size` prop을 같은 state로 함께 바꿉니다. 500ms 보간은 `useAnimatedSize`가 `requestAnimationFrame` 마다 state를 갱신해 만듭니다.

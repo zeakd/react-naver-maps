@@ -15,7 +15,7 @@ order: 8
 | `Size`         | `{ width: 20, height: 30 }`                                       |
 | `LatLngBounds` | `{ south, west, north, east }`                                    |
 
-배열은 `[x, y]` 순서이므로 위도·경도에서는 경도가 먼저입니다. 객체 리터럴도 사용할 수 있습니다.
+배열은 `[x, y]` 순서라 경도가 먼저입니다.
 
 ## SDK 상수는 이름으로
 
@@ -30,15 +30,15 @@ order: 8
 
 - 이름은 TypeScript가 검사합니다(`@types/navermaps`의 enum 이름). 자동완성이 되고, 틀린 이름은 컴파일 오류입니다.
 - 라이브러리는 SDK를 불러온 뒤 그 이름을 SDK 객체에서 찾아 넘깁니다. 값을 복사해 두지 않으므로 SDK가 값을 바꿔도 따라갑니다. SDK에 없는 이름이면 그 자리에서 오류를 냅니다.
-- SDK 상수(`navermaps.Position.TOP_RIGHT`) 도 그대로 받습니다.
-- 객체를 변수로 빼 두면 TypeScript가 이름을 `string`으로 넓힙니다. `as const` 나 `satisfies`를 붙입니다.
+- SDK 상수(`navermaps.Position.TOP_RIGHT`)도 그대로 받습니다.
+- 객체를 변수로 빼 두면 TypeScript가 이름을 `string`으로 넓힙니다. `as const`나 `satisfies`를 붙여 주세요.
 
 ```ts
 import type { ZoomControlOptionsProp } from 'react-naver-maps';
 const zoomOptions = { position: 'TOP_RIGHT' } satisfies ZoomControlOptionsProp;
 ```
 
-이름은 라이브러리가 prop을 SDK에 넘길 때만 바꿉니다. `map.setOptions(...)` 처럼 SDK를 직접 부를 때는 SDK 상수를 씁니다.
+이름은 라이브러리가 prop을 SDK에 넘길 때만 바꿉니다. `map.setOptions(...)`처럼 SDK를 직접 부를 때는 SDK 상수를 씁니다.
 
 ## SDK 값 클래스
 
@@ -51,6 +51,6 @@ const bounds = new navermaps.LatLngBounds(sw, ne);
 
 ## 좌표계
 
-`naver.maps.TransCoord`, `TM128`, `UTMKCoord` 등 좌표 변환은 geocoder 서브모듈을 불러야 생깁니다(`submodules={['geocoder']}`). 불러오지 않으면 `navermaps.TM128`이 `undefined` 입니다.
+`naver.maps.TransCoord`, `TM128`, `UTMKCoord` 등 좌표 변환은 geocoder 서브모듈을 불러야 생깁니다(`submodules={['geocoder']}`). 불러오지 않으면 `navermaps.TM128`이 `undefined`입니다.
 
-SDK 3.10.5 의 `naver.maps.Service.CoordinatesType.UTMK`는 `undefined` 입니다(SDK의 키 이름이 `UTMNK`). UTMK 좌표계는 문자열 `'nhn:2048'`로 씁니다. 공식 문서의 `UTMK_NAVERCoord`는 SDK가 `naver.maps`에 내보내지 않습니다.
+SDK 3.10.5의 `naver.maps.Service.CoordinatesType.UTMK`는 `undefined` 입니다(SDK의 키 이름이 `UTMNK`). UTMK 좌표계는 문자열 `'nhn:2048'`로 씁니다. 공식 문서의 `UTMK_NAVERCoord`는 SDK가 `naver.maps`에 내보내지 않습니다.

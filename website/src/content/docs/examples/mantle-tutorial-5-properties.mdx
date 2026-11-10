@@ -6,12 +6,12 @@ official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-mantle-propert
 changes:
   - official: '`map.data.addGeoJson(geojson, true)`'
     react: '`<GeoJson data autoStyle>`'
-  - official: '`map.data.setStyle`에서 `mantle_properties`를 펼친 뒤 선택한 feature 만 덮어쓰기'
+  - official: '`map.data.setStyle`에서 `mantle_properties`를 펼친 뒤 선택한 feature만 덮어쓰기'
     react: '`style` prop 함수가 선택한 feature에는 강조 스타일을, 나머지에는 원본 `mantle_properties` 반환'
   - official: '`map.data.addListener`로 click · mouseover · mouseout 듣기'
     react: '`GeoJson`의 `onClick`, `onMouseover`, `onMouseout` prop'
 limits:
-  - 공식 예제는 강원도와 경기도 GeoJSON 을 스크립트 안에 직접 적어 두어 URL 로 받을 수 없습니다. 이 예제는 공식 사이트의 시도 경계 파일(`region01`, `region02`)을 받아 같은 모양의 `mantle_properties`를 붙여 씁니다.
+  - 공식 예제는 강원도와 경기도 GeoJSON을 스크립트 안에 직접 적어 두어 URL로 받을 수 없습니다. 이 예제는 공식 사이트의 시도 경계 파일(`region01`, `region02`)을 받아 같은 모양의 `mantle_properties`를 붙여 씁니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -23,4 +23,4 @@ GeoJSON geometry 안의 스타일 값(`mantle_properties`)을 `autoStyle`로 적
 
 ## 설명
 
-`GeoJson`의 `autoStyle`을 켜면 SDK가 geometry 의 `mantle_properties`를 스타일로 씁니다. 클릭한 feature 만 다른 색으로 바꾸려고 `style` 함수가 원본의 `mantle_properties`를 읽어 돌려줍니다(`feature.getGeometries()[0].getRaw()`, 타입에 없어 단언을 씁니다).
+`GeoJson`의 `autoStyle`을 켜면 SDK가 geometry의 `mantle_properties`를 스타일로 씁니다. 클릭한 feature만 다른 색으로 바꾸려고 `style` 함수가 원본의 `mantle_properties`를 읽어 돌려줍니다(`feature.getGeometries()[0].getRaw()`, 타입에 없어 단언을 씁니다).

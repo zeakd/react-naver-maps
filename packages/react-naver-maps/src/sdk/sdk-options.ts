@@ -10,7 +10,7 @@ import type {
  * 필드는 선택이다.
  */
 
-/** 지도 유형 id. 기본 유형 enum, 그 문자열, `mapTypes` 에 등록한 사용자 id. */
+/** 지도 유형 id. 기본 유형 enum, 그 문자열, `mapTypes`에 등록한 사용자 id. */
 export type MapTypeIdProp =
   | naver.maps.MapTypeId
   | naver.maps.MapTypeIdLiteral

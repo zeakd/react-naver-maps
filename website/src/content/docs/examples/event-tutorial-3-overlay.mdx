@@ -28,8 +28,8 @@ import EventTutorial3OverlayExample from '../../../examples/event-tutorial-3-ove
 
 ## 설명
 
-오버레이 이벤트는 각 컴포넌트의 `on*` prop 입니다(`<Marker onClick>`, `<Polyline onMousedown onMouseup>`, `<Polygon onMouseover onMouseout>`, `<Rectangle onMousemove>`, `<Circle onDblclick>`). 이벤트가 바꾸는 선 굵기, 투명도, 반지름은 React state 이고 해당 prop으로 넘깁니다. 마우스 커서는 `NaverMap`의 `cursor` prop 입니다.
+오버레이 이벤트는 각 컴포넌트의 `on*` props로 받습니다(`<Marker onClick>`, `<Polyline onMousedown onMouseup>`, `<Polygon onMouseover onMouseout>`, `<Rectangle onMousemove>`, `<Circle onDblclick>`). 핸들러에서 선 굵기, 투명도, 반지름 state를 바꿔 해당 prop에 넘깁니다. 커서는 `NaverMap`의 `cursor`로 바꿉니다.
 
-정보 창은 열린 대상을 state로 관리하고 `<InfoWindow open anchor content />`로 렌더링합니다. 마커 `anchor`는 `ref`로 받은 Marker 입니다.
+정보 창은 열린 대상을 state로 관리하고 `<InfoWindow open anchor content />`로 렌더링합니다. 마커 `anchor`는 `ref`로 받은 Marker입니다.
 
 `Ellipse`의 `touchstart`, `touchend`는 `on*` prop이 없어 `useListener`를 씁니다.

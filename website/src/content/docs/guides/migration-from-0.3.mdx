@@ -16,12 +16,12 @@ npm i -D @types/navermaps@^3.10.0
 
 타입을 직접 적은 코드는 아래 자리에서 컴파일 오류가 날 수 있습니다. 동작이 바뀐 것은 뒤의 절에 있습니다.
 
-| 0.3                                                   | 0.4                                                      |
-| ----------------------------------------------------- | -------------------------------------------------------- |
-| `submodules: string[]`                                | `Submodule[]`. 변수에 담았으면 `Submodule[]`로 적습니다  |
-| `onMapTypeIdChanged` 인자 `naver.maps.MapTypeId`      | 등록한 지도 유형의 ID 도 와서 `string`이 포함됩니다      |
-| `onKeydown`, `onKeyup` 인자 `naver.maps.PointerEvent` | `{ keyboardEvent }`. SDK가 실제로 주는 모양입니다        |
-| `MarkerEvent`에 `mousemove`                           | 없습니다. SDK가 Marker 에서 내지 않아 불린 적이 없습니다 |
+| 0.3                                                   | 0.4                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------- |
+| `submodules: string[]`                                | `Submodule[]`. 변수에 담았으면 `Submodule[]`로 적습니다 |
+| `onMapTypeIdChanged` 인자 `naver.maps.MapTypeId`      | 등록한 지도 유형의 ID도 와서 `string`이 포함됩니다      |
+| `onKeydown`, `onKeyup` 인자 `naver.maps.PointerEvent` | `{ keyboardEvent }`. SDK가 실제로 주는 모양입니다       |
+| `MarkerEvent`에 `mousemove`                           | 없습니다. SDK가 Marker에서 내지 않아 불린 적이 없습니다 |
 
 ## 바꿔야 하는 코드
 
@@ -32,7 +32,7 @@ npm i -D @types/navermaps@^3.10.0
 | `<NaverMap bounds={b} />` (controlled)               | 처음 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds(b)`, 읽을 때는 `onBoundsChanged` |
 | `<NaverMap centerPoint={p} />`, `defaultCenterPoint` | `center`, `defaultCenter`                                                              |
 
-`bounds`는 지도가 계산해 내는 값이라 맞춰도 prop과 같아지지 않습니다. `fitBounds`는 정수 zoom 으로 맞추기 때문입니다.
+`bounds`는 지도가 계산해 내는 값이라 맞춰도 prop과 같아지지 않습니다. `fitBounds`는 정수 zoom으로 맞추기 때문입니다.
 
 ## 달라지는 동작
 
@@ -48,7 +48,7 @@ npm i -D @types/navermaps@^3.10.0
 
 ### 같은 값의 새 객체로는 지도를 건드리지 않습니다
 
-prop을 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
+prop을 값으로 비교합니다. `center={{ lat, lng }}`처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 - 0.3은 같은 값의 새 `center` 객체로 다시 렌더링하면, 사용자가 끌어 놓은 지도를 해당 위치로 되돌렸습니다. 0.4는 되돌리지 않습니다.
 - 인라인 `path={[...]}`, `icon={{ ... }}`로 렌더마다 setter를 호출하지 않습니다.
@@ -56,9 +56,13 @@ prop을 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 �
 
 오버레이(마커, 도형 등)의 되돌림은 0.3과 같습니다. `draggable` 마커를 끌어 놓아도 `onDragend`로 state를 바꾸지 않으면 다시 렌더링할 때 `position`으로 돌아갑니다.
 
+### 방금 지도가 알려 준 위치로는 `center` prop으로 돌아가지 않습니다
+
+`onCenterChanged` 값을 늦게 되돌려주는 앱에서 지도가 지나온 위치로 당겨지지 않도록, 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 따르지 않습니다. 그래서 "이전 위치로" 버튼처럼 방금 지나온 위치로 `center`를 바꾸면 움직이지 않습니다. 이럴 때는 `map.panTo()`로 옮겨 주세요. 자세한 규칙은 [핵심 개념](/react-naver-maps/guides/core-concepts/)의 Controlled / Uncontrolled에 있습니다.
+
 ### 핸들러가 있는 도형은 클릭을 받습니다
 
-`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`에 `onClick` 같은 포인터 핸들러가 있으면 `clickable`을 켭니다. SDK 기본은 꺼져 있어 0.3 에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}`를 명시하세요.
+`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`에 `onClick` 같은 포인터 핸들러가 있으면 `clickable`을 켭니다. SDK 기본은 꺼져 있어 0.3에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}`를 명시하세요.
 
 ### 고친 문제
 
@@ -79,4 +83,4 @@ prop을 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 �
 | `Panorama`                                 | `react-naver-maps/panorama`                         |
 | 라이브러리에 아직 없는 SDK 옵션을 prop으로 | [핵심 개념](/react-naver-maps/guides/core-concepts) |
 
-서브모듈 경로는 `<NavermapsProvider submodules={['visualization']}>` 처럼 해당 서브모듈을 불러야 씁니다. 빠뜨리면 불러오는 법을 담은 에러를 던집니다.
+서브모듈 경로는 `<NavermapsProvider submodules={['visualization']}>`처럼 해당 서브모듈을 불러야 씁니다. 빠뜨리면 불러오는 법을 담은 에러를 던집니다.

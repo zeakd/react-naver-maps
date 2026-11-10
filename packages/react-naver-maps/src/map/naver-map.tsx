@@ -64,9 +64,9 @@ export interface NaverMapProps {
   children?: ReactNode;
 
   // Controlled KVO
-  /** 지도 중심. prop 이 바뀌면 해당 위치로 이동합니다. 사용자가 이동한 위치를 반영하려면 `onCenterChanged` 로 state 를 변경합니다. 초기값만 지정하려면 `defaultCenter` 를 사용합니다. */
+  /** 지도 중심. prop이 바뀌면 해당 위치로 이동합니다. 사용자가 이동한 위치를 반영하려면 `onCenterChanged`로 state를 변경합니다. 초기값만 지정하려면 `defaultCenter`를 사용합니다. */
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
-  /** 줌 레벨. prop 이 바뀌면 해당 줌으로 변경합니다. 초기값만 지정하려면 `defaultZoom` 을 사용합니다. */
+  /** 줌 레벨. prop이 바뀌면 해당 줌으로 변경합니다. 초기값만 지정하려면 `defaultZoom`을 사용합니다. */
   zoom?: number;
   /**
    * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. bounds 는 지도가 계산해 내는 값이라
@@ -87,7 +87,7 @@ export interface NaverMapProps {
   // Uncontrolled defaults
   /** 처음 중심. 이후에는 SDK가 관리합니다. */
   defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
-  /** 처음 줌 레벨. `defaultBounds` 도 없으면 16. */
+  /** 처음 줌 레벨. `defaultBounds`도 없으면 16. */
   defaultZoom?: number;
   /** 처음에 보일 영역. 지정하면 `defaultCenter`, `defaultZoom` 대신 이 영역이 보이게 맞춥니다. */
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
@@ -95,7 +95,7 @@ export interface NaverMapProps {
   defaultMapTypeId?: MapTypeIdProp;
   /** 처음 지도 크기(px). */
   defaultSize?: naver.maps.Size | naver.maps.SizeLiteral;
-  /** @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `defaultCenter` 를 쓴다. */
+  /** @deprecated 0.4에서 deprecated, 다음 버전에서 없앤다. `defaultCenter`를 쓴다. */
   defaultCenterPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Static options (생성 시에만 적용)
@@ -240,7 +240,7 @@ export interface NaverMapProps {
   onZoomstart?: () => void;
   /** 줌 효과가 끝날 때(SDK `zoomend`). */
   onZoomend?: () => void;
-  /** GL 에서 실수 줌 레벨이 바뀔 때마다(SDK `zoom`, GL 서브모듈 전용). */
+  /** GL에서 실수 줌 레벨이 바뀔 때마다(SDK `zoom`, GL 서브모듈 전용). */
   onZoom?: () => void;
   /**
    * SDK 가 zoomstart 와 함께 내는 `zooming`. 공식 문서에는 없다. 0.3 과의 호환으로 둔다.
@@ -320,7 +320,7 @@ export interface NaverMapProps {
 /** 지도 keydown, keyup 이벤트 인자. 공식 문서 Map Events(keyboardEvent). */
 export type MapKeyboardEvent = { keyboardEvent: KeyboardEvent };
 
-/** 지도가 처리하는 prop. 그 밖의 prop 은 SDK 옵션으로 넘긴다(binding/extra-sdk-options.ts). */
+/** 지도가 처리하는 prop. 그 밖의 prop은 SDK 옵션으로 넘긴다(binding/extra-sdk-options.ts). */
 export const MAP_HANDLED_PROPS = handledProps([
   'center',
   'zoom',
@@ -684,7 +684,7 @@ function sameOnScreen(
   return Math.hypot(pa.x - pb.x, pa.y - pb.y) * scale < 1;
 }
 
-/** 좌표 리터럴을 SDK 객체로. `{ lat, lng }` 와 `[경도, 위도]` 는 LatLng, `{ x, y }` 는 Point. */
+/** 좌표 리터럴을 SDK 객체로. `{ lat, lng }`와 `[경도, 위도]`는 LatLng, `{ x, y }`는 Point. */
 function toCoord(
   c: naver.maps.Coord | naver.maps.CoordLiteral,
 ): naver.maps.Coord {
@@ -702,7 +702,7 @@ function optionalCoord(
   return c === undefined ? undefined : toCoord(c);
 }
 
-/** 개발 모드에서 deprecated prop 을 처음 받았을 때 한 번 알린다. */
+/** 개발 모드에서 deprecated prop을 처음 받았을 때 한 번 알린다. */
 function useDeprecatedProp(
   name: keyof NaverMapProps,
   value: unknown,

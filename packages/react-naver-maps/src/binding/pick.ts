@@ -1,4 +1,4 @@
-/** props 에서 keys 의 값만 keys 순서로 모은다(없는 값은 undefined 로 둔다). */
+/** props에서 keys의 값만 keys 순서로 모은다(없는 값은 undefined로 둔다). */
 export function pick(
   props: object,
   keys: readonly string[],

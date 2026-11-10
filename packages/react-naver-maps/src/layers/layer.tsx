@@ -44,7 +44,7 @@ export interface LayerProps {
   hd?: boolean;
   /** true 면 타일로 간주해 지도 맨 아래에 두고 타일과 같이 줌 효과를 받는다. false 면 별도 창(pane). */
   overlayMap?: boolean;
-  /** 레이어 우선순위. 클수록 위. 오버레이 창은 100 이라 이보다 크면 오버레이 위로 올라간다. */
+  /** 레이어 우선순위. 클수록 위. 오버레이 창은 100이라 이보다 크면 오버레이 위로 올라간다. */
   zIndex?: number;
 }
 

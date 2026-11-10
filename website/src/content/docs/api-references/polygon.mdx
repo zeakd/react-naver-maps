@@ -29,7 +29,7 @@ import { Polygon } from 'react-naver-maps';
 
 ## 편집
 
-`editable`을 켜면 꼭짓점을 끌어 고칠 수 있습니다. drawing 서브모듈이 필요합니다(`submodules={['drawing']}`). SDK는 경로 배열을 제자리에서 고치고 `path_changed`를 내지 않습니다. controlled `paths`와 쓰면 다시 렌더할 때 되돌리므로(개발 모드에서 경고합니다) `defaultPaths`로 두고, 고친 결과는 ref의 `getPaths()`로 읽습니다. 고칠 때마다 알고 싶으면 `useListener(ref.getPaths().getAt(0), 'set_at', ...)`로 듣습니다. `Polyline`, `Rectangle`, `Ellipse` 도 같습니다.
+`editable`을 켜면 꼭짓점을 끌어 고칠 수 있습니다. drawing 서브모듈이 필요합니다(`submodules={['drawing']}`). SDK는 경로 배열을 제자리에서 고치고 `path_changed`를 내지 않습니다. controlled `paths`와 쓰면 다시 렌더할 때 되돌리므로(개발 모드에서 경고합니다) `defaultPaths`로 두고, 고친 결과는 ref의 `getPaths()`로 읽습니다. 고칠 때마다 알고 싶으면 `useListener(ref.getPaths().getAt(0), 'set_at', ...)`로 듣습니다. `Polyline`, `Rectangle`, `Ellipse`도 같습니다.
 
 ```tsx
 const ref = useRef<naver.maps.Polygon>(null);

@@ -28,6 +28,6 @@ import MapTutorial7FullsizeMinimapExample from '../../../examples/map-tutorial-7
 
 ## 설명
 
-미니 맵은 큰 `NaverMap`의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap` 입니다.
+미니 맵은 큰 `NaverMap`의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap`입니다.
 
-큰 지도의 `onBoundsChanged`에서 미니 맵 `ref`의 `fitBounds()`를 호출하고, `onMapTypeIdChanged`로 받은 유형을 state에 저장해 미니 맵의 `mapTypeId` prop으로 전달합니다. 미니 맵의 `onDrag` 에서는 큰 지도 `ref`의 `panTo()`를 호출합니다. 드래그 중 두 지도가 서로 영향을 주지 않도록 `ref` 플래그를 설정하고 큰 지도의 `onIdle`에서 해제합니다.
+큰 지도의 `onBoundsChanged`에서 미니 맵 `ref`의 `fitBounds()`를 호출하고, `onMapTypeIdChanged`로 받은 유형을 state에 저장해 미니 맵의 `mapTypeId` prop으로 전달합니다. 미니 맵의 `onDrag`에서는 큰 지도 `ref`의 `panTo()`를 호출합니다. 드래그 중 두 지도가 서로 영향을 주지 않도록 `ref` 플래그를 설정하고 큰 지도의 `onIdle`에서 해제합니다.

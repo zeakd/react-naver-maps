@@ -27,7 +27,7 @@ export type {
  * style·이벤트 규칙은 {@link DataFeaturesProps}.
  */
 export type GeoJsonProps = DataFeaturesProps & {
-  /** 올릴 GeoJSON. 값이 바뀌면 이전 feature 를 빼고 새로 올린다(값으로 비교). */
+  /** 올릴 GeoJSON. 값이 바뀌면 이전 feature를 빼고 새로 올린다(값으로 비교). */
   data: naver.maps.GeoJSON;
 };
 

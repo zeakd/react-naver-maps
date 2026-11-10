@@ -8,7 +8,7 @@ type SdkGeocodeV2 = naver.maps.Service.GeocodeResponse['v2'];
 type SdkAddressElement =
   SdkGeocodeV2['addresses'][number]['addressElements'][number];
 
-/** 주소 구성 요소. 실제 응답의 `types` 는 배열이다(공식 문서 "Geocoding" 응답 예). @types 3.10.0 는 하나로 적었다. */
+/** 주소 구성 요소. 실제 응답의 `types`는 배열이다(공식 문서 "Geocoding" 응답 예). @types 3.10.0는 하나로 적었다. */
 export type AddressElement = Omit<SdkAddressElement, 'types'> & {
   types: SdkAddressElement['types'][];
 };
@@ -22,7 +22,7 @@ export type GeocodeResult = Omit<SdkGeocodeV2, 'addresses'> & {
 export type ReverseGeocodeResult =
   naver.maps.Service.ReverseGeocodeResponse['v2'];
 
-/** 서비스가 OK 가 아닌 상태로 답했다. `status` 는 `naver.maps.Service.Status` 값이다. */
+/** 서비스가 OK가 아닌 상태로 답했다. `status`는 `naver.maps.Service.Status` 값이다. */
 export class GeocoderError extends Error {
   constructor(
     readonly status: naver.maps.Service.Status,
@@ -56,7 +56,7 @@ export function geocode(
   });
 }
 
-/** 좌표로 주소를 찾는다. SDK 의 `naver.maps.Service.reverseGeocode` 이고 응답의 `v2` 를 돌려준다. */
+/** 좌표로 주소를 찾는다. SDK의 `naver.maps.Service.reverseGeocode`이고 응답의 `v2`를 돌려준다. */
 export function reverseGeocode(
   navermaps: typeof naver.maps,
   options: ReverseGeocodeOptions,
