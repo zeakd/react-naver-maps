@@ -5,13 +5,13 @@ order: 7
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-map-fullsize-minimap.example.html
 changes:
   - official: 'jQuery 로 찾은 미니 맵 요소를 `map.controls[BOTTOM_RIGHT].push()` 로 넣는다'
-    react: '`<CustomControl position={BOTTOM_RIGHT}>` 의 children 으로 두 번째 `Container` 와 `NaverMap` 을 둔다'
+    react: '`<CustomControl position={BOTTOM_RIGHT}>` 의 children 으로 두 번째 `Container` 와 `NaverMap` 사용'
   - official: '`init` 뒤에 `new naver.maps.Map` 으로 미니 맵을 만들고 처음 영역을 큰 지도의 `getBounds()` 로 준다'
-    react: '미니 맵도 큰 지도와 함께 렌더한다. 처음 영역은 `defaultCenter`, `defaultZoom={12}` 이다'
+    react: '미니 맵을 큰 지도와 함께 렌더링하고 초기 영역은 `defaultCenter`, `defaultZoom={12}` 로 설정'
   - official: '`bounds_changed`, `mapTypeId_changed`, `drag` 리스너'
     react: '큰 지도의 `onBoundsChanged`, `onMapTypeIdChanged` 와 미니 맵의 `onDrag` prop'
   - official: '`minimap.setMapTypeId()` 로 미니 맵 유형을 바꾼다'
-    react: '큰 지도 유형 state 에서 고른 값을 미니 맵 `mapTypeId` prop 으로 준다'
+    react: '큰 지도 유형 state 에서 선택한 값을 미니 맵 `mapTypeId` prop 으로 전달'
   - official: "전역 `semaphore` 와 `Event.once(map, 'idle')`"
     react: '`ref` 플래그와 큰 지도의 `onIdle`'
 limits:
@@ -30,4 +30,4 @@ import MapTutorial7FullsizeMinimapExample from '../../../examples/map-tutorial-7
 
 미니 맵은 큰 `NaverMap` 의 `<CustomControl position={BOTTOM_RIGHT}>` 안에 둔 두 번째 `Container` + `NaverMap` 입니다.
 
-큰 지도의 `onBoundsChanged` 에서 미니 맵 `ref` 에 `fitBounds()` 를 부르고, `onMapTypeIdChanged` 로 받은 유형을 state 에 두어 미니 맵의 `mapTypeId` prop 을 고릅니다. 미니 맵의 `onDrag` 에서는 큰 지도 `ref` 에 `panTo()` 를 부릅니다. 끄는 동안 서로 되먹임하지 않도록 `ref` 플래그를 세우고 큰 지도의 `onIdle` 에서 풉니다.
+큰 지도의 `onBoundsChanged` 에서 미니 맵 `ref` 의 `fitBounds()` 를 호출하고, `onMapTypeIdChanged` 로 받은 유형을 state 에 저장해 미니 맵의 `mapTypeId` prop 으로 전달합니다. 미니 맵의 `onDrag` 에서는 큰 지도 `ref` 의 `panTo()` 를 호출합니다. 드래그 중 두 지도가 서로 영향을 주지 않도록 `ref` 플래그를 설정하고 큰 지도의 `onIdle` 에서 해제합니다.

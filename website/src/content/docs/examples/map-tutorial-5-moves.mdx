@@ -9,7 +9,7 @@ changes:
   - official: "jQuery `on('click')` 핸들러"
     react: '버튼 `onClick`'
   - official: '좌표와 경계를 전역 변수로 미리 만든다'
-    react: '누를 때 `useNavermaps()` 의 `navermaps` 로 만든다'
+    react: '버튼을 누를 때 `useNavermaps()` 로 받은 `navermaps` 로 생성'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import MapMovesExample from '../../../examples/map-moves.tsx';
 
 ## 설명
 
-`ref` 로 받은 지도에 `setCenter()`, `setZoom(6, true)`(두 번째 인자가 줌 효과), `fitBounds()`, `panTo()`, `panToBounds()`, `panBy()` 를 직접 부릅니다.
+`ref` 로 받은 지도의 `setCenter()`, `setZoom(6, true)`(두 번째 인자는 줌 효과), `fitBounds()`, `panTo()`, `panToBounds()`, `panBy()` 를 직접 호출합니다.

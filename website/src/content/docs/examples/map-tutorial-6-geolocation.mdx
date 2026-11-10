@@ -5,11 +5,11 @@ order: 7
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-map-geolocation.example.html
 changes:
   - official: '`new naver.maps.InfoWindow()` 에 `setContent()`, `open(map, position)` 을 부른다'
-    react: '위치를 얻은 뒤 `<InfoWindow open position content>` 를 그린다'
+    react: '위치를 얻은 뒤 `<InfoWindow open position content>` 렌더링'
   - official: '성공, 실패 콜백이 정보 창을 직접 바꾼다'
-    react: '콜백은 `location` state(`pending`, `success`, `error`)만 바꾸고, 정보 창은 state 로 그린다'
+    react: '콜백에서 `location` state(`pending`, `success`, `error`)를 변경하고 state 에 따라 정보 창 표시'
   - official: "`$(window).on('load')` 에서 위치를 요청한다"
-    react: '`useEffect` 에서 요청한다'
+    react: '`useEffect` 에서 요청'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import MapGeolocationExample from '../../../examples/map-geolocation.tsx';
 
 ## 설명
 
-`navigator.geolocation.getCurrentPosition()` 으로 현재 위치를 가져온 뒤 `ref` 로 받은 지도에 `setCenter()` 를 부릅니다. 실패하면 지도의 현재 중심에 실패 내용을 띄웁니다. `InfoWindow` 의 `content` 는 HTML 문자열입니다.
+`navigator.geolocation.getCurrentPosition()` 으로 현재 위치를 가져온 뒤 `ref` 로 받은 지도의 `setCenter()` 를 호출합니다. 실패하면 지도의 현재 중심에 실패 내용을 표시합니다. `InfoWindow` 의 `content` 는 HTML 문자열입니다.

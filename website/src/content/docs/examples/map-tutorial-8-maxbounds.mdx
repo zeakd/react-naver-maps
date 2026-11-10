@@ -5,13 +5,13 @@ order: 8
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-map-maxbounds.example.html
 changes:
   - official: '`new naver.maps.LatLngBounds(LatLng, LatLng)`'
-    react: '`{ south, west, north, east }` 리터럴. `maxBounds`, `Rectangle`, `Marker` 에 그대로 쓴다'
+    react: '`{ south, west, north, east }` 리터럴을 `maxBounds`, `Rectangle`, `Marker` 에 사용'
   - official: '`new naver.maps.Marker({ map, position: dokdo.getSW() })`'
     react: '`<Marker position>`'
   - official: '`new naver.maps.Rectangle({ map, bounds })`'
     react: '`<Rectangle bounds>`'
   - official: '`zoom_changed` 리스너가 jQuery 로 패널 글자를 바꾼다'
-    react: '`onZoomChanged` 로 받은 값을 state 에 두고 JSX 로 그린다'
+    react: '`onZoomChanged` 로 받은 값을 state 에 저장하고 JSX 로 표시'
 limits:
   - 공식 예제는 지도 중심을 정하지 않는데, 여기서는 독도 가운데로 정했습니다.
 ---
@@ -25,4 +25,4 @@ import MapTutorial8MaxBoundsExample from '../../../examples/map-tutorial-8-maxbo
 
 ## 설명
 
-`maxBounds`, `minZoom` 이 `NaverMap` prop 입니다. 처음 줌은 16 입니다. `minZoom` 과 같은 14 에서 시작하면 더 줄일 수 없어 줌아웃이 튕기기만 합니다.
+`NaverMap` 의 `maxBounds`, `minZoom` prop 을 사용합니다. 초기 줌은 16 입니다. `minZoom` 과 같은 14 에서 시작하면 더 축소할 수 없어 줌아웃이 되돌아갑니다.
