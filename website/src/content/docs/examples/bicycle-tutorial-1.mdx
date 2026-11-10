@@ -5,13 +5,13 @@ order: 1
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-bicycle.example.html
 changes:
   - official: '`new naver.maps.BicycleLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
-    react: '`<BicycleLayer />` 를 조건부로 렌더해 마운트로 켜고 끈다'
+    react: '`<BicycleLayer />` 를 조건부 렌더링으로 켜고 끄기'
   - official: jQuery 로 버튼에 클릭 리스너 붙이기
     react: 버튼의 `onClick` 이 React state(`bicycle`)를 바꾼다
   - official: '`bicycleLayer_changed` 이벤트로 버튼 모양 맞추기'
-    react: 버튼 모양을 state 에서 바로 그린다
+    react: state 에 따라 버튼 모양 표시
   - official: 지도 `init` 이벤트에서 레이어 켜기
-    react: state 초기값을 `true` 로 두어 처음부터 렌더한다
+    react: state 초기값을 `true` 로 설정해 처음부터 렌더링
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
