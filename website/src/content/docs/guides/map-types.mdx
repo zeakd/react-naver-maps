@@ -38,7 +38,7 @@ const mapTypes = useMemo(
 <NaverMap mapTypes={mapTypes} mapTypeId="osm" />;
 ```
 
-지금 고른 id 가 없는 레지스트리로 바꾸면 SDK 가 지도를 그리지 못합니다(3.10.5 확인). `mapTypeId` 를 함께 바꿉니다.
+지금 고른 id 가 없는 레지스트리로 바꾸면 SDK 가 지도를 그리지 못합니다(3.10.5 확인). `mapTypeId`를 함께 바꿉니다.
 
 ## 레이어
 
@@ -61,7 +61,7 @@ const mapTypes = useMemo(
 
 ## GL 과 Style Editor
 
-GL 서브모듈은 WebGL 로 벡터 지도를 그립니다. `submodules={['gl']}` 로 불러오고 `gl` 을 켭니다. 공식 문서는 GL 을 다른 서브모듈과 함께 쓰지 말라고 합니다(개발 모드에서 경고).
+GL 서브모듈은 WebGL 로 벡터 지도를 그립니다. `submodules={['gl']}`로 불러오고 `gl`을 켭니다. 공식 문서는 GL 을 다른 서브모듈과 함께 쓰지 말라고 합니다(개발 모드에서 경고).
 
 ```tsx
 <NavermapsProvider ncpKeyId="…" submodules={['gl']}>
@@ -74,4 +74,4 @@ GL 서브모듈은 WebGL 로 벡터 지도를 그립니다. `submodules={['gl']}
 - 기본 줌: 공식 GL 튜토리얼은 기존 지도 16, 벡터 지도 15 라고 적고 MapOptions 문서는 11 이라고 적습니다. 라이브러리는 zoom 을 주지 않으면 16 을 넘깁니다. 벡터 지도에서 같은 범위를 보려면 zoom 을 주세요.
 - `customStyleId` 지도에서는 기본 지도 유형과 내장 레이어를 쓸 수 없습니다(개발 모드에서 경고).
 - WebGL 을 성능 경고 없이 쓸 수 없는 환경(GPU 없는 브라우저)에서는 SDK 가 래스터로 그립니다.
-- `gl`, `customStyleId`, `useStyleMap` 은 생성 때만 적용됩니다. 바꾸려면 `key` 로 지도를 다시 만듭니다.
+- `gl`, `customStyleId`, `useStyleMap`은 생성 때만 적용됩니다. 바꾸려면 `key`로 지도를 다시 만듭니다.

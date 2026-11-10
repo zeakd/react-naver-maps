@@ -30,7 +30,7 @@ useListener(map, 'bicycleLayer_changed', () => {});
 
 ## DOM 이벤트와 지도 이벤트
 
-`Container` 의 props 는 div 의 props 이고, `NaverMap` 의 props 는 SDK 옵션입니다. 둘의 `onClick` 은 다른 것입니다.
+`Container`의 props 는 div 의 props 이고, `NaverMap`의 props 는 SDK 옵션입니다. 둘의 `onClick`은 다른 것입니다.
 
 ```tsx
 <Container
@@ -48,7 +48,7 @@ useListener(map, 'bicycleLayer_changed', () => {});
 
 ## 모바일
 
-SDK 는 터치를 마우스 이벤트 이름으로 바꿔 냅니다. Marker 와 도형에서 손가락을 대고 떼면 `onMousedown`, `onMouseup`, `onClick` 이 옵니다. 공식 문서의 Marker `touchstart`, `touchend` 는 SDK 가 이 이름으로 내지 않아 prop 이 없습니다. `mouseover`, `mouseout`, `rightclick` 은 터치에서 오지 않습니다. 지도는 `onTouchstart`, `onTap`, `onLongtap`, `onPinch` 등 터치 이벤트를 따로 냅니다.
+SDK 는 터치를 마우스 이벤트 이름으로 바꿔 냅니다. Marker 와 도형에서 손가락을 대고 떼면 `onMousedown`, `onMouseup`, `onClick`이 옵니다. 공식 문서의 Marker `touchstart`, `touchend`는 SDK 가 이 이름으로 내지 않아 prop 이 없습니다. `mouseover`, `mouseout`, `rightclick`은 터치에서 오지 않습니다. 지도는 `onTouchstart`, `onTap`, `onLongtap`, `onPinch` 등 터치 이벤트를 따로 냅니다.
 
 ## 내지 않는 이벤트
 
@@ -56,4 +56,4 @@ SDK 3.10.5 가 내지 않는 문서 이벤트는 prop 을 두지 않았습니다
 
 ## 주의: 리스너를 통째로 지우는 SDK 함수
 
-`naver.maps.Event.clearInstanceListeners(target)` 와 `clearListeners` 는 그 객체의 리스너를 모두 지웁니다. 라이브러리가 `on*` prop 으로 단 리스너도 사라지고 prop 이 그대로면 다시 달지 않습니다. 컴포넌트가 만든 지도·오버레이에는 부르지 않습니다.
+`naver.maps.Event.clearInstanceListeners(target)`와 `clearListeners`는 그 객체의 리스너를 모두 지웁니다. 라이브러리가 `on*` prop 으로 단 리스너도 사라지고 prop 이 그대로면 다시 달지 않습니다. 컴포넌트가 만든 지도·오버레이에는 부르지 않습니다.

@@ -15,13 +15,13 @@ React는 상태가 바뀌면 다시 렌더링하고, 지도 SDK는 명령으로 
 
 ## 잰 값
 
-controlled `center`(`onCenterChanged` 로 상태를 갱신해 되돌려주는 앱)로 지도를 16 프레임 끄는 동안의 JavaScript 실행 시간입니다. 2026-11-05, Apple M4, React 19.3.1 배포 빌드, SDK 3.10.5. 기기마다 다르니 비율로 읽습니다.
+controlled `center`(`onCenterChanged`로 상태를 갱신해 되돌려주는 앱)로 지도를 16 프레임 끄는 동안의 JavaScript 실행 시간입니다. 2026-11-05, Apple M4, React 19.3.1 배포 빌드, SDK 3.10.5. 기기마다 다르니 비율로 읽습니다.
 
 | 지도 위                                    | 16 프레임 | 오버레이가 더하는 프레임당 시간 |
 | ------------------------------------------ | --------- | ------------------------------- |
 | 오버레이 없음                              | 9ms       |                                 |
-| 인라인 `onClick` 이 있는 `Marker` 300개    | 38ms      | 약 1.8ms                        |
-| `onClick` 이 없는 `Marker` 300개           | 38ms      | 약 1.8ms                        |
+| 인라인 `onClick`이 있는 `Marker` 300개     | 38ms      | 약 1.8ms                        |
+| `onClick`이 없는 `Marker` 300개            | 38ms      | 약 1.8ms                        |
 | 꼭짓점 1만 개 `Polyline`, 같은 배열        | 14ms      | 약 0.3ms                        |
 | 꼭짓점 1만 개 `Polyline`, 렌더마다 새 배열 | 28ms      | 약 1.2ms                        |
 
@@ -29,9 +29,9 @@ controlled `center`(`onCenterChanged` 로 상태를 갱신해 되돌려주는 �
 
 ## 더 줄이고 싶으면
 
-- **끄는 동안 다시 렌더할 필요가 없으면 uncontrolled 로 둡니다.** `defaultCenter` 로 두고 다 끈 뒤에만 알고 싶으면 `onIdle` 이나 `onDragend` 에서 `map.getCenter()` 를 읽습니다. 끄는 동안 React 가 아무것도 하지 않습니다.
-- **꼭짓점이 많은 `path`·`paths` 는 같은 배열을 유지합니다.** 값 비교는 꼭짓점 수만큼 일합니다. 상태로 두거나 `useMemo` 로 만들면 참조가 같아 바로 넘어갑니다.
-- **오버레이가 많으면 목록을 `memo` 로 감쌉니다.** 지도 상태가 바뀌어도 목록의 props 가 그대로면 React 가 그 아래를 건너뜁니다.
+- **끄는 동안 다시 렌더할 필요가 없으면 uncontrolled 로 둡니다.** `defaultCenter`로 두고 다 끈 뒤에만 알고 싶으면 `onIdle` 이나 `onDragend` 에서 `map.getCenter()`를 읽습니다. 끄는 동안 React 가 아무것도 하지 않습니다.
+- **꼭짓점이 많은 `path`·`paths`는 같은 배열을 유지합니다.** 값 비교는 꼭짓점 수만큼 일합니다. 상태로 두거나 `useMemo`로 만들면 참조가 같아 바로 넘어갑니다.
+- **오버레이가 많으면 목록을 `memo`로 감쌉니다.** 지도 상태가 바뀌어도 목록의 props 가 그대로면 React 가 그 아래를 건너뜁니다.
 
   ```tsx
   const Stores = memo(function Stores({ stores }: { stores: Store[] }) {

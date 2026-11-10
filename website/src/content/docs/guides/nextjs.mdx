@@ -8,7 +8,7 @@ react-naver-maps 는 서버 렌더링을 하는 프레임워크에서도 그대�
 
 ## Next.js App Router
 
-라이브러리 진입점에 `'use client'` 가 있어 서버 컴포넌트에서 import 해도 클라이언트 컴포넌트로 동작합니다. 다만 이벤트 핸들러나 state 는 서버 컴포넌트에서 넘길 수 없으므로, 지도를 그리는 컴포넌트를 `'use client'` 파일로 따로 둡니다.
+라이브러리 진입점에 `'use client'`가 있어 서버 컴포넌트에서 import 해도 클라이언트 컴포넌트로 동작합니다. 다만 이벤트 핸들러나 state 는 서버 컴포넌트에서 넘길 수 없으므로, 지도를 그리는 컴포넌트를 `'use client'` 파일로 따로 둡니다.
 
 ```tsx
 // app/store-map.tsx
@@ -53,9 +53,9 @@ export default async function Page() {
 ```
 
 - 키는 브라우저에서 쓰는 값이라 환경 변수로 둔다면 `NEXT_PUBLIC_` 이름(`process.env.NEXT_PUBLIC_NAVER_MAP_KEY`)으로 둡니다. 막는 것은 콘솔의 Web 서비스 URL 입니다([인증과 키](/react-naver-maps/guides/auth/)).
-- `dynamic(() => import(...), { ssr: false })` 는 필요 없습니다. 서버에서는 `Container` 가 높이를 가진 빈 영역으로 렌더되어 레이아웃이 흔들리지 않습니다.
-- `NavermapsProvider` 는 지도를 쓰는 페이지 가까이 두어도, 공통 레이아웃의 클라이언트 컴포넌트에 두어도 됩니다. SDK 스크립트는 한 번만 불러옵니다.
+- `dynamic(() => import(...), { ssr: false })`는 필요 없습니다. 서버에서는 `Container`가 높이를 가진 빈 영역으로 렌더되어 레이아웃이 흔들리지 않습니다.
+- `NavermapsProvider`는 지도를 쓰는 페이지 가까이 두어도, 공통 레이아웃의 클라이언트 컴포넌트에 두어도 됩니다. SDK 스크립트는 한 번만 불러옵니다.
 
 ## useNavermaps 를 쓸 때
 
-`useNavermaps()` 는 SDK 를 불러올 때까지 suspend 합니다. `Container` 안에서 부르면 `Container` 의 Suspense 가 잡습니다. 밖에서 부르면 직접 `<Suspense>` 로 감쌉니다. 자세한 내용은 [Suspense 와 스크립트 로딩](/react-naver-maps/guides/suspensed-use-navermaps/)에 있습니다.
+`useNavermaps()`는 SDK 를 불러올 때까지 suspend 합니다. `Container` 안에서 부르면 `Container`의 Suspense 가 잡습니다. 밖에서 부르면 직접 `<Suspense>`로 감쌉니다. 자세한 내용은 [Suspense 와 스크립트 로딩](/react-naver-maps/guides/suspensed-use-navermaps/)에 있습니다.

@@ -6,7 +6,7 @@ order: 8
 
 0.4 는 0.3 과 같은 구조(`NavermapsProvider` → `Container` → `NaverMap`)와 같은 키(`ncpKeyId`)를 씁니다. 대부분의 앱은 코드를 바꾸지 않고 올릴 수 있습니다. 아래에서 해당하는 것만 확인하세요.
 
-## TypeScript 를 쓰면 `@types/navermaps` 를 함께 올립니다
+## TypeScript 를 쓰면 `@types/navermaps`를 함께 올립니다
 
 0.4 의 타입은 `@types/navermaps` 3.10.0 에 들어간 멤버(`naver.maps.BicycleLayer` 등)를 씁니다. 그보다 낮으면 컴파일 오류가 날 수 있습니다. TypeScript 를 쓰지 않으면 설치하지 않아도 됩니다.
 
@@ -18,10 +18,10 @@ npm i -D @types/navermaps@^3.10.0
 
 | 0.3                                                   | 0.4                                                       |
 | ----------------------------------------------------- | --------------------------------------------------------- |
-| `submodules: string[]`                                | `Submodule[]`. 변수에 담았으면 `Submodule[]` 로 적습니다  |
-| `onMapTypeIdChanged` 인자 `naver.maps.MapTypeId`      | 등록한 지도 유형의 ID 도 와서 `string` 이 포함됩니다      |
+| `submodules: string[]`                                | `Submodule[]`. 변수에 담았으면 `Submodule[]`로 적습니다   |
+| `onMapTypeIdChanged` 인자 `naver.maps.MapTypeId`      | 등록한 지도 유형의 ID 도 와서 `string`이 포함됩니다       |
 | `onKeydown`, `onKeyup` 인자 `naver.maps.PointerEvent` | `{ keyboardEvent }`. SDK 가 실제로 주는 모양입니다        |
-| `MarkerEvent` 에 `mousemove`                          | 없습니다. SDK 가 Marker 에서 내지 않아 불린 적이 없습니다 |
+| `MarkerEvent`에 `mousemove`                           | 없습니다. SDK 가 Marker 에서 내지 않아 불린 적이 없습니다 |
 
 ## 바꿔야 하는 코드
 
@@ -32,15 +32,15 @@ npm i -D @types/navermaps@^3.10.0
 | `<NaverMap bounds={b} />` (controlled)               | 처음 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds(b)`, 읽을 때는 `onBoundsChanged` |
 | `<NaverMap centerPoint={p} />`, `defaultCenterPoint` | `center`, `defaultCenter`                                                              |
 
-`bounds` 는 지도가 계산해 내는 값이라 맞춰도 prop 과 같아지지 않습니다. `fitBounds` 는 정수 zoom 으로 맞추기 때문입니다.
+`bounds`는 지도가 계산해 내는 값이라 맞춰도 prop 과 같아지지 않습니다. `fitBounds`는 정수 zoom 으로 맞추기 때문입니다.
 
 ## 달라지는 동작
 
 ### 숨겼다 보여도 같은 지도를 씁니다
 
-지도 안의 컴포넌트가 suspend 했다 풀리거나 `<Activity mode="hidden">` 으로 숨겼다 보이면, 0.3 은 지도를 새로 만들었고 오버레이는 옛 지도에 남았습니다. 0.4 는 같은 지도와 오버레이를 그대로 씁니다.
+지도 안의 컴포넌트가 suspend 했다 풀리거나 `<Activity mode="hidden">`으로 숨겼다 보이면, 0.3 은 지도를 새로 만들었고 오버레이는 옛 지도에 남았습니다. 0.4 는 같은 지도와 오버레이를 그대로 씁니다.
 
-그래서 **`onInit` 은 다시 오지 않습니다.** 다시 보일 때마다 `onInit` 에서 무언가를 하던 코드는 다른 신호로 옮기세요.
+그래서 **`onInit`은 다시 오지 않습니다.** 다시 보일 때마다 `onInit` 에서 무언가를 하던 코드는 다른 신호로 옮기세요.
 
 ### 드래그하는 동안에는 `center`, `zoom` prop 을 넣지 않습니다
 
@@ -51,21 +51,21 @@ npm i -D @types/navermaps@^3.10.0
 prop 을 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 - 0.3 은 같은 값의 새 `center` 객체로 다시 렌더하면, 사용자가 끌어 놓은 지도를 그 자리로 되돌렸습니다. 0.4 는 되돌리지 않습니다.
-- 인라인 `path={[...]}`, `icon={{ ... }}` 로 렌더마다 setter 를 부르지 않습니다.
-- `GroundOverlay` 는 같은 값의 새 `bounds` 로 다시 만들지 않습니다.
+- 인라인 `path={[...]}`, `icon={{ ... }}`로 렌더마다 setter 를 부르지 않습니다.
+- `GroundOverlay`는 같은 값의 새 `bounds`로 다시 만들지 않습니다.
 
-오버레이(Marker, 도형 등)의 되돌림은 0.3 과 같습니다. `draggable` Marker 를 끌어 놓아도 `onDragend` 로 상태를 바꾸지 않으면 다시 렌더할 때 `position` 으로 돌아갑니다.
+오버레이(Marker, 도형 등)의 되돌림은 0.3 과 같습니다. `draggable` Marker 를 끌어 놓아도 `onDragend`로 상태를 바꾸지 않으면 다시 렌더할 때 `position`으로 돌아갑니다.
 
 ### 핸들러가 있는 도형은 클릭을 받습니다
 
-`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline` 에 `onClick` 같은 포인터 핸들러가 있으면 `clickable` 을 켭니다. SDK 기본은 꺼져 있어 0.3 에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}` 를 명시하세요.
+`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`에 `onClick` 같은 포인터 핸들러가 있으면 `clickable`을 켭니다. SDK 기본은 꺼져 있어 0.3 에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}`를 명시하세요.
 
 ### 고친 문제
 
-- `useKVO` 로 읽은 `center`, `zoom` 이 지도를 따라갑니다.
-- `key` 로 지도를 다시 만들어도 빈 화면이 되지 않습니다.
-- gl 서브모듈을 불러도 `onZoomChanged` 값이 `getZoom()` 과 같습니다.
-- 페이지가 `maps.js` 를 먼저 불러도 지도가 뜹니다.
+- `useKVO`로 읽은 `center`, `zoom`이 지도를 따라갑니다.
+- `key`로 지도를 다시 만들어도 빈 화면이 되지 않습니다.
+- gl 서브모듈을 불러도 `onZoomChanged` 값이 `getZoom()`과 같습니다.
+- 페이지가 `maps.js`를 먼저 불러도 지도가 뜹니다.
 
 ## 새로 쓸 수 있는 것
 
