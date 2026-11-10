@@ -69,6 +69,15 @@ describe('extractAllProps', () => {
   describe('Marker', () => {
     const marker = docMap.get('Marker')!;
 
+    it('매핑 타입으로 만든 이벤트 prop 도 나온다(onClick, onPositionChanged)', () => {
+      const names = marker.props.map((p) => p.name);
+      expect(names).toContain('onClick');
+      expect(names).toContain('onPositionChanged');
+      const onClick = marker.props.find((p) => p.name === 'onClick')!;
+      expect(onClick.type).toContain('PointerEvent');
+      expect(onClick.description).toContain('`click`');
+    });
+
     it('position prop이 있다', () => {
       const position = marker.props.find((p) => p.name === 'position');
       expect(position).toBeDefined();
