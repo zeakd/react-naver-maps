@@ -4,10 +4,10 @@ category: tutorial-data
 order: 3
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-datalayer-kml.example.html
 changes:
-  - official: "`$.ajax` 에 `dataType: 'xml'` 을 주어 XML 받기"
-    react: '`useXml` 이 받은 텍스트를 `DOMParser` 로 한 번 파싱해 `Document` 를 만든다'
+  - official: "`$.ajax`에 `dataType: 'xml'`을 주어 XML 받기"
+    react: '`useXml`이 받은 텍스트를 `DOMParser`로 한 번 파싱해 `Document` 생성'
   - official: '`map.data.addKml(xmlDoc)`'
-    react: '`NaverMap` 자식 `<Kml data>`. 받기 전에는 그리지 않는다'
+    react: '`NaverMap` 자식 `<Kml data>`. 데이터 수신 후 렌더링'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -19,4 +19,4 @@ import DatalayerTutorial3KmlExample from '../../../examples/datalayer-tutorial-3
 
 ## 설명
 
-`Kml` 의 `data` 는 문자열이 아니라 XML `Document` 입니다. 받은 텍스트를 `DOMParser` 로 한 번만 파싱해(`useXml`) 같은 참조를 넘깁니다. 참조가 바뀌면 이전 feature 를 빼고 다시 올립니다.
+`Kml`의 `data`는 문자열이 아니라 XML `Document` 입니다. 받은 텍스트를 `DOMParser`로 한 번만 파싱해(`useXml`) 같은 참조를 넘깁니다. 참조가 바뀌면 이전 feature 를 빼고 다시 올립니다.

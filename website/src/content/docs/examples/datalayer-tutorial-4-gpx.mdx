@@ -4,10 +4,10 @@ category: tutorial-data
 order: 4
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-datalayer-gpx.example.html
 changes:
-  - official: "`$.ajax` 에 `dataType: 'xml'` 을 주어 XML 받기"
-    react: '`useXml` 이 받은 텍스트를 `DOMParser` 로 한 번 파싱해 `Document` 를 만든다'
+  - official: "`$.ajax`에 `dataType: 'xml'`을 주어 XML 받기"
+    react: '`useXml`이 받은 텍스트를 `DOMParser`로 한 번 파싱해 `Document` 생성'
   - official: '`map.data.addGpx(xmlDoc)`'
-    react: '`NaverMap` 자식 `<Gpx data>`. 받기 전에는 그리지 않는다'
+    react: '`NaverMap` 자식 `<Gpx data>`. 데이터 수신 후 렌더링'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -19,4 +19,4 @@ import DatalayerTutorial4GpxExample from '../../../examples/datalayer-tutorial-4
 
 ## 설명
 
-`Gpx` 도 `Kml` 처럼 `DOMParser` 로 만든 `Document` 를 `data` 로 받습니다. 한 번만 파싱해 같은 참조를 넘깁니다.
+`Gpx` 도 `Kml` 처럼 `DOMParser`로 만든 `Document`를 `data`로 받습니다. 한 번만 파싱해 같은 참조를 넘깁니다.
