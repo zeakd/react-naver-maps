@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 
-// 공식 예제의 `.buttons` / `.control-btn` 모양. 예제 쪽들이 함께 쓴다.
+// 예제에서 공통으로 사용하는 공식 예제의 `.buttons` / `.control-btn` 스타일입니다.
 export function buttonStyle(active = false): CSSProperties {
   return {
     backgroundColor: active ? '#2780E3' : '#fff',
@@ -17,7 +17,7 @@ export function buttonStyle(active = false): CSSProperties {
   };
 }
 
-/** 지도 위 왼쪽 위에 버튼을 놓는 줄. `Container` 안에 둔다. */
+/** 지도 왼쪽 위에 버튼을 놓습니다. `Container` 안에 둡니다. */
 export function ButtonBar({ children }: { children: ReactNode }) {
   return (
     <div
@@ -53,7 +53,7 @@ export function ToggleButton({
 
 /**
  * 기본 지도 유형 넷(normal, terrain, satellite, hybrid). 사용자 유형을 더한 `mapTypes`
- * 레지스트리를 만들 때 바탕으로 쓴다. `useMemo` 로 한 번만 만든다.
+ * 레지스트리를 만들 때 사용합니다. `useMemo`로 한 번만 만듭니다.
  */
 export function defaultMapTypes(navermaps: typeof naver.maps) {
   const { NaverStyleMapTypeOptions: Style } = navermaps;

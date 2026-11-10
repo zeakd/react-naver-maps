@@ -2,15 +2,21 @@
 title: 구멍 난 폴리곤 그리기
 category: tutorial-shape
 order: 4
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-polygon-hole.example.html
+changes:
+  - official: '`new naver.maps.Polygon`에 `map`을 넘겨 지도에 올리기'
+    react: '`NaverMap`의 자식 `<Polygon>`'
+  - official: '`new naver.maps.LatLng` 배열'
+    react: '`{ lat, lng }` 리터럴 배열'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PolygonTutorial4HoleExample from '../../../examples/polygon-tutorial-4-hole.tsx';
 
+가운데에 구멍이 난 폴리곤을 그립니다.
+
 <Example of={PolygonTutorial4HoleExample} />
 
 ## 설명
 
-`Polygon` 의 `paths` 에서 첫 고리는 바깥 경계, 두 번째 고리부터는 구멍입니다.
-
-> [네이버 공식 예제 - 구멍 난 폴리곤 그리기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-polygon-hole.example.html)
+`Polygon`의 `paths`에서 첫 고리는 바깥 경계, 두 번째 고리부터는 구멍입니다.

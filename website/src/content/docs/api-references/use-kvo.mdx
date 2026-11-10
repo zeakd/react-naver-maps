@@ -4,7 +4,7 @@ category: api-references
 order: 21
 ---
 
-`useKVO()`는 네이버맵 KVO(Key-Value Observing) 프로퍼티를 구독하여, 값이 변경될 때 리렌더링을 발생시키는 훅입니다.
+`useKVO()`는 네이버 지도 KVO(Key-Value Observing) 프로퍼티를 구독하고 값이 변경될 때 다시 렌더링하는 훅입니다.
 
 ## 사용법
 
@@ -32,14 +32,8 @@ function useKVO<T>(target: naver.maps.KVO, property: string): T;
 
 ## 퍼포먼스 주의
 
-네이버맵의 KVO `set()`은 완전 동기이고 배치 처리가 없습니다. 드래그 중 일부 프로퍼티는 **매 프레임(~60fps)** 변경 이벤트를 발화합니다.
+네이버 지도 KVO의 `set()`은 동기로 실행되고 배치 처리가 없습니다. 드래그 중 일부 프로퍼티는 매 프레임(~60fps) 변경 이벤트를 발생시킵니다.
 
-**고주기 KVO** (드래그/줌 시 매 프레임 발화 — 구독 시 매 프레임 리렌더):
+`center`, `centerPoint`, `bounds`, `projectionTopLeft`, `containerTopLeft`는 드래그·줌 동안 매 프레임 바뀌어, 이 훅으로 구독하면 매 프레임 다시 렌더링합니다. `mapTypeId`, `zoom`(줌 애니메이션이 끝날 때), `draggable`, `visible`처럼 사용자 조작이 있을 때만 바뀌는 값은 이 훅으로 구독해도 됩니다.
 
-- `center`, `centerPoint`, `bounds`, `projectionTopLeft`, `containerTopLeft`
-
-**저주기 KVO** (사용자 액션 시에만 변경 — 이 훅 사용 OK):
-
-- `mapTypeId`, `zoom` (줌 애니메이션 완료 시), `draggable`, `visible` 등
-
-고주기 KVO를 구독해야 한다면 `onCenterChanged` 등 이벤트 핸들러 prop을 사용하고, 상태 업데이트를 throttle하세요.
+고주기 KVO를 구독해야 한다면 `onCenterChanged` 등 이벤트 핸들러 prop을 사용하고, state 업데이트 빈도를 제한해 주세요.

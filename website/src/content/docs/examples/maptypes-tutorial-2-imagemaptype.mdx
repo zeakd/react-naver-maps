@@ -2,21 +2,23 @@
 title: 이미지 타일 지도 유형
 category: tutorial-maptype
 order: 2
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-maptypes-imagemaptype.example.html
+changes:
+  - official: '`map.mapTypes.set`으로 지도의 기본 레지스트리에 `osm` 더하기'
+    react: 기본 네 유형과 `osm`을 넣은 `MapTypeRegistry`를 `useMemo`로 만들어 `NaverMap`의 `mapTypes` prop에 전달
+  - official: '`setMapTypeId`로 `osm` 고르기'
+    react: '`defaultMapTypeId="osm"` prop'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MapTypesTutorial2ImageMapTypeExample from '../../../examples/maptypes-tutorial-2-imagemaptype.tsx';
 
-OpenStreetMap 이미지 타일로 지도 유형을 만들어 선택하는 예제입니다.
+OpenStreetMap 이미지 타일로 지도 유형을 만들어 선택합니다.
 
 <Example of={MapTypesTutorial2ImageMapTypeExample} />
 
 ## 설명
 
-`new navermaps.ImageMapType({ tileSet, projection, ... })` 로 만든 지도 유형을 `MapTypeRegistry` 에 `osm` 으로 등록하고 `NaverMap` 의 `mapTypes` 에 줍니다. 공식 예제의 `map.mapTypes.set('osm', ...)` 와 `setMapTypeId('osm')` 은 이 레지스트리와 `defaultMapTypeId="osm"` 가 됩니다.
-
-`mapTypes` 를 주면 기본 지도 유형을 대신하므로, 일반, 지형도, 위성, 겹쳐보기를 함께 쓰려고 네 가지를 같이 넣습니다(예제의 `defaultMapTypes`). 레지스트리는 `useMemo` 로 한 번만 만듭니다.
+`new navermaps.ImageMapType({ tileSet, projection, ... })`로 OSM 지도 유형을 만듭니다. `mapTypes`를 주면 기본 지도 유형을 대신하므로, 일반, 지형도, 위성, 겹쳐보기를 함께 쓰려고 네 가지를 같이 넣습니다(예제의 `defaultMapTypes`).
 
 출처 표기(`provider`)는 이미지 제공처의 정책을 따라야 합니다.
-
-> [네이버 공식 튜토리얼 - 이미지 타일 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-maptypes-imagemaptype.example.html)

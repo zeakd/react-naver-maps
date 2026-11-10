@@ -10,7 +10,7 @@
  * 때는 SDK 상수를 쓴다.
  */
 
-/** enum 값이나 그 이름. `@types/navermaps` 의 enum 선언에서 이름 목록을 얻는다. */
+/** enum 값이나 그 이름. `@types/navermaps`의 enum 선언에서 이름 목록을 얻는다. */
 export type Named<E extends Record<string, string | number>> =
   | E[keyof E]
   | (keyof E & string);

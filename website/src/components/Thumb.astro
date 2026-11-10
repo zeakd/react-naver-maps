@@ -1,0 +1,43 @@
+---
+// 예제 썸네일. public/thumbs/<slug>.jpg 가 있으면 그 그림, 없으면 분류 이름을 얹은 무늬 바탕.
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+interface Props { slug: string; label?: string; class?: string }
+const { slug, label, class: cls } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const has = existsSync(join(process.cwd(), 'public', 'thumbs', `${slug}.jpg`));
+---
+
+{has ? (
+  <img class:list={['thumb', cls]} src={`${base}/thumbs/${slug}.jpg`} alt="" loading="lazy" decoding="async" />
+) : (
+  <div class:list={['thumb', 'thumb-empty', cls]} aria-hidden="true"><span>{label}</span></div>
+)}
+
+<style>
+  .thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .thumb-empty {
+    position: relative;
+    display: grid;
+    place-items: end start;
+    padding: 10px 12px;
+    background-color: var(--bg-soft);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .thumb-empty span {
+    font: 600 12px var(--mono);
+    color: var(--text-3);
+  }
+</style>

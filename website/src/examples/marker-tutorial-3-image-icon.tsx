@@ -12,7 +12,7 @@ const IMG = 'https://navermaps.github.io/maps.js.ncp/docs/img/example';
 
 function MarkerImageIconMapContent() {
   const navermaps = useNavermaps();
-  // 공식 예제처럼 중심에서 동쪽으로 15m 떨어진 곳에 둔다.
+  // 공식 예제처럼 중심에서 동쪽으로 15m 떨어진 곳에 둡니다.
   const position = useMemo(
     () => new navermaps.LatLng(center).destinationPoint(90, 15),
     [navermaps],

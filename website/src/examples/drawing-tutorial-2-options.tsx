@@ -50,7 +50,7 @@ const panelStyle: React.CSSProperties = {
   marginRight: 6,
 };
 
-// 컴포넌트 밖의 상수: 렌더마다 새 객체가 되지 않게 한다.
+// 렌더마다 새 객체가 만들어지지 않도록 컴포넌트 밖에 둡니다.
 const controlPointOptions = {
   anchorPointOptions: {
     radius: 5,
@@ -88,7 +88,7 @@ function OptionsMap({
   const [manager, setManager] =
     useState<naver.maps.drawing.DrawingManager | null>(null);
   const [rect, setRect] = useState<naver.maps.Rectangle | null>(null);
-  // 그리기 도구가 다루는 도형으로 등록한다.
+  // 그리기 도구가 다루는 도형으로 등록합니다.
   useEffect(() => {
     if (manager && rect)
       manager.addDrawing(rect, DrawingMode.RECTANGLE, 'my-id');
@@ -118,7 +118,7 @@ function OptionsMap({
         strokeWeight={2}
         strokeColor="#00bf46"
       />
-      {/* 공식 예제의 setEditable(true). 그리기 도구에 넣지 않고 편집만 켠 도형이다. */}
+      {/* 공식 예제의 setEditable(true). 그리기 도구에 넣지 않고 편집만 켠 도형입니다. */}
       <Rectangle
         editable
         defaultBounds={{
@@ -167,7 +167,7 @@ function OptionsMap({
 }
 
 function DrawingOptionsMap() {
-  // 도구 막대의 위치·모양·아이콘은 state 로 두고 prop 으로 넘긴다.
+  // 도구 막대의 위치·모양·아이콘은 state로 관리하고 props로 넘깁니다.
   const [position, setPosition] =
     useState<(typeof POSITIONS)[number]>('RIGHT_CENTER');
   const [style, setStyle] = useState<(typeof STYLES)[number]>('VERTICAL');
@@ -238,8 +238,8 @@ function DrawingOptionsMap() {
               </div>
             );
           })}
-          <button onClick={() => setIcons([])}>모두제거</button>{' '}
-          <button onClick={() => setIcons([...MODES])}>모두추가</button>
+          <button onClick={() => setIcons([])}>모두 제거</button>{' '}
+          <button onClick={() => setIcons([...MODES])}>모두 추가</button>
         </div>
       </div>
     </>

@@ -11,7 +11,7 @@ import {
 const IMG = 'https://navermaps.github.io/maps.js.ncp/docs/img/example';
 const X_OFFSET = 29;
 const Y_OFFSET = 50;
-// 마커 중심에서 이 픽셀 안에 다른 마커가 있으면 겹친 것으로 본다(양쪽 사각형이 만나는 거리의 절반).
+// 마커 중심에서 이 픽셀 안에 다른 마커가 있으면 겹친 것으로 봅니다(두 사각형이 만나는 거리의 절반).
 const TOLERANCE = 5;
 
 const spots = Array.from({ length: 27 }, (_, n) => {
@@ -54,7 +54,7 @@ function MarkerIntersectMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [hovered, setHovered] = useState<string | null>(null);
-  // 눌러서 겹친 목록을 연 마커. 마우스가 벗어나도 강조를 유지한다.
+  // 겹친 목록을 연 마커는 마우스가 벗어나도 강조를 유지합니다.
   const [cover, setCover] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ position: Pt; count: number } | null>(
     null,
@@ -64,7 +64,7 @@ function MarkerIntersectMapContent() {
   );
   const [clicked, setClicked] = useState<string | null>(null);
 
-  // 화면 픽셀로 바꿔서 겹친 마커의 key 를 구한다. 줌에 따라 달라지므로 이벤트가 날 때 계산한다.
+  // 화면 픽셀로 바꿔 겹친 마커의 key를 구합니다. 줌에 따라 달라지므로 이벤트가 발생할 때 계산합니다.
   const overlappedWith = (key: string) => {
     const projection = mapRef.current!.getProjection();
     const offsetOf = (position: Pt) =>
@@ -94,7 +94,7 @@ function MarkerIntersectMapContent() {
         ref={mapRef}
         defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
         defaultZoom={7}
-        // 지도를 누르거나 움직이면(idle) 안내와 목록을 닫는다.
+        // 지도를 누르거나 움직이면(idle) 안내와 목록을 닫습니다.
         onIdle={hide}
         onClick={hide}
       >
@@ -133,7 +133,7 @@ function MarkerIntersectMapContent() {
                 setCover(spot.key);
                 setList({ position: spot.position, keys });
               }}
-              // 겹친 마커는 목록에서 고르게 하려고 마커 자체의 클릭은 무시한다.
+              // 겹친 마커는 목록에서 고르도록 마커 자체의 클릭을 무시합니다.
               onClick={() => {
                 if (overlappedWith(spot.key).length <= 1) setClicked(spot.key);
               }}

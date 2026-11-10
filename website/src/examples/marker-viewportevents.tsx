@@ -31,7 +31,7 @@ const spots = Array.from({ length: 27 }, (_, n) => {
 
 type Spot = (typeof spots)[number];
 
-// 마커 하나와 그 정보 창. 핸들러를 마커마다 따로 만들 필요 없이, 컴포넌트가 자기 상태를 가진다.
+// 마커와 정보 창을 묶고 각 컴포넌트에서 state를 관리합니다.
 function SpotMarker({ spot }: { spot: Spot }) {
   const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
   const [open, setOpen] = useState(false);
@@ -55,7 +55,7 @@ function SpotMarker({ spot }: { spot: Spot }) {
         anchor={marker ?? undefined}
         open={open && marker !== null}
         content={`<div style="width:150px;text-align:center;padding:10px;">The Letter is <b>"${spot.letter}"</b>.</div>`}
-        // 다른 정보 창이 열리면 SDK 가 이 창을 닫는다. 상태도 맞춘다.
+        // 다른 정보 창이 열려 SDK가 이 창을 닫으면 state도 맞춥니다.
         onClose={() => setOpen(false)}
       />
     </>

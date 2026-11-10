@@ -2,6 +2,14 @@
 title: 파노라마 요약 정보 레이어 표시하기
 category: tutorial-panorama
 order: 5
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-panorama-html-infowindow.example.html
+changes:
+  - official: '`init` 리스너에서 `marker.setMap(pano)`와 `pano.setPov(...)`'
+    react: '`Panorama`의 자식 `<Marker>`. `onInit`에서 구한 시야를 state로 `pov`에 전달'
+  - official: 마커 click 리스너에서 `infowindow.getMap()`을 보고 `open(pano, marker)` · `close()`
+    react: '`open` state를 마커 `onClick`에서 바꾸고 `<InfoWindow open anchor>`로 전달'
+  - official: 페이지 CSS의 `iw_inner` 클래스로 꾸민 정보 창 내용
+    react: '`content` 문자열 안의 인라인 style'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -9,10 +17,8 @@ import PanoramaTutorial5HtmlInfowindowExample from '../../../examples/panorama-t
 
 거리뷰 위의 마커를 누르면 정보 창이 열립니다.
 
-> [네이버 공식 예제 - 파노라마 요약 정보 레이어 표시하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-panorama-html-infowindow.example.html)
-
 <Example of={PanoramaTutorial5HtmlInfowindowExample} />
 
 ## 설명
 
-`Panorama` 의 자식으로 `Marker` 와 `InfoWindow` 를 둡니다. `open` 을 state 로 두고 마커의 `onClick` 에서 토글하며, `anchor` 에 마커 좌표를 줍니다. 마커가 거리뷰 위치에서 멀면(이 예제는 약 1km) SDK 가 그리지 않으므로 `onInit` 에서 마커 방향으로 `pov` 를 돌려도 마커가 보이지 않을 수 있습니다.
+`Panorama`의 자식으로 `Marker`와 `InfoWindow`를 둡니다. `open`을 state로 두고 마커의 `onClick`에서 토글하며, `anchor`에 마커 좌표를 줍니다. 마커가 거리뷰 위치에서 멀면(이 예제는 약 1km) SDK가 그리지 않으므로 `onInit`에서 마커 방향으로 `pov`를 돌려도 마커가 보이지 않을 수 있습니다.

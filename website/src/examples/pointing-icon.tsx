@@ -22,7 +22,7 @@ function PointingIconMapContent() {
   const navermaps = useNavermaps();
   const [strokeWeight, setStrokeWeight] = useState(6);
 
-  // 공식 예제처럼 기준 두 점에서 동쪽·남쪽으로 옮긴 좌표를 만든다.
+  // 공식 예제처럼 기준 두 점에서 동쪽·남쪽으로 옮긴 좌표를 만듭니다.
   const lines = useMemo(() => {
     const upperP1 = new navermaps.LatLng(37.359788198380755, 127.1059799194336);
     const upperP2 = new navermaps.LatLng(37.368861139209535, 127.1059799194336);
@@ -34,7 +34,7 @@ function PointingIconMapContent() {
     ];
     const { PointingIcon } = navermaps;
     return [
-      // 아이콘 크기를 안 주면 strokeWeight 에 따라 커진다.
+      // 아이콘 크기를 주지 않으면 strokeWeight에 따라 커집니다.
       { path: at(upperP1, upperP2, 0), endIcon: PointingIcon.OPEN_ARROW },
       { path: at(upperP1, upperP2, 400), endIcon: PointingIcon.BLOCK_ARROW },
       {
@@ -42,7 +42,7 @@ function PointingIconMapContent() {
         startIcon: PointingIcon.CIRCLE,
         endIcon: PointingIcon.DIAMOND,
       },
-      // 크기(픽셀)를 주면 strokeWeight 와 무관하다. 아이콘에는 투명도가 적용되지 않는다.
+      // 크기(픽셀)를 주면 strokeWeight와 무관합니다. 아이콘에는 투명도가 적용되지 않습니다.
       {
         path: at(lowerP1, lowerP2, 0),
         endIcon: PointingIcon.OPEN_ARROW,

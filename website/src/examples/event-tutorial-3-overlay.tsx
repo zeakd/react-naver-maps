@@ -96,7 +96,7 @@ const PINK_POSITION = { lat: 37.4857788, lng: 127.0659301 };
 const GREEN_POSITION = { lat: 37.123267, lng: 127.0659301 };
 const CUSTOM_OVERLAY_POSITION = { lat: 37.2849483, lng: 127.1229117 };
 
-// 공식 예제가 쓰는 CSS 클래스(cs_mapbridge 등)는 예제 페이지에만 있어서 색 있는 핀 모양으로 대신한다.
+// 공식 예제의 CSS 클래스(cs_mapbridge 등) 대신 색이 있는 핀 모양을 사용합니다.
 const pinHtml = (color: string) =>
   `<div style="width:38px;height:58px;display:flex;justify-content:center;">` +
   `<div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);` +
@@ -117,7 +117,7 @@ type Opened = {
   anchor: naver.maps.Marker | naver.maps.CoordLiteral;
 };
 
-/** 반지름을 duration(ms) 동안 부드럽게 바꾼다. */
+/** 반지름을 duration(ms) 동안 부드럽게 바꿉니다. */
 function useAnimatedRadius(initial: number) {
   const [radius, setRadius] = useState(initial);
   const radiusRef = useRef(initial);
@@ -158,7 +158,7 @@ function EventOverlayMapContent() {
   const [ellipse, setEllipse] = useState<naver.maps.Ellipse | null>(null);
   const [ellipsePressed, setEllipsePressed] = useState(false);
 
-  // Ellipse 에는 touchstart, touchend 의 on* prop 이 없어 useListener 로 받는다.
+  // Ellipse에는 touchstart, touchend의 on* prop이 없어 useListener로 받습니다.
   useListener(ellipse, 'touchstart', () => setEllipsePressed(true));
   useListener(ellipse, 'touchend', () => setEllipsePressed(false));
 
@@ -239,7 +239,7 @@ function EventOverlayMapContent() {
           fillColor="#ff00ff"
           fillOpacity={0.35}
           clickable
-          // 마우스를 움직일 때마다 선이 굵어진다(50 을 넘으면 1 로).
+          // 마우스를 움직일 때마다 선이 굵어집니다(50을 넘으면 1로 변경).
           onMousemove={() => setRectangleWeight((w) => (w >= 50 ? 1 : w + 1))}
           onClick={() => setMessage('rectangle click')}
         />
@@ -253,7 +253,7 @@ function EventOverlayMapContent() {
           fillOpacity={0.35}
           zIndex={100}
           clickable
-          // 더블클릭하면 반지름이 3000 과 6000 을 오간다.
+          // 더블클릭하면 반지름이 3000과 6000을 오갑니다.
           onDblclick={() =>
             circle.animateTo(circle.targetRef.current <= 3000 ? 6000 : 3000)
           }

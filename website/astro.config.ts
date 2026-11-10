@@ -18,6 +18,10 @@ export default defineConfig({
       ],
     }),
   ],
+  markdown: {
+    // 코드 색은 밝은 화면·어두운 화면 두 벌(global.css 가 --shiki-light / --shiki-dark 를 고른다).
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' }, defaultColor: false },
+  },
   site: 'https://zeakd.github.io',
   base: '/react-naver-maps',
 });

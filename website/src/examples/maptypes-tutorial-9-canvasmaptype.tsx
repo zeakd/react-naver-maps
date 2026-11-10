@@ -8,7 +8,7 @@ import {
 
 const TILE_SIZE = 50;
 
-// 타일마다 알파벳을 canvas 에 그려 ImageData 로 돌려준다.
+// 타일마다 알파벳을 캔버스에 그려 ImageData로 반환합니다.
 function getTileData(x: number, y: number) {
   const ascii = (Math.abs(x + y) % 26) + 65;
   const canvas = document.createElement('canvas');
@@ -43,7 +43,7 @@ function CanvasMapTypeMapContent() {
           maxZoom: 22,
           tileSize: new navermaps.Size(TILE_SIZE, TILE_SIZE),
           getTileData,
-          // projection 은 생략한다(SDK 기본).
+          // projection은 생략합니다(SDK 기본값).
         }),
       }),
     [navermaps],

@@ -37,7 +37,9 @@ export interface ContainerProps extends Omit<
   ComponentProps<'div'>,
   'children'
 > {
+  /** 지도(`NaverMap`)와 지도를 쓰는 컴포넌트. SDK를 불러오는 동안은 그리지 않습니다. */
   children: ReactNode | ((navermaps: typeof naver.maps) => ReactNode);
+  /** SDK를 불러오는 동안 지도 영역에 보일 요소. */
   fallback?: ReactNode;
   /** 내부 지도 div의 스타일. 기본값: position absolute, 100% 크기 */
   innerStyle?: CSSProperties;
@@ -77,6 +79,7 @@ export function Container({
 function RenderPropBridge({
   children,
 }: {
+  /** 지도(`NaverMap`)와 지도를 쓰는 컴포넌트. SDK를 불러오는 동안은 그리지 않습니다. */
   children: (navermaps: typeof naver.maps) => ReactNode;
 }) {
   const navermaps = useNavermaps();

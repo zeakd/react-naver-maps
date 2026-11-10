@@ -6,7 +6,7 @@ order: 12
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`GeoJson`, `Kml`, `Gpx` 컴포넌트는 GeoJSON, KML, GPX 를 지도의 데이터 레이어(`map.data`)에 올립니다. SDK 의 `naver.maps.Data.addGeoJson`, `addKml`, `addGpx` 입니다. 셋은 `data` 의 형식만 다르고 `style`, `autoStyle`, 이벤트는 같습니다.
+`GeoJson`, `Kml`, `Gpx` 컴포넌트는 GeoJSON, KML, GPX를 지도의 데이터 레이어(`map.data`)에 추가합니다. SDK의 `naver.maps.Data.addGeoJson`, `addKml`, `addGpx`를 사용합니다. 세 컴포넌트는 `data`의 형식만 다르고 `style`, `autoStyle`, 이벤트는 같습니다.
 
 ## 사용법
 
@@ -22,18 +22,18 @@ import { GeoJson } from 'react-naver-maps';
 </NaverMap>;
 ```
 
-- `style` 은 객체나 feature 를 받는 함수입니다. 이 컴포넌트가 올린 feature 에만 적용됩니다.
-- 이벤트(`onClick` 등)는 이 컴포넌트가 올린 feature 에서 난 것만 받습니다. 어느 feature 인지는 `e.feature` 로 압니다.
-- `autoStyle` 을 켜면 GeoJSON `properties` 의 스타일 값을 씁니다. SDK 는 올릴 때만 이 값을 읽으므로, 바꾸면 feature 를 빼고 그 값으로 다시 올립니다.
-- `data` 가 값으로 바뀌면 이전 feature 를 빼고 새로 올립니다. GeoJSON 에 `bbox` 가 있으면 SDK 가 그 영역으로 지도를 맞춥니다.
+- `style`은 객체나 feature를 받는 함수입니다. 이 컴포넌트가 추가한 feature에만 적용됩니다.
+- 이벤트(`onClick` 등)는 이 컴포넌트가 추가한 feature에서 발생한 것만 받습니다. `e.feature`로 대상을 확인합니다.
+- `autoStyle`을 켜면 GeoJSON `geometry.mantle_properties`에 담긴 스타일 값을 사용합니다. SDK는 추가할 때만 이 값을 읽으므로, 바꾸면 feature를 제거하고 새 값으로 다시 추가합니다.
+- `data`의 값이 바뀌면 이전 feature를 제거하고 새로 추가합니다. GeoJSON에 `bbox`가 있으면 SDK가 그 영역으로 지도를 맞춥니다.
 
-- `onPropertyChanged` 는 이 컴포넌트가 올린 feature 에서 `feature.setProperty` 로 속성이 바뀔 때 받습니다. 인자는 `{ feature, name, oldValue, newValue }` 입니다. `addfeature`, `removefeature` 는 라이브러리가 직접 일으키는 일이라 prop 이 없습니다.
+- `onPropertyChanged`는 이 컴포넌트가 올린 feature에서 `feature.setProperty`로 속성이 바뀔 때 받습니다. 인자는 `{ feature, name, oldValue, newValue }`입니다. `addfeature`, `removefeature`는 라이브러리가 직접 일으키는 일이라 prop이 없습니다.
 
-지도마다 데이터 레이어는 하나라서 `style` 을 컴포넌트마다 나누려고 `map.data.setStyle` 은 라이브러리가 씁니다. `GeoJson` 과 함께 `map.data.setStyle` 을 직접 부르면 덮어씁니다.
+지도마다 데이터 레이어는 하나입니다. 컴포넌트마다 `style`을 적용하기 위해 라이브러리가 `map.data.setStyle`을 사용하므로, `GeoJson`과 함께 직접 호출하면 서로 덮어씁니다.
 
 ## style 함수와 hover
 
-`style` 함수의 참조가 바뀌면 이 컴포넌트가 올린 feature 를 모두 다시 칠합니다. 다른 `GeoJson` 의 feature 는 다시 칠하지 않습니다. 레이어 전체를 다시 칠하는 때는 지도에서 처음 `style` 을 쓸 때와, `map.data.setStyle` 로 바뀐 레이어를 라이브러리가 되찾을 때뿐입니다. 인라인 화살표 함수는 부모가 렌더될 때마다 참조가 바뀌므로 feature 가 많으면 느려집니다. `style` 함수는 컴포넌트 밖에 두거나 `useCallback` 으로 고정하세요.
+`style` 함수의 참조가 바뀌면 이 컴포넌트가 올린 feature를 모두 다시 칠합니다. 다른 `GeoJson`의 feature는 다시 칠하지 않습니다. 레이어 전체를 다시 칠하는 때는 지도에서 처음 `style`을 쓸 때와, `map.data.setStyle`로 바뀐 레이어를 라이브러리가 되찾을 때뿐입니다. 인라인 화살표 함수는 부모가 렌더될 때마다 참조가 바뀌므로 feature가 많으면 느려집니다. `style` 함수는 컴포넌트 밖에 두거나 `useCallback`으로 고정하세요.
 
 ```tsx
 const regionStyle = (feature: naver.maps.Feature) => ({
@@ -43,7 +43,7 @@ const regionStyle = (feature: naver.maps.Feature) => ({
 <GeoJson data={regions} style={regionStyle} />;
 ```
 
-hover 강조는 상태로 `style` 을 바꾸지 말고 ref 로 얻은 `map.data` 의 `overrideStyle`/`revertStyle` 을 쓰는 편이 가볍습니다.
+hover 강조는 상태로 `style`을 바꾸지 말고 ref로 얻은 `map.data`의 `overrideStyle`/`revertStyle`을 쓰는 편이 가볍습니다.
 
 ```tsx
 const map = useMap();
@@ -55,9 +55,9 @@ const map = useMap();
 />;
 ```
 
-- `overrideStyle` 의 값은 레이어 전체에 하나뿐이라 마지막 호출이 이깁니다.
-- `style` 함수 참조가 바뀌어 다시 칠하면 그 컴포넌트의 feature 에 `overrideStyle` 로 칠한 것이 덮입니다. 위처럼 `style` 을 고정해 두세요.
-- `style` 이 없는 GeoJson 만 있으면 라이브러리가 레이어에 스타일을 걸지 않아 `revertStyle` 이 되돌릴 것이 없습니다.
+- `overrideStyle`의 값은 레이어 전체에 하나뿐이라 마지막 호출이 이깁니다.
+- `style` 함수 참조가 바뀌어 다시 칠하면 그 컴포넌트의 feature에 `overrideStyle`로 칠한 것이 덮입니다. 위처럼 `style`을 고정해 두세요.
+- `style`이 없는 GeoJson만 있으면 라이브러리가 레이어에 스타일을 걸지 않아 `revertStyle`이 되돌릴 것이 없습니다.
 
 ## KML, GPX
 
@@ -72,9 +72,9 @@ const kml = new DOMParser().parseFromString(kmlText, 'text/xml');
 </NaverMap>;
 ```
 
-- `data` 는 `Document` 입니다. SDK 가 XML `Document` 만 받으므로 문자열은 받지 않습니다. `DOMParser` 로 만들어 넘기세요.
-- `Document` 참조가 바뀌면 이전 feature 를 빼고 새로 올립니다. 렌더마다 새로 파싱하면 그때마다 다시 올리니 `useMemo` 로 한 번만 파싱하세요.
-- SDK 가 내부에서 GeoJSON 으로 바꿔 올립니다. 올라간 feature 는 ref 로 받을 수 있습니다.
+- `data`는 `Document`입니다. SDK가 XML `Document`만 받으므로 문자열은 받지 않습니다. `DOMParser`로 만들어 넘기세요.
+- `Document` 참조가 바뀌면 이전 feature를 빼고 새로 올립니다. 렌더마다 새로 파싱하면 그때마다 다시 올리니 `useMemo`로 한 번만 파싱하세요.
+- SDK가 내부에서 GeoJSON으로 바꿔 올립니다. 올라간 feature는 ref로 받을 수 있습니다.
 
 (SDK 3.10.5 기준)
 

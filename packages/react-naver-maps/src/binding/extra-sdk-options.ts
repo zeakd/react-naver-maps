@@ -4,7 +4,7 @@ import { createdOptionsOf } from './created-options.js';
 
 const RESERVED = /^(?:on|default)[A-Z]/;
 
-/** React·라이브러리가 소유해 SDK 로 넘기지 않는 이름을 handled 에 더한다. */
+/** React·라이브러리가 소유해 SDK로 넘기지 않는 이름을 handled에 더한다. */
 export function handledProps(names: readonly string[]): ReadonlySet<string> {
   return new Set(['ref', 'key', 'children', 'map', ...names]);
 }
@@ -26,7 +26,7 @@ export function extraSdkOptions(
   return extras;
 }
 
-/** 생성 뒤 바뀐 추가 옵션을 넣는 길. SDK 의 공개 `setOptions(객체)` 다. */
+/** 생성 뒤 바뀐 추가 옵션을 넣는 길. SDK의 공개 `setOptions(객체)` 다. */
 export function setExtraSdkOptions(
   target: unknown,
   options: Record<string, unknown>,

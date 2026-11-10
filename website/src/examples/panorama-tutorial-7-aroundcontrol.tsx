@@ -29,7 +29,9 @@ function PanoramaAroundControl() {
       <input
         type="button"
         style={{ marginTop: 8 }}
-        value={aroundControl ? 'AroundControl 끄기' : 'AroundControl 켜기'}
+        value={
+          aroundControl ? '거리/항공뷰 전환 끄기' : '거리/항공뷰 전환 켜기'
+        }
         onClick={() => setAroundControl((on) => !on)}
       />
     </>

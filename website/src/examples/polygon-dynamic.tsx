@@ -8,7 +8,7 @@ import {
 } from 'react-naver-maps';
 
 function PolygonDynamicMapContent() {
-  // 클릭한 점을 state 배열에 쌓는다. 폴리곤과 마커는 이 배열에서 그린다.
+  // 클릭한 점을 state 배열에 추가하고 폴리곤과 마커를 그립니다.
   const [points, setPoints] = useState<naver.maps.LatLngLiteral[]>([]);
 
   return (

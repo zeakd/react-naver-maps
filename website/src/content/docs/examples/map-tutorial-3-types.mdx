@@ -2,17 +2,21 @@
 title: 지도 유형
 category: tutorial-map
 order: 4
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html
+changes:
+  - official: '`map.setMapTypeId(naver.maps.MapTypeId[id])`'
+    react: '`mapTypeId` prop에 state 전달'
+  - official: 'jQuery로 버튼에 click 핸들러를 붙이고 `control-on` 클래스 변경'
+    react: '버튼 `onClick`에서 state를 변경하고 state에 따라 버튼 style 설정'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MapTypesExample from '../../../examples/map-types.tsx';
 
-지도 유형(일반, 지형도, 위성, 혼합)을 전환하는 예제입니다.
-
-> [네이버 공식 튜토리얼 - 지도 유형](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-map-types.example.html)
+지도 유형을 일반, 지형도, 위성, 혼합으로 전환합니다.
 
 <Example of={MapTypesExample} />
 
 ## 설명
 
-`NaverMap`의 `mapTypeId` prop을 controlled로 사용하여 `navermaps.MapTypeId.NORMAL`, `TERRAIN`, `SATELLITE`, `HYBRID` 사이를 전환합니다.
+`NaverMap`의 `mapTypeId` prop에 state를 주어 `'normal'`, `'terrain'`, `'satellite'`, `'hybrid'` 사이를 전환합니다. `navermaps.MapTypeId`의 `NORMAL`, `TERRAIN`, `SATELLITE`, `HYBRID`와 같은 값입니다.

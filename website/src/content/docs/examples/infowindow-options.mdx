@@ -2,15 +2,25 @@
 title: 정보 창 옵션 사용하기
 category: tutorial-infowindow
 order: 17
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-infowindow-options.example.html
+changes:
+  - official: '`new naver.maps.InfoWindow({ maxWidth, backgroundColor, ... })`의 옵션'
+    react: '같은 이름의 `<InfoWindow>` prop'
+  - official: '`new naver.maps.Size(30, 30)`, `new naver.maps.Point(20, -20)`'
+    react: '`{ width, height }`, `{ x, y }` 리터럴'
+  - official: '마커 click 리스너에서 `infowindow.getMap()`으로 확인해 `open()`, `close()` 호출'
+    react: '`<Marker onClick>`에서 `open` state 변경'
+  - official: '공식 페이지의 CSS 클래스(`iw_inner`, `thumb`)로 꾸민 내용'
+    react: '내용 HTML에 인라인 style'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import InfowindowOptionsExample from '../../../examples/infowindow-options.tsx';
 
+정보 창의 너비, 배경색, 테두리, 꼬리 모양, 위치 오프셋을 옵션으로 정합니다. 마커를 누르면 정보 창을 열고 닫습니다.
+
 <Example of={InfowindowOptionsExample} />
 
 ## 설명
 
-`InfoWindow` 의 `maxWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `anchorSize`, `anchorSkew`, `anchorColor`, `pixelOffset` 을 그대로 prop 으로 줍니다. 크기와 오프셋은 `{ width, height }`, `{ x, y }` 리터럴입니다. 마커를 누르면 열고 닫는 부분은 `open` state 입니다.
-
-> [네이버 공식 예제 - 정보 창 옵션 사용하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-infowindow-options.example.html)
+`InfoWindow`의 `maxWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `anchorSize`, `anchorSkew`, `anchorColor`, `pixelOffset`을 prop으로 전달합니다. 마커는 `ref`로 state에 담아 `anchor`로 전달하고, 정보 창의 열림 여부는 `open` state로 관리합니다. 처음에는 닫혀 있습니다.

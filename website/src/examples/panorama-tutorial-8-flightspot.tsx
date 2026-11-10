@@ -15,7 +15,7 @@ function FlightSpotMap() {
         defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
         defaultZoom={6}
       >
-        {/* 켜고 끄는 것은 마운트로 한다. */}
+        {/* 마운트와 언마운트로 켜고 끕니다. */}
         {on && <FlightSpot onPoiClicked={(panoId) => alert(panoId)} />}
       </NaverMap>
       <div
@@ -29,7 +29,7 @@ function FlightSpotMap() {
       >
         <input
           type="button"
-          value={on ? 'FlightSpot 제거' : 'FlightSpot 추가'}
+          value={on ? '항공뷰 아이콘 제거' : '항공뷰 아이콘 추가'}
           onClick={() => setOn((prev) => !prev)}
         />
       </div>

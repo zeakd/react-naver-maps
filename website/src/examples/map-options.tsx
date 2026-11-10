@@ -93,19 +93,19 @@ function MapOptionsMap() {
           style={interaction ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setInteraction((v) => !v)}
         >
-          지도 인터렉션
+          지도 조작
         </button>
         <button
           style={kineticPan ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setKineticPan((v) => !v)}
         >
-          관성 드래깅
+          관성 드래그
         </button>
         <button
           style={tileTransition ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setTileTransition((v) => !v)}
         >
-          타일 fadeIn 효과
+          타일 페이드인 효과
         </button>
         <button
           style={controls ? selectedBtnStyle : normalBtnStyle}

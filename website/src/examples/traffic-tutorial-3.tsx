@@ -23,7 +23,7 @@ function TrafficMapContent() {
         }}
       >
         {traffic && (
-          // interval 은 5분마다(최소값). 생성 때만 적용된다.
+          // interval은 5분(최솟값)이며 생성할 때만 적용됩니다.
           <TrafficLayer interval={300000} autoRefresh={autoRefresh} />
         )}
       </NaverMap>

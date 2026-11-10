@@ -25,7 +25,7 @@ const { code, lang = 'tsx', imports = [] } = Astro.props;
     )}
   </div>
   <div class="acd-live-code-source">
-    <Code code={code} lang={lang} theme="github-dark" />
+    <Code code={code} lang={lang} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
   </div>
   {/* TODO: 라이브 에디팅 + 미리보기 영역 (React island) */}
 </div>

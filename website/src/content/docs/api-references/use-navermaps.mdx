@@ -6,7 +6,7 @@ order: 19
 
 `useNavermaps()`는 `naver.maps` 네임스페이스를 반환하는 훅입니다. `NavermapsProvider` 내부에서 사용합니다.
 
-내부적으로 React 19의 `use()`를 사용하여, 스크립트 로드가 완료될 때까지 컴포넌트를 suspend합니다.
+내부적으로 React 19의 `use()`를 사용해 스크립트 로딩이 끝날 때까지 컴포넌트 렌더링을 중단합니다.
 
 ## 사용법
 
@@ -27,7 +27,7 @@ function MapContent() {
 
 ## SDK 객체 만들기
 
-`useNavermaps()` 다음 줄부터 SDK 가 있으므로 `new navermaps.LatLng(...)` 를 쓸 수 있습니다. 다만 렌더마다 새로 만들면 참조가 매번 바뀌어 effect 의존성 등이 매번 다시 돕니다. 좌표는 `{ lat, lng }` 같은 일반 객체로 넘기고, SDK 객체가 꼭 필요하면 한 번만 만듭니다.
+`useNavermaps()` 다음 줄부터 `new navermaps.LatLng(...)`를 사용할 수 있습니다. 렌더마다 새로 만들면 참조가 바뀌어 effect 등이 다시 실행됩니다. 좌표는 `{ lat, lng }` 같은 일반 객체로 넘기고, SDK 객체가 꼭 필요하면 한 번만 만들어 주세요.
 
 ```tsx
 const navermaps = useNavermaps();
@@ -39,18 +39,18 @@ const [origin] = useState(() => new navermaps.LatLng(37.5666, 126.9784));
 `Container` 안에서 호출하면 내장 Suspense가 자동으로 처리합니다. Container 밖에서 호출할 때는 직접 `<Suspense>`로 감싸야 합니다.
 
 ```tsx
-// Container 안 — Suspense 자동
+// Container 안: Suspense 자동 적용
 <Container style={{ width: '100%', height: '400px' }}>
   <MapContent /> {/* useNavermaps() 호출 */}
 </Container>
 
-// Container 밖 — Suspense 필요
+// Container 밖: Suspense 필요
 <Suspense fallback={<p>로딩 중...</p>}>
   <CoordDisplay /> {/* useNavermaps() 호출 */}
 </Suspense>
 ```
 
-서버 렌더(Next, React Router, TanStack Start, Astro 등)에서는 SDK 를 불러올 수 없어 `useNavermaps()` 가 오류를 던집니다. 가장 가까운 `<Suspense>` 가 서버 HTML 에 fallback 을 넣고 브라우저에서 다시 렌더합니다(React 의 클라이언트 전용 처리). `Container` 안은 브라우저에서만 그려지므로 신경 쓸 것이 없습니다. `Container` 밖에서 부르면서 `<Suspense>` 가 없으면 서버 렌더가 이 오류로 실패하니 위처럼 감쌉니다.
+서버 렌더(Next, React Router, TanStack Start, Astro 등)에서는 SDK를 불러올 수 없어 `useNavermaps()`가 오류를 던집니다. 가장 가까운 `<Suspense>`가 서버 HTML에 fallback을 넣고 브라우저에서 다시 렌더합니다(React의 클라이언트 전용 처리). `Container` 안은 브라우저에서만 그려지므로 신경 쓸 것이 없습니다. `Container` 밖에서 부르면서 `<Suspense>`가 없으면 서버 렌더가 이 오류로 실패하니 위처럼 감쌉니다.
 
 ## 반환값
 

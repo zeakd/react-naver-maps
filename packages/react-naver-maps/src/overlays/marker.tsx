@@ -26,28 +26,38 @@ export interface MarkerProps
   ref?: Ref<naver.maps.Marker>;
 
   // Controlled
+  /** 마커 좌표. 렌더링할 때 이 값으로 위치를 맞춥니다. 끌어 옮긴 위치를 유지하려면 `onDragend`로 state를 변경하거나 `defaultPosition`을 사용합니다. */
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Uncontrolled default
+  /** 처음 좌표. 이후에는 SDK가 관리합니다(끌어 옮긴 위치를 되돌리지 않음). */
   defaultPosition?: naver.maps.Coord | naver.maps.CoordLiteral;
 
   // Options
+  /** 마커 모양. 이미지 주소, `ImageIcon`, `SymbolIcon`, `HtmlIcon`(`{ content, size, anchor }`)을 사용할 수 있습니다. 값이 같으면 다시 설정하지 않습니다. */
   icon?: MarkerIcon;
   /**
    * 바뀔 때만 적용한다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지
    * 않는다. null 을 주면 애니메이션을 멈춘다(BOUNCE 끄기).
    */
   animation?: AnimationName | null;
+  /** 클릭을 받는 영역(`MarkerShape`). 아이콘의 투명한 부분을 빼고 싶을 때. */
   shape?: naver.maps.MarkerShape;
+  /** 마우스를 올렸을 때 보이는 툴팁 글자. */
   title?: string;
+  /** 마우스를 올렸을 때의 커서(CSS cursor 값). */
   cursor?: string;
+  /** 마우스·터치 이벤트를 받을지 여부. 끄면 아래에 있는 지도가 이벤트를 받습니다. */
   clickable?: boolean;
+  /** 끌어서 옮길 수 있는지 여부. */
   draggable?: boolean;
+  /** 보일지 여부. */
   visible?: boolean;
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그립니다. */
   zIndex?: number;
-  /** GL 서브모듈에서 다른 마커와 겹치면 숨긴다(공식 문서 MarkerOptions). GL 이 아니면 SDK 가 무시한다. */
+  /** GL 서브모듈에서 다른 마커와 겹치면 숨긴다(공식 문서 MarkerOptions). GL이 아니면 SDK가 무시한다. */
   collisionBehavior?: boolean;
-  /** collisionBehavior 에서 겹침을 재는 크기. */
+  /** collisionBehavior에서 겹침을 재는 크기. */
   collisionBoxSize?: naver.maps.Size | naver.maps.SizeLiteral;
   /** 이미지 아이콘을 다 불러왔을 때(SDK `icon_loaded`). */
   onIconLoaded?: (marker: naver.maps.Marker) => void;

@@ -7,8 +7,8 @@ import {
 
 const IMG = 'https://navermaps.github.io/maps.js.ncp/docs/img/example';
 
-// 공식 예제는 문서 사이트의 CSS 클래스(cs_mapbridge)로 스프라이트를 자른다. 여기서는 같은
-// 스타일을 인라인으로 풀어 쓴다.
+// 공식 예제는 문서 사이트의 CSS 클래스(cs_mapbridge)로 스프라이트를 자릅니다.
+// 여기서는 같은 스타일을 인라인으로 사용합니다.
 function pinHtml(iconPosition: string, shadowPosition: string) {
   const sprite = `background:url(${IMG}/sp_mapbridge5.png) no-repeat;background-size:400px 450px;`;
   return [

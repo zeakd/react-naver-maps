@@ -44,7 +44,7 @@ const OVERLAY_NAMES = [
 ];
 const EVENT_SUFFIXES = ['Added', 'Selected', 'Removed'] as const;
 
-/** 그리기 도구가 내는 이벤트를 모아 목록으로 보여 준다. */
+/** 그리기 도구의 이벤트를 모아 목록으로 표시합니다. */
 function DrawingEventLog({
   manager,
   lines,
@@ -57,7 +57,7 @@ function DrawingEventLog({
   const navermaps = useNavermaps();
   const { DrawingEvents } = navermaps.drawing;
 
-  // 도형 종류별 이벤트(rectangleAdded 등)는 prop 이 없어 SDK 리스너로 받는다.
+  // 도형 종류별 이벤트(rectangleAdded 등)는 prop이 없어 SDK 리스너로 받습니다.
   useEffect(() => {
     const names = [
       ...OVERLAY_NAMES.flatMap((name) =>
@@ -110,7 +110,7 @@ function DrawingMapContent() {
     [],
   );
 
-  // 미리 올려 둔 도형을 그리기 도구가 다루게 한다(addDrawing).
+  // 미리 표시한 도형을 그리기 도구에 등록합니다(addDrawing).
   useEffect(() => {
     if (!manager || !rect || !polygon) return;
     manager.addDrawing(rect, DrawingMode.RECTANGLE, 'my-id');

@@ -1,14 +1,14 @@
 ---
-title: Core Concepts
+title: 핵심 개념
 category: guides
 order: 3
 ---
 
-`react-naver-maps`는 네이버맵의 기본 기능을 유지하면서, React에서 다루기 쉬운 인터페이스를 제공합니다. 핵심 개념 세 가지를 이해하면 대부분의 기능을 활용할 수 있습니다.
+React Naver Maps는 네이버 지도의 기본 기능을 React 컴포넌트로 제공합니다.
 
 ## React 컴포넌트 인터페이스
 
-네이버맵의 요소들을 React 컴포넌트 형태로 mount/unmount할 수 있습니다. children을 통해 렌더 여부를 결정할 수 있습니다.
+네이버 지도의 요소를 React 컴포넌트로 사용하고 children으로 렌더링 여부를 정합니다.
 
 ```tsx
 import { NaverMap, Marker } from 'react-naver-maps';
@@ -44,7 +44,7 @@ map.removeListener(zoomListener);
 window.naver.maps.Event.removeListener(zoomListener);
 ```
 
-`react-naver-maps`에서는 `on*` props로 간단하게 처리됩니다.
+`react-naver-maps`에서는 `on*` props로 처리합니다.
 
 ```tsx
 // props로 전달
@@ -54,18 +54,18 @@ window.naver.maps.Event.removeListener(zoomListener);
 <NaverMap />
 ```
 
-모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 각 컴포넌트에서 사용 가능한 이벤트는 API Reference를 참고하세요.
+모든 오버레이 컴포넌트가 `on*` 이벤트 핸들러를 지원합니다. 컴포넌트별 이벤트는 API 문서의 Props 표에서 확인해 주세요.
 
 ### 도형의 clickable
 
-네이버맵 SDK 의 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)은 기본이 `clickable: false` 라서 포인터 이벤트를 버립니다. 이 라이브러리는 포인터 핸들러가 있으면 `clickable` 을 켭니다. 끄려면 `clickable={false}` 를 명시합니다.
+네이버 지도 SDK의 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)은 기본값이 `clickable: false`라서 포인터 이벤트를 받지 않습니다. 라이브러리는 포인터 핸들러가 있으면 `clickable`을 켭니다. 끄려면 `clickable={false}`를 명시해 주세요.
 
 ```tsx
 <Circle center={center} radius={300} fillOpacity={0.3} onClick={handleClick} />
 ```
 
-- 켜진 도형을 누르면 지도의 `onClick` 은 호출되지 않습니다.
-- 채우기가 없는 도형은 선을 눌러야 이벤트가 옵니다. 안쪽도 누르게 하려면 `fillColor`, `fillOpacity` 를 지정합니다.
+- 클릭 가능한 도형을 누르면 지도의 `onClick`은 호출되지 않습니다.
+- 채우기가 없는 도형은 선을 눌러야 이벤트가 발생합니다. 안쪽도 누르게 하려면 `fillColor`, `fillOpacity`를 지정해 주세요.
 
 ```tsx
 <Marker
@@ -75,7 +75,7 @@ window.naver.maps.Event.removeListener(zoomListener);
 />
 ```
 
-핸들러가 변경되면 이전 리스너는 자동으로 해제되고 새 핸들러가 등록됩니다.
+핸들러가 바뀌어도 리스너를 다시 붙이지 않고, 붙어 있는 리스너가 최신 핸들러를 부릅니다. 핸들러를 더하거나 뺄 때만 리스너를 붙이고 뗍니다.
 
 ## Controlled / Uncontrolled
 
@@ -101,7 +101,7 @@ function MyMap() {
     <>
       <NaverMap
         center={center}
-        onCenterChanged={(center) => setCenter(center)}
+        onCenterChanged={(c) => setCenter({ lat: c.y, lng: c.x })}
       />
       <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
         제주도로 이동하기
@@ -122,30 +122,30 @@ function MyMap() {
 | Polygon             | `paths`            | `defaultPaths`                                  |
 | Polyline            | `path`             | `defaultPath`                                   |
 
-NaverMap 의 controlled `bounds` 와 `centerPoint`, `defaultCenterPoint` 는 0.4 에서 deprecated 이고 다음 버전에서 없어집니다. 개발 모드에서 한 번 경고합니다. 처음 보여줄 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds()` 를 씁니다.
+`NaverMap`의 controlled `bounds`와 `centerPoint`, `defaultCenterPoint`는 0.4에서 deprecated이며 다음 버전에서 없어집니다. 개발 모드에서 한 번 경고합니다. 처음 보여줄 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds()`를 사용해 주세요.
 
 ### 규칙
 
-- **하나의 prop에 대해 controlled와 uncontrolled을 혼용하지 마세요.** `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
+- 하나의 prop에 controlled와 uncontrolled을 혼용하지 마세요. `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
 - Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
-- 오버레이(Marker, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop 으로 되돌립니다. 예를 들어 `draggable` Marker 를 끌어 놓아도 `onDragend` 로 state 를 바꾸지 않으면 다시 렌더할 때 `position` 으로 돌아갑니다.
-- 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
-- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 prop 을 넣지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 자리로 봅니다. `zoom` 도 함께 바뀌면 큰 쪽 zoom 에서 잽니다.
-- `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 자리로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center 와 1px 안인 `center` prop 은 그 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 지난 prop 으로 치므로 2초 뒤 같은 값으로 다시 렌더해도 움직이지 않습니다. 일부러 그 자리로 보내려면 `map.panTo()` 를 씁니다. GL 의 실수 zoom 도 같습니다(정수 zoom 은 늘 따릅니다).
-- 래스터 지도는 실수 zoom 을 반올림해 씁니다(15.4 → 15). 반올림해 같으면 zoom 은 그대로 두고 center 만 옮깁니다. GL 지도는 실수 zoom 을 그대로 씁니다.
-- `center` 와 `zoom` 을 함께 바꾸면 `morph` 로 한 번에 옮깁니다. 따로 떨어진 변경은 애니메이션합니다. GL 에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
-- prop 은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
+- 오버레이(마커, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop으로 되돌립니다. 예를 들어 `draggable` 마커를 끌어 놓아도 `onDragend`로 state를 바꾸지 않으면 다시 렌더링할 때 `position`으로 돌아갑니다.
+- 지도의 카메라(`center`, `zoom`)는 props가 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
+- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 props를 적용하지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 위치로 봅니다. `zoom`도 함께 바뀌면 큰 쪽 zoom에서 측정합니다.
+- `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 위치로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 이전 prop으로 취급하므로 2초 뒤 같은 값으로 다시 렌더링해도 움직이지 않습니다. 해당 위치로 이동하려면 `map.panTo()`를 사용해 주세요. GL의 실수 zoom도 같습니다(정수 zoom은 항상 따릅니다).
+- 래스터 지도는 실수 zoom을 반올림해 사용합니다(15.4 → 15). 반올림한 값이 같으면 zoom은 그대로 두고 center만 옮깁니다. GL 지도는 실수 zoom을 그대로 사용합니다.
+- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. `center`만 바꾸면 `panTo`로 이동하고, 래스터 지도에서 `zoom`만 바꾸면 애니메이션 없이 맞춥니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
+- prop은 값으로 비교합니다. `center={{ lat, lng }}`처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 라이브러리에 아직 없는 SDK 옵션
 
-SDK 는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기면 라이브러리를 올리지 않고 prop 으로 씁니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)에서 됩니다. 컴포넌트가 모르는 prop 은 생성자에 넘기고, 값이 바뀌면 SDK 의 `setOptions({ ... })` 로 넘깁니다.
+SDK는 페이지에서 바로 갱신됩니다. 새 최상위 옵션은 라이브러리를 업데이트하지 않아도 props로 사용할 수 있습니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)이 해당합니다. 컴포넌트가 모르는 prop은 생성자에 넘기고, 값이 바뀌면 SDK의 `setOptions({ ... })`로 넘깁니다.
 
 ```tsx
 // futureOption 은 설명용 이름이고 실제 옵션이 아닙니다.
 <Marker position={position} futureOption={{ enabled: true }} />
 ```
 
-TypeScript 에서는 그 컴포넌트의 Props 를 보강합니다. `naver.maps.MarkerOptions` 를 보강해도 `MarkerProps` 로 이어지지 않습니다.
+TypeScript에서는 해당 컴포넌트의 Props를 보강해 주세요. `naver.maps.MarkerOptions`를 보강해도 `MarkerProps`로 이어지지 않습니다.
 
 ```ts
 import 'react-naver-maps'; // 없으면 .d.ts 파일에서 보강이 아니라 새 모듈 선언이 됩니다.
@@ -157,15 +157,15 @@ declare module 'react-naver-maps' {
 }
 ```
 
-- 값이 바뀔 때만 넘기고, 비교는 `Object.is` 입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
-- 지도에서 값이 바뀌어도 되돌리지 않습니다. prop 을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
+- 값이 바뀔 때만 넘기고, 비교는 `Object.is`입니다. 렌더마다 새로 만든 객체는 렌더마다 넘어가므로 같은 값이면 같은 참조를 둡니다.
+- 지도에서 값이 바뀌어도 되돌리지 않습니다. prop을 없애면 맞추기만 멈추고 SDK 값은 그대로 둡니다. 다시 주면 다시 넘깁니다.
 - `ref`, `key`, `children`, `map`, `onX`, `defaultX` 꼴의 이름은 넘기지 않습니다.
-- 새 옵션이 `setOptions` 로 충분하지 않으면(지도 유형처럼 전용 메서드가 있는 경우) `ref` 로 SDK 메서드를 부릅니다. 그 밖의 컴포넌트에서도 `ref` 를 씁니다.
-- `<Marker {...row} />` 처럼 펼치면 `row` 의 다른 필드도 SDK 로 갑니다. 필요한 값만 넘기세요.
+- 새 옵션이 `setOptions`로 충분하지 않으면(지도 유형처럼 전용 메서드가 있는 경우) `ref`로 SDK 메서드를 부릅니다. 그 밖의 컴포넌트에서도 `ref`를 씁니다.
+- `<Marker {...row} />`처럼 펼치면 `row`의 다른 필드도 SDK로 갑니다. 필요한 값만 넘기세요.
 
 ## 숨김과 수명
 
-지도와 오버레이는 React 가 트리를 숨겼다 다시 보여도 같은 인스턴스를 씁니다. 지도 안의 컴포넌트가 suspend 하거나 `<Activity mode="hidden">` 으로 숨기면 지도는 영역만 숨기고, 오버레이는 지도에서 떨어집니다. 다시 보이면 같은 지도가 같은 center 와 zoom 으로 돌아오고 오버레이도 다시 붙습니다. `open` 인 `InfoWindow` 는 다시 열립니다. 인스턴스는 컴포넌트가 정말로 사라질 때만 정리합니다.
+지도와 오버레이는 React가 트리를 숨겼다 다시 보여도 같은 인스턴스를 사용합니다. 지도 안의 컴포넌트가 suspend하거나 `<Activity mode="hidden">`으로 숨기면 지도 영역은 숨겨지고 오버레이는 지도에서 분리됩니다. 다시 표시하면 같은 지도가 같은 center와 zoom으로 돌아오고 오버레이도 다시 붙습니다. `open`인 `InfoWindow`는 다시 열립니다. 인스턴스는 컴포넌트가 사라질 때 정리합니다.
 
 ## 컴포넌트 계층 구조
 

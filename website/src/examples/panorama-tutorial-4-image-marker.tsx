@@ -9,7 +9,7 @@ import { Panorama } from 'react-naver-maps/panorama';
 import { DOCS_URL } from '../samples/remote-data';
 
 const MARKER_POSITION = { lat: 37.359484, lng: 127.105333 };
-// 레티나 대응 아이콘: 110x72 원본을 55x36 으로 보인다.
+// 레티나 대응 아이콘: 110x72 원본을 55x36으로 표시합니다.
 const MARKER_ICON = {
   url: `${DOCS_URL}/img/example/pin_map.png`,
   size: { width: 55, height: 36 },
@@ -32,7 +32,7 @@ function MarkerPanorama({ showMarker }: { showMarker: boolean }) {
       ref={panoRef}
       position={{ lat: 37.3599605, lng: 127.1058814 }}
       pov={pov}
-      // 거리뷰가 준비되면 마커 쪽으로 시야를 돌린다.
+      // 거리뷰가 준비되면 마커 쪽으로 시야를 돌립니다.
       onInit={() => {
         const lookAt = panoRef.current
           ?.getProjection()
@@ -63,7 +63,7 @@ function PanoramaMarker() {
       <input
         type="button"
         style={{ marginTop: 8 }}
-        value={showMarker ? 'Marker 제거' : 'Marker 추가'}
+        value={showMarker ? '마커 제거' : '마커 추가'}
         onClick={() => setShowMarker((on) => !on)}
       />
     </>

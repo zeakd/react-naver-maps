@@ -32,7 +32,7 @@ import type { PointerEventHandler } from './overlay-events.js';
  * 수명은 lifetime.ts, 값 동기화는 useControlledProps 규칙을 따른다.
  */
 export type OverlaySpec<P, T> = {
-  /** 생성자. options 에는 map 이 들어 있다. 생성자 인자가 따로 있으면 props 에서 읽는다. */
+  /** 생성자. options에는 map이 들어 있다. 생성자 인자가 따로 있으면 props에서 읽는다. */
   create: (
     navermaps: typeof naver.maps,
     options: Record<string, unknown>,
@@ -43,18 +43,18 @@ export type OverlaySpec<P, T> = {
    * 예: GroundOverlay 의 url, bounds.
    */
   keys?: (props: P) => readonly unknown[];
-  /** 생성자 옵션으로 넘기고 이후 controlled 로 맞추는 prop. */
+  /** 생성자 옵션으로 넘기고 이후 controlled로 맞추는 prop. */
   options: readonly (keyof P & string)[];
   /**
    * options 중 prop 이 바뀔 때만 맞추는 값(useControlledProps 의 changeOnly). SDK 가 스스로
    * 되돌리는 일회성 값이다. 예: Marker 의 animation.
    */
   changeOnly?: readonly (keyof P & string)[];
-  /** 생성할 때만 쓰는 값. options 의 값보다 우선한다(`position: props.position ?? props.defaultPosition`). */
+  /** 생성할 때만 쓰는 값. options의 값보다 우선한다(`position: props.position ?? props.defaultPosition`). */
   initial?: (props: P) => Record<string, unknown>;
-  /** prop 에서 계산해 controlled 로 맞추는 값. */
+  /** prop에서 계산해 controlled로 맞추는 값. */
   derived?: (props: P) => Record<string, unknown>;
-  /** 이름으로도 받는 SDK 상수 자리(sdk/constants.ts). 예: Marker 의 `animation: 'BOUNCE'`. */
+  /** 이름으로도 받는 SDK 상수 자리(sdk/constants.ts). 예: Marker의 `animation: 'BOUNCE'`. */
   constants?: ConstantPaths;
   /** 만든 직후 할 일. */
   afterCreate?: (instance: T, props: P) => void;
@@ -68,16 +68,16 @@ export type OverlaySpec<P, T> = {
    * 예: HeatMap 의 setColorMap(colorMap, inReverse).
    */
   sync?: (instance: T, props: P) => void;
-  /** 이 오버레이가 내는 포인터 이벤트. `on` + 이름 prop 으로 받는다. */
+  /** 이 오버레이가 내는 포인터 이벤트. `on` + 이름 prop으로 받는다. */
   events: readonly string[];
   /**
    * 공식 문서 Events 에 있는 KVO 값 변경 이벤트의 키. `position` 이면 `position_changed` 를
    * `onPositionChanged(value)` 로 받는다.
    */
   changes?: readonly string[];
-  /** 그 밖의 이벤트와 prop 이름. 예: Marker 의 `['icon_loaded', 'onIconLoaded']`. */
+  /** 그 밖의 이벤트와 prop 이름. 예: Marker의 `['icon_loaded', 'onIconLoaded']`. */
   otherEvents?: readonly (readonly [event: string, prop: string])[];
-  /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create 에 map 을 넣지 않는다. */
+  /** 지도가 준비(init)된 뒤에 붙여야 하는 오버레이(lifetime.ts onReadyMap). create에 map을 넣지 않는다. */
   waitForReadyMap?: boolean;
   /**
    * 목록에 없는 SDK 옵션을 받는다(`binding/extra-sdk-options.ts`). SDK 에 공개 `setOptions` 가 있는
@@ -96,7 +96,7 @@ type Overlay = naver.maps.KVO & {
   setMap: (map: naver.maps.Map | null) => void;
 };
 
-/** spec 으로 오버레이 컴포넌트를 만든다. */
+/** spec으로 오버레이 컴포넌트를 만든다. */
 export function defineOverlay<P extends object, T extends Overlay>(
   name: string,
   spec: OverlaySpec<P, T>,
@@ -141,7 +141,7 @@ export function defineOverlay<P extends object, T extends Overlay>(
   return OverlayComponent;
 }
 
-/** spec 마다 처리하는 prop 이름. initial·derived 가 돌려주는 키는 렌더마다 같다. */
+/** spec 마다 처리하는 prop 이름. initial·derived가 돌려주는 키는 렌더마다 같다. */
 const handledBySpec = new WeakMap<object, ReadonlySet<string>>();
 
 function extraOptionsOf<P extends object, T>(
@@ -230,7 +230,7 @@ type Normalized = readonly (readonly [
   read: ((target: never, ...args: unknown[]) => unknown[]) | undefined,
 ])[];
 
-/** 이벤트 목록을 [이벤트, prop, read] 로. 같은 목록(참조)이면 한 번만 바꾼다. */
+/** 이벤트 목록을 [이벤트, prop, read]로. 같은 목록(참조)이면 한 번만 바꾼다. */
 const normalized = new WeakMap<EventList, Normalized>();
 function pairsOf(events: EventList): Normalized {
   let pairs = normalized.get(events);

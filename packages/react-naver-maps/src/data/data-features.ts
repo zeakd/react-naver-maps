@@ -13,7 +13,7 @@ import {
 import type { MapListener } from '../sdk/listeners.js';
 import { eventProp } from '../overlays/overlay-events.js';
 
-/** 데이터 레이어 feature 가 내는 포인터 이벤트(SDK Feature.EVENT_LIST, 3.10.5). */
+/** 데이터 레이어 feature가 내는 포인터 이벤트(SDK Feature.EVENT_LIST, 3.10.5). */
 export const DATA_EVENTS = [
   'click',
   'dblclick',
@@ -25,7 +25,7 @@ export const DATA_EVENTS = [
 ] as const;
 export type DataEvent = (typeof DATA_EVENTS)[number];
 
-/** 데이터 레이어 이벤트. 어느 feature 에서 났는지 `feature` 로 알 수 있다. */
+/** 데이터 레이어 이벤트. 어느 feature에서 났는지 `feature`로 알 수 있다. */
 export type DataPointerEvent = naver.maps.PointerEvent & {
   feature: naver.maps.Feature;
 };
@@ -56,9 +56,9 @@ export type DataPropertyEvent = naver.maps.PropertyEvent;
 export type DataFeaturesProps = {
   /** 올린 feature 배열. */
   ref?: Ref<naver.maps.Feature[]>;
-  /** feature 스타일. 객체 또는 feature 를 받아 스타일을 돌려주는 함수. */
+  /** feature 스타일. 객체 또는 feature를 받아 스타일을 돌려주는 함수. */
   style?: GeoJsonStyle;
-  /** 원본의 스타일 값(GeoJSON properties 의 strokeColor 등)을 쓴다. SDK 의 autoStyle. */
+  /** 원본에 담긴 스타일 값(GeoJSON은 `geometry.mantle_properties`의 strokeColor 등)을 쓴다. SDK의 autoStyle. */
   autoStyle?: boolean;
   /**
    * 이 컴포넌트가 올린 feature 의 속성이 `feature.setProperty` 로 바뀔 때. SDK `property_changed`.
@@ -83,7 +83,7 @@ type Dispatcher = (
 type Registry = {
   owners: Map<naver.maps.Feature, { current: Owner }>;
   dispatcher: Dispatcher;
-  /** 이 레이어에서 컴포넌트가 style 을 쓴 적이 있는가. 그 뒤로는 style 이 없어도 레이어를 되찾는다. */
+  /** 이 레이어에서 컴포넌트가 style을 쓴 적이 있는가. 그 뒤로는 style이 없어도 레이어를 되찾는다. */
   styled: boolean;
 };
 const registries = new WeakMap<naver.maps.Data, Registry>();
@@ -138,7 +138,7 @@ function applyStyle(
   }
 }
 
-/** 이벤트 이름과 prop 이름. SDK 이벤트 `property_changed` 의 prop 은 `onPropertyChanged` 다. */
+/** 이벤트 이름과 prop 이름. SDK 이벤트 `property_changed`의 prop은 `onPropertyChanged` 다. */
 type EventProp = readonly [event: string, prop: keyof DataFeaturesProps];
 const EVENT_PROPS: readonly EventProp[] = [
   ...DATA_EVENTS.map((e) => [e, eventProp(e)] as const),
