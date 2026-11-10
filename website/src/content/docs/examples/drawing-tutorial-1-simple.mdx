@@ -4,27 +4,27 @@ category: tutorial-drawing
 order: 1
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-drawing-simple.example.html
 changes:
-  - official: '`new Rectangle` · `new Polygon` 에 `map` 을 주어 올리기'
-    react: '`NaverMap` 자식 `<Rectangle>`, `<Polygon>`. 인스턴스는 `ref` 로 받는다'
-  - official: "`Event.once(map, 'init')` 안에서 `new DrawingManager({ map })` 를 만든 뒤 `addDrawing`"
-    react: '`NaverMap` 자식 `<DrawingManager>`. `addDrawing` 은 매니저와 도형 ref 가 모두 생긴 뒤 effect 에서 부른다'
-  - official: jQuery 로 `#logger` 의 `html` 에 이벤트 이름 덧붙이기
-    react: 이벤트 이름을 state 배열에 쌓아 목록으로 그린다
+  - official: '`new Rectangle` · `new Polygon`에 `map`을 주어 올리기'
+    react: '`NaverMap` 자식 `<Rectangle>`, `<Polygon>`. 인스턴스는 `ref`로 받기'
+  - official: "`Event.once(map, 'init')` 안에서 `new DrawingManager({ map })`를 만든 뒤 `addDrawing`"
+    react: '`NaverMap` 자식 `<DrawingManager>`. 매니저와 도형 ref가 모두 생긴 뒤 effect에서 `addDrawing` 호출'
+  - official: jQuery로 `#logger`의 `html`에 이벤트 이름 덧붙이기
+    react: 이벤트 이름을 state 배열에 추가해 목록으로 표시
 limits:
-  - 선언적으로 둔 도형을 그리기 도구에 등록하는 prop 이 없어 `addDrawing` 을 effect 에서 부릅니다.
-  - 도형 종류별 이벤트(`rectangleAdded` 등)는 prop 이 없어 매니저의 `addListener` 로 듣습니다.
+  - 선언적으로 둔 도형을 그리기 도구에 등록하는 prop이 없어 `addDrawing`을 effect 에서 부릅니다.
+  - 도형 종류별 이벤트(`rectangleAdded` 등)는 prop이 없어 매니저의 `addListener`로 듣습니다.
   - 공식 예제 왼쪽 위의 그리기 · 이동 · 수정 · 삭제 사용법 안내는 옮기지 않았습니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import DrawingTutorial1SimpleExample from '../../../examples/drawing-tutorial-1-simple.tsx';
 
-기본 그리기 도구를 붙이고, 미리 올린 도형도 그리기 도구가 다루게 하는 예제입니다. 도형을 만들고 고르고 지울 때의 이벤트를 왼쪽 아래에 보여 줍니다.
+기본 그리기 도구에 미리 올린 도형을 등록합니다. 도형을 만들고 고르고 지울 때의 이벤트를 왼쪽 아래에 표시합니다.
 
 <Example of={DrawingTutorial1SimpleExample} />
 
 ## 설명
 
-`DrawingManager` 를 `NaverMap` 의 자식으로 둡니다(`submodules={['drawing']}`). 이미 올린 `Rectangle`, `Polygon` 은 `ref` 로 받아 매니저 ref 의 `addDrawing` 에 등록합니다.
+`DrawingManager`를 `NaverMap`의 자식으로 둡니다(`submodules={['drawing']}`). 이미 올린 `Rectangle`, `Polygon`은 `ref`로 받아 매니저 ref의 `addDrawing`에 등록합니다.
 
-이벤트 기록은 그룹 이벤트(`DrawingEvents.ADD`, `SELECT`, `REMOVE`)도 도형 종류별 이벤트와 함께 매니저의 `addListener` 로 듣고, effect 정리에서 `Event.removeListener` 로 뗍니다. 그룹 이벤트만 필요하면 `onDrawingAdded`, `onDrawingSelected`, `onDrawingRemoved` prop 을 쓸 수 있습니다.
+이벤트 기록은 그룹 이벤트(`DrawingEvents.ADD`, `SELECT`, `REMOVE`)도 도형 종류별 이벤트와 함께 매니저의 `addListener`로 듣고, effect 정리에서 `Event.removeListener`로 뗍니다. 그룹 이벤트만 필요하면 `onDrawingAdded`, `onDrawingSelected`, `onDrawingRemoved` prop을 쓸 수 있습니다.
