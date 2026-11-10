@@ -19,7 +19,7 @@ const isExample = entry.id.startsWith('examples/');
 const isReact = d.category === REACT_EXAMPLES;
 const category = exampleCategories.find((c) => c.id === d.category)?.label;
 const extra: MarkdownHeading[] = [];
-if (d.changes?.length) extra.push({ depth: 2, slug: 'changes', text: 'React 로 옮기며 바꾼 점' });
+if (d.changes?.length) extra.push({ depth: 2, slug: 'changes', text: 'React로 옮기며 바꾼 점' });
 if (d.additions?.length) extra.push({ depth: 2, slug: 'additions', text: '공식 예제에 더한 것' });
 ---
 
@@ -45,7 +45,7 @@ if (d.additions?.length) extra.push({ depth: 2, slug: 'additions', text: '공식
 
   {d.changes && d.changes.length > 0 && (
     <>
-      <h2 id="changes">React 로 옮기며 바꾼 점</h2>
+      <h2 id="changes">React로 옮기며 바꾼 점</h2>
       <table class="ex-changes">
         <thead><tr><th>네이버 공식 예제</th><th>이 예제</th></tr></thead>
         <tbody>

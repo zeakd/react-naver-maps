@@ -14,7 +14,7 @@ interface Props {
 const { title, description, section } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const pageTitle = section === 'home' ? `${title}` : `${title} - React Naver Maps`;
-const desc = description ?? '네이버 지도 JavaScript API v3 를 위한 React 컴포넌트 라이브러리';
+const desc = description ?? '네이버 지도 JavaScript API v3를 위한 React 컴포넌트 라이브러리';
 const stats = await githubStats();
 const nav = [
   { key: 'docs', label: '시작하기', href: `${base}/guides/introduction/` },
@@ -96,12 +96,12 @@ const nav = [
       <div class="site-foot-in">
         <div class="site-foot-brand">
           <a class="site-brand" href={`${base}/`}><Logo size={20} /><span>React Naver Maps</span></a>
-          <p>네이버 지도 JavaScript API v3 의 비공식 React 라이브러리</p>
+          <p>네이버 지도 JavaScript API v3의 비공식 React 라이브러리</p>
         </div>
         <div><b>문서</b><a href={`${base}/guides/introduction/`}>소개</a><a href={`${base}/guides/quickstart/`}>빠른 시작</a><a href={`${base}/guides/migration-from-03/`}>0.3에서 0.4로</a><a href={`${base}/api-references/naver-map/`}>API</a></div>
         <div><b>예제</b><a href={`${base}/examples/`}>모든 예제</a><a href={`${base}/examples/#official`}>공식 예제</a><a href={`${base}/examples/#react`}>React 예제</a></div>
         <div><b>커뮤니티</b><a href={GITHUB}>GitHub</a><a href={`${GITHUB}/issues`}>이슈</a><a href={`${base}/guides/contributing/`}>참여하기</a><a href="https://www.npmjs.com/package/react-naver-maps">npm</a></div>
-        <p class="site-foot-legal">MIT 라이선스. 지도 데이터와 SDK 는 NAVER Corp. 의 것이며, 이 라이브러리는 NAVER 와 관계없는 오픈소스입니다.</p>
+        <p class="site-foot-legal">MIT 라이선스. 지도 데이터와 SDK는 NAVER Corp.의 것이며, 이 라이브러리는 NAVER와 관계없는 오픈소스입니다.</p>
       </div>
     </footer>
 
@@ -150,7 +150,7 @@ const nav = [
         var s = document.createElement('script');
         s.src = base + '/pagefind/pagefind-ui.js';
         s.onload = function () {
-          new window.PagefindUI({ element: '#search-ui', showSubResults: true, showImages: false, translations: { placeholder: '문서 검색', zero_results: '"[SEARCH_TERM]" 에 맞는 문서가 없습니다' } });
+          new window.PagefindUI({ element: '#search-ui', showSubResults: true, showImages: false, translations: { placeholder: '문서 검색', zero_results: '"[SEARCH_TERM]"에 맞는 문서가 없습니다' } });
           var input = dialog.querySelector('input'); if (input) input.focus();
         };
         s.onerror = function () { dialog.querySelector('[data-search-empty]').hidden = false; };

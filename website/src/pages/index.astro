@@ -28,9 +28,9 @@ const lines = {
 };
 
 const features = [
-  { t: 'React 컴포넌트', d: '마커 목록을 배열로 렌더링하고 정보 창을 state 로 관리할 수 있습니다. 이벤트는 props 로 전달합니다.', c: `{places.map((p) => (\n  <Marker key={p.id} position={p}\n    onClick={() => select(p.id)} />\n))}` },
-  { t: 'SDK 옵션 사용', d: '새 옵션도 props 로 전달할 수 있습니다. 필요한 경우 ref 로 SDK 객체에 직접 접근할 수 있습니다.', c: `<NaverMap ref={map}\n  scaleControl={false} />\n\nmap.current?.panTo(p);` },
-  { t: '지도 상태 유지', d: 'React 19 Activity 로 숨긴 지도와 마커는 다시 표시할 때 상태를 유지합니다.', c: `<Activity mode={visible\n  ? 'visible' : 'hidden'}>\n  <Marker position={p} />\n</Activity>` },
+  { t: '컴포넌트로 그리는 지도', d: '마커 목록은 배열로 그리고 정보 창은 state로 관리합니다. 이벤트는 props로 넘깁니다.', c: `{places.map((p) => (\n  <Marker key={p.id} position={p}\n    onClick={() => select(p.id)} />\n))}` },
+  { t: 'SDK 옵션은 그대로', d: '새 옵션도 props로 넘깁니다. 필요하면 ref로 SDK 객체에 직접 접근합니다.', c: `<NaverMap ref={map}\n  scaleControl={false} />\n\nmap.current?.panTo(p);` },
+  { t: '숨겨도 그대로인 지도', d: 'React 19 Activity로 숨긴 지도와 마커는 다시 표시할 때 상태를 유지합니다.', c: `<Activity mode={visible\n  ? 'visible' : 'hidden'}>\n  <Marker position={p} />\n</Activity>` },
 ];
 const showcase = ['marker-cluster-tutorial', 'datalayer-tutorial-2-region', 'visualization-tutorial-1-heatmap', 'polyline-route', 'custom-overlay', 'map-tutorial-7-fullsize-minimap'];
 ---
@@ -43,7 +43,7 @@ const showcase = ['marker-cluster-tutorial', 'datalayer-tutorial-2-region', 'vis
         <a class="hero-pill" href={`${base}/guides/migration-from-03/`}><b>0.4</b> React 19 · 숨겨도 같은 지도 · 서브모듈 <span>→</span></a>
         <p class="hero-name">React Naver Maps</p>
         <h1>네이버 지도를<br />React 컴포넌트로</h1>
-        <p class="hero-lede">네이버 지도 JavaScript API v3 를 그대로 쓰면서, 지도와 마커를 state 로 그립니다.</p>
+        <p class="hero-lede">네이버 지도 JavaScript API v3를 그대로 쓰면서, 지도와 마커를 state로 그립니다.</p>
         <div class="hero-cta">
           <a class="btn primary" href={`${base}/guides/quickstart/`}>시작하기</a>
           <a class="btn" href={`${base}/examples/`}>예제 보기</a>
@@ -64,8 +64,8 @@ const showcase = ['marker-cluster-tutorial', 'datalayer-tutorial-2-region', 'vis
 
     <section class="sec">
       <p class="eyebrow">특징</p>
-      <h2>React 에서 사용하는 네이버 지도</h2>
-      <p class="sub">네이버 지도 SDK 의 기능을 React 컴포넌트와 props 로 사용할 수 있습니다.</p>
+      <h2>React에서 사용하는 네이버 지도</h2>
+      <p class="sub">네이버 지도 SDK의 기능을 React 컴포넌트와 props로 사용합니다.</p>
       <div class="features">
         {features.map((f) => (
           <article>
