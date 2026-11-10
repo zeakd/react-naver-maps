@@ -26,7 +26,7 @@ const headings: MarkdownHeading[] = [
   <p class="exl-lede">모든 예제는 페이지에서 바로 동작하고, 코드를 그대로 가져다 쓸 수 있습니다.</p>
 
   <h2 id="react">React 예제 <small>{reactExamples.length}</small></h2>
-  <p class="exl-note">공식 예제에는 없지만 React 앱에서 자주 하는 일입니다. 목록과 지도 연동, 지도 여러 개, 숨겨도 같은 지도처럼 GitHub 이슈에서 많이 물어본 것을 모았습니다.</p>
+  <p class="exl-note">목록과 지도 연동, 여러 지도 사용 등 React 앱에서 자주 사용하는 예제를 모았습니다.</p>
   <div class="exl-grid">
     {reactExamples.map((d) => (
       <a class="exl-card" href={`${base}/${d.id}/`}>
@@ -37,7 +37,7 @@ const headings: MarkdownHeading[] = [
   </div>
 
   <h2 id="official">공식 예제 <small>{officialCount}</small></h2>
-  <p class="exl-note">네이버 지도 공식 튜토리얼과 같은 분류·순서입니다. jQuery, 직접 붙이는 리스너 같은 코드는 React 답게 다시 쓰고, 무엇을 바꿨는지 페이지마다 적었습니다.</p>
+  <p class="exl-note">네이버 지도 공식 튜토리얼을 React 코드로 작성했습니다. 각 예제에서 공식 코드와 달라진 점을 확인할 수 있습니다.</p>
   <nav class="exl-chips" aria-label="공식 예제 분류" data-pagefind-ignore>
     {groups.map((g) => <a href={`#${g.id}`}>{g.label}<em>{g.items.length}</em></a>)}
   </nav>
