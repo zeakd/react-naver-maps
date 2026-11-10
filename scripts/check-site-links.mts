@@ -5,11 +5,13 @@
 //   node scripts/check-site-links.mts [dist 폴더]   # 기본 website/dist, 먼저 사이트를 빌드한다
 //
 // 내부 링크: 같은 사이트의 상대 경로와 / 로 시작하는 경로. 바깥 주소(http:, mailto: 등), 문서 안
-// 앵커(#…)만 있는 링크, 옛 문서 보관본(/0.1.0/)은 보지 않는다.
+// 앵커(#…)만 있는 링크, 옛 문서 보관본(/0.1.0/, /0.3.0/)은 보지 않는다.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, posix, relative, resolve } from 'node:path';
 
 const BASE = '/react-naver-maps';
+// 옛 버전 문서 보관본. 그때 빌드한 결과라 지금 사이트의 링크 규칙으로 보지 않는다.
+const ARCHIVES = ['0.1.0', '0.3.0'];
 const dist = resolve(process.argv[2] ?? 'website/dist');
 if (!existsSync(dist)) {
   console.error(`${dist} 가 없다. 문서 사이트를 먼저 빌드한다.`);
@@ -20,7 +22,7 @@ function* htmlFiles(dir: string): Generator<string> {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) {
-      if (relative(dist, p) === '0.1.0') continue;
+      if (ARCHIVES.includes(relative(dist, p))) continue;
       yield* htmlFiles(p);
     } else if (name.endsWith('.html')) yield p;
   }
@@ -59,7 +61,7 @@ for (const file of htmlFiles(dist)) {
     const target = path.startsWith('/')
       ? path
       : posix.join(from.endsWith('/') ? from : `${posix.dirname(from)}/`, path);
-    if (target.startsWith(`${BASE}/0.1.0`)) continue;
+    if (ARCHIVES.some((a) => target.startsWith(`${BASE}/${a}`))) continue;
     checked++;
     if (!exists(target)) broken.push(`${from} → ${href} (${target})`);
   }

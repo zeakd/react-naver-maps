@@ -77,6 +77,7 @@ const nav = [
       <div class="site-tools">
         <select class="site-ver" aria-label="문서 버전" onchange="if (this.value) location.href = this.value">
           <option value="" selected>v0.4</option>
+          <option value={`${base}/0.3.0/`}>v0.3</option>
           <option value={`${base}/0.1.0/`}>v0.1</option>
         </select>
         <button class="site-icon" type="button" data-theme-toggle aria-label="밝기 바꾸기">
