@@ -5,9 +5,9 @@ order: 7
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-maptypes-the-hunters.example.html
 changes:
   - official: 투영법, 지도 유형, 레지스트리를 스크립트에서 한 번 만들기
-    react: 셋을 `useMemo` 로 한 번만 생성
-  - official: '`new naver.maps.Map` 의 `center`, `zoom`, `background`, `mapTypes`, `mapTypeId`, `mapTypeControlOptions` 옵션'
-    react: '`NaverMap` 의 `defaultCenter`, `defaultZoom`, `background`, `mapTypes`, `defaultMapTypeId`, `mapTypeControlOptions` prop'
+    react: 셋을 `useMemo`로 한 번만 생성
+  - official: '`new naver.maps.Map`의 `center`, `zoom`, `background`, `mapTypes`, `mapTypeId`, `mapTypeControlOptions` 옵션'
+    react: '`NaverMap`의 `defaultCenter`, `defaultZoom`, `background`, `mapTypes`, `defaultMapTypeId`, `mapTypeControlOptions` prop'
   - official: '`HOME_PATH` 기준 상대 경로로 타일 이미지 불러오기'
     react: 공식 문서 사이트의 타일 이미지를 절대 URL 로 불러오기
 ---
@@ -15,10 +15,10 @@ changes:
 import Example from 'astro-component-docs/components/Example.astro';
 import MapTypesTutorial7TheHuntersExample from '../../../examples/maptypes-tutorial-7-the-hunters.tsx';
 
-위경도가 아닌 평면 좌표계의 게임 맵 타일로 지도 유형을 만드는 예제입니다.
+위경도가 아닌 평면 좌표계의 게임 맵 타일로 지도 유형을 만듭니다.
 
 <Example of={MapTypesTutorial7TheHuntersExample} />
 
 ## 설명
 
-`Projection`(`fromCoordToPoint`, `fromPointToCoord`)을 직접 구현해 `ImageMapType` 의 `projection` 에 줍니다. 중심은 `Point(2048, 2048)` 입니다.
+`Projection`(`fromCoordToPoint`, `fromPointToCoord`)을 직접 구현해 `ImageMapType`의 `projection`에 줍니다. 중심은 `Point(2048, 2048)` 입니다.

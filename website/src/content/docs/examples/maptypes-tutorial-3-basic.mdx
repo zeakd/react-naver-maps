@@ -4,21 +4,21 @@ category: tutorial-maptype
 order: 3
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-maptypes-basic.example.html
 changes:
-  - official: 지도 생성 옵션 `mapTypeId` 와 `map.mapTypes.set` 으로 `mine` 등록하기
-    react: 기본 네 유형과 `mine` 을 넣은 `MapTypeRegistry` 를 `mapTypes` 에, `defaultMapTypeId="mine"` 을 prop 으로 전달
-  - official: jQuery 로 타일 DOM 요소를 만들고 `css()` 와 페이지 CSS 클래스(`mytile`)로 꾸미기
-    react: '`document.createElement` 와 인라인 스타일 사용'
+  - official: 지도 생성 옵션 `mapTypeId`와 `map.mapTypes.set`으로 `mine` 등록하기
+    react: 기본 네 유형과 `mine`을 넣은 `MapTypeRegistry`를 `mapTypes`에, `defaultMapTypeId="mine"`을 prop으로 전달
+  - official: jQuery로 타일 DOM 요소를 만들고 `css()`와 페이지 CSS 클래스(`mytile`)로 꾸미기
+    react: '`document.createElement`와 인라인 스타일 사용'
 limits:
-  - '`@types/navermaps` 의 `MapType` 은 `projection` 을 필수로 적어서, 공식 예제처럼 생략하려면 타입 단언이 필요합니다.'
+  - '`@types/navermaps`의 `MapType`은 `projection`을 필수로 적어서, 공식 예제처럼 생략하려면 타입 단언이 필요합니다.'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MapTypesTutorial3BasicExample from '../../../examples/maptypes-tutorial-3-basic.tsx';
 
-타일마다 알파벳 DOM 요소를 돌려주는 사용자 지도 유형 예제입니다.
+타일마다 알파벳 DOM 요소를 반환하는 사용자 지도 유형을 만듭니다.
 
 <Example of={MapTypesTutorial3BasicExample} />
 
 ## 설명
 
-`getTile(x, y, z)` 가 DOM 요소를 돌려주는 객체를 `mine` 으로 등록합니다. `mapTypes` 를 주면 기본 지도 유형을 대신하므로 기본 네 유형도 함께 넣습니다. 레지스트리는 `useMemo` 로 한 번만 만듭니다.
+`getTile(x, y, z)`가 DOM 요소를 돌려주는 객체를 `mine`으로 등록합니다. `mapTypes`를 주면 기본 지도 유형을 대신하므로 기본 네 유형도 함께 넣습니다. 레지스트리는 `useMemo`로 한 번만 만듭니다.
