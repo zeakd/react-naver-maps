@@ -31,10 +31,10 @@ const result = await reverseGeocode(navermaps, {
 });
 ```
 
-- 응답의 `v2`를 돌려줍니다. SDK 문서는 `result`를 deprecated 로 둡니다.
-- 서비스가 OK 가 아닌 상태로 답하면 `GeocoderError`(`status`, `response`)로 reject 합니다.
-- `reverseGeocode`의 `coords`는 `{ lat, lng }` 리터럴도 받습니다. SDK는 리터럴을 거절해서 `LatLng`로 바꿔 넘깁니다.
-- 서브모듈을 불러오지 않고 부르면 불러오는 법을 담은 에러를 던집니다.
+- 응답의 `v2`를 반환합니다. SDK 문서는 `result`를 deprecated로 표시합니다.
+- 서비스가 OK가 아닌 상태로 응답하면 `GeocoderError`(`status`, `response`)로 거부합니다.
+- `reverseGeocode`의 `coords`는 `{ lat, lng }` 리터럴도 받습니다. SDK는 리터럴을 받지 않아 `LatLng`로 바꿔 넘깁니다.
+- 서브모듈을 불러오지 않고 호출하면 불러오는 방법을 담은 에러를 발생시킵니다.
 
 로딩, 캐시, 재시도 등의 요청 상태는 앱에서 관리합니다. 위 예처럼 TanStack Query 같은 도구와 함께 사용할 수 있습니다.
 
