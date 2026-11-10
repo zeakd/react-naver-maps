@@ -15,7 +15,7 @@ function TileIndexMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [tileIndex, setTileIndex] = useState<[number, number] | null>(null);
-  // 정보 창은 공식 예제처럼 마커에 붙여 연다(꼬리가 마커 위를 가리킨다).
+  // 정보 창은 공식 예제처럼 마커에 붙여 엽니다(꼬리가 마커를 가리킴).
   const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
 
   const tileGrid = useMemo<Omit<naver.maps.MapType, 'projection'>>(
@@ -37,7 +37,7 @@ function TileIndexMapContent() {
     [navermaps],
   );
 
-  // 중심 좌표를 투영법으로 옮겨 타일 크기로 나누면 타일 인덱스다. 지도 init 뒤에 읽을 수 있다.
+  // 중심 좌표를 투영하고 타일 크기로 나누면 타일 인덱스가 됩니다. 지도 init 뒤에 읽을 수 있습니다.
   function computeTileIndex() {
     const map = mapRef.current;
     if (!map) return;
@@ -45,7 +45,7 @@ function TileIndexMapContent() {
     const projection = map.getProjection();
     const zoom = map.getZoom();
     const centerPixel = projection.fromCoordToPoint(map.getCenter());
-    // scaleUp 은 Point 를 주면 Point 를 준다(@types 는 합집합으로 적어 둬서 단언이 필요하다).
+    // scaleUp은 Point를 주면 Point를 반환합니다(@types는 합집합으로 선언해 단언이 필요).
     const pixel = projection.scaleUp(centerPixel, zoom) as naver.maps.Point;
     setTileIndex([
       Math.floor(Math.floor(pixel.x) / tileSize),
@@ -62,7 +62,7 @@ function TileIndexMapContent() {
       mapTypeControlOptions={{ style: navermaps.MapTypeControlStyle.DROPDOWN }}
       onInit={computeTileIndex}
     >
-      {/* projection 은 생략한다(SDK 기본). */}
+      {/* projection은 생략합니다(SDK 기본값). */}
       <Layer name="tileGrid" mapTypes={tileGrid} />
       <Marker ref={setMarker} position={CENTER} />
       {tileIndex && marker && (

@@ -22,7 +22,7 @@ const places = [
   { id: 'jongmyo', name: '종묘', kind: '고궁', lat: 37.5744, lng: 126.9941 },
 ];
 
-/** 강조한 장소는 크고 진한 핀으로 그린다. 같은 값이면 라이브러리가 아이콘을 다시 넣지 않는다. */
+/** 강조한 장소는 크고 진한 핀으로 그립니다. 같은 값이면 아이콘을 다시 넣지 않습니다. */
 function pin(active: boolean) {
   const size = active ? 34 : 24;
   const color = active ? '#0f7f5f' : '#5b636b';
@@ -38,12 +38,12 @@ function ListSyncContent() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
 
-  // 마커를 누르면 목록의 그 항목을 고르고 보이게 스크롤한다.
+  // 마커를 누르면 목록의 항목을 선택하고 보이도록 스크롤합니다.
   function selectFromMap(id: string) {
     setSelected(id);
     items.current[id]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
-  // 목록을 누르면 지도를 그 장소로 옮긴다.
+  // 목록을 누르면 지도를 해당 장소로 옮깁니다.
   function selectFromList(id: string) {
     const p = places.find((p) => p.id === id)!;
     setSelected(id);

@@ -10,7 +10,7 @@ import {
 
 type View = { south: number; west: number; north: number; east: number };
 
-/** 서울 둘레에 흩어진 점 1000개. 매번 같은 점이 나오게 시드를 고정한다. */
+/** 서울 둘레에 흩어진 점 1000개입니다. 매번 같은 점이 나오도록 시드를 고정합니다. */
 function makePoints(n: number) {
   let seed = 7;
   const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -27,7 +27,7 @@ const dot = {
   anchor: { x: 7, y: 7 },
 };
 
-/** 지도 안에 두는 컴포넌트. 처음 한 번과 지도가 멈출 때마다 보이는 영역을 숫자로 알린다. */
+/** 처음과 지도가 멈출 때마다 보이는 영역을 숫자로 전달합니다. */
 function TrackView({ onChange }: { onChange: (view: View) => void }) {
   const map = useMap();
   const read = () => {
@@ -46,7 +46,7 @@ function ManyMarkersContent() {
   const [onlyVisible, setOnlyVisible] = useState(true);
   const [view, setView] = useState<View | null>(null);
 
-  // 보이는 영역은 지도가 멈출 때만 바뀐다(움직이는 동안은 다시 렌더하지 않는다).
+  // 보이는 영역은 지도가 멈출 때만 바뀝니다(움직이는 동안 다시 렌더링하지 않음).
   const drawn =
     onlyVisible && view
       ? points.filter(

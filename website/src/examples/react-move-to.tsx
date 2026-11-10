@@ -27,7 +27,7 @@ const bar: React.CSSProperties = {
   gap: 6,
 };
 
-// Container 안에서 useNavermaps() 를 호출하면 SDK 로딩을 Container 가 처리합니다.
+// Container 안에서 useNavermaps()를 호출하면 SDK 로딩을 Container가 처리합니다.
 function MoveToContent() {
   const navermaps = useNavermaps();
   const map = useRef<naver.maps.Map>(null);
@@ -46,7 +46,7 @@ function MoveToContent() {
     try {
       const { addresses } = await geocode(navermaps, { query });
       const first = addresses[0];
-      if (!first) return setMessage(`"${query}" 의 주소를 찾지 못했습니다.`);
+      if (!first) return setMessage(`"${query}"의 주소를 찾지 못했습니다.`);
       moveTo({
         label: first.roadAddress || first.jibunAddress,
         lat: Number(first.y),

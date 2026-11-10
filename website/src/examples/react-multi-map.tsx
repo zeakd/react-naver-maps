@@ -11,7 +11,7 @@ function MultiMapContent() {
   const left = useRef<naver.maps.Map>(null);
   const right = useRef<naver.maps.Map>(null);
   const [linked, setLinked] = useState(true);
-  // 사용자가 지금 움직이는 지도. 다른 지도는 이 지도를 따라간다(서로 되돌려 보내지 않도록).
+  // 사용자가 움직이는 지도만 다른 지도를 움직여 서로 되돌려 보내지 않게 합니다.
   const leader = useRef<'left' | 'right' | null>(null);
 
   function follow(from: 'left' | 'right') {
@@ -21,7 +21,7 @@ function MultiMapContent() {
     if (src && dst) dst.setCenter(src.getCenter());
   }
 
-  // 오른쪽은 왼쪽보다 3단계 넓게 본다.
+  // 오른쪽은 왼쪽보다 3단계 넓게 봅니다.
   function followZoom(from: 'left' | 'right', zoom: number) {
     if (!linked || leader.current !== from) return;
     const dst = (from === 'left' ? right : left).current;
