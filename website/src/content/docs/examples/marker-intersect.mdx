@@ -4,13 +4,13 @@ category: tutorial-marker
 order: 20
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-intersect.example.html
 changes:
-  - official: '`MarkerOverlapRecognizer` 클래스가 jQuery로 만든 요소를 `floatPane`에 붙여 안내와 목록을 그린다'
+  - official: '`MarkerOverlapRecognizer` 클래스가 jQuery로 만든 요소를 `floatPane`에 붙여 안내와 목록 표시'
     react: 컴포넌트 안의 `overlappedWith` 함수와 state, 안내 상자와 목록은 `CustomOverlay`의 children
   - official: '`mouseover`·`mouseout` 리스너에서 `setIcon`·`setZIndex`로 강조'
     react: '`hovered`·`cover` state로 `icon`·`zIndex`를 계산'
   - official: 마커 클릭 시 `alert`로 제목 표시
     react: 고른 마커를 state에 담아 지도 위에 표시
-  - official: 처음 지도 영역 안에서 `Math.random()`으로 마커 위치를 뽑는다
+  - official: 처음 지도 영역 안에서 `Math.random()`으로 마커 위치 선택
     react: 미리 정한 고정 좌표 사용(다시 열어도 같은 위치)
 limits:
   - 공식 예제는 `Event.stopDispatch`로 겹친 마커의 click 을 막지만, 여기서는 click 핸들러가 겹친 마커이면 무시합니다.

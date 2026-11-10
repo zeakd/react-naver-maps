@@ -6,7 +6,7 @@ official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-viewport.
 changes:
   - official: 마커를 모두 만들어 두고 `idle` 리스너에서 영역 밖 마커를 `setMap(null)`, 안의 마커를 `setMap(map)`
     react: '`onIdle`에서 영역을 state에 담고 영역 안의 마커만 렌더'
-  - official: 처음 지도 영역 안에서 `Math.random()`으로 마커 위치를 뽑는다
+  - official: 처음 지도 영역 안에서 `Math.random()`으로 마커 위치 선택
     react: 미리 정한 고정 좌표 사용(다시 열어도 같은 위치)
   - official: '`new naver.maps.Marker`에 `map`·`icon`·`zIndex` 옵션'
     react: '`<Marker>`의 `icon`·`zIndex` prop, 크기와 좌표는 리터럴'

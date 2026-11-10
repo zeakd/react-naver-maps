@@ -4,11 +4,11 @@ category: tutorial-shape
 order: 29
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-shape-measures.example.html
 changes:
-  - official: '`Measure` 클래스가 jQuery로 버튼과 문서 이벤트를 붙이고 도형 인스턴스를 직접 만들고 지운다'
+  - official: '`Measure` 클래스가 jQuery로 버튼과 문서 이벤트를 연결하고 도형 인스턴스를 직접 생성·삭제'
     react: 모드·찍은 점·마우스 위치·완료한 도형·이정표를 state로 관리하고 `Polyline`·`Polygon`·`CustomOverlay`로 렌더링
-  - official: 모드마다 `Event.addListener(map, 'click')`·`'rightclick'`을 붙였다 뗀다
+  - official: 모드마다 `Event.addListener(map, 'click')`·`'rightclick'` 추가·제거
     react: '`onClick`·`onRightclick` prop을 유지하고 핸들러에서 현재 모드 확인'
-  - official: "`$(document).on('mousemove')`와 `fromPageXYToCoord`로 안내선을 마우스에 맞춘다"
+  - official: "`$(document).on('mousemove')`와 `fromPageXYToCoord`로 안내선을 마우스에 맞추기"
     react: '`NaverMap`의 `onMousemove`가 주는 `e.coord`'
   - official: '`map.setCursor` 호출'
     react: '`NaverMap`의 `cursor` prop'
