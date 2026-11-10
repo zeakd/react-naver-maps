@@ -21,7 +21,7 @@ const positions = [
   { lat: 37.3595646, lng: 129.1174323 },
 ];
 
-// 스프라이트 이미지의 i 번째 칸을 잘라 쓴다. 마우스를 올리면 아래 줄(over 이미지)로 바꾼다.
+// 스프라이트 이미지의 i번째 칸을 사용합니다. 마우스를 올리면 아래 줄(over 이미지)로 바꿉니다.
 function spriteIcon(i: number, hover: boolean) {
   return {
     url: `${IMG}/${hover ? 'sp_pins_spot_v3_over.png' : 'sp_pins_spot_v3.png'}`,

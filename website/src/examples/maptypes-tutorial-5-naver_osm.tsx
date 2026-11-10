@@ -11,7 +11,7 @@ function NaverOsmMapContent() {
   const navermaps = useNavermaps();
   const mapRef = useRef<naver.maps.Map>(null);
   const [mapTypeId, setMapTypeId] = useState<string>('normal');
-  // 줌 효과 뒤 첫 idle 은 건너뛴다(공식 예제가 zooming 동안 idle 리스너를 떼는 것과 같다).
+  // 줌 효과 뒤 첫 idle은 건너뜁니다(공식 예제가 zooming 동안 idle 리스너를 떼는 것과 동일).
   const skipIdleRef = useRef(false);
 
   const { mapTypes, korea } = useMemo(() => {
@@ -46,7 +46,7 @@ function NaverOsmMapContent() {
     };
   }, [navermaps]);
 
-  // 지도 화면이 한국 경계를 벗어나면 OSM, 안에 들어오면 네이버 일반 지도로 바꾼다.
+  // 지도 화면이 한국 경계를 벗어나면 OSM으로, 안에 들어오면 네이버 일반 지도로 바꿉니다.
   function checkBounds() {
     if (skipIdleRef.current) {
       skipIdleRef.current = false;
@@ -54,7 +54,7 @@ function NaverOsmMapContent() {
     }
     const bounds = mapRef.current?.getBounds();
     if (!bounds) return;
-    // 한국 안으로 돌아오면 OSM 일 때만 일반 지도로 돌린다. 사용자가 고른 위성·지형은 그대로 둔다.
+    // 한국 안으로 돌아오면 OSM일 때만 일반 지도로 돌립니다. 사용자가 고른 위성·지형은 유지합니다.
     const inKorea = korea.hasBounds(bounds);
     setMapTypeId((prev) =>
       inKorea ? (prev === 'osm' ? 'normal' : prev) : 'osm',

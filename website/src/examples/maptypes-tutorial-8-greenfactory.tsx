@@ -14,7 +14,7 @@ function GreenFactoryMapContent() {
 
   const { mapTypes, center, mapTypeIds } = useMemo(() => {
     const tileSize = new navermaps.Size(256, 256);
-    // 실내 지도 평면 좌표를 타일 크기로 나눠 타일 좌표로 쓴다.
+    // 실내 지도 평면 좌표를 타일 크기로 나눠 타일 좌표로 사용합니다.
     const projection: naver.maps.Projection = {
       fromCoordToPoint(coord) {
         const point =

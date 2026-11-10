@@ -12,7 +12,7 @@ const TILE_SIZE = 50;
 function BasicMapTypeMapContent() {
   const navermaps = useNavermaps();
 
-  // 사용자 지도 유형: 타일마다 알파벳 DOM 요소를 돌려준다. 기본 유형들과 함께 레지스트리에 넣는다.
+  // 타일마다 알파벳 DOM 요소를 반환하는 지도 유형을 기본 유형과 함께 등록합니다.
   const mapTypes = useMemo(() => {
     const mine: Omit<naver.maps.MapType, 'projection'> = {
       name: 'Alphabet',
@@ -33,7 +33,7 @@ function BasicMapTypeMapContent() {
     };
     return new navermaps.MapTypeRegistry({
       ...defaultMapTypes(navermaps),
-      // projection 은 생략한다(SDK 기본). @types 는 필수로 적어 둬서 단언이 필요하다.
+      // projection은 생략합니다(SDK 기본값). @types에서는 필수이므로 타입 단언이 필요합니다.
       mine: mine as naver.maps.MapType,
     });
   }, [navermaps]);

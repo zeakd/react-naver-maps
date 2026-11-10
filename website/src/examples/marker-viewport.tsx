@@ -10,7 +10,7 @@ const IMG = 'https://navermaps.github.io/maps.js.ncp/docs/img/example';
 const X_OFFSET = 29;
 const Y_OFFSET = 50;
 
-// 스프라이트 이미지의 칸(A0 ~ I2)마다 마커 하나. 위치는 처음 지도 영역 안에서 흩뿌린다(고정 값).
+// 스프라이트 이미지의 칸(A0 ~ I2)마다 마커 하나를 둡니다. 위치는 처음 지도 영역 안의 고정 값입니다.
 const spots = Array.from({ length: 27 }, (_, n) => {
   const col = n % 9;
   const row = Math.floor(n / 9);
@@ -30,7 +30,7 @@ const spots = Array.from({ length: 27 }, (_, n) => {
 
 function MarkerViewportMapContent() {
   const mapRef = useRef<naver.maps.Map>(null);
-  // 지도가 멈출 때(idle) 보이는 영역을 읽어 두고, 그 안의 마커만 그린다.
+  // 지도가 멈출 때(idle) 보이는 영역을 읽고 그 안의 마커만 그립니다.
   const [bounds, setBounds] = useState<naver.maps.LatLngBounds | null>(null);
 
   const visible = bounds

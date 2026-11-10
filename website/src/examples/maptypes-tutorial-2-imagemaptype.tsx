@@ -10,7 +10,7 @@ import { defaultMapTypes } from './example-ui-a';
 function ImageMapTypeMapContent() {
   const navermaps = useNavermaps();
 
-  // 기본 유형들에 OSM 이미지 타일 유형을 더한 레지스트리. 한 번만 만든다.
+  // 기본 유형에 OSM 이미지 타일 유형을 더한 레지스트리를 한 번만 만듭니다.
   const mapTypes = useMemo(() => {
     const osm = new navermaps.ImageMapType({
       name: 'OSM',

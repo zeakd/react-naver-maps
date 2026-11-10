@@ -12,7 +12,7 @@ function HuntersMapContent() {
   const navermaps = useNavermaps();
 
   const { mapTypes, center } = useMemo(() => {
-    // 좌표계가 위경도가 아니라 4096 x 4096 픽셀 평면이라 투영법을 직접 정의한다.
+    // 좌표계가 위경도가 아닌 4096 x 4096 픽셀 평면이므로 투영법을 직접 정의합니다.
     const projection: naver.maps.Projection = {
       fromCoordToPoint(coord) {
         const point =

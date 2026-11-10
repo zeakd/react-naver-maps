@@ -9,7 +9,7 @@ import {
 const start = { lat: 37.3595704, lng: 127.105399 };
 
 function MarkerPositionMapContent() {
-  // 마커 위치를 state 로 두고, 지도를 클릭하면 클릭한 좌표로 바꾼다.
+  // 마커 위치를 state로 관리하고 지도를 클릭하면 해당 좌표로 바꿉니다.
   const [position, setPosition] = useState(start);
 
   return (

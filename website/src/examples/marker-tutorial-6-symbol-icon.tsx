@@ -9,7 +9,7 @@ import {
 
 const position = { lat: 37.3595704, lng: 127.105399 };
 
-// SymbolIcon: 좌표 배열(path)로 모양을 그린다. style 은 SDK 상수라 useNavermaps() 로 받는다.
+// SymbolIcon은 좌표 배열(path)로 모양을 그립니다. style은 SDK 상수라 useNavermaps()로 받습니다.
 const symbolPath = [
   { x: 0, y: 70 },
   { x: 20, y: 100 },
