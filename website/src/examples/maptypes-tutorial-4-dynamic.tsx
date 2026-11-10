@@ -21,7 +21,7 @@ function DynamicMapContent() {
   const mapRef = useRef<naver.maps.Map>(null);
   const [tileSize, setTileSize] = useState<string>('256x256');
 
-  // 두 지도 유형. 인스턴스를 직접 들고 있다가 타일 크기를 바꾼다. 한 번만 만든다.
+  // 두 지도 유형을 한 번 만들고 인스턴스로 타일 크기를 바꿉니다.
   const { mapTypes, mapTypeList } = useMemo(() => {
     const naverNormal = navermaps.NaverStyleMapTypeOptions.getNormalMap();
     const osm = new navermaps.ImageMapType({
@@ -56,7 +56,7 @@ function DynamicMapContent() {
       options.tileSize = new navermaps.Size(width, height);
       mapType.setMapTypeOptions(options);
     }
-    // 타일을 새 크기로 다시 그린다(효과 없이).
+    // 효과 없이 타일을 새 크기로 다시 그립니다.
     mapRef.current?.refresh(true);
     setTileSize(value);
   }

@@ -49,7 +49,7 @@ function MarkerAnimationMapContent() {
     [navermaps],
   );
   const urlMarkerRef = useRef<naver.maps.Marker>(null);
-  // animation 은 값이 바뀔 때만 SDK 에 적용된다. DROP 은 끝나면 SDK 가 스스로 null 로 돌린다.
+  // animation은 값이 바뀔 때만 SDK에 적용됩니다. DROP이 끝나면 SDK가 null로 바꿉니다.
   const [urlAnimation, setUrlAnimation] = useState<naver.maps.Animation | null>(
     navermaps.Animation.DROP,
   );
@@ -70,7 +70,7 @@ function MarkerAnimationMapContent() {
         icon={`${IMG}/pin_default.png`}
         animation={urlAnimation}
         onClick={() =>
-          // 지금 SDK 의 애니메이션 상태를 보고 켜고 끈다.
+          // SDK의 현재 애니메이션 상태를 보고 켜고 끕니다.
           setUrlAnimation(
             urlMarkerRef.current?.getAnimation() != null
               ? null

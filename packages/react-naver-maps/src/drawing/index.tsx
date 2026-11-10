@@ -56,7 +56,7 @@ export interface DrawingManagerProps {
   ref?: Ref<Manager>;
   /** 도구 막대에 보일 모드. `'POLYGON'` 같은 이름이나 `navermaps.drawing.DrawingMode` 값. */
   drawingControl?: DrawingModeName[];
-  /** 도구 막대 자리와 모양. `position`·`style` 도 이름으로 받는다. */
+  /** 도구 막대 자리와 모양. `position`·`style`도 이름으로 받는다. */
   drawingControlOptions?: Omit<
     naver.maps.drawing.DrawingControlOptions,
     'position' | 'style'
@@ -72,15 +72,25 @@ export interface DrawingManagerProps {
     midPointOptions?: Partial<naver.maps.CircleOptions>;
   };
   // 그릴 도형의 스타일. 위치(bounds, path 등)는 사용자가 그려서 정하므로 일부만 준다(@types DrawingOptions 와 같다).
+  /** 사각형을 그릴 때의 스타일(선·면 옵션). */
   rectangleOptions?: Partial<naver.maps.RectangleOptions>;
+  /** 타원을 그릴 때의 스타일. */
   ellipseOptions?: Partial<naver.maps.EllipseOptions>;
+  /** 선을 그릴 때의 스타일. */
   polylineOptions?: Partial<naver.maps.PolylineOptions>;
+  /** 화살표 선을 그릴 때의 스타일. */
   arrowlineOptions?: Partial<naver.maps.PolylineOptions>;
+  /** 다각형을 그릴 때의 스타일. */
   polygonOptions?: Partial<naver.maps.PolygonOptions>;
+  /** 마커를 찍을 때의 옵션(아이콘 등). */
   markerOptions?: Partial<naver.maps.MarkerOptions>;
+  /** 도형을 다 그렸을 때. 인자는 그린 도형. */
   onDrawingAdded?: (overlay: DrawingOverlay) => void;
+  /** 그린 도형을 지웠을 때. */
   onDrawingRemoved?: (overlay: DrawingOverlay) => void;
+  /** 그린 도형을 골랐을 때. */
   onDrawingSelected?: (overlay: DrawingOverlay) => void;
+  /** 그리기 모드가 바뀌었을 때. */
   onDrawingModeChanged?: (mode: naver.maps.drawing.DrawingMode) => void;
 }
 

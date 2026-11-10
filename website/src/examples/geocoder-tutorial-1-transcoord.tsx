@@ -19,7 +19,7 @@ function TransCoordMap() {
   const navermaps = useNavermaps();
   const [converted, setConverted] = useState<Converted | null>(null);
 
-  // 클릭한 위경도를 UTMK, TM128, NAVER 좌표로 차례로 바꾼다. TransCoord 는 geocoder 서브모듈이 준다.
+  // 클릭한 위경도를 UTMK, TM128, NAVER 좌표로 차례로 바꿉니다. TransCoord는 geocoder 서브모듈에서 받습니다.
   const convert = (coord: naver.maps.Coord) => {
     const { TransCoord } = navermaps;
     const latlng = coord;

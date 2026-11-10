@@ -7,7 +7,7 @@ import {
 
 const position = { lat: 37.3595704, lng: 127.105399 };
 
-// 원본 이미지는 50x68 이다. scaledSize 로 절반(25x34)으로 줄여 보여주면 레티나에서 선명하다.
+// 원본 이미지는 50x68입니다. scaledSize로 절반(25x34)으로 줄이면 레티나에서 선명합니다.
 const icon = {
   url: 'https://navermaps.github.io/maps.js.ncp/docs/img/example/ico_pin.jpg',
   size: { width: 25, height: 34 },

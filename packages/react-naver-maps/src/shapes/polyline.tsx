@@ -25,21 +25,27 @@ export interface PolylineProps
   ref?: Ref<naver.maps.Polyline>;
 
   // Controlled
+  /** 꼭짓점 배열. prop으로 값을 관리합니다. 초기값만 지정하려면 `defaultPath`를 사용합니다. */
   path?:
     | naver.maps.ArrayOfCoords
     | naver.maps.KVOArrayOfCoords
     | naver.maps.ArrayOfCoordsLiteral;
 
   // Uncontrolled
+  /** 처음 꼭짓점. 이후에는 SDK가 관리합니다(편집한 값을 되돌리지 않음). */
   defaultPath?:
     | naver.maps.ArrayOfCoords
     | naver.maps.KVOArrayOfCoords
     | naver.maps.ArrayOfCoordsLiteral;
 
   // Polyline-specific
+  /** 시작점에 그릴 모양(SDK의 `PointingIcon` 값). */
   startIcon?: naver.maps.PointingIcon;
+  /** 시작점 모양 크기(px). */
   startIconSize?: number;
+  /** 끝점에 그릴 모양(SDK의 `PointingIcon` 값). 화살표 선을 그릴 때 사용합니다. */
   endIcon?: naver.maps.PointingIcon;
+  /** 끝점 모양 크기(px). */
   endIconSize?: number;
 
   /**
@@ -52,7 +58,9 @@ export interface PolylineProps
   // Options
   /** 생략하면 포인터 핸들러가 있을 때 켜진다. SDK 기본값은 false 다. */
   clickable?: boolean;
+  /** 보일지 여부. */
   visible?: boolean;
+  /** 겹쳤을 때의 쌓임 순서. 클수록 위에 그립니다. */
   zIndex?: number;
   /**
    * 꼭짓점을 끌어 고칠 수 있게 한다(drawing 서브모듈 필요). 편집은 SDK 가 path 를 제자리에서 고쳐

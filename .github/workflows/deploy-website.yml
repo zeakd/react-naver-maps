@@ -26,6 +26,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
+        env:
+          # 홈의 GitHub 별·기여자 수(website/src/stats.ts). 없으면 그 값만 빼고 빌드한다.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-pages-artifact@v4.0.0
         with:
           path: website/dist

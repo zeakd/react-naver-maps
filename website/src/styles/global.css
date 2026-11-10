@@ -1,57 +1,330 @@
+/* 사이트 전체의 색·글꼴·본문 규칙. 색은 토큰으로만 쓰고 [data-theme=dark] 에서 바꾼다.
+   대비: 본문·보조 글자와 주 단추의 흰 글자는 4.5:1 이상(2026-11-10 측정). */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 :root {
-  --acd-border: #e2e8f0;
-  --acd-bg-subtle: #f8fafc;
-  --acd-text: #1e293b;
-  --acd-text-muted: #64748b;
-  --acd-accent: #2ab090;
+  --bg: #ffffff;
+  --bg-soft: #f6f7f8;
+  --text: #1c2024;
+  --text-2: #5b636b;
+  --text-3: #6e767e;
+  --line: #e4e7ea;
+  --brand: #0f7f5f;
+  --brand-soft: #e7f6f0;
+  --brand-text: #0f7a5b;
+  --code-bg: #f6f7f8;
+  --glow-a: #66de6f;
+  --glow-b: #66dede;
 
-  --site-header-height: 60px;
-  --site-sidebar-width: 260px;
-  --site-content-max-width: 860px;
+  --header-h: 64px;
+  --wrap: 1180px;
+  --font:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* astro-component-docs 컴포넌트가 읽는 값 */
+  --acd-border: var(--line);
+  --acd-bg-subtle: var(--bg-soft);
+  --acd-text: var(--text);
+  --acd-text-muted: var(--text-3);
+  --acd-accent: var(--brand-text);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #16181b;
+  --bg-soft: #1d2024;
+  --text: #e6e8ea;
+  --text-2: #a3aab1;
+  --text-3: #8a929a;
+  --line: #2c3035;
+  --brand: #3cc795;
+  --brand-soft: #1b2d27;
+  --brand-text: #5fdcab;
+  --code-bg: #1d2024;
+  color-scheme: dark;
 }
 
 html {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, sans-serif;
-  color: var(--acd-text);
-  line-height: 1.6;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
 }
 
 body {
+  margin: 0;
   min-height: 100vh;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 a {
-  color: var(--acd-accent);
+  color: inherit;
   text-decoration: none;
 }
 
-a:hover {
+code,
+kbd,
+pre {
+  font-family: var(--mono);
+}
+
+/* Shiki 이중 테마: 밝은 화면은 --shiki-light, 어두운 화면은 --shiki-dark */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: transparent !important;
+}
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark);
+}
+
+/* 본문(문서 페이지의 MDX) */
+.prose {
+  font-size: 16px;
+  color: var(--text);
+}
+.prose > h1 {
+  font-size: 36px;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  font-weight: 750;
+  margin: 0 0 12px;
+}
+.prose h2 {
+  font-size: 24px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 48px 0 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.prose h3 {
+  font-size: 19px;
+  letter-spacing: -0.015em;
+  font-weight: 680;
+  margin: 32px 0 10px;
+}
+.prose h4 {
+  font-size: 16px;
+  margin: 24px 0 8px;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 16px;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+.prose li {
+  margin: 4px 0;
+}
+.prose li > ul,
+.prose li > ol {
+  margin: 4px 0 0;
+}
+.prose a {
+  color: var(--brand-text);
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--brand-text) 35%, transparent);
+  text-underline-offset: 3px;
+}
+.prose a:hover {
+  text-decoration-color: var(--brand-text);
+}
+.prose strong {
+  font-weight: 650;
+}
+.prose :not(pre) > code {
+  font-size: 0.86em;
+  padding: 0.12em 0.36em;
+  border-radius: 5px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  white-space: break-spaces;
+}
+.prose pre.astro-code {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--code-bg) !important;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.prose blockquote {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--brand);
+  background: var(--brand-soft);
+  border-radius: 0 10px 10px 0;
+  color: var(--text-2);
+}
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px;
+  font-size: 14.5px;
+  display: block;
+  overflow-x: auto;
+}
+.prose th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: var(--bg-soft);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.prose td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 32px 0;
 }
 
-code {
-  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+/* 공통 단추 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 23px;
+  font: 600 15px var(--font);
+  background: var(--bg-soft);
+  color: var(--text);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.btn:hover {
+  border-color: color-mix(in srgb, var(--text) 25%, var(--line));
+}
+.btn.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+:root[data-theme='dark'] .btn.primary {
+  color: #0b1f17;
 }
 
-pre code {
-  font-size: inherit;
+/* 데모 지도의 장소 단추(WalkMap) */
+.walk-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+.walk-list button {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font: 500 13.5px var(--font);
+  cursor: pointer;
+}
+.walk-list button[aria-pressed='true'] {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  color: var(--brand-text);
+}
+.walk-list .walk-toggle {
+  margin-left: auto;
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.walk-info {
+  padding: 8px 12px;
+  font: 700 14px var(--font);
+  color: #1c2024;
 }
 
-:not(pre) > code {
-  font-size: 0.875em;
-  padding: 0.1rem 0.175rem;
-  border-radius: 3px;
-  background: #eef7f4;
-  color: #1a7a5a;
-  border: 1px solid #d0ebe2;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+/* API 의 Props 표(astro-component-docs PropsTable). 이름은 줄바꿈하지 않고 타입은 | 에서만 줄을 바꾼다. */
+.prose .acd-props-table {
+  display: table;
+  width: 100%;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.prose .acd-props-table td:first-child code {
+  white-space: nowrap;
+}
+.prose .acd-props-table .acd-props-type {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--text-2);
+}
+.prose .acd-props-table td:nth-child(3),
+.prose .acd-props-table td:nth-child(4) {
+  white-space: nowrap;
+  color: var(--text-3);
+}
+
+/* 본문 코드 블록의 복사 단추(BaseLayout 스크립트가 감싼다) */
+.code-wrap {
+  position: relative;
+}
+.code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-3);
+  font: 500 12.5px var(--font);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.code-wrap:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+.code-copy:hover {
+  color: var(--text);
+}
+@media (hover: none) {
+  .code-copy {
+    opacity: 1;
+  }
 }

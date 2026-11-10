@@ -1,0 +1,19 @@
+---
+title: 버튼과 검색으로 이동하기
+category: react-examples
+order: 2
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MoveToExample from '../../../examples/react-move-to.tsx';
+
+버튼을 누르거나 주소를 검색하면 지도가 그 자리로 옮겨 갑니다.
+
+<Example of={MoveToExample} />
+
+## 설명
+
+- `ref`로 받은 지도의 `morph(좌표, 줌)`으로 이동합니다. 사용자가 지도를 끌어도 이전 위치로 되돌리지 않습니다. `center` prop으로 관리하는 방식은 [핵심 개념](/react-naver-maps/guides/core-concepts/)의 Controlled를 참고해 주세요.
+- 주소 검색은 `react-naver-maps/geocoder`의 `geocode`입니다. SDK의 콜백을 Promise로 감싼 함수라 `await`로 씁니다. `NavermapsProvider`에 `submodules={['geocoder']}`가 있어야 합니다.
+- `geocode`에 넘길 SDK는 `useNavermaps()`로 받습니다. 버튼과 검색창을 `Container` 안에 두어, SDK를 불러오는 동안은 `Container`가 기다려 줍니다. 서버 렌더에서도 오류 없이 지도 영역만 그립니다.
+- 주소 검색은 네이버 클라우드 콘솔의 Application에서 Geocoding API를 함께 켠 키에서만 동작합니다([인증과 키](/react-naver-maps/guides/auth/)).

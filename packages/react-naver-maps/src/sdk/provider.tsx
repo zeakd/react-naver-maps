@@ -9,6 +9,7 @@ import { ClientOptionsContext } from './client-options-context.js';
 
 /** 네이버맵 스크립트 로딩을 위한 Provider. 앱 루트에 배치한다. */
 export type NavermapsProviderProps = LoadOptions & {
+  /** 지도를 쓰는 앱. */
   children: ReactNode;
   /**
    * 인증에 실패했을 때(키가 틀림, Web 서비스 URL 미등록, Dynamic Map 미선택 등). SDK 의 전역

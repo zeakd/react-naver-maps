@@ -9,7 +9,7 @@ import {
   Polygon,
 } from 'react-naver-maps';
 
-// SVG <pattern> 을 문서에 두고 fillColor 에 `url(#id)` 로 가리킨다.
+// SVG <pattern>을 문서에 두고 fillColor에서 `url(#id)`로 참조합니다.
 const patterns = ['stripes', 'dots', 'checks', 'cross', 'zigzag'] as const;
 type PatternId = (typeof patterns)[number];
 
@@ -100,7 +100,7 @@ const polygonPaths = [
 ];
 
 function OverlayPatternMapContent() {
-  // 도형마다 지금 채우는 무늬. 마우스를 올리거나 벗어나면 무작위 무늬로 바꾼다.
+  // 도형마다 채우는 무늬를 관리합니다. 마우스를 올리거나 벗어나면 무작위로 바꿉니다.
   const [rect, setRect] = useState<PatternId>('stripes');
   const [circle, setCircle] = useState<PatternId>('dots');
   const [ellipse, setEllipse] = useState<PatternId>('checks');

@@ -2,17 +2,23 @@
 title: 오버레이 데이터 추출 및 복원하기
 category: tutorial-drawing
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-drawing-restore.example.html
+changes:
+  - official: '`new DrawingManager({ map, rectangleOptions, ... })`'
+    react: '`<DrawingManager>`의 `rectangleOptions` 등 prop'
+  - official: 전역 변수 `drawingManager`, `geojson`
+    react: '`ref`로 받아 state에 둔 매니저와, 뽑은 GeoJSON을 담은 state'
+  - official: jQuery로 버튼 `click`을 듣고 `removeGeoJson` 뒤 `addGeoJson(geojson, true)`
+    react: '`<button onClick>`에서 `toGeoJson()` 결과를 state에 저장하고 `<GeoJson data autoStyle>`로 표시'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import DrawingTutorial3RestoreExample from '../../../examples/drawing-tutorial-3-restore.tsx';
 
-왼쪽 지도에 그린 도형을 GeoJSON 으로 뽑아 오른쪽 지도의 데이터 레이어에 복원합니다.
-
-> [네이버 공식 예제 - 오버레이 데이터 추출 및 복원하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-drawing-restore.example.html)
+왼쪽 지도에 그린 도형을 GeoJSON으로 뽑아 오른쪽 지도의 데이터 레이어에 복원합니다.
 
 <Example of={DrawingTutorial3RestoreExample} />
 
 ## 설명
 
-매니저의 `ref` 로 받은 인스턴스의 `toGeoJson()` 으로 그린 도형을 뽑아 state 에 둡니다. 오른쪽 지도는 그 값을 `GeoJson`(`autoStyle`)의 `data` 로 받습니다. 새로 뽑으면 이전 것을 빼고 다시 올립니다(공식 예제의 `removeGeoJson` 을 컴포넌트가 합니다).
+매니저의 `ref`로 받은 인스턴스의 `toGeoJson()`으로 그린 도형을 뽑아 state에 둡니다. 오른쪽 지도는 그 값을 `GeoJson`(`autoStyle`)의 `data`로 받습니다. 새로 뽑으면 `GeoJson`이 이전 것을 빼고 다시 올립니다.

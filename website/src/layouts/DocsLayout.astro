@@ -1,446 +1,369 @@
 ---
+// 문서 페이지 틀: 영역(시작하기·예제·API)별 사이드바, 본문, "이 페이지" 목차, GitHub에서 고치기, 이전/다음.
 import { getCollection } from 'astro:content';
-import { buildNavigation } from 'astro-component-docs';
-import '../styles/global.css';
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import { apiNav, docsNav, exampleCategories, GITHUB, REACT_EXAMPLES, sectionOf, type Section } from '../nav';
 
 interface Props {
   title: string;
-  category?: string;
-  slug?: string;
+  slug: string;
+  headings?: MarkdownHeading[];
+  editPath?: string;
+  description?: string;
+  /** 사이드바에서 현재 위치로 표시할 항목(문서가 아닌 페이지용, 예: 'examples') */
+  section?: Section;
 }
 
-const { title, slug } = Astro.props;
-const allDocs = await getCollection('docs');
-const navigation = buildNavigation(
-  allDocs.map((doc) => ({
-    slug: doc.id,
-    data: doc.data,
-  })),
-);
+const { title, slug, headings = [], editPath, description } = Astro.props;
+const section = Astro.props.section ?? sectionOf(slug);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const all = (await getCollection('docs')).filter((d) => !d.data.hidden);
+const byId = new Map(all.map((d) => [d.id, d]));
+const href = (id: string) => `${base}/${id}/`;
+const titleOf = (id: string) => byId.get(id)?.data.menuName ?? byId.get(id)?.data.title ?? id;
 
-// 공식 예제를 옮긴 쪽은 영역별 카테고리(tutorial-*)에 둔다. 공식 문서 예제 목록의 묶음과 같다.
-const categoryOrder = [
-  'guides',
-  'examples',
-  'tutorial-map',
-  'tutorial-control',
-  'tutorial-event',
-  'tutorial-maptype',
-  'tutorial-layer',
-  'tutorial-marker',
-  'tutorial-infowindow',
-  'tutorial-shape',
-  'tutorial-overlay',
-  'tutorial-data',
-  'tutorial-visualization',
-  'tutorial-drawing',
-  'tutorial-geocoder',
-  'tutorial-panorama',
-  'tutorial-gl',
-  'api-references',
-];
+type Item = { id: string; label: string; href: string };
+type Group = { label: string; items: Item[]; collapsible?: boolean; open?: boolean };
 
-const categoryLabels: Record<string, string> = {
-  guides: 'Guides',
-  examples: 'Examples',
-  'tutorial-map': '예제: 지도',
-  'tutorial-control': '예제: 컨트롤',
-  'tutorial-event': '예제: 이벤트',
-  'tutorial-maptype': '예제: 지도 유형',
-  'tutorial-layer': '예제: 레이어',
-  'tutorial-marker': '예제: 마커',
-  'tutorial-infowindow': '예제: 정보 창',
-  'tutorial-shape': '예제: 도형',
-  'tutorial-overlay': '예제: 사용자 정의 오버레이',
-  'tutorial-data': '예제: 데이터 레이어',
-  'tutorial-visualization': '예제: 시각화',
-  'tutorial-drawing': '예제: 그리기',
-  'tutorial-geocoder': '예제: 지오코딩',
-  'tutorial-panorama': '예제: 거리뷰',
-  'tutorial-gl': '예제: GL',
-  'api-references': 'API Reference',
-};
-
-navigation.sort(
-  (a, b) =>
-    (categoryOrder.indexOf(a.name) + 1 || 99) -
-    (categoryOrder.indexOf(b.name) + 1 || 99),
-);
+// nav.ts 가 없는 문서를 가리키면 사이드바에서 조용히 빠지지 않게 빌드를 멈춘다.
+const toItems = (ids: string[]) =>
+  ids.map((id) => {
+    if (!byId.has(id)) throw new Error(`[nav] 없는 문서: ${id} (website/src/nav.ts)`);
+    return { id, label: titleOf(id), href: href(id) };
+  });
+let groups: Group[] = [];
+if (section === 'docs') groups = docsNav.map((g) => ({ label: g.label, items: toItems(g.items) }));
+if (section === 'api') groups = apiNav.map((g) => ({ label: g.label, items: toItems(g.items) }));
+if (section === 'examples') {
+  const sorted = (cat: string) => all.filter((d) => d.data.category === cat).sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99)).map((d) => d.id);
+  groups = [
+    { label: '예제', items: [{ id: 'examples', label: '모든 예제', href: `${base}/examples/` }] },
+    { label: 'React 예제', items: toItems(sorted(REACT_EXAMPLES)) },
+    ...exampleCategories.map((c) => {
+      const items = toItems(sorted(c.id));
+      return { label: c.label, items, collapsible: true, open: items.some((i) => i.id === slug) };
+    }),
+  ];
+}
+const flat = groups.flatMap((g) => g.items).filter((i) => i.id !== 'examples');
+const at = flat.findIndex((i) => i.id === slug);
+const prev = at > 0 ? flat[at - 1] : null;
+const next = at >= 0 && at < flat.length - 1 ? flat[at + 1] : null;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const officialStart = groups.findIndex((g) => g.collapsible);
 ---
 
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} - react-naver-maps</title>
-    <meta name="description" content="react-naver-maps - Naver Maps JavaScript API v3를 위한 React 컴포넌트 라이브러리" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
-    <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
-    <link rel="icon" type="image/png" sizes="32x32" href={`${import.meta.env.BASE_URL}/favicon-32x32.png`} />
-    <link rel="icon" type="image/png" sizes="16x16" href={`${import.meta.env.BASE_URL}/favicon-16x16.png`} />
-    <link rel="apple-touch-icon" sizes="180x180" href={`${import.meta.env.BASE_URL}/apple-touch-icon.png`} />
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-51RCXPWJLZ"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-51RCXPWJLZ');
-    </script>
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="site-header-inner">
-        <div class="site-header-left">
-          <button class="sidebar-toggle" id="sidebar-toggle">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-          <a href={`${import.meta.env.BASE_URL}/`} class="site-logo">
-            <svg width="22" height="25" viewBox="0 0 158 182" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M105.423 15.2554L79 0L12.2551 38.5352L49.3537 146.046L111.099 97.2991L105.423 15.2554ZM111.433 102.131L50.7358 150.051L57.4715 169.571L79 182L115.501 160.926L111.433 102.131ZM46.0282 148.671L8.72658 40.5724L0.19165 45.5V136.5L35.5712 156.926L46.0282 148.671ZM39.2998 159.079L47.4103 152.676L52.1873 166.52L39.2998 159.079ZM115.235 99.1299L157.808 65.5197V136.5L119.357 158.7L115.235 99.1299ZM157.808 60.4234L114.901 94.2976L109.6 17.6667L157.808 45.5V60.4234Z" fill="url(#logo-grad)"/>
-              <defs>
-                <linearGradient id="logo-grad" x1="0.5" y1="46" x2="79" y2="182" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#66DE6F"/>
-                  <stop offset="1" stop-color="#66DEDE"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            React Naver Maps
-          </a>
-        </div>
-        <nav class="site-header-nav">
-          <div class="site-version-dropdown">
-            <select onchange="if(this.value) window.location.href = this.value">
-              <option selected>v0.4</option>
-              <option value={`${import.meta.env.BASE_URL}/0.1.0/`}>v0.1</option>
-            </select>
-          </div>
-          <a
-            href="https://github.com/zeakd/react-naver-maps"
-            class="site-github"
-            target="_blank"
-            rel="noopener"
-          >
-            GitHub
-          </a>
-        </nav>
+<BaseLayout title={title} description={description} section={section}>
+  <button slot="menu-button" class="docs-menu" type="button" data-docs-menu aria-label="문서 목록 열기" aria-expanded="false">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+  </button>
+  <div class="docs">
+    <aside class="docs-side" data-docs-side aria-label="문서 목록">
+      {groups.map((g, i) => (
+        <>
+          {i === officialStart && <p class="docs-side-sub">공식 예제</p>}
+          {g.collapsible ? (
+            <details class="docs-group" open={g.open}>
+              <summary>{g.label}<em>{g.items.length}</em></summary>
+              {g.items.map((it) => <a href={it.href} aria-current={it.id === slug ? 'page' : undefined}>{it.label}</a>)}
+            </details>
+          ) : (
+            <div class="docs-group">
+              <p class="docs-group-label">{g.label}</p>
+              {g.items.map((it) => <a href={it.href} aria-current={it.id === slug ? 'page' : undefined}>{it.label}</a>)}
+            </div>
+          )}
+        </>
+      ))}
+    </aside>
+    <div class="docs-scrim" data-docs-scrim></div>
+    <main class="docs-main">
+      <article class="prose" data-pagefind-body>
+        <slot />
+      </article>
+      <div class="docs-meta">
+        {editPath && <a href={`${GITHUB}/edit/main/${editPath}`} target="_blank" rel="noopener">GitHub에서 이 페이지 고치기</a>}
+        <a href={`${GITHUB}/issues/new`} target="_blank" rel="noopener">문제 알리기</a>
       </div>
-    </header>
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <div class="site-container">
-      <aside class="site-sidebar">
-        {navigation.map((cat) => (
-          <div class="sidebar-category">
-            <h3 class="sidebar-category-title">
-              {categoryLabels[cat.name] ?? cat.name}
-            </h3>
-            <ul class="sidebar-links">
-              {cat.items.map((item) => (
-                <li>
-                  <a
-                    href={item.slug === 'guides/introduction' ? `${import.meta.env.BASE_URL}/` : `${import.meta.env.BASE_URL}/${item.slug}/`}
-                    class:list={[
-                      'sidebar-link',
-                      { active: item.slug === slug },
-                    ]}
-                  >
-                    {item.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </aside>
-
-      <main class="site-main">
-        <article class="site-content">
-          <slot />
-        </article>
-      </main>
-    </div>
-  </body>
-</html>
+      {(prev || next) && (
+        <nav class="docs-pager" aria-label="이전 다음 문서">
+          {prev ? <a href={prev.href}><small>이전</small>{prev.label}</a> : <span></span>}
+          {next && <a class="next" href={next.href}><small>다음</small>{next.label}</a>}
+        </nav>
+      )}
+    </main>
+    <nav class="docs-toc" aria-label="이 페이지">
+      {toc.length > 0 && (
+        <>
+          <p>이 페이지</p>
+          {toc.map((h) => <a href={`#${h.slug}`} class={h.depth === 3 ? 'sub' : undefined}>{h.text}</a>)}
+        </>
+      )}
+    </nav>
+  </div>
+</BaseLayout>
 
 <script is:inline>
-  document.getElementById('sidebar-toggle').addEventListener('click', function() {
-    document.querySelector('.site-sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('visible');
-  });
-  document.getElementById('sidebar-overlay').addEventListener('click', function() {
-    document.querySelector('.site-sidebar').classList.remove('open');
-    this.classList.remove('visible');
-  });
+  (function () {
+    var btn = document.querySelector('[data-docs-menu]');
+    var side = document.querySelector('[data-docs-side]');
+    var scrim = document.querySelector('[data-docs-scrim]');
+    var narrow = matchMedia('(max-width: 860px)');
+    // 좁은 화면에서 닫힌 목록은 화면 밖에 있으므로 키보드 초점과 접근성 탐색에서도 뺀다.
+    function sync() {
+      side.inert = narrow.matches && !side.classList.contains('open');
+    }
+    function set(open) {
+      side.classList.toggle('open', open);
+      scrim.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      sync();
+      if (open) {
+        var first = side.querySelector('[aria-current="page"]') || side.querySelector('a');
+        if (first) first.focus();
+      } else if (side.contains(document.activeElement)) {
+        btn.focus();
+      }
+    }
+    sync();
+    narrow.addEventListener('change', sync);
+    if (btn) btn.addEventListener('click', function () { set(!side.classList.contains('open')); });
+    if (scrim) scrim.addEventListener('click', function () { set(false); });
+    addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && side.classList.contains('open')) set(false);
+    });
+    // 현재 문서가 사이드바 아래쪽이면 보이게 스크롤한다.
+    var cur = side && side.querySelector('[aria-current="page"]');
+    if (cur && cur.offsetTop > side.clientHeight - 80) side.scrollTop = cur.offsetTop - side.clientHeight / 3;
+    // 목차: 지금 읽는 절을 표시한다.
+    var links = Array.prototype.slice.call(document.querySelectorAll('.docs-toc a'));
+    if (!links.length || !('IntersectionObserver' in window)) return;
+    var map = new Map(links.map(function (a) { return [decodeURIComponent(a.hash.slice(1)), a]; }));
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.remove('active'); });
+        var a = map.get(e.target.id); if (a) a.classList.add('active');
+      });
+    }, { rootMargin: '-80px 0px -70% 0px' });
+    map.forEach(function (_, id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
 </script>
 
-<style>
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    height: var(--site-header-height);
-    border-bottom: 1px solid var(--acd-border);
-    background: #fff;
-  }
-
-  .site-header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+<style is:global>
+  .docs {
+    display: grid;
+    grid-template-columns: 272px minmax(0, 1fr) 232px;
     max-width: 1440px;
-    height: 100%;
     margin: 0 auto;
-    padding: 0 1.5rem;
   }
-
-  .site-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .sidebar-toggle {
+  .docs-menu {
     display: none;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 0;
     background: none;
-    color: var(--acd-text-muted);
+    color: var(--text-2);
+    border-radius: 8px;
     cursor: pointer;
   }
-
-  .sidebar-toggle:hover {
-    background: var(--acd-bg-subtle);
-    color: var(--acd-text);
-  }
-
-  .site-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-    font-size: 1.375rem;
-    color: var(--acd-text);
-  }
-
-  .site-logo:hover {
-    text-decoration: none;
-  }
-
-  .site-header-nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .site-version-dropdown select {
-    font-size: 0.8125rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 3px;
-    background: var(--acd-bg-subtle);
-    color: var(--acd-text-muted);
-    border: 1px solid var(--acd-border);
-    cursor: pointer;
-  }
-
-  .site-github {
-    font-size: 0.9375rem;
-    color: var(--acd-text-muted);
-  }
-
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 19;
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  .sidebar-overlay.visible {
-    display: block;
-  }
-
-  .site-container {
-    display: flex;
-    max-width: 1440px;
-    margin: 0 auto;
-  }
-
-  .site-sidebar {
+  .docs-side {
     position: sticky;
-    top: var(--site-header-height);
-    width: var(--site-sidebar-width);
-    height: calc(100vh - var(--site-header-height));
+    top: var(--header-h);
+    align-self: start;
+    height: calc(100vh - var(--header-h));
     overflow-y: auto;
-    padding: 1.5rem;
-    border-right: 1px solid var(--acd-border);
-    flex-shrink: 0;
+    padding: 24px 14px 48px 24px;
+    border-right: 1px solid var(--line);
+    font-size: 14.5px;
+    overscroll-behavior: contain;
   }
-
-  .sidebar-category {
-    margin-bottom: 1rem;
+  .docs-group {
+    margin-bottom: 18px;
   }
-
-  .sidebar-category-title {
-    font-size: 0.6875rem;
+  .docs-group-label {
+    margin: 0 8px 6px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--acd-text-muted);
-    margin-bottom: 0.25rem;
+    font-size: 13px;
+    color: var(--text);
   }
-
-  .sidebar-links {
+  .docs-side-sub {
+    margin: 4px 8px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+  }
+  details.docs-group {
+    margin-bottom: 2px;
+  }
+  .docs-group summary {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: var(--text-2);
+    cursor: pointer;
     list-style: none;
   }
-
-  .sidebar-link {
+  .docs-group summary::-webkit-details-marker {
+    display: none;
+  }
+  .docs-group summary em {
+    margin-left: auto;
+    font: 500 12px var(--mono);
+    font-style: normal;
+    color: var(--text-3);
+  }
+  .docs-group summary::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-left: 10px;
+    border-right: 1.5px solid var(--text-3);
+    border-bottom: 1.5px solid var(--text-3);
+    transform: rotate(-45deg);
+    transition: transform 0.15s;
+  }
+  .docs-group[open] summary::after {
+    transform: rotate(45deg);
+  }
+  .docs-group summary:hover {
+    background: var(--bg-soft);
+    color: var(--text);
+  }
+  .docs-group a {
     display: block;
-    padding: 0.125rem 0.75rem;
-    font-size: 0.875rem;
-    color: var(--acd-text-muted);
-    border-radius: 4px;
-    transition: background 0.15s;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: var(--text-2);
+    line-height: 1.45;
   }
-
-  .sidebar-link:hover {
-    background: var(--acd-bg-subtle);
-    color: var(--acd-text);
-    text-decoration: none;
+  details.docs-group a {
+    padding-left: 20px;
+    font-size: 14px;
   }
-
-  .sidebar-link.active {
-    background: #e6f7f2;
-    color: var(--acd-accent);
-    font-weight: 500;
+  .docs-group a:hover {
+    background: var(--bg-soft);
+    color: var(--text);
   }
-
-  .site-main {
-    flex: 1;
+  .docs-group a[aria-current='page'] {
+    background: var(--brand-soft);
+    color: var(--brand-text);
+    font-weight: 600;
+  }
+  .docs-main {
     min-width: 0;
-    padding: 2rem 3rem 5rem;
+    max-width: 880px;
+    padding: 40px 48px 72px;
   }
-
-  .site-content {
-    max-width: var(--site-content-max-width);
+  .docs-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
   }
-
-  .site-content :global(h1) {
-    font-size: 1.75rem;
+  .docs-meta a {
+    color: var(--brand-text);
+  }
+  .docs-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .docs-pager a {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-weight: 650;
+  }
+  .docs-pager a:hover {
+    border-color: var(--brand);
+  }
+  .docs-pager a.next {
+    text-align: right;
+    grid-column: 2;
+  }
+  .docs-pager small {
+    font-weight: 500;
+    font-size: 12.5px;
+    color: var(--text-3);
+  }
+  .docs-toc {
+    position: sticky;
+    top: var(--header-h);
+    align-self: start;
+    max-height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    padding: 40px 20px 40px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 13.5px;
+  }
+  .docs-toc p {
+    margin: 0 0 4px;
     font-weight: 700;
-    margin-bottom: 1rem;
-    line-height: 1.3;
+    font-size: 13px;
   }
-
-  .site-content :global(h2) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.375rem;
-    border-bottom: 1px solid var(--acd-border);
+  .docs-toc a {
+    color: var(--text-3);
+    line-height: 1.45;
   }
-
-  .site-content :global(h3) {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
+  .docs-toc a.sub {
+    padding-left: 12px;
   }
-
-  .site-content :global(p) {
-    margin-bottom: 1rem;
+  .docs-toc a:hover,
+  .docs-toc a.active {
+    color: var(--brand-text);
   }
-
-  .site-content :global(ul),
-  .site-content :global(ol) {
-    margin-bottom: 1rem;
-    padding-left: 1.5rem;
+  .docs-scrim {
+    display: none;
   }
-
-  .site-content :global(li) {
-    margin-bottom: 0.25rem;
-  }
-
-  .site-content :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-  }
-
-  .site-content :global(th) {
-    text-align: left;
-    padding: 0.5rem 1rem;
-    border-bottom: 2px solid var(--acd-border);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .site-content :global(td) {
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--acd-border);
-    vertical-align: top;
-  }
-
-  .site-content :global(pre) {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 4px;
-    overflow-x: auto;
-  }
-
-  @media (max-width: 768px) {
-    .sidebar-toggle {
-      display: flex;
+  @media (max-width: 1240px) {
+    .docs {
+      grid-template-columns: 260px minmax(0, 1fr);
     }
-
-    .site-header-inner {
-      padding: 0 1rem;
+    .docs-toc {
+      display: none;
     }
-
-    .site-logo {
-      font-size: 1.125rem;
+  }
+  @media (max-width: 860px) {
+    .docs {
+      grid-template-columns: minmax(0, 1fr);
     }
-
-    .site-sidebar {
+    .docs-menu {
+      display: grid;
+    }
+    .docs-side {
       position: fixed;
-      top: var(--site-header-height);
+      z-index: 50;
+      top: var(--header-h);
       left: 0;
-      z-index: 20;
-      width: 280px;
-      height: calc(100vh - var(--site-header-height));
-      background: #fff;
-      transform: translateX(-100%);
+      width: min(300px, 86vw);
+      background: var(--bg);
+      transform: translateX(-102%);
       transition: transform 0.25s ease;
-      border-right: 1px solid var(--acd-border);
     }
-
-    .site-sidebar.open {
-      transform: translateX(0);
+    .docs-side.open {
+      transform: none;
+      box-shadow: 20px 0 40px -20px #0000004d;
     }
-
-    .site-main {
-      padding: 1.5rem 1rem 3rem;
+    .docs-scrim.open {
+      display: block;
+      position: fixed;
+      inset: var(--header-h) 0 0;
+      z-index: 45;
+      background: #0b0d0f4d;
     }
-
-    .site-content :global(h1) {
-      font-size: 1.5rem;
-    }
-
-    .site-content :global(th),
-    .site-content :global(td) {
-      padding: 0.375rem 0.5rem;
+    .docs-main {
+      padding: 28px 16px 56px;
     }
   }
 </style>

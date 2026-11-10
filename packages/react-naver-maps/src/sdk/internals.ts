@@ -17,7 +17,7 @@ export function mapOptionsKvo(target: object): naver.maps.KVO | null {
   return (target as MapInternals)._mapOptions ?? null;
 }
 
-/** 지도가 init 을 지났는가. 지나기 전에는 `setOptions` 가 큐에 쌓이고 일부 오버레이가 붙지 않는다. */
+/** 지도가 init을 지났는가. 지나기 전에는 `setOptions`가 큐에 쌓이고 일부 오버레이가 붙지 않는다. */
 export function isMapReady(map: object): boolean {
   return !!(map as MapInternals).isReady;
 }

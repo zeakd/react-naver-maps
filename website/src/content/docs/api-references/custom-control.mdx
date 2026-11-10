@@ -6,7 +6,7 @@ order: 11
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`CustomControl` 컴포넌트는 React children 을 지도의 컨트롤 자리에 그립니다. SDK 의 `naver.maps.CustomControl` 입니다.
+`CustomControl`은 React children을 지도 컨트롤 위치에 그립니다. SDK의 `naver.maps.CustomControl`을 사용합니다.
 
 ## 사용법
 
@@ -25,7 +25,7 @@ function HomeControl() {
 }
 ```
 
-`position` 은 이름(`'TOP_RIGHT'`)이나 SDK 상수(`navermaps.Position.TOP_RIGHT`)입니다. 바꾸면 그 자리로 옮깁니다. 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 붙습니다.
+`position`에는 이름(`'TOP_RIGHT'`)이나 SDK 상수(`navermaps.Position.TOP_RIGHT`)를 넘깁니다. 값을 바꾸면 해당 위치로 옮깁니다. 지도가 준비(`init`)되기 전에 마운트해도 준비된 뒤 표시됩니다.
 
 ## Props
 

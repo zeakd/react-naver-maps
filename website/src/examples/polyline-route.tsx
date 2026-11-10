@@ -23,7 +23,7 @@ const buttonStyle: React.CSSProperties = {
 
 type Path = naver.maps.LatLngLiteral[];
 
-// 응답의 path 는 "경도,위도 경도,위도 ..." 문자열이다.
+// 응답의 path는 "경도,위도 경도,위도 ..." 문자열입니다.
 function parsePath(path: string): Path {
   return path.split(' ').map((pair) => {
     const [lng, lat] = pair.split(',').map(parseFloat);
@@ -33,10 +33,22 @@ function parsePath(path: string): Path {
 
 function PolylineRouteMapContent() {
   const navermaps = useNavermaps();
-  // 받은 구간(step)별 경로. 한 번 받으면 다시 받지 않는다.
+  // 구간(step)별 경로는 한 번 받으면 다시 받지 않습니다.
   const stepsRef = useRef<Path[] | null>(null);
   // 지금 그리는 폴리라인들. 단일은 1개, 멀티는 구간 수만큼.
   const [paths, setPaths] = useState<Path[]>([]);
+  const [failed, setFailed] = useState(false);
+
+  // 경로를 받아 그립니다. 받지 못하면 그리지 않고 알립니다.
+  async function draw(single: boolean) {
+    try {
+      const steps = await loadSteps();
+      setPaths(single ? [steps.flat()] : steps);
+      setFailed(false);
+    } catch {
+      setFailed(true);
+    }
+  }
 
   async function loadSteps() {
     if (!stepsRef.current) {
@@ -79,23 +91,19 @@ function PolylineRouteMapContent() {
           padding: 5,
         }}
       >
-        <button
-          style={buttonStyle}
-          onClick={async () => setPaths([(await loadSteps()).flat()])}
-        >
+        <button style={buttonStyle} onClick={() => draw(true)}>
           단일 폴리라인으로 그리기
         </button>
-        <button
-          style={buttonStyle}
-          onClick={async () => setPaths(await loadSteps())}
-        >
+        <button style={buttonStyle} onClick={() => draw(false)}>
           멀티 폴리라인으로 그리기
         </button>
         <button style={buttonStyle} onClick={() => setPaths([])}>
           폴리라인 삭제
         </button>
         <span style={{ background: '#fff', padding: '2px 6px' }}>
-          폴리라인 {paths.length}개
+          {failed
+            ? '경로 데이터를 받지 못했습니다'
+            : `폴리라인 ${paths.length}개`}
         </span>
       </div>
     </>

@@ -42,7 +42,7 @@ function PanoramaZoomControl() {
         <input
           type="button"
           style={{ marginRight: 8 }}
-          value={zoomControl ? 'ZoomControl 끄기' : 'ZoomControl 켜기'}
+          value={zoomControl ? '줌 컨트롤 끄기' : '줌 컨트롤 켜기'}
           onClick={() => setZoomControl((on) => !on)}
         />
         <input

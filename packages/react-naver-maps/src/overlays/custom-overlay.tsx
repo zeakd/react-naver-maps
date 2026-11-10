@@ -26,11 +26,15 @@ export type OverlayPosition =
 
 export interface CustomOverlayProps {
   ref?: Ref<naver.maps.OverlayView>;
+  /** 오버레이를 둘 좌표. */
   position: OverlayPosition;
+  /** 지도 위에 그릴 React 요소. */
   children: React.ReactNode;
   /** 생성 시점에만 적용. 변경하려면 React `key`로 재마운트. */
   pane?: string;
+  /** 요소의 어느 점을 `position`에 맞출지(요소 왼쪽 위 기준 px, `Point`). 주지 않으면 요소의 왼쪽 위가 `position`에 옵니다. */
   anchor?: naver.maps.Point;
+  /** 오버레이 요소의 쌓임 순서(CSS z-index). */
   zIndex?: number;
 }
 

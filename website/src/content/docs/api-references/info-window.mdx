@@ -6,7 +6,7 @@ order: 3
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`InfoWindow` 컴포넌트는 정보 창을 표시합니다. `content` 는 SDK 와 같이 HTML 문자열 또는 HTML 요소입니다. React 로 내용을 그리려면 [`CustomOverlay`](/react-naver-maps/api-references/custom-overlay/) 를 씁니다.
+`InfoWindow`는 정보 창을 표시합니다. `content`는 SDK와 같이 HTML 문자열 또는 HTML 요소입니다. React로 내용을 그리려면 [`CustomOverlay`](/react-naver-maps/api-references/custom-overlay/)를 사용해 주세요.
 
 ## 사용법
 
@@ -16,11 +16,11 @@ import { InfoWindow } from 'react-naver-maps';
 <InfoWindow open content="안녕하세요" position={{ lat: 37.5, lng: 127.0 }} />;
 ```
 
-`open` 을 주면 그 값으로 열고 닫습니다. 주지 않으면 열리지 않고, ref 로 받은 인스턴스의 `open()`·`close()` 로 직접 다룹니다. 마커에 붙이려면 `anchor` 에 Marker 인스턴스를 줍니다.
+`open`을 주면 그 값으로 열고 닫습니다. 주지 않으면 열리지 않고, ref로 받은 인스턴스의 `open()`·`close()`로 직접 다룹니다. 마커에 붙이려면 `anchor`에 `Marker` 인스턴스를 넘겨 주세요.
 
-`content`, `position` 같은 값은 맞춘 뒤에 엽니다. 첫 `position` 과 `open` 을 한 렌더에 주어도 되고, 함께 바꾸면 새 값으로 열립니다. `onOpen` 에서 `ref` 를 읽을 수 있습니다.
+`content`, `position` 같은 값은 맞춘 뒤에 엽니다. 첫 `position`과 `open`을 한 렌더에서 주어도 되고, 함께 바꾸면 새 값으로 열립니다. `onOpen`에서 `ref`를 읽을 수 있습니다.
 
-`open` 이나 `anchor` 가 바뀔 때 엽니다. 사용자가 닫기 버튼으로 닫거나 같은 지도의 다른 정보 창이 열려 SDK 가 닫은 정보 창은, `open` 이 `true` 여도 다시 렌더만으로는 다시 열지 않습니다(SDK 는 지도마다 정보 창 하나만 엽니다). 닫힌 것을 받아들이려면 `onClose` 로 상태를 바꿉니다. `anchor` 는 값으로 비교하므로 `anchor={{ lat, lng }}` 처럼 렌더마다 새로 만들어도 됩니다.
+`open`이나 `anchor`가 바뀔 때 엽니다. 사용자가 닫기 버튼으로 닫거나 같은 지도의 다른 정보 창이 열려 SDK가 닫은 정보 창은, `open`이 `true` 여도 다시 렌더만으로는 다시 열지 않습니다(SDK는 지도마다 정보 창 하나만 엽니다). 닫힌 것을 받아들이려면 `onClose`로 상태를 바꿉니다. `anchor`는 값으로 비교하므로 `anchor={{ lat, lng }}`처럼 렌더마다 새로 만들어도 됩니다.
 
 ## Props
 

@@ -15,7 +15,7 @@ const positions = [
   { lat: 37.3561936, lng: 127.0983706 },
 ];
 
-// 스프라이트 전체 크기를 scaledSize 로 줄여 알려 주고, origin 으로 칸을 자른다.
+// 스프라이트 전체 크기를 scaledSize로 줄여 지정하고 origin으로 칸을 자릅니다.
 function spriteIcon(index: number) {
   return {
     url: SPRITE_URL,

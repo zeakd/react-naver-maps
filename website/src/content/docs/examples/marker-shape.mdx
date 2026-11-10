@@ -2,15 +2,23 @@
 title: 마커 인터랙션 영역 설정하기
 category: tutorial-marker
 order: 21
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-shape.example.html
+changes:
+  - official: '`new naver.maps.Marker`에 `map`·`icon`·`shape` 옵션'
+    react: '`<Marker>`의 `icon`·`shape` prop'
+  - official: '`new naver.maps.Size`·`new naver.maps.Point`로 아이콘 크기와 좌표'
+    react: '`{ width, height }`·`{ x, y }` 리터럴'
+additions:
+  - 마커 클릭 횟수 표시. `onClick`으로 state를 증가시켜 지도 위에 표시하므로, 핀 모양 안을 눌렀을 때만 횟수가 증가하는 것을 확인할 수 있습니다.
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerShapeExample from '../../../examples/marker-shape.tsx';
 
+마커 아이콘에서 마우스에 반응하는 영역을 핀 모양으로 정합니다.
+
 <Example of={MarkerShapeExample} />
 
 ## 설명
 
-`Marker` 의 `shape` 에 `{ type: 'poly', coords }` 를 주면 아이콘 이미지 안에서 그 다각형 영역만 마우스에 반응합니다. 좌표는 아이콘 이미지 왼쪽 위 기준입니다.
-
-> [네이버 공식 예제 - 마커 인터랙션 영역 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-shape.example.html)
+`Marker`의 `shape`에 `{ type: 'poly', coords }`를 주면 아이콘 이미지 안에서 그 다각형 영역만 마우스에 반응합니다. 좌표는 아이콘 이미지 왼쪽 위 기준입니다.

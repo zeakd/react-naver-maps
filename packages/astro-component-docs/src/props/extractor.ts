@@ -58,7 +58,7 @@ export function extractAllProps(pkg: PackageConfig): ComponentDoc[] {
         const propsType = getComponentPropsType(decl);
         if (!propsType) continue;
 
-        const props = extractPropsFromType(propsType);
+        const props = extractPropsFromType(propsType, decl);
         const overrides = pkg.propsOverrides?.[name] ?? {};
         const mergedProps = applyOverrides(props, overrides);
 
@@ -135,7 +135,7 @@ function firstParamOfCallSignature(decl: any): Type | undefined {
   return param ? param.getTypeAtLocation(decl) : undefined;
 }
 
-function extractPropsFromType(type: Type): PropInfo[] {
+function extractPropsFromType(type: Type, location: Node): PropInfo[] {
   const props: PropInfo[] = [];
 
   for (const prop of type.getProperties()) {
@@ -144,22 +144,36 @@ function extractPropsFromType(type: Type): PropInfo[] {
     // Skip internal React props
     if (name === 'key' || name === 'ref' || name.startsWith('__')) continue;
 
-    const valueDecl = prop.getValueDeclaration();
-    if (!valueDecl) continue;
-
-    const propType = prop.getTypeAtLocation(valueDecl);
+    // 매핑 타입(EventHandlerProps<…> 처럼 이름 목록에서 만든 prop)은 값 선언이 없다. 그때는 컴포넌트
+    // 선언 위치에서 타입을 읽는다. 건너뛰면 onClick 같은 이벤트가 표에서 빠진다.
+    const at = prop.getValueDeclaration() ?? location;
+    const propType = prop.getTypeAtLocation(at);
     const isOptional = prop.isOptional();
 
     props.push({
       name,
       type: simplifyType(propType.getText()),
       required: !isOptional,
-      description: getSymbolDescription(prop),
+      description: getSymbolDescription(prop) ?? eventDescription(name),
       defaultValue: undefined,
     });
   }
 
   return props;
+}
+
+/**
+ * 설명이 없는 on* prop 은 대응하는 SDK 이벤트 이름을 적는다. 라이브러리 규칙: onClick → click,
+ * onPositionChanged → position_changed(KVO 변경 이벤트).
+ */
+function eventDescription(name: string): string | undefined {
+  const m = /^on([A-Z]\w*)$/.exec(name);
+  if (!m) return undefined;
+  const base = m[1]!;
+  const event = base.endsWith('Changed')
+    ? `${base[0]!.toLowerCase()}${base.slice(1, -'Changed'.length)}_changed`
+    : base.toLowerCase();
+  return `SDK의 \`${event}\` 이벤트.`;
 }
 
 function getSymbolDescription(symbol: TsSymbol): string | undefined {

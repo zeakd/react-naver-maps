@@ -22,7 +22,7 @@ const buttonStyle = (on: boolean): React.CSSProperties => ({
 
 function PanoramaWithMap() {
   const panoRef = useRef<naver.maps.Panorama>(null);
-  // 지도와 거리뷰를 state 로 잇는다.
+  // 지도와 거리뷰의 위치를 state로 연결합니다.
   const [mapCenter, setMapCenter] = useState<LatLng>({
     lat: 37.3599605,
     lng: 127.1058814,
@@ -38,8 +38,8 @@ function PanoramaWithMap() {
         <NaverMap
           center={mapCenter}
           defaultZoom={17}
-          // 거리뷰 레이어가 켜져 있을 때 지도를 누르면 거리뷰를 그 위치로 옮긴다.
-          // 거리뷰가 300m 안의 가장 가까운 파노라마를 알아서 고른다.
+          // 거리뷰 레이어가 켜져 있을 때 지도를 누르면 거리뷰를 해당 위치로 옮깁니다.
+          // 거리뷰가 300m 안의 가장 가까운 파노라마를 고릅니다.
           onClick={(e) => {
             if (!street) return;
             const coord = e.coord;
@@ -70,7 +70,7 @@ function PanoramaWithMap() {
           ref={panoRef}
           position={panoPosition}
           pov={{ pan: -133, tilt: 0, fov: 100 }}
-          // 거리뷰가 바뀌면 지도의 중심을 그 위치로 옮긴다.
+          // 거리뷰가 바뀌면 지도의 중심을 해당 위치로 옮깁니다.
           onPanoChanged={() => {
             const latlng = panoRef.current?.getPosition();
             if (latlng) setMapCenter({ lat: latlng.y, lng: latlng.x });

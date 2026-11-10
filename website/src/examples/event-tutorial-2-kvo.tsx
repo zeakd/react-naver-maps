@@ -24,7 +24,7 @@ function KvoMapContent() {
         onInit={() =>
           setCenterPoint(String(mapRef.current?.getCenterPoint() ?? ''))
         }
-        // KVO 이벤트 zoom_changed, bounds_changed 는 on*Changed prop 으로 받는다.
+        // KVO 이벤트 zoom_changed, bounds_changed는 on*Changed props로 받습니다.
         onZoomChanged={setZoom}
         onBoundsChanged={(bounds) => {
           const map = mapRef.current;

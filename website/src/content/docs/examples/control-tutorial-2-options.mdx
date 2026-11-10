@@ -2,17 +2,17 @@
 title: 지도 컨트롤 스타일 설정하기
 category: tutorial-control
 order: 2
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-control-options.example.html
+changes:
+  - official: '`new naver.maps.Map(element, mapOptions)`에 옵션 객체 전달'
+    react: '`NaverMap`에 `zoomControl`, `zoomControlOptions` prop 전달'
+  - official: '전역 `naver.maps.ZoomControlStyle`, `naver.maps.Position` 상수'
+    react: '`useNavermaps()`로 받은 `navermaps`의 상수'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import ControlTutorial2OptionsExample from '../../../examples/control-tutorial-2-options.tsx';
 
-줌 컨트롤을 작은 스타일로 오른쪽 위에 놓는 예제입니다.
+줌 컨트롤을 작은 스타일로 오른쪽 위에 배치합니다.
 
 <Example of={ControlTutorial2OptionsExample} />
-
-## 설명
-
-`zoomControlOptions` 의 `style`, `position` 에 `navermaps.ZoomControlStyle.SMALL`, `navermaps.Position.TOP_RIGHT` 를 줍니다. 상수는 `useNavermaps()` 가 주는 `navermaps` 에서 받습니다.
-
-> [네이버 공식 튜토리얼 - 지도 컨트롤 스타일 설정하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-control-options.example.html)

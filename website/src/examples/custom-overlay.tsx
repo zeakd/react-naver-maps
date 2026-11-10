@@ -9,7 +9,7 @@ import {
 const IMG = 'https://navermaps.github.io/maps.js.ncp/docs/img/example';
 const start = { lat: 37.3849483, lng: 127.1229117 };
 
-// 오버레이 안은 평범한 React 요소다.
+// 오버레이 안에 일반 React 요소를 사용할 수 있습니다.
 function BrownCard() {
   return (
     <div
@@ -31,7 +31,7 @@ function BrownCard() {
 }
 
 function CustomOverlayMapContent({ visible }: { visible: boolean }) {
-  // 클릭한 위치마다 오버레이를 하나씩 더한다. 처음에는 중심에 하나가 있다.
+  // 클릭한 위치마다 오버레이를 추가합니다. 처음에는 중심에 하나를 표시합니다.
   const [positions, setPositions] = useState([start]);
 
   return (
@@ -42,7 +42,7 @@ function CustomOverlayMapContent({ visible }: { visible: boolean }) {
         setPositions((prev) => [...prev, { lat: e.coord.y, lng: e.coord.x }])
       }
     >
-      {/* 숨겨도 오버레이를 버리지 않고 지도에서만 뗀다. 다시 보이면 같은 자리에 붙는다. */}
+      {/* 숨기면 오버레이가 지도에서 분리되고, 다시 보이면 같은 자리에 표시됩니다. */}
       <Activity mode={visible ? 'visible' : 'hidden'}>
         {positions.map((position, i) => (
           <CustomOverlay key={i} position={position} pane="overlayLayer">

@@ -58,7 +58,7 @@ export type SdkInstanceSpec<T> = {
   release?: (instance: T) => void;
 };
 
-/** 버린다. SDK 가 죽었으면 SDK 를 부르는 dispose 는 건너뛰고 자체 자원만 치운다. */
+/** 버린다. SDK가 죽었으면 SDK를 부르는 dispose는 건너뛰고 자체 자원만 치운다. */
 function retire<T>(spec: SdkInstanceSpec<T>, instance: T): void {
   try {
     if (sdkAlive()) spec.dispose(instance);

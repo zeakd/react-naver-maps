@@ -53,8 +53,10 @@ function ShapeMeasuresMapContent() {
   const [mouse, setMouse] = useState<Pt | null>(null);
   const [done, setDone] = useState<Done[]>([]);
   const [labels, setLabels] = useState<Label[]>([]);
+  // 재는 중인 구간의 이정표는 끝내면 labels로 옮기고 취소하면 지웁니다.
+  const [segments, setSegments] = useState<Label[]>([]);
 
-  // 길이·면적은 SDK 가 잰다. 지도에 올리지 않는 도형을 이벤트 안에서 잠깐 만든다.
+  // 길이·면적은 SDK로 잽니다. 지도에 표시하지 않는 도형을 이벤트 안에서 잠시 만듭니다.
   const distanceOf = (points: Pt[]) =>
     new navermaps.Polyline({
       path: points.map((p) => new navermaps.LatLng(p)),
@@ -67,6 +69,7 @@ function ShapeMeasuresMapContent() {
   function reset() {
     setPath([]);
     setMouse(null);
+    setSegments([]);
   }
 
   function finish() {
@@ -74,6 +77,7 @@ function ShapeMeasuresMapContent() {
       setDone((d) => [...d, { kind: 'distance', path }]);
       setLabels((l) => [
         ...l,
+        ...segments,
         {
           position: path[path.length - 1],
           kind: 'distance',
@@ -99,7 +103,7 @@ function ShapeMeasuresMapContent() {
   }
 
   function toggle(next: Mode) {
-    // 재던 것은 버리고(완료한 것은 남긴다) 모드를 바꾼다.
+    // 측정 중인 것은 지우고 완료한 것은 남긴 채 모드를 바꿉니다.
     reset();
     setMode((prev) => (prev === next ? null : next));
   }
@@ -109,8 +113,8 @@ function ShapeMeasuresMapContent() {
     const point = { lat: e.coord.y, lng: e.coord.x };
     const next = [...path, point];
     if (mode === 'distance' && path.length > 0) {
-      // 직전 점부터 이번 점까지의 거리를 이정표로 단다.
-      setLabels((l) => [
+      // 직전 점부터 이번 점까지의 거리를 이정표로 표시합니다.
+      setSegments((l) => [
         ...l,
         {
           position: point,
@@ -122,7 +126,7 @@ function ShapeMeasuresMapContent() {
     setPath(next);
   }
 
-  // 마우스를 따라가는 점. 거리는 안내선, 면적은 마지막 꼭짓점이 된다.
+  // 마우스를 따라가는 점은 거리의 안내선 또는 면적의 마지막 꼭짓점이 됩니다.
   const live = mode && mouse ? [...path, mouse] : path;
 
   return (
@@ -190,7 +194,7 @@ function ShapeMeasuresMapContent() {
             fillOpacity={0.3}
           />
         )}
-        {labels.map((label, i) => (
+        {[...labels, ...segments].map((label, i) => (
           <CustomOverlay key={i} position={label.position}>
             <div
               style={{

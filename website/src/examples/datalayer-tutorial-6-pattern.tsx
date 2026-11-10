@@ -13,7 +13,7 @@ const REGION_PATHS = Array.from(
   (_, i) => `data/region${String(i + 1).padStart(2, '0')}.json`,
 );
 
-// 공식 예제는 18개의 SVG 패턴을 문서에 깔아 쓴다. 여기서는 같은 방식으로 직접 만든 패턴 6개를 쓴다.
+// 공식 예제는 18개의 SVG 패턴을 사용합니다. 여기서는 같은 방식으로 직접 만든 패턴 6개를 사용합니다.
 const PATTERNS: Record<string, React.ReactNode> = {
   stripes: (
     <>
@@ -68,7 +68,7 @@ const PATTERN_SIZE: Record<string, [number, number]> = {
   triangles: [12, 12],
 };
 
-// 지역 이름으로 패턴을 정한다. 렌더마다 바뀌지 않는다.
+// 지역 이름으로 패턴을 정해 렌더마다 바뀌지 않게 합니다.
 const patternOf = (name: string) =>
   `region-${PATTERN_IDS[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % PATTERN_IDS.length]}`;
 

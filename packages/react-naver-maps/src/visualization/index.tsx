@@ -21,37 +21,46 @@ export type WeightedLiteral = {
     | naver.maps.LatLngObjectLiteral;
 };
 
-/** HeatMap, DotMap 의 좌표 목록. */
+/** HeatMap, DotMap의 좌표 목록. */
 export type VisualizationData =
   | naver.maps.LatLng[]
   | naver.maps.PointArrayLiteral[]
   | naver.maps.visualization.WeightedLocation[]
   | WeightedLiteral[];
 
-/** 좌표의 밀도를 색으로 칠한다. SDK 의 `naver.maps.visualization.HeatMap` 이다. */
+/** 좌표의 밀도를 색으로 칠한다. SDK의 `naver.maps.visualization.HeatMap`이다. */
 export interface HeatMapProps {
   ref?: Ref<naver.maps.visualization.HeatMap>;
   /** 좌표 목록. `LatLng`, `[경도, 위도]`, `WeightedLocation`. 값으로 비교해 바뀌면 다시 그린다. */
   data: VisualizationData;
+  /** 불투명도(0~1). */
   opacity?: number;
+  /** 점 하나가 퍼지는 반지름(px). */
   radius?: number;
   /** 색 이름. `navermaps.visualization.SpectrumStyle.JET` 같은 값. */
   colorMap?: naver.maps.visualization.SpectrumStyle;
-  /** 색을 거꾸로 칠한다. SDK `setColorMap(colorMap, inReverse)` 의 둘째 인자. */
+  /** 색을 거꾸로 칠한다. SDK `setColorMap(colorMap, inReverse)`의 둘째 인자. */
   colorMapInReverse?: boolean;
 }
 
-/** 좌표마다 점을 찍는다. SDK 의 `naver.maps.visualization.DotMap` 이다. */
+/** 좌표마다 점을 찍는다. SDK의 `naver.maps.visualization.DotMap`이다. */
 export interface DotMapProps {
   ref?: Ref<naver.maps.visualization.DotMap>;
   /** 좌표 목록. `LatLng`, `[경도, 위도]`, `WeightedLocation`. 값으로 비교해 바뀌면 다시 그린다. */
   data: VisualizationData;
+  /** 불투명도(0~1). */
   opacity?: number;
+  /** 점 하나가 퍼지는 반지름(px). */
   radius?: number;
+  /** 선 두께(px). */
   strokeWeight?: number;
+  /** 선 색(CSS 색 값). */
   strokeColor?: string;
+  /** 선 끝 모양(`'butt'`, `'round'`, `'square'`). */
   strokeLineCap?: naver.maps.StrokeLineCapType;
+  /** 선이 꺾이는 곳의 모양(`'miter'`, `'round'`, `'bevel'`). */
   strokeLineJoin?: naver.maps.StrokeLineJoinType;
+  /** 면 색(CSS 색 값). */
   fillColor?: string;
 }
 
@@ -97,7 +106,7 @@ const DotMapOverlay = defineOverlay<
   waitForReadyMap: true,
 });
 
-/** 생성자에 넘긴 colorMap. 첫 동기화의 비교 기준이다(binding/created-options.ts 와 같은 이유). */
+/** 생성자에 넘긴 colorMap. 첫 동기화의 비교 기준이다(binding/created-options.ts와 같은 이유). */
 const createdColorMap = new WeakMap<object, unknown>();
 
 function useColorMap(

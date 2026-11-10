@@ -9,7 +9,7 @@ import {
 function LanguageMapContent() {
   const navermaps = useNavermaps();
 
-  // 지도 글자(오버레이 타입)를 영어 판으로 바꾼다.
+  // 지도 글자(오버레이 타입)를 영어로 바꿉니다.
   const mapTypes = useMemo(
     () =>
       new navermaps.MapTypeRegistry({
@@ -31,7 +31,7 @@ function LanguageMapContent() {
 
 export default function MapTutorial9LanguageExample() {
   return (
-    // 스크립트를 불러올 때 언어를 정한다. 한 페이지에서는 처음 불러온 언어가 쓰인다.
+    // 스크립트를 불러올 때 언어를 정합니다. 한 페이지에서는 처음 불러온 언어가 사용됩니다.
     <NavermapsProvider ncpKeyId="aluya4ff04" language="en">
       <MapDiv style={{ width: '100%', height: '600px' }}>
         <LanguageMapContent />

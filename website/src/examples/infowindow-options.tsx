@@ -22,7 +22,7 @@ const content = [
 
 function InfoWindowOptionsMapContent() {
   const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
-  // 공식 예제는 처음에 닫혀 있고, 마커를 누르면 열고 닫는다.
+  // 공식 예제는 처음에 닫혀 있고 마커를 누르면 열고 닫습니다.
   const [open, setOpen] = useState(false);
 
   return (

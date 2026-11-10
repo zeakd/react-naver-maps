@@ -60,22 +60,33 @@ import type { ChangeHandlerProps } from './overlay-events.js';
  * - open() 시 anchor 처리, position silent set, autoPan 등 추가 로직
  */
 export interface InfoWindowProps extends ChangeHandlerProps<{
+  /** 꼬리 색. */
   anchorColor: string;
+  /** 꼬리 크기(`{ width, height }`). */
   anchorSize: naver.maps.Size;
+  /** 꼬리를 기울여 그립니다. */
   anchorSkew: boolean;
+  /** 정보 창 바탕색. */
   backgroundColor: string;
+  /** 정보 창 테두리 색. */
   borderColor: string;
+  /** 정보 창 테두리 두께(px). */
   borderWidth: number;
   content: HTMLElement;
+  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않습니다. */
   disableAnchor: boolean;
+  /** 열 때 정보 창이 보이도록 지도를 옮기지 않습니다. */
   disableAutoPan: boolean;
+  /** 정보 창 최대 너비(px). */
   maxWidth: number;
+  /** 정보 창을 기준점에서 옮길 거리(px, `{ x, y }`). */
   pixelOffset: naver.maps.Point;
   position: naver.maps.Coord;
+  /** 정보 창의 쌓임 순서. */
   zIndex: number;
 }> {
   ref?: Ref<naver.maps.InfoWindow>;
-  /** HTML 문자열 또는 HTML 요소. SDK 의 content 파싱을 그대로 쓴다. */
+  /** HTML 문자열 또는 HTML 요소. SDK의 content 파싱을 그대로 쓴다. */
   content: string | HTMLElement;
   /** 위치 (anchor 없을 때) */
   position?: naver.maps.Coord | naver.maps.CoordLiteral;
@@ -86,21 +97,34 @@ export interface InfoWindowProps extends ChangeHandlerProps<{
    */
   open?: boolean;
   // 옵션
+  /** 정보 창 최대 너비(px). */
   maxWidth?: number;
+  /** 정보 창 바탕색. */
   backgroundColor?: string;
+  /** 정보 창 테두리 색. */
   borderColor?: string;
+  /** 정보 창 테두리 두께(px). */
   borderWidth?: number;
+  /** 열 때 정보 창이 보이도록 지도를 옮기지 않습니다. */
   disableAutoPan?: boolean;
+  /** 꼬리(정보 창이 가리키는 삼각형)를 그리지 않습니다. */
   disableAnchor?: boolean;
+  /** 꼬리를 기울여 그립니다. */
   anchorSkew?: boolean;
+  /** 꼬리 크기(`{ width, height }`). */
   anchorSize?: naver.maps.Size | naver.maps.SizeLiteral;
+  /** 꼬리 색. */
   anchorColor?: string;
+  /** 정보 창을 기준점에서 옮길 거리(px, `{ x, y }`). */
   pixelOffset?: naver.maps.Point | naver.maps.PointLiteral;
   /** 자동 이동(autoPan) 때 지도 가장자리와 띄울 여백. SDK 기본 (20, 20). */
   autoPanPadding?: naver.maps.Point | naver.maps.PointLiteral;
+  /** 정보 창의 쌓임 순서. */
   zIndex?: number;
   // 이벤트. SDK 는 열고 닫힌 위치의 포인터 이벤트를 준다.
+  /** 정보 창이 열렸을 때. */
   onOpen?: (e: naver.maps.PointerEvent) => void;
+  /** 정보 창이 닫혔을 때. 닫기로 바뀐 `open`을 state에 맞출 때 사용합니다. */
   onClose?: (e: naver.maps.PointerEvent) => void;
 }
 
@@ -124,7 +148,7 @@ const OPTIONS = [
   'zIndex',
 ] as const satisfies readonly (keyof InfoWindowProps)[];
 
-/** content, open 은 InfoWindow 가 먼저 꺼내므로 여기 없다. */
+/** content, open은 InfoWindow가 먼저 꺼내므로 여기 없다. */
 const HANDLED = handledProps([...OPTIONS, 'anchor']);
 
 /** 열고 닫힘 이벤트. 목록을 상수로 두어 렌더마다 만들지 않는다. */

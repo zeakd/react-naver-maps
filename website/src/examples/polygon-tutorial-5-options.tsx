@@ -28,7 +28,7 @@ const paths = [
 ];
 
 function PolygonOptionsMapContent() {
-  // 마우스를 올렸는지를 state 로 두고, 그에 따라 선 스타일을 prop 으로 바꾼다.
+  // 마우스를 올린 상태를 state로 관리하고 선 스타일 props를 바꿉니다.
   const [hover, setHover] = useState(false);
 
   return (

@@ -30,14 +30,14 @@ export class EchoLog<C> {
     push(this.zooms, { at: now, zoom }, now);
   }
 
-  /** 최근 보고한 center 가운데 `same` 으로 같은 자리인 것이 있는가. */
+  /** 최근 보고한 center 가운데 `same`으로 같은 자리인 것이 있는가. */
   isCenterEcho(now: number, same: (reported: C) => boolean): boolean {
     return this.centers.some(
       (r) => now - r.at <= EchoLog.WINDOW_MS && same(r.coord),
     );
   }
 
-  /** 최근 보고한 실수 zoom 과 같은가. 정수는 되울림으로 보지 않는다. */
+  /** 최근 보고한 실수 zoom과 같은가. 정수는 되울림으로 보지 않는다. */
   isZoomEcho(zoom: number, now: number): boolean {
     if (Number.isInteger(zoom)) return false;
     return this.zooms.some(

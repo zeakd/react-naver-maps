@@ -52,7 +52,7 @@ export function useMapTypeProps(
   });
 }
 
-/** mapTypeId prop 이 없을 때: 지금 ID 가 새 레지스트리에 있으면 그대로, 없으면 레지스트리가 고른 유형. */
+/** mapTypeId prop이 없을 때: 지금 ID가 새 레지스트리에 있으면 그대로, 없으면 레지스트리가 고른 유형. */
 function keptId(current: string, registry: Registry): string {
   const ids = registry.getTypeIds?.();
   if (!ids || ids.includes(current)) return current;

@@ -60,10 +60,13 @@ import {
 /** 네이버 지도를 렌더링한다. Container 내부에서 사용해야 한다. */
 export interface NaverMapProps {
   ref?: Ref<naver.maps.Map>;
+  /** 지도 위에 그릴 마커·도형·정보 창 등. */
   children?: ReactNode;
 
   // Controlled KVO
+  /** 지도 중심. prop이 바뀌면 해당 위치로 이동합니다. 사용자가 이동한 위치를 반영하려면 `onCenterChanged`로 state를 변경합니다. 초기값만 지정하려면 `defaultCenter`를 사용합니다. */
   center?: naver.maps.Coord | naver.maps.CoordLiteral;
+  /** 줌 레벨. prop이 바뀌면 해당 줌으로 변경합니다. 초기값만 지정하려면 `defaultZoom`을 사용합니다. */
   zoom?: number;
   /**
    * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. bounds 는 지도가 계산해 내는 값이라
@@ -71,7 +74,9 @@ export interface NaverMapProps {
    * `defaultBounds`, 바꿀 때는 `map.fitBounds()`, 읽을 때는 `onBoundsChanged` 를 쓴다.
    */
   bounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
+  /** 지도 유형(`'normal'`, `'terrain'`, `'satellite'`, `'hybrid'` 또는 `mapTypes`에 더한 이름). */
   mapTypeId?: MapTypeIdProp;
+  /** 지도 크기(px). 지정하지 않으면 `Container` 크기를 따릅니다. */
   size?: naver.maps.Size | naver.maps.SizeLiteral;
   /**
    * @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `center` 와 같은 중심을 세계 좌표로
@@ -80,12 +85,17 @@ export interface NaverMapProps {
   centerPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Uncontrolled defaults
+  /** 처음 중심. 이후에는 SDK가 관리합니다. */
   defaultCenter?: naver.maps.Coord | naver.maps.CoordLiteral;
+  /** 처음 줌 레벨. `defaultBounds`도 없으면 16. */
   defaultZoom?: number;
+  /** 처음에 보일 영역. 지정하면 `defaultCenter`, `defaultZoom` 대신 이 영역이 보이게 맞춥니다. */
   defaultBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
+  /** 처음 지도 유형. */
   defaultMapTypeId?: MapTypeIdProp;
+  /** 처음 지도 크기(px). */
   defaultSize?: naver.maps.Size | naver.maps.SizeLiteral;
-  /** @deprecated 0.4 에서 deprecated, 다음 버전에서 없앤다. `defaultCenter` 를 쓴다. */
+  /** @deprecated 0.4에서 deprecated, 다음 버전에서 없앤다. `defaultCenter`를 쓴다. */
   defaultCenterPoint?: naver.maps.Point | naver.maps.PointLiteral;
 
   // Static options (생성 시에만 적용)
@@ -124,7 +134,9 @@ export interface NaverMapProps {
   tileDuration?: number;
 
   // Controlled options (런타임 변경 가능)
+  /** 줌 레벨 최솟값. */
   minZoom?: number;
+  /** 줌 레벨 최댓값. */
   maxZoom?: number;
 
   // Controlled options (런타임 변경 가능)
@@ -138,109 +150,177 @@ export interface NaverMapProps {
   tilt?: number;
   /** 지도 회전(GL 모드). SDK 패턴: controlled (`setRotation`/`getRotation`, `rotation_changed`). */
   rotation?: number;
+  /** 타일을 불러오기 전 지도 바탕색. */
   background?: string;
+  /** 기본 지도 타일 불투명도(0~1). */
   baseTileOpacity?: number;
+  /** 끌어서 지도를 옮길 수 있는지 여부. */
   draggable?: boolean;
+  /** 마우스 휠로 확대·축소할 수 있는지 여부. */
   scrollWheel?: boolean;
+  /** 두 손가락으로 확대·축소할 수 있는지 여부. */
   pinchZoom?: boolean;
+  /** 키보드로 지도를 옮기고 확대할 수 있는지 여부. */
   keyboardShortcuts?: boolean;
+  /** 더블클릭 확대를 끕니다. */
   disableDoubleClickZoom?: boolean;
+  /** 두 번 탭 확대를 끕니다. */
   disableDoubleTapZoom?: boolean;
+  /** 두 손가락 탭 축소를 끕니다. */
   disableTwoFingerTapZoom?: boolean;
+  /** 끌기를 놓은 뒤 미끄러지는 관성 이동을 끕니다. SDK 기본값은 `true`(관성 없음)입니다. 관성을 켜려면 `false`를 지정해 주세요. */
   disableKineticPan?: boolean;
+  /** 타일이 바뀔 때 서서히 나타낼지 여부. */
   tileTransition?: boolean;
+  /** 로고 위치. 로고 자체는 끌 수 없습니다. */
   logoControlOptions?: ControlOptionsProp;
+  /** 지도 데이터 저작권 표시를 보일지 여부. */
   mapDataControl?: boolean;
+  /** 지도 데이터 저작권 표시의 위치. */
   mapDataControlOptions?: ControlOptionsProp;
+  /** 지도 유형 컨트롤을 보일지 여부. */
   mapTypeControl?: boolean;
+  /** 지도 유형 컨트롤의 위치·모양·고를 수 있는 유형. */
   mapTypeControlOptions?: MapTypeControlOptionsProp;
+  /** 축척 컨트롤을 보일지 여부. */
   scaleControl?: boolean;
+  /** 축척 컨트롤의 위치. */
   scaleControlOptions?: ControlOptionsProp;
+  /** 줌 컨트롤을 보일지 여부. */
   zoomControl?: boolean;
+  /** 줌 컨트롤의 위치·모양(예: `{ position: 'TOP_RIGHT', style: 'SMALL' }`). */
   zoomControlOptions?: ZoomControlOptionsProp;
+  /** 쓸 지도 유형 모음(`MapTypeRegistry`). 사용자 지도 유형을 더할 때. */
   mapTypes?: naver.maps.MapTypeRegistry;
+  /** 지도를 옮길 수 있는 영역. 가장자리에서는 SDK가 이동을 막습니다. */
   maxBounds?: naver.maps.Bounds | naver.maps.BoundsLiteral;
+  /** 지도 영역의 안쪽 여백(`{ top, right, bottom, left }`, px). 중심과 `fitBounds`의 기준이 됩니다. */
   padding?: naver.maps.padding;
+  /** 지도 크기가 바뀔 때 고정할 기준 위치. */
   resizeOrigin?: naver.maps.Position;
+  /** 확대·축소하는 동안 오버레이에 줄 효과. */
   overlayZoomEffect?: string | null;
+  /** 화면 밖에 미리 불러 둘 타일 수. */
   tileSpare?: number;
+  /** 확대·축소의 기준 좌표. */
   zoomOrigin?: naver.maps.Coord | naver.maps.CoordLiteral;
+  /** 타일이 없는 자리에 보일 이미지 주소. */
   blankTileImage?: string | null;
 
   // KVO changed 이벤트
+  /** SDK의 `center_changed` 이벤트. 중심이 바뀌었을 때. 인자는 새 중심. */
   onCenterChanged?: (center: naver.maps.Coord) => void;
+  /** SDK의 `zoom_changed` 이벤트. 줌 레벨이 바뀌었을 때. 인자는 새 줌 레벨. */
   onZoomChanged?: (zoom: number) => void;
+  /** SDK의 `bounds_changed` 이벤트. 보이는 영역이 바뀌었을 때. 인자는 새 영역. */
   onBoundsChanged?: (bounds: naver.maps.Bounds) => void;
+  /** SDK의 `mapTypeId_changed` 이벤트. 지도 유형이 바뀌었을 때. 인자는 새 유형 이름. */
   onMapTypeIdChanged?: (
     mapTypeId: naver.maps.MapTypeId | (string & {}),
   ) => void;
+  /** SDK의 `size_changed` 이벤트. 지도 크기가 바뀌었을 때. */
   onSizeChanged?: (value: naver.maps.Size) => void;
+  /** SDK의 `centerPoint_changed` 이벤트. 세계 좌표로 나타낸 중심이 바뀌었을 때. */
   onCenterPointChanged?: (value: naver.maps.Point) => void;
+  /** SDK의 `mapType_changed` 이벤트. 지도 유형 객체가 바뀌었을 때. */
   onMapTypeChanged?: (value: naver.maps.MapType) => void;
+  /** SDK의 `tilt_changed` 이벤트. 기울기가 바뀌었을 때(GL). */
   onTiltChanged?: (value: number) => void;
+  /** SDK의 `rotation_changed` 이벤트. 회전이 바뀌었을 때(GL). */
   onRotationChanged?: (value: number) => void;
 
   // 맵 라이프사이클 이벤트
+  /** SDK의 `init` 이벤트. 지도가 준비됐을 때 한 번. */
   onInit?: () => void;
+  /** SDK의 `idle` 이벤트. 지도 이동·확대가 끝나 멈췄을 때. */
   onIdle?: () => void;
+  /** SDK의 `panning` 이벤트. 지도가 움직이는 동안. */
   onPanning?: () => void;
   /** 줌 효과가 시작될 때(SDK `zoomstart`). */
   onZoomstart?: () => void;
   /** 줌 효과가 끝날 때(SDK `zoomend`). */
   onZoomend?: () => void;
-  /** GL 에서 실수 줌 레벨이 바뀔 때마다(SDK `zoom`, GL 서브모듈 전용). */
+  /** GL에서 실수 줌 레벨이 바뀔 때마다(SDK `zoom`, GL 서브모듈 전용). */
   onZoom?: () => void;
   /**
    * SDK 가 zoomstart 와 함께 내는 `zooming`. 공식 문서에는 없다. 0.3 과의 호환으로 둔다.
    * 새 코드는 `onZoomstart` 를 쓴다.
    */
   onZooming?: () => void;
+  /** SDK의 `tilesloaded` 이벤트. 보이는 타일을 다 불러왔을 때. */
   onTilesloaded?: () => void;
+  /** SDK의 `resize` 이벤트. 지도 크기를 다시 맞췄을 때. */
   onResize?: () => void;
+  /** SDK의 `projection_changed` 이벤트. 투영이 바뀌었을 때. */
   onProjectionChanged?: () => void;
+  /** SDK의 `addLayer` 이벤트. 레이어가 더해졌을 때. */
   onAddLayer?: (layer: naver.maps.Layer) => void;
+  /** SDK의 `removeLayer` 이벤트. 레이어가 빠졌을 때. */
   onRemoveLayer?: (layername: string) => void;
 
   // 마우스 이벤트
+  /** SDK의 `click` 이벤트. 지도를 눌렀을 때. `e.coord`가 누른 좌표. */
   onClick?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `dblclick` 이벤트. 지도를 더블클릭했을 때. */
   onDblclick?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `rightclick` 이벤트. 오른쪽 단추로 눌렀을 때. */
   onRightclick?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `mousedown` 이벤트. 마우스 단추를 눌렀을 때. */
   onMousedown?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `mouseup` 이벤트. 마우스 단추를 뗐을 때. */
   onMouseup?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `mouseover` 이벤트. 마우스가 지도 위로 들어왔을 때. */
   onMouseover?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `mouseout` 이벤트. 마우스가 지도 밖으로 나갔을 때. */
   onMouseout?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `mousemove` 이벤트. 마우스가 움직일 때. */
   onMousemove?: (e: naver.maps.PointerEvent) => void;
 
   // 드래그 이벤트
+  /** SDK의 `dragstart` 이벤트. 끌기를 시작했을 때. */
   onDragstart?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `drag` 이벤트. 끄는 동안. */
   onDrag?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `dragend` 이벤트. 끌기를 끝냈을 때. */
   onDragend?: (e: naver.maps.PointerEvent) => void;
 
   // 터치 이벤트
+  /** SDK의 `touchstart` 이벤트. 터치를 시작했을 때. */
   onTouchstart?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `touchmove` 이벤트. 터치한 채 움직일 때. */
   onTouchmove?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `touchend` 이벤트. 터치를 뗐을 때. */
   onTouchend?: (e: naver.maps.PointerEvent) => void;
 
   // 핀치 이벤트
+  /** SDK의 `pinchstart` 이벤트. 두 손가락 확대·축소를 시작했을 때. */
   onPinchstart?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `pinch` 이벤트. 두 손가락으로 확대·축소하는 동안. */
   onPinch?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `pinchend` 이벤트. 두 손가락 확대·축소를 끝냈을 때. */
   onPinchend?: (e: naver.maps.PointerEvent) => void;
 
   // 모바일 탭 이벤트
+  /** SDK의 `tap` 이벤트. 탭했을 때. */
   onTap?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `longtap` 이벤트. 길게 눌렀을 때. */
   onLongtap?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `twofingertap` 이벤트. 두 손가락으로 탭했을 때. */
   onTwofingertap?: (e: naver.maps.PointerEvent) => void;
+  /** SDK의 `doubletap` 이벤트. 두 번 탭했을 때. */
   onDoubletap?: (e: naver.maps.PointerEvent) => void;
 
   // 키보드 이벤트
+  /** SDK의 `keydown` 이벤트. 지도에 초점이 있을 때 키를 눌렀을 때. 인자는 `{ keyboardEvent }`. */
   onKeydown?: (e: MapKeyboardEvent) => void;
+  /** SDK의 `keyup` 이벤트. 지도에 초점이 있을 때 키를 뗐을 때. 인자는 `{ keyboardEvent }`. */
   onKeyup?: (e: MapKeyboardEvent) => void;
 }
 
 /** 지도 keydown, keyup 이벤트 인자. 공식 문서 Map Events(keyboardEvent). */
 export type MapKeyboardEvent = { keyboardEvent: KeyboardEvent };
 
-/** 지도가 처리하는 prop. 그 밖의 prop 은 SDK 옵션으로 넘긴다(binding/extra-sdk-options.ts). */
+/** 지도가 처리하는 prop. 그 밖의 prop은 SDK 옵션으로 넘긴다(binding/extra-sdk-options.ts). */
 export const MAP_HANDLED_PROPS = handledProps([
   'center',
   'zoom',
@@ -604,7 +684,7 @@ function sameOnScreen(
   return Math.hypot(pa.x - pb.x, pa.y - pb.y) * scale < 1;
 }
 
-/** 좌표 리터럴을 SDK 객체로. `{ lat, lng }` 와 `[경도, 위도]` 는 LatLng, `{ x, y }` 는 Point. */
+/** 좌표 리터럴을 SDK 객체로. `{ lat, lng }`와 `[경도, 위도]`는 LatLng, `{ x, y }`는 Point. */
 function toCoord(
   c: naver.maps.Coord | naver.maps.CoordLiteral,
 ): naver.maps.Coord {
@@ -622,7 +702,7 @@ function optionalCoord(
   return c === undefined ? undefined : toCoord(c);
 }
 
-/** 개발 모드에서 deprecated prop 을 처음 받았을 때 한 번 알린다. */
+/** 개발 모드에서 deprecated prop을 처음 받았을 때 한 번 알린다. */
 function useDeprecatedProp(
   name: keyof NaverMapProps,
   value: unknown,

@@ -33,7 +33,7 @@ function EarthquakeHeatMap({
 function SpectrumMapContent() {
   const navermaps = useNavermaps();
   const { SpectrumStyle } = navermaps.visualization;
-  // 공식 예제는 HOT 하나. 나머지 스펙트럼도 골라 볼 수 있게 한다.
+  // 공식 예제의 HOT 외에 다른 스펙트럼도 고를 수 있습니다.
   const [colorMap, setColorMap] = useState(SpectrumStyle.HOT);
   const [inReverse, setInReverse] = useState(false);
 

@@ -2,15 +2,21 @@
 title: 이미지 아이콘 레티나 대응하기
 category: tutorial-marker
 order: 7
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-marker-retina.example.html
+changes:
+  - official: '`new naver.maps.Marker`에 `map`·`icon` 옵션'
+    react: '`<Marker>`의 `icon` prop'
+  - official: '`new naver.maps.Size`·`new naver.maps.Point`로 `size`·`scaledSize`·`origin`·`anchor`'
+    react: '`{ width, height }`·`{ x, y }` 리터럴'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial7RetinaExample from '../../../examples/marker-tutorial-7-retina.tsx';
 
+큰 이미지를 줄여 레티나 화면에서도 선명하게 마커 아이콘을 표시합니다.
+
 <Example of={MarkerTutorial7RetinaExample} />
 
 ## 설명
 
-`icon.scaledSize` 에 보여줄 크기를 주면 원본 이미지(50x68)를 절반으로 줄여 그려 레티나에서 선명합니다.
-
-> [네이버 공식 예제 - 이미지 아이콘 레티나 대응하기](https://navermaps.github.io/maps.js.ncp/docs/tutorial-7-marker-retina.example.html)
+`icon.scaledSize`에 보여줄 크기를 주면 원본 이미지(50x68)를 절반으로 줄여 그려 레티나에서 선명합니다.

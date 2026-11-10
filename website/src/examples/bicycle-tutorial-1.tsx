@@ -10,7 +10,7 @@ import { ButtonBar, ToggleButton } from './example-ui-a';
 
 function BicycleMapContent() {
   const navermaps = useNavermaps();
-  // 켜짐 여부는 앱 state 가 갖고, 레이어는 마운트로 켜고 끈다.
+  // 켜짐 여부는 state로 관리하고 레이어는 마운트와 언마운트로 켜고 끕니다.
   const [bicycle, setBicycle] = useState(true);
 
   return (

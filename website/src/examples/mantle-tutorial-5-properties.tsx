@@ -11,14 +11,14 @@ import { useJsonAll } from '../samples/remote-data';
 type Feature = { type: 'Feature'; geometry: Record<string, unknown> };
 type Collection = { type: 'FeatureCollection'; features: Feature[] };
 
-// 공식 예제는 geometry 안에 mantle_properties(스타일 값)를 넣은 GeoJSON 을 쓴다.
-// 같은 모양으로 강원도(01), 경기도(02) 경계에 스타일 값을 붙인다.
+// 공식 예제는 geometry 안에 mantle_properties(스타일 값)를 넣은 GeoJSON을 사용합니다.
+// 같은 형태로 강원도(01), 경기도(02) 경계에 스타일 값을 붙입니다.
 const MANTLE = { strokeOpacity: 0.7, strokeWeight: 2, fillOpacity: 0.7 };
 const COLORS = ['green', 'darkgreen'];
 
 type Mantle = typeof MANTLE & { strokeColor: string; fillColor: string };
 
-// autoStyle 이 geometry 의 mantle_properties 를 스타일로 쓰고, 클릭한 feature 만 덮어쓴다.
+// autoStyle이 geometry의 mantle_properties를 스타일로 쓰고 클릭한 feature만 덮어씁니다.
 const mantleStyle = (feature: naver.maps.Feature) => {
   if (feature.getProperty('focus')) {
     return {

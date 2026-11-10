@@ -2,21 +2,27 @@
 title: 이벤트 기본 예제
 category: tutorial-event
 order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-event-simple.example.html
+changes:
+  - official: "`Event.addListener(map, 'click')`처럼 직접 붙이는 리스너"
+    react: '`NaverMap`의 `onClick`, `onRightclick`, `onMousedown`, `onKeydown` prop'
+  - official: '`new naver.maps.Marker`를 `markerList`에 모으고 `setMap(null)`로 하나씩 삭제'
+    react: '좌표 목록 state를 `<Marker>`로 렌더링하고 `setMarkers([])`로 삭제'
+  - official: 'jQuery로 만든 정보 div를 `map.getPanes().floatPane`에 붙이고 `show()`, `hide()` 호출'
+    react: '`menu` state가 있을 때 `Container` 안의 `e.offset` 위치에 표시'
+  - official: '오른쪽 클릭한 좌표를 `console.log`로 출력'
+    react: '정보 창 안에 좌표 표시'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import EventTutorial1SimpleExample from '../../../examples/event-tutorial-1-simple.tsx';
 
-지도를 클릭하면 마커를 더하고, 오른쪽 클릭하면 좌표 정보를 띄우고, ESC 로 모두 지우는 예제입니다.
+지도를 클릭하면 마커를 추가하고 오른쪽 클릭하면 좌표를 표시합니다. ESC로 모두 지웁니다.
 
 <Example of={EventTutorial1SimpleExample} />
 
 ## 설명
 
-지도 이벤트는 `NaverMap` 의 `onClick`, `onRightclick`, `onMousedown`, `onKeydown` prop 입니다. 인자는 SDK 의 `PointerEvent`(`coord`, `point`, `offset`)이고, `onKeydown` 은 `{ keyboardEvent }` 를 받습니다.
+지도 이벤트 prop의 인자는 SDK의 `PointerEvent`(`coord`, `point`, `offset`)이고, `onKeydown`은 `{ keyboardEvent }`를 받습니다. 마커 목록과 정보 창은 React state로 그립니다.
 
-마커 목록은 React state 이고 `<Marker>` 를 `map` 으로 그립니다. 공식 예제의 `markerList` 와 `setMap(null)` 반복이 `setMarkers([])` 하나가 됩니다.
-
-공식 예제는 정보 창 div 를 `map.getPanes().floatPane` 에 붙이지만, 여기서는 `Container` 안에 `e.offset` 위치로 놓은 일반 요소를 씁니다. `keydown` 은 지도에 초점이 있을 때 옵니다(지도를 한 번 클릭하세요).
-
-> [네이버 공식 튜토리얼 - 이벤트 기본 예제](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-event-simple.example.html)
+`keydown` 이벤트는 지도에 초점이 있을 때 발생합니다. 지도를 한 번 클릭해 초점을 맞출 수 있습니다.

@@ -1,4 +1,5 @@
 ---
+// 예제 상자: 위는 실제로 동작하는 예제, 아래는 그 파일의 소스(접기·복사). 소스는 rehype 플러그인이 넣는다.
 import { Code } from 'astro:components';
 
 interface Props {
@@ -16,73 +17,126 @@ const { __code, title } = Astro.props;
   </div>
   {__code && (
     <details class="acd-example-details" open>
-      <summary>코드 보기</summary>
-      <div class="acd-example-code">
-        <Code code={__code} lang="tsx" theme="github-dark" />
+      <summary>
+        <span class="acd-when-open">코드 접기</span><span class="acd-when-closed">코드 보기</span>
+        <button type="button" class="acd-copy" data-acd-copy>복사</button>
+      </summary>
+      <div class="acd-example-code" data-acd-code>
+        <Code code={__code} lang="tsx" themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
       </div>
     </details>
   )}
 </div>
 
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-acd-copy]');
+    if (!btn) return;
+    e.preventDefault();
+    const code = btn.closest('.acd-example')?.querySelector('[data-acd-code]')?.textContent ?? '';
+    navigator.clipboard?.writeText(code).then(() => {
+      btn.textContent = '복사됨';
+      setTimeout(() => (btn.textContent = '복사'), 1200);
+    });
+  });
+</script>
+
 <style>
   .acd-example {
-    border: 1px solid var(--acd-border, #e2e8f0);
-    border-radius: 4px;
+    border: 1px solid var(--acd-border, #e4e7ea);
+    border-radius: 12px;
     overflow: hidden;
-    margin: 1.5rem 0;
+    margin: 8px 0 24px;
   }
 
   .acd-example-title {
-    padding: 0.75rem 1rem;
+    padding: 10px 16px;
     font-weight: 600;
-    font-size: 0.875rem;
-    color: var(--acd-text-muted, #64748b);
-    border-bottom: 1px solid var(--acd-border, #e2e8f0);
-    background: var(--acd-bg-subtle, #f8fafc);
+    font-size: 14px;
+    color: var(--acd-text-muted, #6e767e);
+    border-bottom: 1px solid var(--acd-border, #e4e7ea);
+    background: var(--acd-bg-subtle, #f6f7f8);
   }
 
   .acd-example-preview {
-    padding: 1.5rem;
+    padding: 16px;
+    font-size: 15px;
+    /* 예제 코드는 밝은 바탕을 전제로 배경·글자색을 고정한 것이 많다. 사이트가 어두운 화면이어도 미리보기는
+       밝게 두어 글자가 바탕에 묻히지 않게 한다. */
+    color-scheme: light;
+    background: #fff;
+    color: #1c2024;
   }
 
   .acd-example-details {
-    border-top: 1px solid var(--acd-border, #e2e8f0);
+    border-top: 1px solid var(--acd-border, #e4e7ea);
   }
 
   .acd-example-details summary {
-    padding: 0.5rem 1rem;
-    font-size: 0.8125rem;
-    color: var(--acd-text-muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px 8px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--acd-text-muted, #6e767e);
     cursor: pointer;
     user-select: none;
-    background: var(--acd-bg-subtle, #f8fafc);
+    list-style: none;
+    background: var(--acd-bg-subtle, #f6f7f8);
+  }
+
+  .acd-example-details summary::-webkit-details-marker {
+    display: none;
   }
 
   .acd-example-details summary:hover {
-    color: var(--acd-text, #1e293b);
+    color: var(--acd-text, #1c2024);
+  }
+
+  .acd-when-open,
+  .acd-example-details[open] .acd-when-closed {
+    display: none;
+  }
+
+  .acd-example-details[open] .acd-when-open {
+    display: inline;
+  }
+
+  .acd-copy {
+    margin-left: auto;
+    border: 1px solid var(--acd-border, #e4e7ea);
+    background: transparent;
+    color: inherit;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
   }
 
   .acd-example-code {
-    font-size: 0.875rem;
-    line-height: 1.6;
+    font-size: 13.5px;
+    line-height: 1.65;
+    max-height: 560px;
+    overflow: auto;
+    border-top: 1px solid var(--acd-border, #e4e7ea);
   }
 
   .acd-example-code :global(pre) {
-    margin: 0;
-    border-radius: 0;
+    margin: 0 !important;
+    padding: 16px 18px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
   }
 
   @media (max-width: 768px) {
     .acd-example-preview {
-      padding: 1rem;
-    }
-
-    .acd-example-title {
-      padding: 0.5rem 0.75rem;
+      padding: 12px;
     }
 
     .acd-example-code {
-      font-size: 0.8125rem;
+      font-size: 12.5px;
     }
   }
 </style>

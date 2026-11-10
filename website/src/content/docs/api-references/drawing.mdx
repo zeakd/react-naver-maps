@@ -6,7 +6,7 @@ order: 15
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`react-naver-maps/drawing` 은 SDK 의 drawing 서브모듈(`naver.maps.drawing`)인 `DrawingManager` 를 컴포넌트로 씁니다. 사용자가 지도 위에 도형을 그리게 합니다.
+`react-naver-maps/drawing`은 SDK의 drawing 서브모듈(`naver.maps.drawing`)에 있는 `DrawingManager`를 컴포넌트로 제공합니다. 사용자가 지도 위에 도형을 그릴 수 있습니다.
 
 ```tsx
 <NavermapsProvider ncpKeyId="..." submodules={['drawing']}>
@@ -30,8 +30,8 @@ function Editor() {
 }
 ```
 
-- 그린 도형은 SDK 가 가집니다. 이벤트(`onDrawingAdded` 등)로 받고, 전부 필요하면 ref 의 `getDrawings()`, `toGeoJson()` 을 씁니다.
-- `drawingMode` 는 다른 controlled prop 과 같습니다. 사용자가 도구 막대로 모드를 바꿔도 다시 렌더하면 prop 값으로 돌아갑니다. 받아들이려면 `onDrawingModeChanged` 로 상태를 갱신합니다.
+- 그린 도형은 SDK가 관리합니다. 이벤트(`onDrawingAdded` 등)로 받고, 전부 필요하면 ref의 `getDrawings()`, `toGeoJson()`을 사용합니다.
+- `drawingMode`는 다른 controlled prop과 같습니다. 사용자가 도구 막대로 모드를 바꿔도 다시 렌더링하면 prop 값으로 돌아갑니다. 변경을 반영하려면 `onDrawingModeChanged`로 state를 갱신해 주세요.
 - 도구 막대는 지도 컨트롤이라 지도가 준비(`init`)된 뒤 붙습니다.
 - 서브모듈을 불러오지 않고 쓰면 불러오는 법을 담은 에러를 던집니다.
 

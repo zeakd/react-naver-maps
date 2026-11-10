@@ -7,7 +7,7 @@ import {
   Rectangle,
 } from 'react-naver-maps';
 
-// 독도. 값이 바뀌지 않으니 모듈에 둔다.
+// 독도 경계는 값이 바뀌지 않아 모듈에 둡니다.
 const dokdo = {
   south: 37.2380651,
   west: 131.8562652,
@@ -21,7 +21,7 @@ function MaxBoundsMapContent() {
   return (
     <>
       <NaverMap
-        // 영역 밖으로 나가지 못하게 maxBounds, 너무 멀어지지 않게 minZoom.
+        // maxBounds로 영역을 제한하고 minZoom으로 축소 범위를 제한합니다.
         defaultCenter={{ lat: 37.2412, lng: 131.8674 }}
         defaultZoom={16}
         minZoom={14}
