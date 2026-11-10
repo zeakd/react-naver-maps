@@ -6,8 +6,7 @@ order: 5
 
 ## useMap()
 
-`useMap()`은 현재 `<NaverMap>` 인스턴스(`naver.maps.Map`)를 반환합니다.
-`<NaverMap>` 하위 컴포넌트에서 사용할 수 있습니다.
+`useMap()`은 현재 `<NaverMap>` 인스턴스(`naver.maps.Map`)를 반환합니다. `<NaverMap>` 하위 컴포넌트에서 사용합니다.
 
 ```tsx
 import { useMap } from 'react-naver-maps';
@@ -42,12 +41,12 @@ function MoveButtons() {
 }
 ```
 
-`panTo`, `morph`, `setCenter`, `fitBounds`, `panToBounds` 는 좌표·영역을 `{ lat, lng }`, `{ south, west, north, east }` 같은 리터럴로도 받습니다(공식 문서의 `CoordLiteral`, `BoundsLiteral`). SDK 객체를 만들려고 `useNavermaps()` 를 부를 필요가 없습니다.
+`panTo`, `morph`, `setCenter`, `fitBounds`, `panToBounds`는 좌표·영역을 `{ lat, lng }`, `{ south, west, north, east }` 같은 리터럴로도 받습니다(공식 문서의 `CoordLiteral`, `BoundsLiteral`). SDK 객체를 만들려고 `useNavermaps()`를 호출할 필요가 없습니다.
 
 `panTo`는 애니메이션과 함께 이동합니다. center와 zoom을 동시에 변경할 때는 `morph()`를 사용하세요.
 `setCenter()`는 진행 중인 애니메이션을 강제 중단하므로, 일반적인 이동에는 `panTo`가 적합합니다.
 
-`center` prop 을 controlled 로 사용하더라도 메서드로 지도를 이동할 수 있습니다. 지도가 움직이면 `onCenterChanged` 로 앱 상태를 갱신합니다. `center` prop 은 지도가 최근 2초 안에 알려 준 위치를 따르지 않으므로([핵심 개념](/react-naver-maps/guides/core-concepts/)), 지나온 위치로 다시 이동하려면 메서드를 사용합니다.
+`center`를 controlled prop으로 사용해도 메서드로 지도를 이동할 수 있습니다. 지도가 움직이면 `onCenterChanged`로 앱 상태를 갱신합니다. `center` prop은 지도가 최근 2초 안에 알려 준 위치를 따르지 않으므로([핵심 개념](/react-naver-maps/guides/core-concepts/)), 지나온 위치로 다시 이동하려면 메서드를 사용합니다.
 
 메서드 인자는 SDK 를 직접 부르는 것이라 SDK 상수를 씁니다. prop 이 받는 상수 이름(`'TOP_RIGHT'`)은 메서드에서는 바뀌지 않습니다.
 
