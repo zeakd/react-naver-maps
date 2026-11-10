@@ -6,12 +6,11 @@ order: 4
 
 ## 동작 방식
 
-`react-naver-maps`는 React 19의 `use()`를 사용하여 네이버맵 스크립트를 로드합니다.
-`useNavermaps()` 훅이 호출되면 스크립트 로드 Promise를 `use()`로 감싸서, 로드가 완료될 때까지 컴포넌트를 suspend합니다.
+`react-naver-maps`는 React 19의 `use()`를 사용해 네이버 지도 스크립트를 불러옵니다. `useNavermaps()`를 호출하면 스크립트 로딩 Promise를 `use()`로 감싸 로딩이 끝날 때까지 컴포넌트의 렌더링을 중단합니다.
 
 ## Container의 내장 Suspense
 
-`<Container>`는 내부에 `<Suspense>`를 포함하고 있으므로, 별도로 감쌀 필요가 없습니다.
+`<Container>`는 내부에 `<Suspense>`를 포함하므로 별도로 감싸지 않아도 됩니다.
 
 ```tsx
 // Container 안에서는 Suspense 불필요
@@ -33,7 +32,7 @@ order: 4
 
 ## SSR / 정적 빌드와 함께 사용
 
-`react-naver-maps`는 SSR 환경을 지원합니다. 서버에서는 네이버맵 스크립트를 로드할 수 없으므로, `<Container>`의 외부 div(높이 포함)만 렌더링되고 내부 지도는 클라이언트에서 hydration 후 표시됩니다.
+`react-naver-maps`는 SSR 환경을 지원합니다. 서버에서는 네이버 지도 스크립트를 불러올 수 없어 `<Container>`의 외부 div(높이 포함)만 렌더링하고, 지도는 클라이언트에서 하이드레이션한 뒤 표시합니다.
 
 이 구조에서는 `useNavermaps()`를 `<Container>` 안에서 호출해 주세요. Container의 내장 Suspense가 스크립트 로딩을 처리합니다.
 
@@ -118,8 +117,7 @@ function App() {
 
 ## preloadNavermaps()
 
-스크립트 로드를 미리 시작하여 사용자가 지도 페이지에 도달했을 때 대기 시간을 줄일 수 있습니다.
-`NavermapsProvider` 바깥에서도 호출 가능합니다.
+스크립트 로딩을 미리 시작하면 지도 페이지의 대기 시간을 줄일 수 있습니다. `NavermapsProvider` 바깥에서도 호출할 수 있습니다.
 
 ```tsx
 import { preloadNavermaps } from 'react-naver-maps';
