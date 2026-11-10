@@ -7,7 +7,7 @@ changes:
   - official: '`new naver.maps.BicycleLayer()` 를 만들고 `setMap(map)`, `setMap(null)` 로 켜고 끄기'
     react: '`<BicycleLayer />` 를 조건부 렌더링으로 켜고 끄기'
   - official: jQuery 로 버튼에 클릭 리스너 붙이기
-    react: 버튼의 `onClick` 이 React state(`bicycle`)를 바꾼다
+    react: 버튼의 `onClick` 에서 React state(`bicycle`) 변경
   - official: '`bicycleLayer_changed` 이벤트로 버튼 모양 맞추기'
     react: state 에 따라 버튼 모양 표시
   - official: 지도 `init` 이벤트에서 레이어 켜기
@@ -23,4 +23,4 @@ import BicycleTutorial1Example from '../../../examples/bicycle-tutorial-1.tsx';
 
 ## 설명
 
-지도 유형 컨트롤은 `mapTypeControl` 과 `mapTypeControlOptions` 로 정합니다. 스타일 상수는 `useNavermaps()` 가 주는 `navermaps.MapTypeControlStyle` 에서 받습니다.
+지도 유형 컨트롤은 `mapTypeControl` 과 `mapTypeControlOptions` 로 설정합니다. 스타일 상수는 `useNavermaps()` 로 받은 `navermaps.MapTypeControlStyle` 을 사용합니다.

@@ -5,11 +5,11 @@ order: 3
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-traffic.example.html
 changes:
   - official: '`new naver.maps.TrafficLayer({ interval })` 를 만들고 `setMap` 으로 켜고 끄기'
-    react: '`<TrafficLayer interval autoRefresh />` 를 조건부로 렌더한다'
+    react: '`<TrafficLayer interval autoRefresh />` 를 조건부 렌더링'
   - official: 체크박스 클릭 리스너에서 `startAutoRefresh()`, `endAutoRefresh()` 부르기
-    react: 체크 state 를 `autoRefresh` prop 으로 준다
+    react: 체크 state 를 `autoRefresh` prop 으로 전달
   - official: '`trafficLayer_changed` 이벤트에서 jQuery 로 체크박스를 보이고 숨기고 다시 체크하기'
-    react: 레이어 state 가 켜졌을 때만 체크박스를 렌더하고, 레이어 버튼을 누를 때 체크 state 를 `true` 로 되돌린다
+    react: 레이어 state 가 켜졌을 때만 체크박스를 렌더링하고, 레이어 버튼을 누를 때 체크 state 를 `true` 로 변경
   - official: 지도 `init` 이벤트에서 레이어 켜기
     react: state 초기값을 `true` 로 설정해 처음부터 렌더링
 ---
