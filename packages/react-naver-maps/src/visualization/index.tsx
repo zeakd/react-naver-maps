@@ -6,6 +6,7 @@ import type { Ref } from 'react';
 import { useLayoutEffect, useRef } from 'react';
 import { useNavermaps } from '../hooks/use-navermaps.js';
 import { defineOverlay } from '../overlays/overlay-spec.js';
+import { sdkAlive } from '../sdk/listeners.js';
 import { requireSubmodule } from '../sdk/submodule.js';
 
 /**
@@ -67,11 +68,14 @@ const HeatMapOverlay = defineOverlay<
   HeatMapProps,
   naver.maps.visualization.HeatMap
 >('HeatMap', {
-  create: (navermaps, options, props) =>
-    new navermaps.visualization.HeatMap({
+  create: (navermaps, options, props) => {
+    const heatMap = new navermaps.visualization.HeatMap({
       ...options,
       ...(props.colorMap !== undefined ? { colorMap: props.colorMap } : {}),
-    } as unknown as naver.maps.visualization.HeatMapOptions),
+    } as unknown as naver.maps.visualization.HeatMapOptions);
+    createdColorMap.set(heatMap, props.colorMap);
+    return heatMap;
+  },
   options: ['data', 'opacity', 'radius'],
   // colorMap 과 거꾸로 칠하기는 SDK 메서드 하나(setColorMap(name, inReverse))라 함께 맞춘다.
   sync: useColorMap,
@@ -102,17 +106,22 @@ const DotMapOverlay = defineOverlay<
   waitForReadyMap: true,
 });
 
+/** 생성자에 넘긴 colorMap. 첫 동기화의 비교 기준이다(binding/created-options.ts 와 같은 이유). */
+const createdColorMap = new WeakMap<object, unknown>();
+
 function useColorMap(
   heatMap: naver.maps.visualization.HeatMap,
   { colorMap, colorMapInReverse }: HeatMapProps,
 ) {
-  const prev = useRef<[unknown, unknown] | null>(null);
+  const prev = useRef<[unknown, boolean] | null>(null);
   useLayoutEffect(() => {
-    const last = prev.current;
-    prev.current = [colorMap, colorMapInReverse];
-    // 처음에는 생성자가 colorMap 을 받았다. 거꾸로 칠하기만 마운트 때 맞춘다.
-    if (!last && !colorMapInReverse) return;
-    if (last && last[0] === colorMap && last[1] === colorMapInReverse) return;
+    // 처음에는 생성자가 받은 colorMap 과 견준다(거꾸로 칠하기는 생성자가 받지 않는다). 생성 뒤 첫
+    // 동기화 전에 부모가 바꾼 값도 이렇게 들어간다.
+    const last = prev.current ?? [createdColorMap.get(heatMap), false];
+    prev.current = [colorMap, !!colorMapInReverse];
+    if (last[0] === colorMap && last[1] === !!colorMapInReverse) return;
+    // 인증 실패로 SDK 가 사라졌으면 부르지 않는다(useControlledProps 와 같은 보호).
+    if (!sdkAlive()) return;
     heatMap.setColorMap(colorMap ?? heatMap.getColorMap(), !!colorMapInReverse);
   });
 }

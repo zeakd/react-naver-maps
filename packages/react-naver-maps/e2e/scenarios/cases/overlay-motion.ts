@@ -40,6 +40,8 @@ const OVERLAYS: Partial<AppConfig> = {
 };
 
 const GL = { submodules: ['gl'], gl: true } satisfies Partial<AppConfig>;
+/** GL 시나리오가 재야 하는 오버레이. 처음부터 지도에 붙지 못한 것도 빠뜨리지 않고 잡는다. */
+const ALL_OVERLAYS = ['marker', 'customOverlay', 'infoWindow'];
 const GL_UNSTABLE: Scenario['unstable'] = {
   fields: ['events'],
   reason:
@@ -59,7 +61,7 @@ export const overlayMotion: Scenario[] = [
     unstable: GL_UNSTABLE,
     app: { mode: 'props', ...OVERLAYS, ...GL },
     steps: dragLeftAndRelease,
-    expect: [overlaysStayPut(MAX_PX)],
+    expect: [overlaysStayPut(MAX_PX, 0, undefined, ALL_OVERLAYS)],
     since: '0.4',
   },
   {
@@ -81,7 +83,7 @@ export const overlayMotion: Scenario[] = [
     unstable: GL_UNSTABLE,
     app: { mode: 'props', ...OVERLAYS, ...GL },
     steps: wheels(3, 300, -100),
-    expect: [overlaysStayPut(MAX_PX)],
+    expect: [overlaysStayPut(MAX_PX, 0, undefined, ALL_OVERLAYS)],
     since: '0.4',
   },
   {
@@ -101,7 +103,7 @@ export const overlayMotion: Scenario[] = [
     unstable: GL_UNSTABLE,
     app: { mode: 'props', ...OVERLAYS, ...GL },
     steps: [{ t: 'frames', n: 2 }, ...everyFrame, { t: 'frames', n: 90 }],
-    expect: [overlaysStayPut(MAX_PX)],
+    expect: [overlaysStayPut(MAX_PX, 0, undefined, ALL_OVERLAYS)],
     since: '0.4',
   },
 
