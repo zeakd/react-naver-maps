@@ -4,12 +4,12 @@ category: tutorial-marker
 order: 5
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-marker-html-icon.example.html
 changes:
-  - official: '`new naver.maps.Map` 에 `LatLngBounds.bounds(...)` 로 영역 지정'
-    react: '`NaverMap` 의 `defaultBounds` 에 `{ south, west, north, east }` 리터럴'
+  - official: '`new naver.maps.Map`에 `LatLngBounds.bounds(...)`로 영역 지정'
+    react: '`NaverMap`의 `defaultBounds`에 `{ south, west, north, east }` 리터럴'
   - official: 마커를 만든 뒤 `setTitle`·`setDraggable` 호출
     react: '`title`·`draggable` prop'
   - official: 드래그하는 마커도 `position` 옵션으로 위치 지정
-    react: 드래그하는 마커는 `defaultPosition` 으로 초기 위치만 설정하여 드래그로 변경한 위치 유지
+    react: 드래그하는 마커는 `defaultPosition`으로 초기 위치만 설정하여 드래그로 변경한 위치 유지
 limits:
   - 공식 예제는 문서 사이트의 CSS 클래스(`cs_mapbridge`)로 스프라이트를 자르는데, 여기서는 같은 스타일을 인라인으로 풀어 썼습니다.
 ---
@@ -17,10 +17,10 @@ limits:
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial5HtmlIconExample from '../../../examples/marker-tutorial-5-html-icon.tsx';
 
-HTML 콘텐츠를 마커 아이콘으로 쓰는 예제입니다.
+HTML 콘텐츠를 마커 아이콘으로 사용합니다.
 
 <Example of={MarkerTutorial5HtmlIconExample} />
 
 ## 설명
 
-`icon` 에 `{ content, size, anchor }` 를 전달해 HTML 아이콘을 표시합니다.
+`icon`에 `{ content, size, anchor }`를 전달해 HTML 아이콘을 표시합니다.

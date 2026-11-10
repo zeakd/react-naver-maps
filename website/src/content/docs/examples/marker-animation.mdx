@@ -5,13 +5,13 @@ order: 18
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-animation.example.html
 changes:
   - official: 지도를 만든 뒤 `map.fitBounds(LatLngBounds.bounds(...))` 호출
-    react: '`NaverMap` 의 `defaultBounds` 에 `{ south, west, north, east }` 리터럴'
-  - official: '`new naver.maps.Marker` 의 `animation` 옵션'
-    react: '`<Marker>` 의 `animation` prop'
-  - official: "`Event.addListener(urlMarker, 'click')` 에서 `getAnimation()` 을 보고 `setAnimation` 호출"
-    react: '`onClick` 에서 `animation` state 를 `BOUNCE`/`null` 로 변경'
+    react: '`NaverMap`의 `defaultBounds`에 `{ south, west, north, east }` 리터럴'
+  - official: '`new naver.maps.Marker`의 `animation` 옵션'
+    react: '`<Marker>`의 `animation` prop'
+  - official: "`Event.addListener(urlMarker, 'click')`에서 `getAnimation()`을 보고 `setAnimation` 호출"
+    react: '`onClick`에서 `animation` state를 `BOUNCE`/`null`로 변경'
   - official: 'SymbolIcon 의 `style: "closedPath"` 문자열'
-    react: '`useNavermaps()` 로 받은 `SymbolStyle.CLOSED_PATH` 상수'
+    react: '`useNavermaps()`로 받은 `SymbolStyle.CLOSED_PATH` 상수'
 limits:
   - 공식 예제는 문서 사이트의 CSS 클래스(`cs_mapbridge`)로 HTML 아이콘을 꾸미는데, 여기서는 핀 이미지만 인라인 스타일로 그리고 그림자는 그리지 않습니다.
 ---
@@ -19,10 +19,10 @@ limits:
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerAnimationExample from '../../../examples/marker-animation.tsx';
 
-떨어지거나 튀는 애니메이션 마커를 표시하고, 마커를 클릭해 애니메이션을 켜고 끄는 예제입니다.
+떨어지거나 튀는 마커를 표시하고 클릭해 애니메이션을 켜고 끕니다.
 
 <Example of={MarkerAnimationExample} />
 
 ## 설명
 
-`Marker` 의 `animation` 은 값이 바뀔 때만 적용됩니다. SDK 는 `DROP` 이 끝나면 값을 `null` 로 돌리지만 다시 렌더해도 다시 떨어지지 않습니다. 그래서 지금 상태는 state 가 아니라 `ref` 의 `getAnimation()` 으로 읽습니다. `icon` 은 이미지 URL·SymbolIcon·HtmlIcon, `shape` 는 SymbolIcon 의 클릭 영역입니다.
+`Marker`의 `animation`은 값이 바뀔 때만 적용됩니다. SDK는 `DROP`이 끝나면 값을 `null`로 돌리지만 다시 렌더해도 다시 떨어지지 않습니다. 그래서 지금 상태는 state가 아니라 `ref`의 `getAnimation()`으로 읽습니다. `icon`은 이미지 URL·SymbolIcon·HtmlIcon, `shape`는 SymbolIcon 의 클릭 영역입니다.

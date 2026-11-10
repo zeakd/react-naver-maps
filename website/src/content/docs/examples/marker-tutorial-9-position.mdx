@@ -5,15 +5,15 @@ order: 9
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-marker-position.example.html
 changes:
   - official: "`naver.maps.Event.addListener(map, 'click')`"
-    react: '`NaverMap` 의 `onClick` prop'
+    react: '`NaverMap`의 `onClick` prop'
   - official: 클릭 핸들러에서 `marker.setPosition(e.coord)` 호출
-    react: 마커 위치를 state 로 관리하고 `<Marker position>` 에 전달
+    react: 마커 위치를 state로 관리하고 `<Marker position>`에 전달
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial9PositionExample from '../../../examples/marker-tutorial-9-position.tsx';
 
-지도를 클릭하면 그 지점으로 마커를 옮기는 예제입니다.
+지도를 클릭하면 그 지점으로 마커를 옮깁니다.
 
 <Example of={MarkerTutorial9PositionExample} />
 

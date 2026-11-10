@@ -4,21 +4,21 @@ category: tutorial-marker
 order: 6
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-marker-symbol-icon.example.html
 changes:
-  - official: '`new naver.maps.Marker` 에 `map`·`icon` 옵션'
-    react: '`<Marker>` 의 `icon` prop'
+  - official: '`new naver.maps.Marker`에 `map`·`icon` 옵션'
+    react: '`<Marker>`의 `icon` prop'
   - official: '`new naver.maps.Point` 배열로 `path`'
     react: '`{ x, y }` 리터럴 배열'
   - official: '`style: "closedPath"` 문자열'
-    react: '`useNavermaps()` 로 받은 `SymbolStyle.CLOSED_PATH` 상수와 `useMemo` 로 만든 아이콘 객체'
+    react: '`useNavermaps()`로 받은 `SymbolStyle.CLOSED_PATH` 상수와 `useMemo`로 만든 아이콘 객체'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerTutorial6SymbolIconExample from '../../../examples/marker-tutorial-6-symbol-icon.tsx';
 
-좌표로 그린 도형(SymbolIcon)을 마커 아이콘으로 쓰는 예제입니다.
+좌표로 그린 도형(SymbolIcon)을 마커 아이콘으로 사용합니다.
 
 <Example of={MarkerTutorial6SymbolIconExample} />
 
 ## 설명
 
-`icon` 에 `{ path, style, anchor, fillColor, ... }` 를 전달해 SymbolIcon 을 표시합니다.
+`icon`에 `{ path, style, anchor, fillColor, ... }`를 전달해 SymbolIcon 을 표시합니다.
