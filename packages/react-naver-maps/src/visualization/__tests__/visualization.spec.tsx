@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { useLayoutEffect, useState } from 'react';
 import { describe, test, expect, vi } from 'vitest';
 import { HeatMap, DotMap } from '../index.js';
 
@@ -68,5 +69,57 @@ describe('visualization', () => {
     rerender(<HeatMap data={data} colorMapInReverse={false} />);
     expect(setColorMap).toHaveBeenLastCalledWith('jet', false);
     expect(setColorMap).toHaveBeenCalledTimes(2);
+  });
+  function colorLayer() {
+    const calls: [unknown, unknown][] = [];
+    class Layer {
+      color: unknown;
+      constructor(public options: Record<string, unknown>) {
+        this.color = options.colorMap ?? 'jet';
+      }
+      setMap = vi.fn();
+      getMap = () => null;
+      get = vi.fn();
+      set = vi.fn();
+      setColorMap = (name: unknown, reverse: unknown) => {
+        calls.push([name, reverse]);
+        this.color = name;
+      };
+      getColorMap = () => this.color;
+    }
+    navermaps = {
+      visualization: { HeatMap: Layer, DotMap: Layer },
+      Event: {
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        clearInstanceListeners: vi.fn(),
+      },
+    };
+    (globalThis as any).naver = { maps: navermaps };
+    return calls;
+  }
+
+  test('생성 뒤 첫 동기화 전에 바뀐 colorMap 을 넣는다', () => {
+    const calls = colorLayer();
+    function Changing() {
+      const [color, setColor] = useState('jet');
+      // oxlint-disable-next-line react/set-state-in-effect
+      useLayoutEffect(() => setColor('hsv'), []);
+      return <HeatMap data={[[127, 37]]} colorMap={color as never} />;
+    }
+    render(<Changing />);
+    expect(calls).toEqual([['hsv', false]]);
+  });
+
+  test('인증 실패로 SDK 가 사라진 뒤 colorMap 을 바꿔도 던지지 않는다', () => {
+    const calls = colorLayer();
+    const { rerender } = render(
+      <HeatMap data={[[127, 37]]} colorMap={'jet' as never} />,
+    );
+    (globalThis as any).naver.maps = null;
+    expect(() =>
+      rerender(<HeatMap data={[[127, 37]]} colorMap={'hsv' as never} />),
+    ).not.toThrow();
+    expect(calls).toEqual([]);
   });
 });

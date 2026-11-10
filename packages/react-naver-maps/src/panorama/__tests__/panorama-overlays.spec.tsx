@@ -1,4 +1,5 @@
 import { act, render } from '@testing-library/react';
+import { useLayoutEffect, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   installSdkFake,
@@ -97,6 +98,56 @@ describe('Panorama 자식 오버레이', () => {
     expect(setPov).not.toHaveBeenCalled();
     act(() => {
       window.dispatchEvent(new Event('pointerup'));
+    });
+    expect(setPov).toHaveBeenCalledTimes(1);
+    expect(setPov).toHaveBeenLastCalledWith({ pan: 30, tilt: 0, fov: 100 });
+  });
+  test('생성 뒤 첫 동기화 전에 바뀐 pov 를 넣는다', () => {
+    function Changing() {
+      const [pan, setPan] = useState(0);
+      // 화면을 재서 prop 을 정하는 앱처럼 일부러 layout effect 에서 바꾼다.
+      // oxlint-disable-next-line react/set-state-in-effect
+      useLayoutEffect(() => setPan(90), []);
+      return (
+        <Container>
+          <Panorama
+            position={{ lat: 37.5, lng: 127 }}
+            pov={{ pan, tilt: 0, fov: 100 }}
+          />
+        </Container>
+      );
+    }
+    render(<Changing />);
+    expect(MockPanorama.last!.get('pov')).toEqual({
+      pan: 90,
+      tilt: 0,
+      fov: 100,
+    });
+  });
+
+  test('두 손가락 중 하나만 떼면 아직 보류한다', () => {
+    const view = (pan: number) => (
+      <Container>
+        <Panorama
+          position={{ lat: 37.5, lng: 127 }}
+          pov={{ pan, tilt: 0, fov: 100 }}
+        />
+      </Container>
+    );
+    const { rerender } = render(view(0));
+    const pano = MockPanorama.last!;
+    const setPov = vi.spyOn(pano, 'setPov');
+    const pointer = (type: string, pointerId: number) =>
+      Object.assign(new Event(type, { bubbles: true }), { pointerId });
+    pano.getElement().dispatchEvent(pointer('pointerdown', 2));
+    pano.getElement().dispatchEvent(pointer('pointerdown', 3));
+    rerender(view(30));
+    act(() => {
+      window.dispatchEvent(pointer('pointerup', 3));
+    });
+    expect(setPov).not.toHaveBeenCalled();
+    act(() => {
+      window.dispatchEvent(pointer('pointerup', 2));
     });
     expect(setPov).toHaveBeenCalledTimes(1);
     expect(setPov).toHaveBeenLastCalledWith({ pan: 30, tilt: 0, fov: 100 });

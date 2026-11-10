@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { useLayoutEffect, useState } from 'react';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { CustomControl } from '../custom-control.js';
 
@@ -107,5 +108,16 @@ describe('CustomControl', () => {
     );
     unmount();
     expect(lastControl.getMap()).toBe(null);
+  });
+  test('생성 뒤 첫 동기화 전에 바뀐 position 을 넣는다', () => {
+    mockMap.isReady = true;
+    function Changing() {
+      const [position, setPosition] = useState(1);
+      // oxlint-disable-next-line react/set-state-in-effect
+      useLayoutEffect(() => setPosition(3), []);
+      return <CustomControl position={position as naver.maps.Position} />;
+    }
+    render(<Changing />);
+    expect(lastControl.position).toBe(3);
   });
 });
