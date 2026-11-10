@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: 소개
 category: guides
 order: 1
 ---
@@ -7,104 +7,48 @@ order: 1
 import Example from 'astro-component-docs/components/Example.astro';
 import BasicMap from '../../../examples/basic-map.tsx';
 
-`react-naver-maps`는 [Naver Maps JavaScript API v3](https://navermaps.github.io/maps.js.ncp/)의 Non-Official React 컴포넌트 라이브러리입니다.
+react-naver-maps 는 [네이버 지도 JavaScript API v3](https://navermaps.github.io/maps.js.ncp/)(이하 SDK)를 React 에서 쓰기 위한 라이브러리입니다. 지도와 마커, 정보 창, 도형을 컴포넌트로 그리고, 바뀌는 값은 prop 과 state 로 다룹니다. NAVER 가 만든 것이 아닌 오픈소스입니다.
 
-네이버맵의 기본 기능을 최대한 유지하면서, React에서 다루기 쉬운 인터페이스를 제공합니다.
-
-## 빠른 시작
+<Example of={BasicMap} />
 
 ```bash
 npm install react-naver-maps
 ```
 
-React 19.0 이상(`react`, `react-dom`)이 필요합니다. TypeScript 를 쓰면 `@types/navermaps` 3.10.0 이상도 설치합니다. 키 발급부터는 [Quickstart](/react-naver-maps/guides/quickstart/) 를 보세요.
+React 19.0 이상이 필요합니다. 키 발급부터는 [빠른 시작](/react-naver-maps/guides/quickstart/)을, 0.3 에서 올린다면 [0.3에서 0.4로](/react-naver-maps/guides/migration-from-03/)를 보세요.
 
-0.3 에서 올린다면 [0.3에서 0.4로](/react-naver-maps/guides/migration-from-03/) 에서 바뀐 동작과 새로 쓸 수 있는 것을 먼저 확인하세요.
+## 설계
 
-## 기본 사용법
-
-<Example of={BasicMap} />
-
-`NavermapsProvider`로 감싸면 하위 컴포넌트에서 `useNavermaps()` 훅을 통해 네이버맵 API에 접근할 수 있습니다.
-
-## 핵심 개념
-
-### React 컴포넌트 인터페이스
-
-네이버맵의 요소들을 React 컴포넌트 형태로 mount/unmount할 수 있으며, children을 통해 렌더 여부를 결정할 수 있습니다.
+**React 와 만나는 부분만 감쌉니다.** SDK 객체를 만들고, prop 이 바뀌면 SDK 에 넣고, `on*` prop 으로 리스너를 붙이고 떼고, 컴포넌트가 사라지면 정리합니다. 지도를 그리고 움직이는 일은 SDK 가 합니다.
 
 ```tsx
-import { NaverMap, Marker } from 'react-naver-maps';
-
-<NaverMap>
-  <Marker defaultPosition={{ lat: 37.3595704, lng: 127.105399 }} />
-</NaverMap>;
+<NaverMap defaultCenter={{ lat: 37.5666, lng: 126.9784 }} defaultZoom={15}>
+  {places.map((p) => (
+    <Marker key={p.id} position={p} onClick={() => setSelected(p.id)} />
+  ))}
+</NaverMap>
 ```
 
-### 이벤트 핸들링
+**SDK 는 그대로 씁니다.** prop 이름은 SDK 옵션 이름과 같습니다. 지도, 마커, 정보 창, 도형은 컴포넌트가 모르는 옵션도 SDK 에 그대로 넘기므로 SDK 에 새 옵션이 생겨도 라이브러리를 기다리지 않습니다. 컴포넌트가 다루지 않는 일은 `ref` 로 SDK 객체를 받아 직접 부릅니다.
 
-네이버맵 네이티브 API에서는 리스너를 수동으로 추가하고 제거해야 합니다.
+**값으로 비교합니다.** `{ lat, lng }` 같은 객체를 렌더마다 새로 만들어도 값이 같으면 SDK 에 다시 넣지 않습니다. 그래서 `useMemo` 없이 평범하게 써도 됩니다.
 
-```js
-// 네이티브: 리스너 추가
-map.addListener('zoom_changed', zoomListener);
-// 또는
-window.naver.maps.Event.addListener(map, 'zoom_changed', zoomListener);
+**숨겼다 보여도 같은 지도입니다.** `<Activity mode="hidden">` 이나 Suspense 로 잠시 숨기면 지도와 오버레이를 버리지 않고 화면에서만 뗍니다. 다시 보이면 같은 SDK 인스턴스가 돌아옵니다.
 
-// 네이티브: 리스너 제거
-map.removeListener(zoomListener);
-// 또는
-window.naver.maps.Event.removeListener(zoomListener);
-```
+자세한 규칙은 [핵심 개념](/react-naver-maps/guides/core-concepts/)에 있습니다.
 
-`react-naver-maps`에서는 `on*` props로 간단하게 처리됩니다.
+## 할 수 없는 것
 
-```tsx
-// props로 전달
-<NaverMap onZoomChanged={zoomListener} />
+- **SDK 의 동작은 바꾸지 않습니다.** 예를 들어 `maxBounds` 로 영역을 막으면 SDK 는 가장자리에서 미끄러지지 않고 멈춥니다. 라이브러리는 이런 동작을 고치지 않고 그대로 둡니다.
+- **브라우저에서만 지도를 그립니다.** 서버 렌더링에서는 `Container` 의 영역만 그리고, 지도는 브라우저에서 SDK 를 불러온 뒤 나타납니다([Next.js 와 SSR](/react-naver-maps/guides/nextjs/)).
+- **키는 직접 발급합니다.** 네이버 클라우드 콘솔에서 Maps Application 을 만들고 지도를 띄울 주소를 등록해야 합니다([인증과 키](/react-naver-maps/guides/auth/)).
 
-// props에서 제거하면 리스너도 자동 해제
-<NaverMap />
-```
+## 다음 단계
 
-자세한 내용은 [핵심 개념](/react-naver-maps/guides/core-concepts/) 가이드를 참고하세요.
+- [빠른 시작](/react-naver-maps/guides/quickstart/): 키 발급부터 첫 지도까지
+- [예제](/react-naver-maps/examples/): 네이버 공식 튜토리얼을 옮긴 예제와 React 에서 자주 하는 일
+- [API](/react-naver-maps/api-references/naver-map/): 컴포넌트와 훅의 prop
 
-### Controlled 컴포넌트
-
-React의 [Controlled Component](https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable) 패턴을 사용하여 지도 상태를 단방향으로 제어할 수 있습니다.
-
-```tsx
-import { NaverMap } from 'react-naver-maps';
-
-function MyMap() {
-  const [center, setCenter] = useState({ lat: 37.3595704, lng: 127.105399 });
-
-  return (
-    <>
-      <NaverMap
-        center={center}
-        onCenterChanged={(center) => setCenter(center)}
-      />
-      <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
-        제주도로 이동하기
-      </button>
-    </>
-  );
-}
-```
-
-`default*` props를 사용하면 초기값만 설정하고 이후 변경은 네이버맵이 자체 관리합니다.
-자세한 내용은 [Controlled vs Uncontrolled](/react-naver-maps/guides/core-concepts/) 가이드를 참고하세요.
-
-## 특징
-
-- **선언적 API**: React 컴포넌트로 지도를 구성합니다
-- **TypeScript 지원**: `@types/navermaps` 기반의 완전한 타입 지원
-- **Suspense 지원**: 스크립트 로딩을 React 19 Suspense와 통합
-- **Controlled/Uncontrolled**: React 패턴에 맞는 상태 관리
-- **숨겼다 보여도 같은 지도**: Suspense, `<Activity>` 로 숨겼다 보여도 지도와 오버레이를 새로 만들지 않습니다
-- **서브모듈**: 시각화(`HeatMap`, `DotMap`), 그리기(`DrawingManager`), 파노라마(`Panorama`), 주소 변환(`geocode`)을 `react-naver-maps/visualization` 처럼 따로 가져옵니다
-
-## 이전 버전
+## 이전 버전 문서
 
 - [0.1 문서](/react-naver-maps/0.1.0/) (React 17/18)
