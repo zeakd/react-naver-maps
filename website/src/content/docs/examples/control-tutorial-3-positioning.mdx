@@ -4,19 +4,19 @@ category: tutorial-control
 order: 3
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-control-positioning.example.html
 changes:
-  - official: '옵션 객체 하나(`mapOptions`)를 `new naver.maps.Map` 에 넘긴다'
-    react: '컨트롤마다 `NaverMap` 의 `*Control`, `*ControlOptions` prop 으로 전달'
+  - official: '옵션 객체 하나(`mapOptions`)를 `new naver.maps.Map`에 전달'
+    react: '컨트롤마다 `NaverMap`의 `*Control`, `*ControlOptions` prop으로 전달'
   - official: '전역 `naver.maps.Position`, `MapTypeControlStyle`, `ZoomControlStyle` 상수'
-    react: '`useNavermaps()` 로 받은 `navermaps` 의 상수'
+    react: '`useNavermaps()`로 받은 `navermaps`의 상수'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import ControlTutorial3PositioningExample from '../../../examples/control-tutorial-3-positioning.tsx';
 
-지도 유형, 줌, 축척, 로고, 지도 데이터 컨트롤의 위치와 스타일을 정하는 예제입니다.
+지도 유형, 줌, 축척, 로고, 지도 데이터 컨트롤의 위치와 스타일을 정합니다.
 
 <Example of={ControlTutorial3PositioningExample} />
 
 ## 설명
 
-각 컨트롤의 `*ControlOptions` prop(`mapTypeControlOptions`, `zoomControlOptions`, `scaleControlOptions`, `logoControlOptions`, `mapDataControlOptions`)에 `position` 과 `style` 을 전달합니다.
+각 컨트롤의 `*ControlOptions` prop(`mapTypeControlOptions`, `zoomControlOptions`, `scaleControlOptions`, `logoControlOptions`, `mapDataControlOptions`)에 `position`과 `style`을 전달합니다.
