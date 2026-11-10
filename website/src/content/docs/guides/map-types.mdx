@@ -6,7 +6,7 @@ order: 7
 
 ## 기본 지도 유형
 
-`mapTypeId` 로 일반·위성·겹침·지형 지도를 고릅니다. SDK 값(`navermaps.MapTypeId.SATELLITE`)이나 그 문자열(`"satellite"`)을 씁니다.
+`mapTypeId`로 일반·위성·겹침·지형 지도를 고릅니다. SDK 값(`navermaps.MapTypeId.SATELLITE`)이나 그 문자열(`"satellite"`)을 사용합니다.
 
 ```tsx
 <NaverMap mapTypeId="satellite" mapTypeControl />
@@ -14,7 +14,7 @@ order: 7
 
 ## 사용자 지도 유형
 
-`mapTypes` 에 `MapTypeRegistry` 를 주면 그 유형만 고를 수 있습니다. 등록한 id 를 `mapTypeId` 로 씁니다. 레지스트리는 SDK 객체라 참조로 비교합니다. 렌더마다 새로 만들면 렌더마다 바꿔 넣으므로 `useMemo` 로 한 번 만듭니다.
+`mapTypes`에 `MapTypeRegistry`를 넘기면 등록한 유형만 고를 수 있습니다. 등록한 id를 `mapTypeId`로 사용합니다. 레지스트리는 참조로 비교하므로 렌더마다 교체되지 않도록 `useMemo`로 한 번 만듭니다.
 
 ```tsx
 const navermaps = useNavermaps();

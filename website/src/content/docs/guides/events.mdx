@@ -4,7 +4,7 @@ category: guides
 order: 6
 ---
 
-SDK 이벤트는 컴포넌트의 `on*` prop 으로 받습니다. 이름은 SDK 이벤트 이름에서 옵니다.
+SDK 이벤트는 컴포넌트의 `on*` props로 받습니다. 이름은 SDK 이벤트 이름을 따릅니다.
 
 | SDK 이벤트                          | prop                   | 인자                                                                   |
 | ----------------------------------- | ---------------------- | ---------------------------------------------------------------------- |
@@ -13,7 +13,7 @@ SDK 이벤트는 컴포넌트의 `on*` prop 으로 받습니다. 이름은 SDK �
 | `icon_loaded`                       | `onIconLoaded`         | 이벤트가 난 Marker                                                     |
 | `keydown`, `keyup`                  | `onKeydown`, `onKeyup` | `{ keyboardEvent }`                                                    |
 
-어떤 prop 이 있는지는 각 컴포넌트의 Props 표에 있습니다. 공식 문서 Events 에 있는데 prop 이 없는 이벤트는 [`useListener`](/react-naver-maps/api-references/use-listener/) 로 구독합니다.
+사용할 수 있는 props는 각 컴포넌트의 Props 표를 참고해 주세요. 공식 문서에 있지만 prop이 없는 이벤트는 [`useListener`](/react-naver-maps/api-references/use-listener/)로 구독합니다.
 
 ```tsx
 const map = useMap();
@@ -22,7 +22,7 @@ useListener(map, 'bicycleLayer_changed', () => {});
 
 ## 좌표는 `e.coord`
 
-공식 튜토리얼의 오래된 예제는 `e.latlng` 를 쓰지만 SDK 3.10.5 의 PointerEvent 는 `coord` 입니다. 지도 좌표계에 따라 `LatLng` 이거나 `Point` 라서 타입은 `Coord` 입니다. 위도·경도가 필요하면 `LatLng` 로 다룹니다.
+공식 튜토리얼의 오래된 예제는 `e.latlng`를 쓰지만 SDK 3.10.5의 PointerEvent는 `coord`입니다. 지도 좌표계에 따라 `LatLng`이거나 `Point`이므로 타입은 `Coord`입니다. 위도·경도가 필요하면 `LatLng`로 다룹니다.
 
 ```tsx
 <NaverMap onClick={(e) => setPicked(e.coord as naver.maps.LatLng)} />
