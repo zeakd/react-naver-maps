@@ -130,15 +130,15 @@ function MyMap() {
 - Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
 - 오버레이(마커, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop으로 되돌립니다. 예를 들어 `draggable` 마커를 끌어 놓아도 `onDragend`로 state를 바꾸지 않으면 다시 렌더링할 때 `position`으로 돌아갑니다.
 - 지도의 카메라(`center`, `zoom`)는 props가 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
-- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 prop을 넣지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 자리로 봅니다. `zoom` 도 함께 바뀌면 큰 쪽 zoom 에서 잽니다.
+- 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 props를 적용하지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 위치로 봅니다. `zoom`도 함께 바뀌면 큰 쪽 zoom에서 측정합니다.
 - `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 위치로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 이전 prop으로 취급하므로 2초 뒤 같은 값으로 다시 렌더링해도 움직이지 않습니다. 해당 위치로 이동하려면 `map.panTo()`를 사용해 주세요. GL의 실수 zoom도 같습니다(정수 zoom은 항상 따릅니다).
 - 래스터 지도는 실수 zoom을 반올림해 사용합니다(15.4 → 15). 반올림한 값이 같으면 zoom은 그대로 두고 center만 옮깁니다. GL 지도는 실수 zoom을 그대로 사용합니다.
-- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. 따로 떨어진 변경은 애니메이션합니다. GL 에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
+- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. 따로 변경하면 애니메이션으로 이동합니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
 - prop은 값으로 비교합니다. `center={{ lat, lng }}` 처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 라이브러리에 아직 없는 SDK 옵션
 
-SDK는 페이지에서 바로 갱신됩니다. 새 최상위 옵션이 생기면 라이브러리를 올리지 않고 prop으로 씁니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)에서 됩니다. 컴포넌트가 모르는 prop은 생성자에 넘기고, 값이 바뀌면 SDK의 `setOptions({ ... })`로 넘깁니다.
+SDK는 페이지에서 바로 갱신됩니다. 새 최상위 옵션은 라이브러리를 업데이트하지 않아도 props로 사용할 수 있습니다. `NaverMap`, `Marker`, `InfoWindow`, 도형(`Circle`, `Ellipse`, `Rectangle`, `Polyline`, `Polygon`)이 해당합니다. 컴포넌트가 모르는 prop은 생성자에 넘기고, 값이 바뀌면 SDK의 `setOptions({ ... })`로 넘깁니다.
 
 ```tsx
 // futureOption 은 설명용 이름이고 실제 옵션이 아닙니다.
