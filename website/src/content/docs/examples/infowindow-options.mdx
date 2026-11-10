@@ -9,7 +9,7 @@ changes:
   - official: '`new naver.maps.Size(30, 30)`, `new naver.maps.Point(20, -20)`'
     react: '`{ width, height }`, `{ x, y }` 리터럴'
   - official: '마커 click 리스너가 `infowindow.getMap()` 으로 열려 있는지 보고 `open()`, `close()` 를 부른다'
-    react: '`<Marker onClick>` 이 `open` state 를 뒤집는다'
+    react: '`<Marker onClick>` 에서 `open` state 변경'
   - official: '공식 페이지의 CSS 클래스(`iw_inner`, `thumb`)로 꾸민 내용'
     react: '내용 HTML 에 인라인 style'
 ---
@@ -23,4 +23,4 @@ import InfowindowOptionsExample from '../../../examples/infowindow-options.tsx';
 
 ## 설명
 
-`InfoWindow` 의 `maxWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `anchorSize`, `anchorSkew`, `anchorColor`, `pixelOffset` 을 그대로 prop 으로 줍니다. 마커는 `ref` 로 state 에 담아 `anchor` 로 넘기고, 열고 닫기는 `open` state 입니다. 처음에는 닫혀 있습니다.
+`InfoWindow` 의 `maxWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `anchorSize`, `anchorSkew`, `anchorColor`, `pixelOffset` 을 prop 으로 전달합니다. 마커는 `ref` 로 state 에 담아 `anchor` 로 전달하고, 정보 창의 열림 여부는 `open` state 로 관리합니다. 처음에는 닫혀 있습니다.
