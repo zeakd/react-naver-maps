@@ -5,13 +5,13 @@ order: 23
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-viewportevents.example.html
 changes:
   - official: '`markers`·`infoWindows` 배열과 `getClickHandler(seq)` 클로저로 마커마다 핸들러를 붙인다'
-    react: 마커 하나와 `InfoWindow` 를 묶은 `SpotMarker` 컴포넌트가 자기 `open` state 를 가진다
+    react: 마커 하나와 `InfoWindow` 를 묶은 `SpotMarker` 컴포넌트에서 `open` state 관리
   - official: 클릭 핸들러에서 `infoWindow.open(map, marker)`·`close()` 호출
     react: '`<InfoWindow>` 의 `anchor`·`open` prop'
   - official: '`idle` 리스너에서 영역 밖 마커를 `setMap(null)`'
     react: '`onIdle` 에서 영역을 state 에 담고 영역 안의 마커만 렌더'
   - official: 처음 지도 영역 안에서 `Math.random()` 으로 마커 위치를 뽑는다
-    react: 미리 정한 고정 좌표를 쓴다(다시 열어도 같은 자리)
+    react: 미리 정한 고정 좌표 사용(다시 열어도 같은 위치)
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';

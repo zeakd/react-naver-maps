@@ -11,7 +11,7 @@ changes:
   - official: 마커 클릭 시 `alert` 로 제목 표시
     react: 고른 마커를 state 에 담아 지도 위에 표시
   - official: 처음 지도 영역 안에서 `Math.random()` 으로 마커 위치를 뽑는다
-    react: 미리 정한 고정 좌표를 쓴다(다시 열어도 같은 자리)
+    react: 미리 정한 고정 좌표 사용(다시 열어도 같은 위치)
 limits:
   - 공식 예제는 `Event.stopDispatch` 로 겹친 마커의 click 을 막지만, 여기서는 click 핸들러가 겹친 마커이면 무시합니다.
 ---
@@ -25,4 +25,4 @@ import MarkerIntersectExample from '../../../examples/marker-intersect.tsx';
 
 ## 설명
 
-겹침 판정은 이벤트가 날 때 `NaverMap` `ref` 의 `getProjection().fromCoordToOffset()` 으로 화면 픽셀 거리를 재어 합니다. 목록을 연 마커는 `cover` state 로 남아 마우스가 벗어나도 강조가 유지되고, 지도를 누르거나 움직이면(`onClick`·`onIdle`) 안내와 목록을 닫습니다.
+이벤트가 발생하면 `NaverMap` `ref` 의 `getProjection().fromCoordToOffset()` 으로 화면 픽셀 거리를 계산해 겹침을 판정합니다. 목록을 연 마커는 `cover` state 로 관리하여 마우스가 벗어나도 강조를 유지합니다. 지도를 누르거나 움직이면(`onClick`·`onIdle`) 안내와 목록을 닫습니다.

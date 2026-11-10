@@ -9,7 +9,7 @@ changes:
   - official: '`new naver.maps.Point` 배열로 `path`'
     react: '`{ x, y }` 리터럴 배열'
   - official: '`style: "closedPath"` 문자열'
-    react: '`useNavermaps()` 로 받은 `SymbolStyle.CLOSED_PATH` 상수, 아이콘 객체는 `useMemo` 로 만든다'
+    react: '`useNavermaps()` 로 받은 `SymbolStyle.CLOSED_PATH` 상수와 `useMemo` 로 만든 아이콘 객체'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import MarkerTutorial6SymbolIconExample from '../../../examples/marker-tutorial-
 
 ## 설명
 
-`icon` 에 `{ path, style, anchor, fillColor, ... }` 를 주면 SymbolIcon 입니다.
+`icon` 에 `{ path, style, anchor, fillColor, ... }` 를 전달해 SymbolIcon 을 표시합니다.
