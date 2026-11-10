@@ -4,12 +4,12 @@ category: tutorial-panorama
 order: 6
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-panorama-zoomcontrol.example.html
 changes:
-  - official: "`pano.getOptions('zoomControl')` 을 보고 `setOptions({ zoomControl })`"
-    react: '`zoomControl` prop 에 state 를 넘긴다'
-  - official: '`setOptions({ zoomControlOptions: { style } })` 로 크기 바꾸기'
-    react: '`zoomControlOptions` 의 `style` 을 `large` state 로 고른다'
-  - official: jQuery `val` · `addClass` · `hasClass('control-on')` 로 버튼 상태 다루기
-    react: 버튼 글자와 `disabled` 를 state 로 정한다
+  - official: "`pano.getOptions('zoomControl')`을 보고 `setOptions({ zoomControl })`"
+    react: '`zoomControl` prop에 state 전달'
+  - official: '`setOptions({ zoomControlOptions: { style } })`로 크기 바꾸기'
+    react: '`zoomControlOptions`의 `style`을 `large` state로 선택'
+  - official: jQuery `val` · `addClass` · `hasClass('control-on')`로 버튼 상태 다루기
+    react: 버튼 글자와 `disabled`를 state로 설정
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import PanoramaTutorial6ZoomcontrolExample from '../../../examples/panorama-tuto
 
 ## 설명
 
-`zoomControl` 과 `zoomControlOptions`(`position`, `style`)가 prop 이라 버튼은 state 만 바꿉니다. 상수는 `useNavermaps()` 로 받은 `navermaps.Position`, `navermaps.ZoomControlStyle` 입니다.
+`zoomControl`과 `zoomControlOptions`(`position`, `style`)가 prop 이라 버튼은 state 만 바꿉니다. 상수는 `useNavermaps()`로 받은 `navermaps.Position`, `navermaps.ZoomControlStyle` 입니다.

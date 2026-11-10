@@ -5,11 +5,11 @@ order: 9
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-panorama-map.example.html
 changes:
   - official: '`pano_changed` 리스너에서 `map.setCenter(pano.getPosition())`'
-    react: '`onPanoChanged` 에서 읽은 위치를 state 에 두고 `NaverMap` 의 `center` 로 넘긴다'
+    react: '`onPanoChanged`에서 읽은 위치를 state로 관리하고 `NaverMap`의 `center`로 전달'
   - official: 지도 `click` 리스너에서 `pano.setPosition(e.coord)`
-    react: '`NaverMap` 의 `onClick` 에서 좌표를 state 에 두고 `Panorama` 의 `position` 으로 넘긴다'
-  - official: '`streetLayer.setMap(map)` · `setMap(null)` 과 `streetLayer_changed` 로 버튼 상태 바꾸기'
-    react: '`street` state 로 `<StreetLayer>` 를 마운트 · 언마운트하고, 버튼 스타일도 같은 state 로 정한다'
+    react: '`NaverMap`의 `onClick`에서 좌표를 state로 관리하고 `Panorama`의 `position`으로 전달'
+  - official: '`streetLayer.setMap(map)` · `setMap(null)`과 `streetLayer_changed`로 버튼 상태 바꾸기'
+    react: '`street` state로 `<StreetLayer>` 마운트 · 언마운트 및 버튼 스타일 설정'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,4 +21,4 @@ import PanoramaTutorial9MapExample from '../../../examples/panorama-tutorial-9-m
 
 ## 설명
 
-두 `Container` 를 나란히 두고 state 로 잇습니다. 거리뷰가 바뀌면(`onPanoChanged`) 인스턴스의 `getPosition()` 을 지도의 `center` 로 넘기고, 거리뷰 레이어가 켜진 동안 지도를 누르면(`onClick`) 그 좌표를 `Panorama` 의 `position` 으로 넘깁니다. 거리뷰 레이어는 `{street && <StreetLayer />}` 로 켜고 끕니다. 가장 가까운 파노라마(검색 반경 300m)는 SDK 가 고릅니다.
+두 `Container`를 나란히 두고 state로 잇습니다. 거리뷰가 바뀌면(`onPanoChanged`) 인스턴스의 `getPosition()`을 지도의 `center`로 넘기고, 거리뷰 레이어가 켜진 동안 지도를 누르면(`onClick`) 그 좌표를 `Panorama`의 `position`으로 넘깁니다. 거리뷰 레이어는 `{street && <StreetLayer />}`로 켜고 끕니다. 가장 가까운 파노라마(검색 반경 300m)는 SDK가 고릅니다.

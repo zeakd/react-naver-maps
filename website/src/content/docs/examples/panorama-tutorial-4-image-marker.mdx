@@ -5,11 +5,11 @@ order: 4
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-panorama-image-marker.example.html
 changes:
   - official: '`init` 리스너에서 `marker.setMap(pano)`'
-    react: '`Panorama` 의 자식 `<Marker>`'
+    react: '`Panorama`의 자식 `<Marker>`'
   - official: '`init` 리스너에서 `pano.setPov(lookAtPov)`'
-    react: '`onInit` 에서 구한 시야를 state 에 두고 `pov` prop 으로 넘긴다'
-  - official: 버튼에서 `setMap(null)` · `setMap(pano)` 를 부르고 jQuery 로 버튼 글자 바꾸기
-    react: '`showMarker` state 로 마커를 마운트 · 언마운트하고, 버튼 글자도 같은 state 로 정한다'
+    react: '`onInit`에서 구한 시야를 state로 관리해 `pov` prop으로 전달'
+  - official: 버튼에서 `setMap(null)` · `setMap(pano)`를 부르고 jQuery로 버튼 글자 바꾸기
+    react: '`showMarker` state로 마커 마운트 · 언마운트 및 버튼 글자 설정'
   - official: "`Event.addListener(marker, 'click', ...)`"
     react: '`<Marker onClick>`'
 ---
@@ -23,4 +23,4 @@ import PanoramaTutorial4ImageMarkerExample from '../../../examples/panorama-tuto
 
 ## 설명
 
-`Panorama` 의 자식으로 `Marker` 를 두면 거리뷰 위에 그립니다. `onInit` 에서 `getProjection().fromCoordToPov()` 로 마커 방향의 `pov` 를 구해 state 로 넘깁니다. 마커 추가·제거 버튼은 마운트로 합니다(`{showMarker && <Marker />}`).
+`Panorama`의 자식으로 `Marker`를 두면 거리뷰 위에 그립니다. `onInit`에서 `getProjection().fromCoordToPov()`로 마커 방향의 `pov`를 구해 state로 넘깁니다. 마커 추가·제거 버튼은 마운트로 합니다(`{showMarker && <Marker />}`).
