@@ -18,7 +18,7 @@ function PanoramaEvents() {
   const panoRef = useRef<naver.maps.Panorama>(null);
   const [info, setInfo] = useState<Info>({});
 
-  // 이벤트가 올 때마다 거리뷰에서 읽은 값을 표에 보인다.
+  // 이벤트가 발생할 때마다 거리뷰에서 읽은 값을 표에 표시합니다.
   const readLocation = (p: naver.maps.Panorama) => {
     const location = p.getLocation();
     setInfo((prev) => ({

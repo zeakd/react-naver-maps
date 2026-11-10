@@ -6,7 +6,7 @@ import {
   Polyline,
 } from 'react-naver-maps';
 
-// paths 는 고리(ring)의 배열이다. 첫 고리가 바깥 경계다.
+// paths는 고리(ring)의 배열입니다. 첫 고리가 바깥 경계입니다.
 const polygonPaths = [
   [
     { lat: 37.37544345085402, lng: 127.11224555969238 },

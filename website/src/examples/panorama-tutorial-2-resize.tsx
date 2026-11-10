@@ -10,7 +10,7 @@ const SIZES: Size[] = [
   { width: 800, height: 500 },
 ];
 
-/** 크기를 500ms 동안 부드럽게 바꾼 값. 공식 예제의 jQuery animate 에 해당한다. */
+/** 크기를 500ms 동안 부드럽게 바꿉니다. 공식 예제의 jQuery animate에 해당합니다. */
 function useAnimatedSize(target: Size): Size {
   const [size, setSize] = useState(target);
   const sizeRef = useRef(size);
@@ -45,11 +45,11 @@ function PanoramaResize() {
           width: size.width,
           height: size.height,
           maxWidth: '100%',
-          // 화면이 거리뷰보다 좁으면 넘치지 않고 잘리게 한다.
+          // 화면이 거리뷰보다 좁으면 넘치지 않고 잘리게 합니다.
           overflow: 'hidden',
         }}
       >
-        {/* Container 크기가 바뀌어도 거리뷰에 반영되지 않아 size 도 함께 변경합니다. */}
+        {/* Container 크기가 바뀌어도 거리뷰에 반영되지 않아 size도 함께 변경합니다. */}
         <Panorama
           position={{ lat: 37.3599605, lng: 127.1058814 }}
           pov={{ pan: -135, tilt: 29, fov: 100 }}

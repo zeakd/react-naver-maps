@@ -15,7 +15,7 @@ function ProjectionMapContent() {
   const [bounds, setBounds] = useState<naver.maps.LatLngBounds | null>(null);
   const [last, setLast] = useState<'reduce' | 'expand' | null>(null);
 
-  // 경계의 두 모서리를 픽셀(offset)로 옮겨 x, y 만큼 안쪽(reduce)이나 바깥쪽(expand)으로 민 뒤 다시 좌표로 되돌린다.
+  // 경계의 두 모서리를 픽셀(offset)로 바꾸고 x, y만큼 안쪽(reduce)이나 바깥쪽(expand)으로 옮긴 뒤 다시 좌표로 변환합니다.
   function resize(sign: 1 | -1) {
     const projection = mapRef.current?.getProjection();
     if (!projection || !bounds) return;
@@ -40,7 +40,7 @@ function ProjectionMapContent() {
         ref={mapRef}
         defaultZoom={16}
         defaultCenter={{ lat: 37.56558, lng: 126.978008 }}
-        // 처음 경계는 지도가 계산한 현재 영역이다(init 뒤에 읽을 수 있다).
+        // 처음 경계는 지도가 계산한 현재 영역입니다(init 뒤에 읽을 수 있습니다).
         onInit={() =>
           setBounds(mapRef.current?.getBounds() as naver.maps.LatLngBounds)
         }
