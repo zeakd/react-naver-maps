@@ -7,9 +7,9 @@ changes:
   - official: "`Event.addListener(map, 'zoom_changed')` 와 `'bounds_changed'` 리스너"
     react: '`onZoomChanged`, `onBoundsChanged` prop'
   - official: 'jQuery 로 만든 패널을 `map.getElement()` 에 붙이고 `text()` 로 고친다'
-    react: '`Container` 안의 JSX 패널이 `zoom`, `centerPoint` state 를 그린다'
+    react: '`Container` 안의 JSX 패널에 `zoom`, `centerPoint` state 표시'
   - official: '패널을 만들 때 `map.getZoom()`, `map.getCenterPoint()` 를 바로 읽는다'
-    react: '`onInit` 에서 `getCenterPoint()` 를 읽어 state 에 넣는다'
+    react: '`onInit` 에서 `getCenterPoint()` 를 읽어 state 에 저장'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -21,6 +21,6 @@ import EventTutorial2KvoExample from '../../../examples/event-tutorial-2-kvo.tsx
 
 ## 설명
 
-SDK 의 `zoom_changed`, `bounds_changed` 같은 KVO 이벤트는 `onZoomChanged`, `onBoundsChanged` 처럼 `on*Changed` prop 입니다. 값이 인자로 옵니다.
+SDK 의 `zoom_changed`, `bounds_changed` 같은 KVO 이벤트는 `onZoomChanged`, `onBoundsChanged` 처럼 `on*Changed` prop 으로 받습니다. 변경된 값은 인자로 전달됩니다.
 
-`getCenterPoint()` 처럼 SDK 메서드가 필요하면 `ref` 로 받은 지도에 부릅니다. `padding` 도 지도 옵션 prop 입니다.
+`getCenterPoint()` 같은 SDK 메서드는 `ref` 로 받은 지도에서 호출합니다. `padding` 도 지도 옵션 prop 으로 사용할 수 있습니다.

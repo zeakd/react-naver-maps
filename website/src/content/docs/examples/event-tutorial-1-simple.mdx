@@ -7,11 +7,11 @@ changes:
   - official: "`Event.addListener(map, 'click')` 처럼 직접 붙이는 리스너"
     react: '`NaverMap` 의 `onClick`, `onRightclick`, `onMousedown`, `onKeydown` prop'
   - official: '`new naver.maps.Marker` 를 `markerList` 에 모으고 `setMap(null)` 로 하나씩 지운다'
-    react: '좌표 목록 state 를 `<Marker>` 로 그리고 `setMarkers([])` 로 지운다'
+    react: '좌표 목록 state 를 `<Marker>` 로 렌더링하고 `setMarkers([])` 로 삭제'
   - official: 'jQuery 로 만든 정보 div 를 `map.getPanes().floatPane` 에 붙이고 `show()`, `hide()` 한다'
-    react: '`menu` state 가 있을 때 `Container` 안에 `e.offset` 위치로 그린다'
+    react: '`menu` state 가 있을 때 `Container` 안의 `e.offset` 위치에 표시'
   - official: '오른쪽 클릭한 좌표를 `console.log` 로 남긴다'
-    react: '좌표를 정보 창 안에 표시한다'
+    react: '정보 창 안에 좌표 표시'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
@@ -25,4 +25,4 @@ import EventTutorial1SimpleExample from '../../../examples/event-tutorial-1-simp
 
 지도 이벤트 prop 의 인자는 SDK 의 `PointerEvent`(`coord`, `point`, `offset`)이고, `onKeydown` 은 `{ keyboardEvent }` 를 받습니다. 마커 목록과 정보 창은 React state 로 그립니다.
 
-`keydown` 은 지도에 초점이 있을 때 옵니다(지도를 한 번 클릭하세요).
+`keydown` 이벤트는 지도에 초점이 있을 때 발생합니다. 지도를 한 번 클릭해 초점을 맞출 수 있습니다.
