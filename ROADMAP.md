@@ -1,6 +1,6 @@
-# react-naver-maps v2 로드맵
+# react-naver-maps 로드맵
 
-React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
+React 19 전용 네이버 지도 라이브러리. 0.2 에서 다시 만들어 0.1 이전 API 를 대체했다.
 
 ---
 
@@ -56,26 +56,17 @@ React 19 전용 네이버 지도 라이브러리. 기존 v1 완전 대체.
 - 추가: `BicycleLayer`, `CustomControl`, `GeoJson`, `react-naver-maps/addons`, 서브모듈 경로 `geocoder`, `visualization`, `drawing`, `panorama`.
 - deprecated: controlled `bounds`, `centerPoint`, `defaultCenterPoint`.
 - 안내: 0.3 에서 0.4 로 가이드.
+- 문서 사이트: 네이버 공식 튜토리얼 88개를 React 예제로 옮기고 페이지마다 바꾼 점을 적는다. React 앱에서 자주 하는 일을 React 예제로 따로 둔다. 영역별 사이드바, 검색, 어두운 화면.
 
 ---
 
 ## 미정
-
-### 공식 튜토리얼 1:1 매핑 예제
-
-네이버맵 공식 튜토리얼의 UI를 v2 컴포넌트로 완전히 재현하는 예제.
-7개: 지도 옵션, 지도 유형, 지도 경계, 지도 이동, Geolocation, 커스텀 컨트롤, 마커 클러스터.
 
 ### DX 개선 검토
 
 - controlled/uncontrolled 타입 분리 (동시 전달 방지)
 
 정한 것(0.4): 좌표는 `{ lat, lng }` 리터럴을 기본으로 쓰고 SDK 객체는 한 번만 만든다(문서 예제). `Provider → Container → NaverMap` 은 그대로 둔다. Container 는 자리와 DOM props 를, NaverMap 은 SDK props 를 맡아 같은 이름의 prop(`onClick`, `draggable`)이 어느 쪽 뜻인지 컴포넌트가 정한다.
-
-### v1 대비 미구현
-
-- `useOverlayLifecycle` export 여부 (v1의 `<Overlay>` 대체)
-- `<Listener>` / `useListener()` (v2는 `on*` props로 대체)
 
 ---
 
