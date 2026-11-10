@@ -38,11 +38,11 @@ const mapTypes = useMemo(
 <NaverMap mapTypes={mapTypes} mapTypeId="osm" />;
 ```
 
-지금 고른 id 가 없는 레지스트리로 바꾸면 SDK 가 지도를 그리지 못합니다(3.10.5 확인). `mapTypeId`를 함께 바꿉니다.
+현재 선택한 id가 없는 레지스트리로 바꾸면 SDK가 지도를 그리지 못합니다(3.10.5 확인). `mapTypeId`를 함께 바꿔 주세요.
 
 ## 레이어
 
-지도 위에 겹치는 SDK 레이어는 컴포넌트입니다. 붙어 있는 동안 켜지고 빼면 꺼집니다.
+지도 위에 겹치는 SDK 레이어를 컴포넌트로 사용합니다. 마운트하면 켜지고 언마운트하면 꺼집니다.
 
 | 컴포넌트                                                        | SDK                                                                        |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -57,11 +57,11 @@ const mapTypes = useMemo(
 <Layer name="tileGrid" mapTypes={tileGrid} zIndex={1} />;
 ```
 
-내장 레이어의 `zIndex`, `overlayMap` 옵션은 SDK 가 내장 레이어에서 쓰지 않아 prop 이 없습니다.
+내장 레이어의 `zIndex`, `overlayMap` 옵션은 SDK가 사용하지 않아 prop이 없습니다.
 
 ## GL 과 Style Editor
 
-GL 서브모듈은 WebGL 로 벡터 지도를 그립니다. `submodules={['gl']}`로 불러오고 `gl`을 켭니다. 공식 문서는 GL 을 다른 서브모듈과 함께 쓰지 말라고 합니다(개발 모드에서 경고).
+GL 서브모듈은 WebGL로 벡터 지도를 그립니다. `submodules={['gl']}`로 불러오고 `gl`을 켜 주세요. 공식 문서는 GL을 다른 서브모듈과 함께 사용하지 않도록 안내합니다(개발 모드에서 경고).
 
 ```tsx
 <NavermapsProvider ncpKeyId="…" submodules={['gl']}>

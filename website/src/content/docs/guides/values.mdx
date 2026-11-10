@@ -19,7 +19,7 @@ order: 8
 
 ## SDK 상수는 이름으로
 
-컨트롤 자리·모양, `Marker`의 `animation`, 그리기 모드처럼 SDK 상수를 받는 prop 은 그 이름도 받습니다. SDK 를 부를 필요가 없습니다.
+컨트롤 위치·모양, `Marker`의 `animation`, 그리기 모드처럼 SDK 상수를 받는 props에는 상수 이름을 넘겨도 됩니다. SDK를 호출할 필요가 없습니다.
 
 ```tsx
 <NaverMap zoomControl zoomControlOptions={{ position: 'TOP_RIGHT', style: 'SMALL' }} />
@@ -42,7 +42,7 @@ const zoomOptions = { position: 'TOP_RIGHT' } satisfies ZoomControlOptionsProp;
 
 ## SDK 값 클래스
 
-`useNavermaps()`가 돌려주는 것은 SDK 의 `naver.maps` 그대로입니다. 경계 계산, 투영, 사용자 지도 유형처럼 SDK 클래스가 필요하면 거기서 씁니다.
+`useNavermaps()`는 SDK의 `naver.maps`를 반환합니다. 경계 계산, 투영, 사용자 지도 유형처럼 SDK 클래스가 필요할 때 사용합니다.
 
 ```tsx
 const navermaps = useNavermaps();
