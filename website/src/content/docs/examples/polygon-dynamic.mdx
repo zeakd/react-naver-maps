@@ -5,20 +5,20 @@ order: 26
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-polygon-dynamic.example.html
 changes:
   - official: "`naver.maps.Event.addListener(map, 'click')`"
-    react: '`NaverMap` 의 `onClick` prop'
-  - official: '`polygon.getPaths().getAt(0).push(point)` 로 경로에 점 추가'
-    react: 클릭한 점을 새 state 배열에 추가하고 `<Polygon paths={[points]}>` 에 전달
+    react: '`NaverMap`의 `onClick` prop'
+  - official: '`polygon.getPaths().getAt(0).push(point)`로 경로에 점 추가'
+    react: 클릭한 점을 새 state 배열에 추가하고 `<Polygon paths={[points]}>`에 전달
   - official: 클릭마다 `new naver.maps.Marker` 생성
-    react: 같은 배열을 `map` 으로 돌며 `<Marker>` 를 렌더
+    react: 같은 배열을 `map`으로 돌며 `<Marker>`를 렌더
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import PolygonDynamicExample from '../../../examples/polygon-dynamic.tsx';
 
-지도에서 클릭한 지점들을 폴리곤으로 이어 그리는 예제입니다.
+지도에서 클릭한 지점을 폴리곤으로 이어 그립니다.
 
 <Example of={PolygonDynamicExample} />
 
 ## 설명
 
-클릭 좌표는 `{ lat: e.coord.y, lng: e.coord.x }` 리터럴로 바꿔 state 에 담습니다.
+클릭 좌표는 `{ lat: e.coord.y, lng: e.coord.x }` 리터럴로 바꿔 state에 담습니다.

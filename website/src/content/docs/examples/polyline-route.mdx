@@ -4,14 +4,14 @@ category: tutorial-shape
 order: 28
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-polyline-route.example.html
 changes:
-  - official: '`$.get` 으로 경로 JSON 받기, 받은 구간은 전역 변수에 캐시'
-    react: '`fetch` 로 받고, 구간별 좌표 배열은 `useRef` 에 캐시'
+  - official: '`$.get`으로 경로 JSON 받기, 받은 구간은 전역 변수에 캐시'
+    react: '`fetch`로 받고, 구간별 좌표 배열은 `useRef`에 캐시'
   - official: 만든 `Polyline` 인스턴스를 전역 배열에 두고 삭제할 때 `setMap(null)`
-    react: 경로 배열을 state 로 관리하고 `map` 으로 `<Polyline>` 을 렌더링, 삭제할 때 배열 비우기
-  - official: jQuery 로 버튼에 `click` 핸들러 붙이기
+    react: 경로 배열을 state로 관리하고 `map`으로 `<Polyline>`을 렌더링, 삭제할 때 배열 비우기
+  - official: jQuery로 버튼에 `click` 핸들러 붙이기
     react: 버튼의 `onClick`
 limits:
-  - 공식 예제는 `console.time` 으로 데이터 받기와 그리기에 걸린 시간을 콘솔에 남기는데, 여기서는 시간을 재지 않습니다.
+  - 공식 예제는 `console.time`으로 데이터 받기와 그리기에 걸린 시간을 콘솔에 남기는데, 여기서는 시간을 재지 않습니다.
 additions:
   - 지금 그린 폴리라인 개수를 버튼 옆에 표시합니다.
 ---
@@ -19,7 +19,7 @@ additions:
 import Example from 'astro-component-docs/components/Example.astro';
 import PolylineRouteExample from '../../../examples/polyline-route.tsx';
 
-긴 경로를 폴리라인 하나로 그릴 때와 구간마다 여러 폴리라인으로 그릴 때를 비교하는 예제입니다.
+긴 경로를 폴리라인 하나로 그릴 때와 구간마다 여러 폴리라인으로 그릴 때를 비교합니다.
 
 <Example of={PolylineRouteExample} />
 
