@@ -31,7 +31,7 @@ export default function ActivityTabsExample() {
           목록 ({pins.length})
         </button>
       </div>
-      {/* 숨겨도 지도를 버리지 않는다. 돌아오면 옮긴 위치·줌과 마커가 그대로 있다. */}
+      {/* 지도를 다시 표시하면 이동한 위치와 줌, 마커가 유지됩니다. */}
       <Activity mode={tab === 'map' ? 'visible' : 'hidden'}>
         <MapDiv style={{ width: '100%', height: '380px' }}>
           <NaverMap

@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 
-// 공식 예제의 `.buttons` / `.control-btn` 모양. 예제 쪽들이 함께 쓴다.
+// 예제에서 공통으로 사용하는 공식 예제의 `.buttons` / `.control-btn` 스타일입니다.
 export function buttonStyle(active = false): CSSProperties {
   return {
     backgroundColor: active ? '#2780E3' : '#fff',

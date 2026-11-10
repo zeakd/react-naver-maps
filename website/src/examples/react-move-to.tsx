@@ -27,7 +27,7 @@ const bar: React.CSSProperties = {
   gap: 6,
 };
 
-// Container 안에 있어 useNavermaps() 가 SDK 를 받을 때까지 Container 가 기다려 준다.
+// Container 안에서 useNavermaps() 를 호출하면 SDK 로딩을 Container 가 처리합니다.
 function MoveToContent() {
   const navermaps = useNavermaps();
   const map = useRef<naver.maps.Map>(null);

@@ -49,7 +49,7 @@ function PanoramaResize() {
           overflow: 'hidden',
         }}
       >
-        {/* Container 가 바뀌어도 거리뷰는 따라가지 않아 size 로 함께 바꾼다. */}
+        {/* Container 크기가 바뀌어도 거리뷰에 반영되지 않아 size 도 함께 변경합니다. */}
         <Panorama
           position={{ lat: 37.3599605, lng: 127.1058814 }}
           pov={{ pan: -135, tilt: 29, fov: 100 }}

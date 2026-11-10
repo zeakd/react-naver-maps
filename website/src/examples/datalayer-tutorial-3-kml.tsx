@@ -7,7 +7,7 @@ import {
 import { useXml } from '../samples/remote-data';
 
 function Seorak() {
-  // 한 번만 파싱한 Document. 참조가 같으면 다시 올리지 않는다.
+  // Document 를 한 번만 파싱합니다. 참조가 같으면 데이터를 다시 추가하지 않습니다.
   const kml = useXml('data/seorak.kml');
   return kml ? <Kml data={kml} /> : null;
 }
