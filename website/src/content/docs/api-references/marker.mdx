@@ -19,7 +19,7 @@ const navermaps = useNavermaps();
 
 ## 아이콘
 
-`icon` 은 SDK 의 네 가지 아이콘을 그대로 받습니다. 객체는 렌더마다 새로 만들어도 값이 같으면 다시 넣지 않습니다.
+`icon`은 SDK의 네 가지 아이콘을 그대로 받습니다. 객체는 렌더마다 새로 만들어도 값이 같으면 다시 넣지 않습니다.
 
 ```tsx
 <Marker position={p} icon="https://example.com/pin.png" />  {/* 이미지 URL */}
@@ -36,11 +36,11 @@ const navermaps = useNavermaps();
 <Marker position={p} icon={{ content: '<div class="pin">1</div>', anchor: { x: 12, y: 12 } }} />  {/* HtmlIcon */}
 ```
 
-이미지 아이콘을 다 불러오면 `onIconLoaded` 가 옵니다. `shape` 로 클릭 영역을 정합니다.
+이미지 아이콘을 다 불러오면 `onIconLoaded`가 옵니다. `shape`로 클릭 영역을 정합니다.
 
 ## 애니메이션
 
-`animation` 은 바뀔 때만 적용합니다. DROP 이 끝나면 SDK 가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지 않습니다. `null` 을 주면 BOUNCE 를 멈춥니다. 이름(`'BOUNCE'`, `'DROP'`) 대신 SDK 상수(`navermaps.Animation.BOUNCE`)도 받습니다.
+`animation`은 바뀔 때만 적용합니다. DROP 이 끝나면 SDK가 값을 null 로 바꾸는데, 다시 렌더해도 다시 떨어지지 않습니다. `null`을 주면 BOUNCE 를 멈춥니다. 이름(`'BOUNCE'`, `'DROP'`) 대신 SDK 상수(`navermaps.Animation.BOUNCE`)도 받습니다.
 
 ```tsx
 <Marker position={p} animation={bouncing ? 'BOUNCE' : null} />
@@ -48,7 +48,7 @@ const navermaps = useNavermaps();
 
 ## 위치 읽기
 
-`position` 을 주면 그 값이 기준입니다. 끌어 놓아도 다시 렌더하면 돌아가므로 `onDragend` 로 상태를 바꿉니다. `defaultPosition` 으로 두고 위치만 읽으려면 `onPositionChanged` 를 씁니다.
+`position`을 주면 그 값이 기준입니다. 끌어 놓아도 다시 렌더하면 돌아가므로 `onDragend`로 상태를 바꿉니다. `defaultPosition`으로 두고 위치만 읽으려면 `onPositionChanged`를 씁니다.
 
 ```tsx
 <Marker
@@ -60,7 +60,7 @@ const navermaps = useNavermaps();
 
 ## 거리뷰 위에
 
-`Panorama` 의 자식으로 두면 거리뷰 위에 그립니다([Panorama](/react-naver-maps/api-references/panorama/)).
+`Panorama`의 자식으로 두면 거리뷰 위에 그립니다([Panorama](/react-naver-maps/api-references/panorama/)).
 
 ## Props
 

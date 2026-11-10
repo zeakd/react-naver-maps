@@ -50,7 +50,7 @@ const [origin] = useState(() => new navermaps.LatLng(37.5666, 126.9784));
 </Suspense>
 ```
 
-서버 렌더(Next, React Router, TanStack Start, Astro 등)에서는 SDK 를 불러올 수 없어 `useNavermaps()` 가 오류를 던집니다. 가장 가까운 `<Suspense>` 가 서버 HTML 에 fallback 을 넣고 브라우저에서 다시 렌더합니다(React 의 클라이언트 전용 처리). `Container` 안은 브라우저에서만 그려지므로 신경 쓸 것이 없습니다. `Container` 밖에서 부르면서 `<Suspense>` 가 없으면 서버 렌더가 이 오류로 실패하니 위처럼 감쌉니다.
+서버 렌더(Next, React Router, TanStack Start, Astro 등)에서는 SDK를 불러올 수 없어 `useNavermaps()`가 오류를 던집니다. 가장 가까운 `<Suspense>`가 서버 HTML 에 fallback 을 넣고 브라우저에서 다시 렌더합니다(React의 클라이언트 전용 처리). `Container` 안은 브라우저에서만 그려지므로 신경 쓸 것이 없습니다. `Container` 밖에서 부르면서 `<Suspense>`가 없으면 서버 렌더가 이 오류로 실패하니 위처럼 감쌉니다.
 
 ## 반환값
 
