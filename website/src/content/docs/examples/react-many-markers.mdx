@@ -13,8 +13,8 @@ import ManyMarkersExample from '../../../examples/react-many-markers.tsx';
 
 ## 설명
 
-지도 안에 둔 `TrackView` 가 처음 한 번과 지도가 멈출 때(`idle`)마다 보이는 영역을 숫자로 알립니다. 그 영역 안의 점만 `<Marker>` 로 그립니다. `TrackView` 는 `useMap()` 으로 지도를 받아 `useListener` 로 `idle` 을 듣습니다. 영역 밖으로 나간 마커는 언마운트되어 SDK 에서도 빠집니다. 끄는 동안에는 `idle` 이 오지 않아 다시 렌더하지 않습니다.
+지도 안에 둔 `TrackView`가 처음 한 번과 지도가 멈출 때(`idle`)마다 보이는 영역을 숫자로 알립니다. 그 영역 안의 점만 `<Marker>`로 그립니다. `TrackView`는 `useMap()`으로 지도를 받아 `useListener`로 `idle`을 듣습니다. 영역 밖으로 나간 마커는 언마운트되어 SDK 에서도 빠집니다. 끄는 동안에는 `idle`이 오지 않아 다시 렌더하지 않습니다.
 
-- 마커의 `key` 는 점의 id 입니다. 영역이 바뀌어도 계속 보이는 마커는 다시 만들지 않습니다.
+- 마커의 `key`는 점의 id 입니다. 영역이 바뀌어도 계속 보이는 마커는 다시 만들지 않습니다.
 - `icon` 처럼 모든 마커가 같은 값은 컴포넌트 밖 상수로 둡니다.
 - 마커를 묶어 개수로 보여 주려면 [마커 클러스터화하기](/react-naver-maps/examples/marker-cluster-tutorial/)를 봅니다. 렌더 비용은 [성능](/react-naver-maps/guides/performance/)에 정리했습니다.
