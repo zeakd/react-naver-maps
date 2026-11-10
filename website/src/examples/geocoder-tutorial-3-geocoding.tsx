@@ -18,7 +18,7 @@ type ResultItem = ReverseGeocodeResult['results'][number];
 const hasArea = (area?: Area) => !!area?.name;
 const hasData = (data?: string) => !!data;
 
-/** 역지오코딩 결과 한 건을 한 줄 주소로 만든다. */
+/** 역지오코딩 결과 한 건을 한 줄 주소로 만듭니다. */
 function makeAddress(item?: ResultItem) {
   if (!item) return '';
   const { name, region, land } = item;
@@ -127,7 +127,7 @@ function GeocodingMap() {
 
   useEffect(() => {
     void searchAddressToCoordinate('정자동 178-1');
-    // 처음 한 번만 검색한다.
+    // 처음 한 번만 검색합니다.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

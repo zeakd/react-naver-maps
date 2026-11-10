@@ -10,8 +10,8 @@ import {
 function TileCheckMapContent() {
   const navermaps = useNavermaps();
 
-  // 레이어가 그릴 지도 유형. getTile 이 타일마다 DOM 요소를 돌려준다.
-  // 렌더마다 새로 만들면 레이어가 다시 만들어지므로 useMemo 로 한 번만 만든다.
+  // getTile은 타일마다 DOM 요소를 반환합니다.
+  // 렌더마다 새로 만들면 레이어가 다시 만들어지므로 useMemo로 한 번만 만듭니다.
   const tileGrid = useMemo<Omit<naver.maps.MapType, 'projection'>>(
     () => ({
       name: 'TileGrid',
@@ -38,7 +38,7 @@ function TileCheckMapContent() {
       mapTypeControl
       mapTypeControlOptions={{ style: navermaps.MapTypeControlStyle.DROPDOWN }}
     >
-      {/* projection 은 생략한다(SDK 기본). */}
+      {/* projection은 생략합니다(SDK 기본값). */}
       <Layer name="tileGrid" mapTypes={tileGrid} />
     </NaverMap>
   );

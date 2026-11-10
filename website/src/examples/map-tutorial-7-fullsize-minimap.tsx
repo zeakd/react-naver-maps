@@ -7,7 +7,7 @@ import {
   useNavermaps,
 } from 'react-naver-maps';
 
-// 큰 지도의 유형에 짝지은 미니 맵 유형(공식 예제와 같다).
+// 큰 지도 유형에 대응하는 미니 맵 유형입니다(공식 예제와 동일).
 const MINIMAP_TYPES: Record<string, string> = {
   normal: 'hybrid',
   terrain: 'satellite',
@@ -25,7 +25,7 @@ function MinimapMap({
   onDrag: () => void;
 }) {
   return (
-    // 미니 맵도 Container 와 NaverMap 한 벌이다. 큰 지도의 CustomControl 안에 둔다.
+    // 미니 맵도 Container와 NaverMap으로 구성해 큰 지도의 CustomControl 안에 둡니다.
     <MapDiv
       style={{
         width: 200,
@@ -56,7 +56,7 @@ function FullsizeMinimapContent() {
   const [mapTypeId, setMapTypeId] = useState<string>(
     navermaps.MapTypeId.HYBRID,
   );
-  // 미니 맵을 끌어 큰 지도를 옮기는 동안은 큰 지도 쪽 변화가 미니 맵을 다시 맞추지 않는다.
+  // 미니 맵으로 큰 지도를 옮기는 동안 큰 지도의 변화가 미니 맵에 다시 반영되지 않게 합니다.
   const draggingMinimapRef = useRef(false);
 
   return (

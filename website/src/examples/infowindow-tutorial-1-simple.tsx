@@ -10,7 +10,7 @@ import {
 
 const cityhall = { lat: 37.5666805, lng: 126.9784147 };
 
-// InfoWindow 의 content 는 SDK 와 같이 HTML 문자열이다.
+// InfoWindow의 content는 SDK와 같이 HTML 문자열입니다.
 const content = [
   '<div style="padding:10px;min-width:200px;line-height:150%;">',
   '  <h4 style="margin-top:5px;">서울특별시청</h4>',
@@ -24,12 +24,12 @@ const content = [
 
 function InfoWindowSimpleMapContent() {
   const navermaps = useNavermaps();
-  // 공식 예제처럼 시청에서 북쪽으로 500m 떨어진 곳을 중심으로 둔다.
+  // 공식 예제처럼 시청에서 북쪽으로 500m 떨어진 곳을 중심으로 둡니다.
   const center = useMemo(
     () => new navermaps.LatLng(cityhall).destinationPoint(0, 500),
     [navermaps],
   );
-  // anchor 에는 Marker 인스턴스를 넘긴다. ref 콜백으로 state 에 담는다.
+  // anchor에는 마커 인스턴스를 넘깁니다. ref 콜백으로 state에 담습니다.
   const [marker, setMarker] = useState<naver.maps.Marker | null>(null);
   const [open, setOpen] = useState(true);
 

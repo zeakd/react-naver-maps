@@ -12,7 +12,7 @@ function LabelMapContent() {
   const navermaps = useNavermaps();
   const [label, setLabel] = useState(false);
 
-  // 라벨 레이어는 벡터 일반 지도 위에 얹는다. 레지스트리는 한 번만 만든다.
+  // 라벨 레이어는 벡터 일반 지도 위에 표시합니다. 레지스트리는 한 번만 만듭니다.
   const mapTypes = useMemo(
     () =>
       new navermaps.MapTypeRegistry({

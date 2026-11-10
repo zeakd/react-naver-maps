@@ -25,7 +25,7 @@ function MapBoundsMapContent() {
   const mapRef = useRef<naver.maps.Map>(null);
   const [bounds, setBounds] = useState<naver.maps.LatLngBounds | null>(null);
 
-  // SDK 객체는 렌더마다 만들지 않고 한 번만 만든다.
+  // SDK 객체는 렌더마다 만들지 않고 한 번만 만듭니다.
   const [dokdoBounds] = useState(
     () =>
       new navermaps.LatLngBounds(
