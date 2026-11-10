@@ -5,11 +5,11 @@ order: 37
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-tile-index.example.html
 changes:
   - official: '`new naver.maps.Layer` 를 만들고 `setMap(map)` 으로 얹기'
-    react: '`<Layer name mapTypes />` 를 `NaverMap` 의 children 으로 렌더한다'
+    react: '`<Layer name mapTypes />` 를 `NaverMap` 의 children 으로 렌더링'
   - official: 지도를 만든 직후 `getProjection()` 으로 타일 인덱스 계산하기
-    react: '`onInit` 에서 `ref` 로 받은 지도로 계산해 state 에 둔다'
+    react: '`onInit` 에서 `ref` 로 받은 지도로 계산해 state 에 저장'
   - official: '`new naver.maps.Marker`, `new naver.maps.InfoWindow` 를 만들고 `infoWindow.open(map, marker)`'
-    react: '`<Marker>` 와 `<InfoWindow open position content />` 를 렌더한다'
+    react: '`<Marker>` 와 `<InfoWindow open position content />` 렌더링'
 limits:
   - '`projection.scaleUp` 의 반환 타입이 합집합이라 `Point` 로 단언합니다.'
 ---

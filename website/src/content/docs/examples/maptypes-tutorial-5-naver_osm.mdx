@@ -5,11 +5,11 @@ order: 5
 official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-maptypes-naver_osm.example.html
 changes:
   - official: '`map.mapTypes.set` 으로 지도의 기본 레지스트리에 `osm` 더하기'
-    react: 기본 네 유형과 `osm` 을 넣은 레지스트리를 `useMemo` 로 만들어 `mapTypes` 에 준다
+    react: 기본 네 유형과 `osm` 을 넣은 레지스트리를 `useMemo` 로 만들어 `mapTypes` 에 전달
   - official: '`idle` 리스너에서 `getMapTypeId()`, `setMapTypeId()` 로 지도 유형 바꾸기'
-    react: '`mapTypeId` 를 state 로 두고 `onIdle` 에서 정한다. 컨트롤로 바꾼 값은 `onMapTypeIdChanged` 로 state 에 맞춘다'
+    react: '`mapTypeId` 를 state 로 관리하고 `onIdle` 에서 설정. 컨트롤로 바꾼 값은 `onMapTypeIdChanged` 로 state 에 반영'
   - official: '`zooming` 동안 `idle` 리스너를 떼었다가 다음 `idle` 에 다시 붙이기'
-    react: '`onZoomstart` 에서 ref 플래그를 세워 다음 `idle` 한 번을 건너뛴다'
+    react: '`onZoomstart` 에서 ref 플래그를 설정해 다음 `idle` 한 번을 건너뛰기'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
