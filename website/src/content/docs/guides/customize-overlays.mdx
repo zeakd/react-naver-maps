@@ -35,7 +35,7 @@ function MyMap() {
 
 ## useMap으로 명령형 조작
 
-`useMap()` 훅으로 지도 인스턴스에 접근하여 명령형 API를 사용할 수 있습니다.
+`useMap()` 훅으로 지도 인스턴스에 접근해 명령형 API를 사용합니다.
 
 ```tsx
 import { useMap } from 'react-naver-maps';
@@ -58,7 +58,7 @@ function MapControls() {
 
 ## useKVO로 KVO 값 구독
 
-네이버맵 객체의 KVO 프로퍼티를 React 상태로 구독할 수 있습니다.
+네이버 지도 객체의 KVO 프로퍼티를 React state로 구독합니다.
 
 ```tsx
 import { useKVO, useMap } from 'react-naver-maps';
@@ -75,7 +75,7 @@ function ZoomDisplay() {
 
 ## useControlledKVO로 prop 동기화
 
-네이티브 오버레이 인스턴스의 프로퍼티를 React prop과 동기화할 수 있습니다. 내장 컴포넌트들이 내부적으로 사용하는 훅입니다.
+네이티브 오버레이 인스턴스의 프로퍼티를 React prop과 동기화합니다. 내장 컴포넌트가 내부적으로 사용하는 훅입니다.
 
 ```tsx
 import { useControlledKVO } from 'react-naver-maps';
@@ -93,7 +93,7 @@ function useMyOverlay(
 
 ## v1에서 변경된 점
 
-v1의 `<Overlay>`, `<Listener>` 컴포넌트는 v2에서 제거되었습니다. 이벤트는 컴포넌트의 `on*` prop으로 받고, prop이 없는 이벤트는 [`useListener`](/react-naver-maps/api-references/use-listener/) 로 구독합니다.
+v1의 `<Overlay>`, `<Listener>` 컴포넌트는 v2에서 제거되었습니다. 이벤트는 컴포넌트의 `on*` props로 받고, prop이 없는 이벤트는 [`useListener`](/react-naver-maps/api-references/use-listener/)로 구독합니다.
 
 | v1                                             | v2                                        |
 | ---------------------------------------------- | ----------------------------------------- |
