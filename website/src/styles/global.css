@@ -95,10 +95,12 @@ pre {
   color: var(--text);
 }
 .prose > h1 {
-  font-size: 36px;
+  /* 좁은 화면에서는 줄여서 대부분 한 줄에 들어가게 하고, 넘치면 줄 길이를 고르게 나눈다 */
+  font-size: clamp(28px, 4.2vw + 12px, 36px);
   line-height: 1.25;
   letter-spacing: -0.03em;
   font-weight: 750;
+  text-wrap: balance;
   margin: 0 0 12px;
 }
 .prose h2 {
