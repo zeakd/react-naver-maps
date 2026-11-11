@@ -146,7 +146,17 @@ function extractPropsFromType(type: Type, location: Node): PropInfo[] {
 
     // 매핑 타입(EventHandlerProps<…> 처럼 이름 목록에서 만든 prop)은 값 선언이 없다. 그때는 컴포넌트
     // 선언 위치에서 타입을 읽는다. 건너뛰면 onClick 같은 이벤트가 표에서 빠진다.
-    const at = prop.getValueDeclaration() ?? location;
+    // 다만 Omit<ComponentProps<'div'>, …> 처럼 의존성 타입을 다시 매핑한 prop 은 선언이 node_modules
+    // (@types/react)에 있다. 그것은 컴포넌트가 정한 prop 이 아니라 싣지 않는다(Container 의 div 속성).
+    const valueDeclaration = prop.getValueDeclaration();
+    const declarations = prop.getDeclarations();
+    if (
+      !valueDeclaration &&
+      declarations.length > 0 &&
+      declarations.every((d) => d.getSourceFile().isInNodeModules())
+    )
+      continue;
+    const at = valueDeclaration ?? location;
     const propType = prop.getTypeAtLocation(at);
     const isOptional = prop.isOptional();
 
