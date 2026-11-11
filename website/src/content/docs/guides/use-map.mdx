@@ -46,7 +46,7 @@ function MoveButtons() {
 `panTo`는 애니메이션과 함께 이동합니다. center와 zoom을 동시에 변경할 때는 `morph()`를 사용하세요.
 `setCenter()`는 진행 중인 애니메이션을 강제 중단하므로, 일반적인 이동에는 `panTo`가 적합합니다.
 
-`center`를 controlled prop으로 사용해도 메서드로 지도를 이동할 수 있습니다. 지도가 움직이면 `onCenterChanged`로 앱 상태를 갱신합니다. `center` prop은 지도가 최근 2초 안에 알려 준 위치를 따르지 않으므로([핵심 개념](/react-naver-maps/guides/core-concepts/)), 지나온 위치로 다시 이동하려면 메서드를 사용합니다.
+`center`를 controlled prop으로 사용해도 메서드로 지도를 이동할 수 있습니다. 이동이 끝나면 `onIdle`에서 앱 상태를 맞춥니다. `center` prop은 지도가 최근 2초 안에 알려 준 위치를 따르지 않으므로([핵심 개념](/react-naver-maps/guides/core-concepts/)), 지나온 위치로 다시 이동하려면 메서드를 사용합니다.
 
 메서드 인자에는 SDK 상수를 사용합니다. props가 받는 상수 이름(`'TOP_RIGHT'`)은 메서드에서 변환되지 않습니다.
 

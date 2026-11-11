@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   NavermapsProvider,
   Container as MapDiv,
@@ -58,6 +58,7 @@ const wrap = (body: string) =>
 
 function GeocodingMap() {
   const navermaps = useNavermaps();
+  const mapRef = useRef<naver.maps.Map>(null);
   const [center, setCenter] = useState({ lat: 37.3595316, lng: 127.1052133 });
   const [popup, setPopup] = useState<Popup | null>(null);
   const [address, setAddress] = useState('정자동 178-1');
@@ -134,13 +135,13 @@ function GeocodingMap() {
   return (
     <>
       <NaverMap
+        ref={mapRef}
         center={center}
-        onCenterChanged={(c) =>
-          setCenter({
-            lat: c.y,
-            lng: c.x,
-          })
-        }
+        // 지도를 옮긴 뒤 같은 주소를 다시 검색해도 이동하도록, 이동이 끝나면 center state를 맞춘다.
+        onIdle={() => {
+          const c = mapRef.current!.getCenter();
+          setCenter({ lat: c.y, lng: c.x });
+        }}
         defaultZoom={15}
         mapTypeControl
         cursor="pointer"

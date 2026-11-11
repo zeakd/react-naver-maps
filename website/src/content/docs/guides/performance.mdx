@@ -15,7 +15,7 @@ React는 상태가 바뀌면 다시 렌더링하고, 지도 SDK는 명령으로 
 
 ## 잰 값
 
-controlled `center`(`onCenterChanged`로 상태를 갱신해 되돌려주는 앱)로 지도를 16 프레임 끄는 동안의 JavaScript 실행 시간입니다. 2026-11-05, Apple M4, React 19.3.1 배포 빌드, SDK 3.10.5. 기기마다 다르니 비율로 읽습니다.
+controlled `center`를 `onCenterChanged`로 매 프레임 갱신하는 앱(권장하지 않지만 가장 무거운 경우)에서 지도를 16 프레임 끄는 동안의 JavaScript 실행 시간입니다. 2026-11-05, Apple M4, React 19.3.1 배포 빌드, SDK 3.10.5. 기기마다 다르니 비율로 읽습니다.
 
 | 지도 위                                    | 16 프레임 | 오버레이가 더하는 프레임당 시간 |
 | ------------------------------------------ | --------- | ------------------------------- |
@@ -29,7 +29,7 @@ controlled `center`(`onCenterChanged`로 상태를 갱신해 되돌려주는 앱
 
 ## 더 줄이고 싶으면
 
-- 드래그 중에 다시 렌더링할 필요가 없으면 uncontrolled로 두세요. `defaultCenter`를 사용하고 드래그 후에만 위치가 필요하면 `onIdle`이나 `onDragend`에서 `map.getCenter()`를 읽습니다. 드래그 중에는 React가 아무것도 하지 않습니다.
+- 위치는 이동이 끝난 뒤 `onIdle`에서 `map.getCenter()`로 읽어 주세요. controlled `center`도 `onIdle`에서 맞추면 드래그 중에는 React가 아무것도 하지 않습니다. 위치가 필요 없으면 `defaultCenter`로 uncontrolled로 두면 됩니다.
 - 꼭짓점이 많은 `path`·`paths`는 같은 배열을 유지해 주세요. 값 비교에는 꼭짓점 수만큼 작업이 필요합니다. state로 두거나 `useMemo`로 만들면 참조가 같아 비교를 건너뜁니다.
 - 오버레이가 많으면 목록을 `memo`로 감싸 주세요. 지도 상태가 바뀌어도 목록의 props가 그대로면 React가 그 아래를 건너뜁니다.
 
