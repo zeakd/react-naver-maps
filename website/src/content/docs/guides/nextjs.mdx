@@ -52,7 +52,7 @@ export default async function Page() {
 }
 ```
 
-- 키는 브라우저에서 쓰는 값이라 환경 변수로 둔다면 `NEXT_PUBLIC_` 이름(`process.env.NEXT_PUBLIC_NAVER_MAP_KEY`)으로 둡니다. 막는 것은 콘솔의 Web 서비스 URL 입니다([인증과 키](/react-naver-maps/guides/auth/)).
+- 키는 브라우저에서 쓰는 값이라 환경 변수로 둔다면 `NEXT_PUBLIC_` 이름(`process.env.NEXT_PUBLIC_NAVER_MAP_KEY`)으로 둡니다. 다른 사이트의 사용은 콘솔의 Web 서비스 URL로 제한합니다([인증과 키](/react-naver-maps/guides/auth/)).
 - `dynamic(() => import(...), { ssr: false })`는 필요 없습니다. 서버에서는 `Container`가 높이를 가진 빈 영역으로 렌더되어 레이아웃이 흔들리지 않습니다.
 - `NavermapsProvider`는 지도를 쓰는 페이지 가까이 두어도, 공통 레이아웃의 클라이언트 컴포넌트에 두어도 됩니다. SDK 스크립트는 한 번만 불러옵니다.
 

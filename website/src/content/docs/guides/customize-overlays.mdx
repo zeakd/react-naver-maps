@@ -71,7 +71,7 @@ function ZoomDisplay() {
 }
 ```
 
-고주기 KVO(`center`, `bounds` 등)는 드래그 중 매 프레임 발화되므로, `on*Changed` 이벤트 핸들러를 사용하세요.
+자주 바뀌는 KVO 값(`center`, `bounds` 등)은 드래그 중 매 프레임 변경 이벤트가 발생하므로 `on*Changed` 이벤트 핸들러를 사용해 주세요.
 
 ## useControlledKVO로 prop 동기화
 
@@ -89,7 +89,7 @@ function useMyOverlay(
 }
 ```
 
-`value`가 `undefined`이면 동기화하지 않으므로, controlled/uncontrolled 패턴을 자연스럽게 지원합니다.
+`value`가 `undefined`이면 동기화하지 않아 controlled와 uncontrolled 패턴을 모두 지원합니다.
 
 ## v1에서 변경된 점
 

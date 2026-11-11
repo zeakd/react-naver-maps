@@ -26,7 +26,7 @@ function MyMap() {
 }
 ```
 
-네이버맵 네이티브 API에서는 `marker.setMap(map)` / `marker.setMap(null)`로 직접 관리해야 하지만, `react-naver-maps`에서는 React의 조건부 렌더링으로 처리됩니다.
+네이버 지도 API에서는 `marker.setMap(map)`과 `marker.setMap(null)`로 직접 관리하지만, `react-naver-maps`에서는 React의 조건부 렌더링으로 처리합니다.
 
 ## 이벤트 핸들링
 
@@ -83,7 +83,7 @@ React의 [Controlled Component](https://react.dev/reference/react-dom/components
 
 ### Uncontrolled (기본값)
 
-`default*` 접두사가 붙은 prop은 초기값만 설정합니다. 이후 사용자 조작에 의한 변경은 네이버맵이 자체 관리합니다.
+`default*` 접두사가 붙은 prop은 초기값만 설정합니다. 이후 사용자가 바꾼 값은 네이버 지도가 관리합니다.
 
 ```tsx
 <NaverMap defaultCenter={{ lat: 37.5, lng: 127.0 }} defaultZoom={15} />
@@ -190,6 +190,6 @@ NavermapsProvider        ← 인증 키 설정 (앱 루트)
               └── ...    ← 오버레이 컴포넌트들
 ```
 
-- `NavermapsProvider`: 인증 키를 Context로 제공. 앱 루트에 한 번만 배치
-- `Container`: 지도가 렌더링될 DOM div. 내장 Suspense로 스크립트 로딩 처리
-- `NaverMap`: 실제 지도 인스턴스. 하위에 오버레이 컴포넌트를 배치
+- `NavermapsProvider`는 인증 키를 Context로 제공합니다. 앱 최상위에 한 번만 배치해 주세요.
+- `Container`는 지도를 그릴 div입니다. 내장 Suspense로 스크립트 로딩을 처리합니다.
+- `NaverMap`은 지도 인스턴스입니다. 그 아래에 오버레이 컴포넌트를 배치합니다.
