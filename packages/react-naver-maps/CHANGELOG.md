@@ -2,15 +2,17 @@
 
 ## 0.4.0
 
+구조와 키는 0.3 과 같습니다. 숨겼다 보여도 같은 지도를 쓰고, 드래그 중에는 `center`, `zoom` prop 을 넣지 않고, 같은 값의 새 객체로는 지도를 건드리지 않습니다. `GeoJson`, `Kml`, `Gpx`, `CustomControl` 등 새 컴포넌트와 서브모듈 하위 경로(`react-naver-maps/geocoder` 등)가 들어갑니다. 옮기는 법은 [0.3에서 0.4로](https://zeakd.github.io/react-naver-maps/guides/migration-from-03/) 를 봐 주세요.
+
 ### Minor Changes
 
-- 5b521d8: 숨겼다 보여도 같은 지도와 오버레이를 씁니다.
+- 숨겼다 보여도 같은 지도와 오버레이를 씁니다.
 
   - 지도 안의 컴포넌트가 suspend 했다 풀리거나 `<Activity>` 로 숨겼다 보이면 지도를 새로 만들고, 오버레이가 옛 지도에 남던 문제를 고쳤습니다.
   - 숨기는 동안 오버레이는 지도에서 떼고 지도는 영역을 숨깁니다. 다시 보이면 같은 인스턴스를 다시 붙이고, `open` 인 `InfoWindow` 는 다시 엽니다.
   - StrictMode 의 이중 실행에서도 인스턴스를 새로 만들지 않습니다. 숨겼다 보인 `Marker` 도 나중에 `clickable` 을 켜면 클릭을 받고, `DrawingManager` 는 `drawingMode` 를 지킵니다.
 
-- 5b521d8: 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직이고, 사용자가 움직인 지도를 되돌리지 않습니다.
+- 지도의 카메라(`center`, `zoom`)는 prop 이 바뀔 때만 움직이고, 사용자가 움직인 지도를 되돌리지 않습니다.
 
   - 지도를 끌거나 핀치하는 동안과 관성이 멈출 때까지 `center`, `zoom` prop 을 넣지 않고, 멈춘 뒤 마지막 값으로 맞춥니다. `onCenterChanged` 값을 반올림하는 등 가공해 되돌려주면 드래그 중 지도가 끌려가던 문제(GL 에서는 드래그가 거의 안 되던 문제)를 고쳤습니다. 화면에서 1px 안의 차이로는 움직이지 않습니다.
   - 지도가 최근 2초 안에 알려 준 위치와 같은 `center` prop 은 따르지 않습니다. 앱이 `onCenterChanged` 값을 늦게(비동기 store, transition, setTimeout) 되돌려줘도 지도가 지나온 자리로 당겨지며 흔들리지 않습니다. GL 의 정수가 아닌 `zoom` 도 같습니다. 사용자가 움직인 위치는 `onIdle` 에서 맞추는 것을 권장합니다.
@@ -18,14 +20,14 @@
   - 래스터 지도는 실수 `zoom` 을 반올림해 쓰므로, 반올림해 같으면 `center` 만 옮깁니다.
   - `Panorama` 도 거리뷰를 누르고 있는 동안 `pov` 등 카메라 prop 을 보류합니다.
 
-- 5b521d8: prop 을 값으로 비교합니다. 렌더마다 새로 만든 같은 값으로는 SDK 를 부르지 않습니다.
+- prop 을 값으로 비교합니다. 렌더마다 새로 만든 같은 값으로는 SDK 를 부르지 않습니다.
 
   - `center={{ lat, lng }}`, `path={[...]}`, `icon={{ content, anchor: new navermaps.Point(...) }}` 처럼 인라인으로 만든 같은 값으로 렌더마다 setter 를 부르거나, 드래그한 지도가 원래 자리로 돌아가던 문제를 고쳤습니다.
   - `GroundOverlay` 는 `url`, `bounds` 가 정말 바뀔 때만 다시 만듭니다.
   - 이벤트 prop 의 핸들러가 바뀌기만 하면 SDK 리스너를 다시 붙이지 않습니다. 인라인 `onClick` 을 써도 됩니다.
   - 오버레이의 값을 지도에서 바꾸면(예: `draggable` Marker 끌기) 다음 렌더에서 prop 으로 되돌리는 것은 0.3 과 같습니다. 받아들이려면 `onDragend` 등으로 state 를 바꿉니다.
 
-- 5b521d8: 새 컴포넌트를 더했습니다.
+- 새 컴포넌트를 더했습니다.
 
   - `GeoJson`, `Kml`, `Gpx`: 지도의 데이터 레이어에 올립니다. `style`, 이벤트, `onPropertyChanged` 는 그 컴포넌트가 올린 feature 에만 적용됩니다.
   - `CustomControl`: React 내용을 지도의 컨트롤 자리에 그립니다.
@@ -45,7 +47,7 @@
   </NaverMap>
   ```
 
-- 5b521d8: SDK 서브모듈을 하위 경로로 씁니다. 서브모듈을 불러오지 않고 쓰면 `submodules` 로 불러오는 법을 담은 에러를 냅니다.
+- SDK 서브모듈을 하위 경로로 씁니다. 서브모듈을 불러오지 않고 쓰면 `submodules` 로 불러오는 법을 담은 에러를 냅니다.
 
   - `react-naver-maps/geocoder`: `geocode`, `reverseGeocode` 를 Promise 로 씁니다.
   - `react-naver-maps/visualization`: `HeatMap`, `DotMap`.
@@ -58,7 +60,7 @@
   const { addresses } = await geocode(navermaps, { query: '불정로 6' });
   ```
 
-- 5b521d8: 공식 문서에 있는 옵션과 이벤트를 prop 으로 받습니다.
+- 공식 문서에 있는 옵션과 이벤트를 prop 으로 받습니다.
 
   - `NaverMap`, `Marker`, `InfoWindow`, 도형이 목록에 없는 SDK 옵션도 받습니다. SDK 에 새 옵션이 생겨도 라이브러리를 올리지 않고 쓸 수 있습니다.
   - 오버레이의 변경 이벤트를 `on*Changed(값)` 로 받습니다(예: `Marker` 의 `onPositionChanged`). `Marker` 의 `onIconLoaded`, `collisionBehavior`, `collisionBoxSize`(GL).
@@ -66,7 +68,7 @@
   - `InfoWindow`: `content` 에 HTML 요소, `pixelOffset` 리터럴, `autoPanPadding`. `CustomOverlay` 의 `position` 에 Point, `Polygon`·`Polyline` 의 `paths`·`path` 에 KVOArray.
   - `HeatMap`·`DotMap` 의 `data` 에 `{ weight, location }` 리터럴, `HeatMap` 의 `colorMapInReverse`. `DrawingManager` 의 도형 스타일 옵션과 이벤트 인자의 `id`, `name`.
 
-- 5b521d8: SDK 상수를 받는 prop 이 이름도 받습니다. SDK 상수도 그대로 받고, 없는 이름이면 쓸 수 있는 이름을 담은 오류를 냅니다.
+- SDK 상수를 받는 prop 이 이름도 받습니다. SDK 상수도 그대로 받고, 없는 이름이면 쓸 수 있는 이름을 담은 오류를 냅니다.
 
   ```tsx
   <NaverMap zoomControl zoomControlOptions={{ position: 'TOP_RIGHT', style: 'SMALL' }} />
@@ -74,18 +76,18 @@
   <DrawingManager drawingMode="POLYGON" />
   ```
 
-- 5b521d8: `NavermapsProvider` 에 `language`(지도 언어 ko·en·zh·ja)와 `onAuthFailure`(인증 실패)를 더했습니다. `submodules` 는 SDK 서브모듈 이름만 받습니다.
+- `NavermapsProvider` 에 `language`(지도 언어 ko·en·zh·ja)와 `onAuthFailure`(인증 실패)를 더했습니다. `submodules` 는 SDK 서브모듈 이름만 받습니다.
 
   `@types/navermaps` 를 선택 peer `^3.10.0` 으로 둡니다. TypeScript 를 쓰는 앱은 함께 올려 주세요. 3.10.0 부터 공식 문서의 멤버가 타입에 들어 있어, 라이브러리가 따로 하던 타입 보강은 없앴습니다.
 
-- 5b521d8: 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)에 `onClick` 같은 포인터 핸들러가 있으면 `clickable` 을 켭니다. SDK 기본은 꺼져 있어 0.3 에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}` 를 적어 주세요.
-- 5b521d8: `NaverMap` 의 controlled `bounds`, `centerPoint`, `defaultCenterPoint` 는 deprecated 입니다. 개발 모드에서 한 번 경고하고 다음 버전에서 없앱니다. 처음 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds()`, 중심은 `center` 를 써 주세요.
+- 도형(`Circle`, `Ellipse`, `Rectangle`, `Polygon`, `Polyline`)에 `onClick` 같은 포인터 핸들러가 있으면 `clickable` 을 켭니다. SDK 기본은 꺼져 있어 0.3 에서는 핸들러가 불리지 않았습니다. 도형 위 클릭이 지도로 가야 하면 `clickable={false}` 를 적어 주세요.
+- `NaverMap` 의 controlled `bounds`, `centerPoint`, `defaultCenterPoint` 는 deprecated 입니다. 개발 모드에서 한 번 경고하고 다음 버전에서 없앱니다. 처음 영역은 `defaultBounds`, 바꿀 때는 `map.fitBounds()`, 중심은 `center` 를 써 주세요.
 
   `Container` 가 `ref` 를 받습니다(바깥 div).
 
 ### Patch Changes
 
-- 5b521d8: 버그 수정
+- 버그 수정
 
   - `key` 로 `NaverMap` 을 다시 만들면 새 지도가 빈 화면이 되던 문제
   - 페이지가 maps.js 를 먼저 넣고 load 뒤에 마운트하면 지도가 뜨지 않던 문제. SDK 스크립트는 한 번에 하나만 넣고, 로딩 중의 다른 요청은 처음 요청에 합류합니다
