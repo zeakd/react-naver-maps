@@ -12,7 +12,7 @@ const suspensions = new Map<number, Promise<void>>();
 function Suspender({ k }: { k: number }) {
   let p = suspensions.get(k);
   if (!p) {
-    // 시뮬레이터에서도 가상 시계를 타도록 window 의 타이머를 쓴다.
+    // 어느 드라이버에서든 페이지의 가상 시계를 타도록 window 의 타이머를 쓴다.
     p = new Promise<void>((resolve) => window.setTimeout(resolve, 200));
     suspensions.set(k, p);
   }
