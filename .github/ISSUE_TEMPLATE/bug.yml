@@ -1,0 +1,43 @@
+name: 버그 제보
+description: 라이브러리가 예상과 다르게 동작할 때
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        지도가 뜨지 않으면 먼저 [인증과 키](https://zeakd.github.io/react-naver-maps/guides/auth/)의 인증 실패 확인 표를 봐 주세요.
+  - type: textarea
+    id: what
+    attributes:
+      label: 무슨 일이 있었나요
+      description: 기대한 동작과 실제 동작을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 재현 코드
+      description: 문제가 생기는 가장 작은 코드나 저장소·StackBlitz 링크. SDK를 직접 써도 같은지 확인하면 원인을 좁히는 데 도움이 됩니다.
+      render: tsx
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: 버전
+      placeholder: react-naver-maps 0.4.0, React 19.2, Next.js 16
+    validations:
+      required: true
+  - type: dropdown
+    id: renderer
+    attributes:
+      label: 지도 종류
+      options:
+        - 래스터(기본)
+        - GL (gl prop)
+        - 모름
+  - type: input
+    id: browser
+    attributes:
+      label: 브라우저와 기기
+      placeholder: Chrome 140, macOS / Safari, iOS 26
