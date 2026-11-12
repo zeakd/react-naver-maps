@@ -51,6 +51,7 @@ pnpm compare:types git:v0.4      # 공개 타입(진입점마다 내보내는 �
 - `git:<ref>`는 라이브러리만 바꿔 끼우고 하네스(`e2e/scenarios`)는 지금 것을 쓴다. 하네스를 바꾼 변경은 `harness:<ref>`로 확인한다. 그 커밋을 임시 작업 트리에서 그 트리의 하네스로 돌리며, 라이브러리 소스(`src/`)가 지금과 다르면 시작하지 않는다. `harness:HEAD`는 같은 코드끼리 돌려 실행마다 흔들리는 필드를 찾는다.
 - GL 시나리오는 GPU로 WebGL을 쓸 수 있을 때만 GL로 돈다. SDK는 성능 경고가 있는 WebGL(소프트웨어 렌더)에서 래스터로 바꾸고, 그러면 시나리오를 건너뛴다. GPU가 없는 CI에서는 건너뛴다.
 - 터치는 Chrome 개발자 프로토콜로 손가락을 보낸다(`AppConfig.touch`).
+- 다른 브라우저로는 `pnpm test:scenarios --browser=webkit` 처럼 돌린다. 손가락 입력(`AppConfig.touch`), 실행 시간 측정(`AppConfig.measureScript`), CPU 프로파일(`profile` 단계)은 CDP 가 필요해 Chromium 이 아니면 건너뛴다.
 - 인증 실패는 지도 DOM으로는 드러나지 않아 `navermap_authFailure` 콜백으로 판정한다.
 - Node 버전은 `package.json`의 `devEngines.runtime`으로 고정한다. `pnpm`으로 실행하는 명령은 이 버전으로 돈다.
 - Playwright 브라우저는 `pnpm exec playwright install chromium`으로 받는다.

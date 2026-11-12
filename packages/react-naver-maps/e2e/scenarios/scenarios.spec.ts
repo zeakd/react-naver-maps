@@ -19,8 +19,18 @@ function olderThan(version: string, since: string) {
   return a < c || (a === c && b < d);
 }
 
+// 손가락 입력(app.touch), 실행 시간(app.measureScript), CPU 프로파일(profile 단계)은 CDP 로 한다
+// (playwright-driver.ts). CDP 는 Chromium 에만 있어서 WebKit·Firefox 에서는 지도 동작을 보기 전에 끝난다.
+function needsCdp(scenario: (typeof scenarios)[number]) {
+  return (
+    !!scenario.app.touch ||
+    !!scenario.app.measureScript ||
+    scenario.steps.some((step) => step.t === 'profile')
+  );
+}
+
 for (const scenario of scenarios) {
-  test(scenario.name, async ({ page: defaultPage, browser }, testInfo) => {
+  test(scenario.name, async ({ page: defaultPage, browser, browserName }, testInfo) => {
     test.skip(
       !!target && !!scenario.since && olderThan(target, scenario.since),
       `${target} 에는 이 시나리오가 쓰는 API 가 없다 (since ${scenario.since})`,
@@ -29,6 +39,10 @@ for (const scenario of scenarios) {
     test.skip(
       !hasActivity && /Activity"/.test(JSON.stringify(scenario)),
       `React ${reactVersion} 에는 Activity 가 없다`,
+    );
+    test.skip(
+      browserName !== 'chromium' && needsCdp(scenario),
+      'CDP(Chromium 전용)로 손가락 입력, 실행 시간, CPU 프로파일을 다루는 시나리오다',
     );
     if (scenario.knownIssue) test.fail(true, scenario.knownIssue);
     // 터치 시나리오는 터치를 지원하는 기기로 연다. 페이지를 연 뒤에는 바꿀 수 없다.
