@@ -48,7 +48,7 @@ React 19 전용 네이버 지도 라이브러리. 0.2에서 다시 만들어 0.1
 - 인증 키는 Maps의 ncpKeyId 하나만 받음 (0.3.0에서 ncpClientId·govClientId·finClientId 제거, #174)
 - Container render function children 지원
 
-### 0.4 (진행 중, 배포 전)
+### 0.4 (2026-11-13)
 
 - 검증: 같은 시나리오를 배포본(0.3.0)과 소스에 돌려 동작 차이를 표로 낸다(`compare:scenarios`). GL, 터치, 앱 상태가 지도와 어긋나는 경우, React 수명(suspend, Activity) 시나리오.
 - 동작: prop을 값으로 비교, 제스처 중 카메라 prop 보류, 숨겼다 보여도 같은 인스턴스(`binding/lifetime.ts`), 핸들러가 있는 도형은 clickable.
