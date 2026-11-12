@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 질문
+    url: https://github.com/zeakd/react-naver-maps/discussions
+    about: 사용법 질문은 Discussions에 남겨 주세요.
