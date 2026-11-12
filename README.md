@@ -44,7 +44,7 @@ function App() {
 
 ## 이전 버전
 
-- [v0.1 문서](https://zeakd.github.io/react-naver-maps/0.1.0/) (React 17/18)
+- [v0.3 문서](https://zeakd.github.io/react-naver-maps/0.3.0/)
 
 ## 개발
 

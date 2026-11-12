@@ -1,0 +1,1 @@
+import{j as a,N as r,C as e,a as s}from"./naver-map.D7zW2a_N.js";import"./index.2rfxsHwN.js";function n(){return a.jsx(r,{ncpKeyId:"aluya4ff04",children:a.jsx(e,{style:{width:"100%",height:"400px"},children:a.jsx(s,{})})})}export{n as default};
