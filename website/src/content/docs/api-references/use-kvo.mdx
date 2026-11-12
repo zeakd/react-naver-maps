@@ -36,4 +36,4 @@ function useKVO<T>(target: naver.maps.KVO, property: string): T;
 
 `center`, `centerPoint`, `bounds`, `projectionTopLeft`, `containerTopLeft`는 드래그·줌 동안 매 프레임 바뀌어, 이 훅으로 구독하면 매 프레임 다시 렌더링합니다. `mapTypeId`, `zoom`(줌 애니메이션이 끝날 때), `draggable`, `visible`처럼 사용자 조작이 있을 때만 바뀌는 값은 이 훅으로 구독해도 됩니다.
 
-고주기 KVO를 구독해야 한다면 `onCenterChanged` 등 이벤트 핸들러 prop을 사용하고, state 업데이트 빈도를 제한해 주세요.
+자주 바뀌는 KVO 값을 구독해야 한다면 `onCenterChanged` 등 이벤트 핸들러 prop을 사용하고, state 업데이트 빈도를 제한해 주세요.

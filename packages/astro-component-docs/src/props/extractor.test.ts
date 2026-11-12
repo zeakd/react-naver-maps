@@ -78,6 +78,14 @@ describe('extractAllProps', () => {
       expect(onClick.description).toContain('`click`');
     });
 
+    it('React 가 가진 DOM 속성은 싣지 않는다(Container 의 div props)', () => {
+      const container = docMap.get('Container')!;
+      const names = container.props.map((p) => p.name);
+      expect(names).not.toContain('className');
+      expect(names).not.toContain('onCopyCapture');
+      expect(container.props.length).toBeLessThan(10);
+    });
+
     it('position prop이 있다', () => {
       const position = marker.props.find((p) => p.name === 'position');
       expect(position).toBeDefined();

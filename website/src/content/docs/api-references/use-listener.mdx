@@ -44,10 +44,10 @@ useListener(overlay, 'draw', onDraw);
 | 이름        | 타입                               | 설명                                     |
 | ----------- | ---------------------------------- | ---------------------------------------- |
 | `target`    | `naver.maps.KVO \| null`           | 이벤트 대상. `null`이면 구독하지 않음    |
-| `eventName` | `string`                           | 네이버맵 이벤트 이름                     |
+| `eventName` | `string`                           | 네이버 지도 이벤트 이름                  |
 | `listener`  | `((...args) => void) \| undefined` | 콜백 함수. `undefined`이면 구독하지 않음 |
 
 ## 콜백 안정성
 
-내부에서 `useRef`로 콜백을 안정화합니다 (`useEffectEvent` 패턴).
-콜백 함수가 매 렌더마다 바뀌어도 리스너를 재구독하지 않으며, 호출 시 항상 최신 함수가 실행됩니다.
+내부에서 `useRef`로 콜백을 안정화합니다(`useEffectEvent` 패턴).
+콜백 함수가 렌더마다 바뀌어도 리스너를 재구독하지 않으며, 호출할 때 항상 최신 함수가 실행됩니다.

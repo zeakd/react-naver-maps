@@ -26,7 +26,7 @@ function MyMap() {
 }
 ```
 
-네이버맵 네이티브 API에서는 `marker.setMap(map)` / `marker.setMap(null)`로 직접 관리해야 하지만, `react-naver-maps`에서는 React의 조건부 렌더링으로 처리됩니다.
+네이버 지도 API에서는 `marker.setMap(map)`과 `marker.setMap(null)`로 직접 관리하지만, `react-naver-maps`에서는 React의 조건부 렌더링으로 처리합니다.
 
 ## 이벤트 핸들링
 
@@ -83,7 +83,7 @@ React의 [Controlled Component](https://react.dev/reference/react-dom/components
 
 ### Uncontrolled (기본값)
 
-`default*` 접두사가 붙은 prop은 초기값만 설정합니다. 이후 사용자 조작에 의한 변경은 네이버맵이 자체 관리합니다.
+`default*` 접두사가 붙은 prop은 초기값만 설정합니다. 이후 사용자가 바꾼 값은 네이버 지도가 관리합니다.
 
 ```tsx
 <NaverMap defaultCenter={{ lat: 37.5, lng: 127.0 }} defaultZoom={15} />
@@ -91,17 +91,24 @@ React의 [Controlled Component](https://react.dev/reference/react-dom/components
 
 ### Controlled (외부 관리)
 
-`default` 접두사 없이 사용하면 React state로 값을 관리합니다. 사용자 조작과 프로그래밍 방식 모두 React state를 통해 제어됩니다.
+`default` 접두사 없이 사용하면 React state로 값을 관리합니다. state가 바뀌면 지도가 그 값으로 움직입니다.
+
+지도의 `center`는 사용자가 움직인 뒤 `onIdle`에서 state를 맞춰 주세요. `idle`은 이동이 끝나면 한 번 발생합니다.
 
 ```tsx
 function MyMap() {
+  const ref = useRef<naver.maps.Map>(null);
   const [center, setCenter] = useState({ lat: 37.3595704, lng: 127.105399 });
 
   return (
     <>
       <NaverMap
+        ref={ref}
         center={center}
-        onCenterChanged={(c) => setCenter({ lat: c.y, lng: c.x })}
+        onIdle={() => {
+          const c = ref.current!.getCenter();
+          setCenter({ lat: c.y, lng: c.x });
+        }}
       />
       <button onClick={() => setCenter({ lat: 33.3590628, lng: 126.534361 })}>
         제주도로 이동하기
@@ -110,6 +117,12 @@ function MyMap() {
   );
 }
 ```
+
+state를 맞춰 두지 않으면 지도를 옮긴 뒤 같은 버튼을 다시 눌러도 state 값이 그대로라서 지도가 움직이지 않습니다.
+
+`onCenterChanged`로 state를 바꾸는 방식은 권장하지 않습니다. `center_changed`는 이동하는 동안 매 프레임 발생해서 그때마다 다시 렌더링합니다. 그렇게 써도 지도가 흔들리지는 않습니다(아래 규칙).
+
+버튼이나 검색 결과처럼 "그곳으로 가기"만 하면 되는 경우에는 `map.panTo()`가 가장 확실합니다. `center` prop으로 보내면 아래 규칙을 따르므로, 사용자가 지도를 끄는 동안 바꾼 값은 멈춘 뒤 맞추는데 같은 때 `onIdle`이 state를 지도 위치로 덮으면 그 값은 적용되지 않습니다. 지도가 방금 지나온 위치로 보내는 값도 따르지 않습니다.
 
 ### 지원하는 컴포넌트
 
@@ -127,13 +140,13 @@ function MyMap() {
 ### 규칙
 
 - 하나의 prop에 controlled와 uncontrolled을 혼용하지 마세요. `center`와 `defaultCenter`를 동시에 전달하면 `center`가 우선합니다.
-- Controlled prop을 사용할 때는 대응하는 `on*Changed` 이벤트로 state를 업데이트해야 사용자 조작이 반영됩니다.
+- Controlled prop을 사용할 때는 사용자 조작이 끝난 뒤 state를 맞춰 주세요. 오버레이는 `onDragend` 같은 이벤트에서, 지도의 `center`·`zoom`은 `onIdle`에서 맞춥니다.
 - 오버레이(마커, 도형 등)는 사용자가 지도에서 바꾼 값을 다음 렌더에서 prop으로 되돌립니다. 예를 들어 `draggable` 마커를 끌어 놓아도 `onDragend`로 state를 바꾸지 않으면 다시 렌더링할 때 `position`으로 돌아갑니다.
 - 지도의 카메라(`center`, `zoom`)는 props가 바뀔 때만 움직입니다. 사용자가 끌어 놓은 지도를 되돌리지 않습니다.
 - 사용자가 지도를 끌거나 핀치하는 동안과 그 뒤 관성이 멈출 때까지는 바뀐 카메라 props를 적용하지 않고, 멈춘 뒤(`idle`) 마지막 값으로 맞춥니다. 화면에서 1px 안의 차이는 같은 위치로 봅니다. `zoom`도 함께 바뀌면 큰 쪽 zoom에서 측정합니다.
-- `onCenterChanged` 값을 늦게 되돌려줘도(비동기 store, transition, setTimeout) 지도가 지나온 위치로 당겨지지 않습니다. 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 되울림으로 보고 따르지 않습니다. 따르지 않은 값은 이전 prop으로 취급하므로 2초 뒤 같은 값으로 다시 렌더링해도 움직이지 않습니다. 해당 위치로 이동하려면 `map.panTo()`를 사용해 주세요. GL의 실수 zoom도 같습니다(정수 zoom은 항상 따릅니다).
+- 지도가 최근 2초 안에 알려 준 center와 1px 안인 `center` prop은 따르지 않습니다. `onCenterChanged` 값을 `center`로 늦게 되돌려주는 앱(비동기 store, transition, setTimeout)에서 지도가 지나온 위치로 당겨지지 않게 하는 규칙이지만, `onIdle`로 맞추는 앱에도 똑같이 적용됩니다. 따르지 않은 값은 이전 prop으로 취급하므로 2초 뒤 같은 값으로 다시 렌더링해도 움직이지 않습니다. 해당 위치로 이동하려면 `map.panTo()`를 사용해 주세요. GL의 실수 zoom도 같습니다(정수 zoom은 항상 따릅니다).
 - 래스터 지도는 실수 zoom을 반올림해 사용합니다(15.4 → 15). 반올림한 값이 같으면 zoom은 그대로 두고 center만 옮깁니다. GL 지도는 실수 zoom을 그대로 사용합니다.
-- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. `center`만 바꾸면 `panTo`로 이동하고, 래스터 지도에서 `zoom`만 바꾸면 애니메이션 없이 맞춥니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
+- `center`와 `zoom`을 함께 바꾸면 `morph`로 한 번에 옮깁니다. `center`만 바꾸거나 래스터 지도에서 `zoom`만 바꾸면 애니메이션 없이 바로 맞춥니다. GL에서 1초 안에 연달아 바뀌면(움직이는 대상을 따라가기) 애니메이션 없이 바로 옮깁니다.
 - prop은 값으로 비교합니다. `center={{ lat, lng }}`처럼 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 라이브러리에 아직 없는 SDK 옵션
@@ -179,6 +192,6 @@ NavermapsProvider        ← 인증 키 설정 (앱 루트)
               └── ...    ← 오버레이 컴포넌트들
 ```
 
-- `NavermapsProvider`: 인증 키를 Context로 제공. 앱 루트에 한 번만 배치
-- `Container`: 지도가 렌더링될 DOM div. 내장 Suspense로 스크립트 로딩 처리
-- `NaverMap`: 실제 지도 인스턴스. 하위에 오버레이 컴포넌트를 배치
+- `NavermapsProvider`는 인증 키를 Context로 제공합니다. 앱 최상위에 한 번만 배치해 주세요.
+- `Container`는 지도를 그릴 div입니다. 내장 Suspense로 스크립트 로딩을 처리합니다.
+- `NaverMap`은 지도 인스턴스입니다. 그 아래에 오버레이 컴포넌트를 배치합니다.

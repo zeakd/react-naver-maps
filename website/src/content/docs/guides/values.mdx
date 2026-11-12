@@ -53,4 +53,4 @@ const bounds = new navermaps.LatLngBounds(sw, ne);
 
 `naver.maps.TransCoord`, `TM128`, `UTMKCoord` 등 좌표 변환은 geocoder 서브모듈을 불러야 생깁니다(`submodules={['geocoder']}`). 불러오지 않으면 `navermaps.TM128`이 `undefined`입니다.
 
-SDK 3.10.5의 `naver.maps.Service.CoordinatesType.UTMK`는 `undefined` 입니다(SDK의 키 이름이 `UTMNK`). UTMK 좌표계는 문자열 `'nhn:2048'`로 씁니다. 공식 문서의 `UTMK_NAVERCoord`는 SDK가 `naver.maps`에 내보내지 않습니다.
+SDK 3.10.5의 `naver.maps.Service.CoordinatesType.UTMK`는 `undefined`입니다(SDK의 키 이름이 `UTMNK`). UTMK 좌표계는 문자열 `'nhn:2048'`로 씁니다. 공식 문서의 `UTMK_NAVERCoord`는 SDK가 `naver.maps`에 내보내지 않습니다.
