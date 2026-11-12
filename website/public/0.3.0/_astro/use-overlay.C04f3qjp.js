@@ -1,0 +1,1 @@
+import{r as t}from"./index.2rfxsHwN.js";function l(s,r){const[a,u]=t.useState(null),n=t.useRef(null);return t.useLayoutEffect(()=>{const e=s();return n.current=e,u(e),()=>{naver.maps?.Event?.clearInstanceListeners(e),e.setMap?.(null)}},[]),t.useImperativeHandle(r,()=>n.current),a}export{l as u};

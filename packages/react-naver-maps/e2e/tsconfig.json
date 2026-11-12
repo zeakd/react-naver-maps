@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "tsBuildInfoFile": null,
+    "rootDir": "..",
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "types": ["navermaps", "node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["."],
+  "exclude": ["apps/*/**"]
+}

@@ -1,0 +1,26 @@
+---
+title: 파노라마 이벤트 처리하기
+category: tutorial-panorama
+order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-panorama-event.example.html
+changes:
+  - official: '`Event.addListener(pano, ...)`로 `pano_changed` · `pov_changed` · `pano_status` 듣기'
+    react: '`onPanoChanged`, `onPovChanged`, `onPanoStatus` prop'
+  - official: jQuery `text()`로 표의 칸 채우기
+    react: 읽은 값을 state 객체에 모아 표로 표시
+  - official: '`updateZoomState`에서 `addClass` · `removeClass`로 버튼 상태 바꾸기'
+    react: 렌더할 때 `getScale()`을 `getMaxScale()` · `getMinScale()`과 비교해 버튼 스타일 설정
+  - official: 상태가 OK가 아니면 `alert`
+    react: 상태 값을 표에 표시
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial3EventExample from '../../../examples/panorama-tutorial-3-event.tsx';
+
+거리뷰 이벤트를 받아 파노라마의 속성을 표로 보여 줍니다.
+
+<Example of={PanoramaTutorial3EventExample} />
+
+## 설명
+
+`onPanoChanged`, `onPovChanged`, `onPanoStatus` prop으로 이벤트를 받고, 값은 `ref`로 받은 인스턴스에서 읽습니다(`getLocation()`, `getPov()`, `getZoom()` 등). 확대·축소 버튼은 같은 인스턴스의 `zoomIn()`, `zoomOut()`입니다.

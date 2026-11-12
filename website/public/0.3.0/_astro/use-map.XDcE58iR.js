@@ -1,0 +1,1 @@
+import{r as t}from"./index.2rfxsHwN.js";import{c as e}from"./naver-map.D7zW2a_N.js";function s(){const r=t.use(e);if(!r)throw new Error("useMap must be used within <NaverMap>");return r}export{s as u};

@@ -1,5 +1,5 @@
 ---
-title: v0.1에서 마이그레이션
+title: 0.1에서 올리기
 category: guides
 order: 7
 ---
@@ -12,8 +12,8 @@ order: 7
 
 ## 인증 키
 
-NCP 콘솔 Maps 에서 발급받은 키를 `ncpKeyId`로 전달합니다.
-`ncpClientId`(AI NAVER API) 키는 2026-11-24 지도 API 종료와 함께 동작하지 않으며, 0.3.0 부터 옵션도 제거되었습니다. ([#174](https://github.com/zeakd/react-naver-maps/issues/174))
+NCP 콘솔 Maps에서 발급받은 키를 `ncpKeyId`로 전달합니다.
+`ncpClientId`(AI NAVER API) 키는 2026-11-24 18:00부터 지도에 쓸 수 없고, 0.3.0부터 옵션도 제거되었습니다. ([#174](https://github.com/zeakd/react-naver-maps/issues/174))
 
 ```tsx
 <NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
@@ -28,7 +28,7 @@ NCP 콘솔 Maps 에서 발급받은 키를 `ncpKeyId`로 전달합니다.
 
 ## 이벤트 핸들링
 
-`<Listener>` 컴포넌트가 제거되었습니다. `on*` props를 사용합니다.
+`<Listener>` 컴포넌트가 제거되었습니다. `on*` props를 사용해 주세요.
 
 ```tsx
 // Before (v0.1)
@@ -41,7 +41,7 @@ NCP 콘솔 Maps 에서 발급받은 키를 `ncpKeyId`로 전달합니다.
 <Marker position={position} onClick={handleClick} onRightclick={handleRightClick} />
 ```
 
-`on*` props에 없는 이벤트(KVO changed, idle 등)는 `useListener()` 훅을 사용합니다.
+`on*` props에 없는 이벤트(KVO changed, idle 등)는 `useListener()` 훅을 사용해 주세요.
 
 ```tsx
 function IdleTracker() {
@@ -120,8 +120,8 @@ function MyCustomMarkers() {
 }
 ```
 
-네이버맵 공식 [CustomOverlay 패턴](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-CustomOverlay.html)(OverlayView 상속)도 동일하게 `useOverlay`로 연결할 수 있습니다.
-자세한 내용은 [useOverlay API Reference](/react-naver-maps/api-references/use-overlay/)를 참고하세요.
+네이버 지도 공식 [CustomOverlay 패턴](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-CustomOverlay.html)(OverlayView 상속)도 `useOverlay`로 연결합니다.
+자세한 내용은 [useOverlay API Reference](/react-naver-maps/api-references/use-overlay/)를 참고해 주세요.
 
 ## 제거된 API
 

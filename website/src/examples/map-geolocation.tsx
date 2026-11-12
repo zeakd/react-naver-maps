@@ -12,7 +12,12 @@ const FALLBACK_CENTER = { lat: 37.5666805, lng: 126.9784147 };
 type LocationState =
   | { status: 'pending' }
   | { status: 'success'; lat: number; lng: number }
-  | { status: 'error'; lat: number; lng: number };
+  | {
+      status: 'error';
+      reason: 'failed' | 'unsupported';
+      lat: number;
+      lng: number;
+    };
 
 function GeolocationMapContent() {
   const navermaps = useNavermaps();
@@ -23,7 +28,11 @@ function GeolocationMapContent() {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setLocation({ status: 'error', ...FALLBACK_CENTER });
+      setLocation({
+        status: 'error',
+        reason: 'unsupported',
+        ...FALLBACK_CENTER,
+      });
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -31,11 +40,13 @@ function GeolocationMapContent() {
         const { latitude, longitude } = position.coords;
         setLocation({ status: 'success', lat: latitude, lng: longitude });
         mapRef.current?.setCenter(new navermaps.LatLng(latitude, longitude));
+        mapRef.current?.setZoom(10);
       },
       () => {
         const center = mapRef.current?.getCenter();
         setLocation({
           status: 'error',
+          reason: 'failed',
           lat: center?.y ?? FALLBACK_CENTER.lat,
           lng: center?.x ?? FALLBACK_CENTER.lng,
         });
@@ -50,7 +61,7 @@ function GeolocationMapContent() {
     if (location.status === 'error') {
       return (
         `<div style="padding:20px;">` +
-        `<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>` +
+        `<h5 style="margin-bottom:5px;color:#f00;">${location.reason === 'unsupported' ? 'Geolocation not supported' : 'Geolocation failed!'}</h5>` +
         `latitude: ${location.lat}<br />longitude: ${location.lng}` +
         `</div>`
       );
@@ -59,17 +70,11 @@ function GeolocationMapContent() {
   };
 
   return (
-    <NaverMap
-      ref={mapRef}
-      defaultCenter={
-        new navermaps.LatLng(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng)
-      }
-      defaultZoom={10}
-    >
+    <NaverMap ref={mapRef} defaultCenter={FALLBACK_CENTER} defaultZoom={10}>
       {location.status !== 'pending' && (
         <InfoWindow
           open
-          position={new navermaps.LatLng(location.lat, location.lng)}
+          position={{ lat: location.lat, lng: location.lng }}
           content={renderContent()}
         />
       )}

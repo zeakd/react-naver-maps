@@ -1,0 +1,22 @@
+---
+title: Style Editor 연동하기
+category: tutorial-gl
+order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-style-editor.example.html
+changes:
+  - official: '`new naver.maps.Map`의 `gl: true`, `customStyleId` 옵션'
+    react: '`NaverMap`의 `gl`, `customStyleId` prop'
+  - official: 페이지의 `<script>` 태그로 SDK 불러오기
+    react: '`NavermapsProvider`의 `submodules`에 지정한 `gl` 서브모듈과 SDK 로드'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import StyleTutorial2EditorExample from '../../../examples/style-tutorial-2-editor.tsx';
+
+Style Editor에서 발행한 My Style을 지도에 반영합니다.
+
+<Example of={StyleTutorial2EditorExample} />
+
+## 설명
+
+`gl`과 `customStyleId`는 모두 지도를 만들 때만 적용됩니다.

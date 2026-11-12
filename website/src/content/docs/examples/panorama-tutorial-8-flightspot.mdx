@@ -1,0 +1,24 @@
+---
+title: 지도에 항공뷰 아이콘 표시하기
+category: tutorial-panorama
+order: 8
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-panorama-flightspot.example.html
+changes:
+  - official: '`new naver.maps.FlightSpot()`을 만들어 `setMap(map)`'
+    react: '`NaverMap` 자식 `<FlightSpot>`'
+  - official: "`Event.addListener(flightSpot, 'poi_clicked', ...)`"
+    react: '`onPoiClicked` prop'
+  - official: 버튼에서 `setMap(null)` · `setMap(map)`을 부르고 jQuery로 버튼 글자 바꾸기
+    react: '`on` state로 `FlightSpot` 마운트 · 언마운트 및 버튼 글자 설정'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import PanoramaTutorial8FlightspotExample from '../../../examples/panorama-tutorial-8-flightspot.tsx';
+
+지도 위에 항공뷰 아이콘을 보이고, 아이콘을 누르면 파노라마 id를 알립니다.
+
+<Example of={PanoramaTutorial8FlightspotExample} />
+
+## 설명
+
+`react-naver-maps/panorama`의 `FlightSpot`을 `NaverMap`의 자식으로 두고 `onPoiClicked`로 파노라마 id를 받습니다. 켜고 끄는 것은 마운트로 합니다(`{on && <FlightSpot />}`).

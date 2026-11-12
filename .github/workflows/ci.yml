@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, v0.4]
 
 # 같은 브랜치의 이전 run을 자동 취소 — hang/중복 run 누적 방지
 concurrency:
@@ -16,19 +16,60 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
-      - uses: pnpm/action-setup@v5.0.0
-      - uses: actions/setup-node@v6.3.0
+      - uses: actions/checkout@v7.0.1
         with:
-          node-version: 24
+          # 문서 검사가 base 와의 차이를 본다.
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: package.json
           cache: pnpm
-      # astro-component-docs의 test 스크립트가 bun 사용 (bun test src/)
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
       - run: pnpm install --frozen-lockfile
-      # 단위 테스트는 happy-dom 환경(vi.mock 기반)이라 Playwright/브라우저 설치가 불필요하다.
-      # 실제 SDK를 로드하는 smoke 통합 테스트(test:browser)는 별도이며 CI에서 돌리지 않는다.
+      - run: pnpm check
+      # 라이브러리 소스와 changeset 을 바꾼 PR 은 문서도 바꾼다(scripts/docs-with-changeset.mts).
+      - run: node scripts/docs-with-changeset.mts origin/${{ github.base_ref }} HEAD
       - run: pnpm -r run build
-      - run: pnpm -r run lint
+      # 빌드한 문서 사이트의 내부 링크가 실제 페이지로 가는지 본다(scripts/check-site-links.mts).
+      - run: node scripts/check-site-links.mts
+      # 문서 코드 블록의 import 와 prop 이 공개 API 와 맞는지 본다(scripts/check-doc-code.mts).
+      - run: node scripts/check-doc-code.mts
       - run: pnpm -r run test
+      - run: pnpm --filter react-naver-maps run check:package
+
+  scenarios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter react-naver-maps exec playwright install --with-deps chromium
+      - run: pnpm --filter react-naver-maps run test:scenarios
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: scenarios-test-results
+          path: packages/react-naver-maps/test-results
+
+  frameworks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter react-naver-maps run build
+      - run: pnpm --filter react-naver-maps exec playwright install --with-deps chromium
+      - run: pnpm --filter react-naver-maps run verify:frameworks
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: frameworks-report
+          path: packages/react-naver-maps/test-results/frameworks.json

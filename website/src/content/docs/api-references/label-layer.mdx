@@ -1,0 +1,39 @@
+---
+title: LabelLayer
+category: api-references
+order: 31
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`LabelLayer`는 지도 글자(주기, 지명) 레이어를 지도 위에 표시합니다. SDK의 `naver.maps.LabelLayer`를 사용합니다.
+
+## 사용법
+
+공식 튜토리얼처럼 벡터 일반 지도(`getVectorMap()`)와 함께 사용합니다. 마운트와 언마운트로 켜고 끕니다.
+
+```tsx
+import { useMemo, useState } from 'react';
+import { LabelLayer, NaverMap, useNavermaps } from 'react-naver-maps';
+
+function Map() {
+  const navermaps = useNavermaps();
+  const mapTypes = useMemo(
+    () =>
+      new navermaps.MapTypeRegistry({
+        normal: navermaps.NaverStyleMapTypeOptions.getVectorMap(),
+      }),
+    [navermaps],
+  );
+  const [on, setOn] = useState(true);
+
+  return <NaverMap mapTypes={mapTypes}>{on && <LabelLayer />}</NaverMap>;
+}
+```
+
+- SDK 3.10.5의 `LabelLayer`는 생성자 인자 `name`, `registry`를 쓰지 않습니다. 이름은 항상 `"label"`이고 네이버 주기만 켭니다. 그래서 prop으로 받지 않습니다. 문서에 옵션 typedef도 없어 prop은 `ref`뿐입니다.
+- 다른 지도 유형(ImageMapType 등) 위에 얹는 용도로는 쓸 수 없습니다. 사용자가 만든 레이어는 [Layer](/react-naver-maps/api-references/layer/)를 씁니다.
+
+## Props
+
+<PropsTable of="LabelLayer" package="react-naver-maps" />

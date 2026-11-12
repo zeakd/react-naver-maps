@@ -1,0 +1,59 @@
+---
+title: 이벤트
+category: guides
+order: 6
+---
+
+SDK 이벤트는 컴포넌트의 `on*` props로 받습니다. 이름은 SDK 이벤트 이름을 따릅니다.
+
+| SDK 이벤트                          | prop                   | 인자                                                                   |
+| ----------------------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| `click`, `dragend` 등 포인터 이벤트 | `onClick`, `onDragend` | `PointerEvent`(`coord`, `point`, `offset`, `overlay`, `originalEvent`) |
+| `position_changed` 등 값 변경       | `onPositionChanged`    | 바뀐 값                                                                |
+| `icon_loaded`                       | `onIconLoaded`         | 이벤트가 난 Marker                                                     |
+| `keydown`, `keyup`                  | `onKeydown`, `onKeyup` | `{ keyboardEvent }`                                                    |
+
+사용할 수 있는 props는 각 컴포넌트의 Props 표를 참고해 주세요. 공식 문서에 있지만 prop이 없는 이벤트는 [`useListener`](/react-naver-maps/api-references/use-listener/)로 구독합니다.
+
+```tsx
+const map = useMap();
+useListener(map, 'bicycleLayer_changed', () => {});
+```
+
+## 좌표는 `e.coord`
+
+공식 튜토리얼의 오래된 예제는 `e.latlng`를 쓰지만 SDK 3.10.5의 PointerEvent는 `coord`입니다. 지도 좌표계에 따라 `LatLng`이거나 `Point`이므로 타입은 `Coord`입니다. 위도·경도가 필요하면 `LatLng`로 다룹니다.
+
+```tsx
+<NaverMap onClick={(e) => setPicked(e.coord as naver.maps.LatLng)} />
+```
+
+## DOM 이벤트와 지도 이벤트
+
+`Container`의 props는 div의 props이고, `NaverMap`의 props는 SDK 옵션입니다. 두 `onClick`은 다르게 동작합니다.
+
+```tsx
+<Container
+  onClick={(e) => {
+    /* div 의 React 클릭. 지도 컨트롤 클릭도 온다 */
+  }}
+>
+  <NaverMap
+    onClick={(e) => {
+      /* SDK 지도 클릭. 오버레이 위 클릭은 오지 않는다 */
+    }}
+  />
+</Container>
+```
+
+## 모바일
+
+SDK는 터치를 마우스 이벤트 이름으로 발생시킵니다. 마커와 도형에서 손가락을 대고 떼면 `onMousedown`, `onMouseup`, `onClick`이 발생합니다. 공식 문서의 마커 `touchstart`, `touchend`는 SDK가 이 이름으로 내지 않아 prop이 없습니다. `mouseover`, `mouseout`, `rightclick`은 터치에서 발생하지 않습니다. 지도는 `onTouchstart`, `onTap`, `onLongtap`, `onPinch` 등 터치 이벤트를 따로 발생시킵니다.
+
+## 내지 않는 이벤트
+
+SDK 3.10.5가 발생시키지 않는 이벤트는 문서에 있어도 prop을 두지 않았습니다. 마커의 `mousemove`와 `DrawingManager`의 `drawing_start`, `drawing_cancled`가 해당합니다. 마커는 `mousemove` 리스너를 달지 않고, `DrawingManager`의 두 이벤트는 이름만 정의되어 있습니다.
+
+## 주의: 리스너를 통째로 지우는 SDK 함수
+
+`naver.maps.Event.clearInstanceListeners(target)`와 `clearListeners`는 그 객체의 리스너를 모두 지웁니다. 라이브러리가 `on*` prop으로 단 리스너도 사라지고 prop이 그대로면 다시 달지 않습니다. 컴포넌트가 만든 지도·오버레이에는 부르지 않습니다.

@@ -1,0 +1,46 @@
+---
+title: 인증과 키
+category: guides
+order: 3
+---
+
+지도가 회색 바탕에 "네이버 지도 Open API 인증이 실패했습니다"로 뜨면 키나 등록한 주소를 확인해 주세요.
+
+## 키 만들기
+
+1. [네이버 클라우드 콘솔](https://console.ncloud.com)의 [Maps > Application](https://console.ncloud.com/maps/application)에서 Application을 등록해 주세요.
+2. API는 **Dynamic Map**을 선택해 주세요. 주소 검색(`react-naver-maps/geocoder`)을 쓰면 **Geocoding**, **Reverse Geocoding**도 선택해 주세요.
+3. **Web 서비스 URL**에 지도를 띄울 주소를 모두 등록해 주세요. 배포 주소뿐 아니라 개발 주소(`http://localhost:5173` 등)도 넣어 주세요.
+4. **인증 정보**의 Client ID를 `NavermapsProvider`의 `ncpKeyId`로 넘겨 주세요.
+
+```tsx
+<NavermapsProvider ncpKeyId="YOUR_NCP_KEY_ID">
+  <App />
+</NavermapsProvider>
+```
+
+Client ID는 브라우저에 그대로 보이는 값입니다. 다른 사이트의 사용은 Web 서비스 URL로 제한합니다. Client Secret은 지도 표시에 쓰지 않으니 코드에 넣지 마세요.
+
+## 인증이 실패할 때
+
+| 확인할 것                           | 설명                                                                                                                                                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 지금 주소가 Web 서비스 URL에 있는가 | 가장 흔한 원인입니다. 개발 서버, 미리보기 배포, 사내 주소처럼 새 주소에서 열었다면 등록합니다.                                                                                                                |
+| 등록한 뒤 조금 기다렸는가           | 콘솔에 주소를 더하고 바로는 실패할 수 있습니다. 몇 분 뒤 다시 엽니다.                                                                                                                                         |
+| Application에서 고른 API            | 지도는 Dynamic Map, 주소 검색은 Geocoding을 골라야 합니다.                                                                                                                                                    |
+| Maps 상품의 키인가                  | 예전 AI·NAVER API 상품의 지도 API는 2026-11-24 18:00부터 쓸 수 없습니다([네이버 클라우드 공지](https://www.ncloud.com/support/notice/all/2200)). Maps 상품에서 Application을 만들어 `ncpKeyId`로 넘겨 주세요. |
+
+인증 실패는 지도 영역에 문구로 표시되며, `NavermapsProvider`의 `onAuthFailure`로도 받습니다.
+
+```tsx
+<NavermapsProvider ncpKeyId={key} onAuthFailure={() => setAuthFailed(true)}>
+```
+
+## 지금 주소가 등록됐는지 확인하기
+
+SDK의 인증 주소를 직접 열어 현재 주소가 인증을 통과하는지 확인합니다. `url`에는 지도를 표시할 페이지의 주소를 넣어 주세요. 인증에 성공하면 200, 실패하면 401 응답을 받습니다.
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" \
+  "https://oapi.map.naver.com/v3/auth?ncpKeyId=YOUR_NCP_KEY_ID&url=https%3A%2F%2Fexample.com%2F"
+```

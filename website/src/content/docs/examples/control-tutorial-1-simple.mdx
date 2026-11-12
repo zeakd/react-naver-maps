@@ -1,0 +1,24 @@
+---
+title: 지도 컨트롤 추가/제거하기
+category: tutorial-control
+order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-control-simple.example.html
+changes:
+  - official: '`new naver.maps.Map`의 생성 옵션으로 컨트롤 표시 여부 설정'
+    react: '`NaverMap`의 `zoomControl`, `scaleControl`, `mapDataControl` prop에 state 전달'
+additions:
+  - 줌, 축척, 저작권 컨트롤을 켜고 끄는 버튼.
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ControlTutorial1SimpleExample from '../../../examples/control-tutorial-1-simple.tsx';
+
+줌, 축척, 지도 데이터(저작권) 컨트롤을 켜고 끕니다.
+
+<Example of={ControlTutorial1SimpleExample} />
+
+## 설명
+
+`zoomControl`, `scaleControl`, `mapDataControl` prop으로 컨트롤의 표시 여부를 설정합니다. state를 변경하면 컨트롤이 추가되거나 제거됩니다. `minZoom`도 같은 방식으로 설정합니다.
+
+SDK가 `logoControl={false}`를 거부하므로 로고는 항상 표시됩니다. 공식 예제에서도 마찬가지입니다. 위치는 `logoControlOptions`로 변경할 수 있습니다.

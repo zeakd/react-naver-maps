@@ -1,0 +1,26 @@
+---
+title: 네이버 실시간 교통상황 레이어 표시하기
+category: tutorial-layer
+order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-traffic.example.html
+changes:
+  - official: '`new naver.maps.TrafficLayer({ interval })`를 만들고 `setMap`으로 켜고 끄기'
+    react: '`<TrafficLayer interval autoRefresh />`를 조건부 렌더링'
+  - official: 체크박스 클릭 리스너에서 `startAutoRefresh()`, `endAutoRefresh()` 부르기
+    react: 체크 state를 `autoRefresh` prop으로 전달
+  - official: '`trafficLayer_changed` 이벤트에서 jQuery로 체크박스를 보이고 숨기고 다시 체크하기'
+    react: 레이어 state가 켜졌을 때만 체크박스를 렌더링하고, 레이어 버튼을 누를 때 체크 state를 `true`로 변경
+  - official: 지도 `init` 이벤트에서 레이어 켜기
+    react: state 초기값을 `true`로 설정해 처음부터 렌더링
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import TrafficTutorial3Example from '../../../examples/traffic-tutorial-3.tsx';
+
+실시간 교통정보 레이어를 켜고 끄고 자동 새로고침을 설정합니다.
+
+<Example of={TrafficTutorial3Example} />
+
+## 설명
+
+`interval`은 새로고침 주기(ms, 최소 5분)이고 생성 때만 적용됩니다. 레이어 켜짐과 자동 새로고침 체크는 모두 React state입니다.

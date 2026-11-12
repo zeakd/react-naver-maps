@@ -1,28 +1,36 @@
 ---
-title: Quickstart
+title: 빠른 시작
 category: guides
 order: 2
 ---
 
 ## 사전 준비
 
-네이버맵 API를 사용하려면 NCP(Naver Cloud Platform)에서 클라이언트 ID를 발급받아야 합니다.
-[공식 가이드](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html)를 참고하여 발급을 진행해주세요.
+네이버 지도 API를 사용하려면 NCP(Naver Cloud Platform)에서 클라이언트 ID를 발급받아야 합니다.
+[공식 가이드](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html)를 참고해 발급해 주세요.
 
-1. [Naver Cloud Platform 콘솔](https://console.ncloud.com)에 로그인
-2. **AI·Application Service → Maps** 에서 Application 등록
-3. **Web** 서비스 환경 추가 후 허용 도메인 입력 (예: `http://localhost:3000`)
-4. 등록 완료 후 **인증 정보**에서 Client ID 확인
+1. [Naver Cloud Platform 콘솔](https://console.ncloud.com)에 로그인해 주세요.
+2. [Maps > Application](https://console.ncloud.com/maps/application)에서 Application을 등록하고 API는 **Dynamic Map**을 선택해 주세요.
+3. **Web 서비스 URL**에 지도를 띄울 주소를 등록해 주세요. 로컬 개발 주소(예: `http://localhost:3000`)도 포함합니다.
+4. 등록한 뒤 **인증 정보**에서 Client ID를 확인해 주세요.
 
 ## 설치
+
+React 19.0 이상이 필요합니다.
 
 ```bash
 npm install react-naver-maps
 ```
 
+TypeScript를 쓰면 SDK 타입(3.10.0 이상)도 설치해 주세요.
+
+```bash
+npm install -D @types/navermaps
+```
+
 ## Provider 설정
 
-앱의 루트에 `NavermapsProvider`를 추가합니다. `ncpKeyId`에 발급받은 Client ID를 전달합니다.
+앱 최상위를 `NavermapsProvider`로 감싸고, 발급받은 Client ID를 `ncpKeyId`에 넣어 주세요.
 
 ```tsx
 import { NavermapsProvider } from 'react-naver-maps';
@@ -53,23 +61,16 @@ function MyMap() {
 ## 마커 추가
 
 ```tsx
-import {
-  Container as MapDiv,
-  NaverMap,
-  Marker,
-  useNavermaps,
-} from 'react-naver-maps';
+import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps';
 
 function MyMap() {
-  const navermaps = useNavermaps();
-
   return (
     <MapDiv style={{ width: '100%', height: '400px' }}>
       <NaverMap
-        defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+        defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
         defaultZoom={15}
       >
-        <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
+        <Marker position={{ lat: 37.3595704, lng: 127.105399 }} />
       </NaverMap>
     </MapDiv>
   );

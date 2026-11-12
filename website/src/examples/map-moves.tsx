@@ -28,7 +28,7 @@ function MapMovesMapContent() {
     <>
       <NaverMap
         ref={mapRef}
-        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+        defaultCenter={{ lat: 37.5666805, lng: 126.9784147 }}
         defaultZoom={9}
       />
       <div
@@ -53,7 +53,7 @@ function MapMovesMapContent() {
         <button
           style={buttonStyle}
           onClick={() => {
-            mapRef.current?.setZoom(6);
+            mapRef.current?.setZoom(6, true);
           }}
         >
           6레벨로 setZoom

@@ -1,0 +1,20 @@
+---
+title: 사각형, 원, 타원 그리기
+category: tutorial-shape
+order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-shape-simple.example.html
+changes:
+  - official: '`new naver.maps.Rectangle`·`Circle`·`Ellipse`에 `map`을 넘겨 지도에 올리기'
+    react: '`NaverMap`의 자식 `<Rectangle>`·`<Circle>`·`<Ellipse>`'
+  - official: '`new naver.maps.LatLngBounds(LatLng, LatLng)`로 영역'
+    react: '`bounds`에 `{ south, west, north, east }` 리터럴'
+  - official: '`new naver.maps.LatLng` 좌표'
+    react: '`{ lat, lng }` 리터럴'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import ShapeTutorial1SimpleExample from '../../../examples/shape-tutorial-1-simple.tsx';
+
+좌표로 사각형, 원, 타원을 지도에 그립니다.
+
+<Example of={ShapeTutorial1SimpleExample} />

@@ -1,0 +1,20 @@
+{
+  "name": "fixture-next",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start -p 4321"
+  },
+  "dependencies": {
+    "next": "^16.4.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-naver-maps": "__TGZ__"
+  },
+  "devDependencies": {
+    "@types/navermaps": "^3.10.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "typescript": "^6.0.0"
+  }
+}

@@ -1,18 +1,27 @@
 ---
 title: 지도 옵션
-category: tutorials
+category: tutorial-map
 order: 3
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-map-options.example.html
+changes:
+  - official: '`map.setOptions()`로 옵션 변경'
+    react: '옵션마다 `NaverMap` prop에 state 전달'
+  - official: 'jQuery 클릭 핸들러에서 `getOptions()`로 현재 값을 읽어 변경'
+    react: '버튼 `onClick`에서 state 변경'
+  - official: '버튼의 `control-on` 클래스 추가·제거'
+    react: 'state에 따라 버튼 style 설정'
+limits:
+  - "처음 최소 줌이 7입니다. 공식 예제는 `minZoom` 7로 만든 뒤 바로 `setOptions('minZoom', 10)`을 불러 10 ~ 21로 시작합니다."
+  - '공식 예제가 콘솔로 보여 주는 `zoom_changed` 로그와 옵션 참조 시점(`init` 전후의 `getOptions()`) 비교는 옮기지 않았습니다.'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MapOptionsExample from '../../../examples/map-options.tsx';
 
-지도의 인터랙션 옵션을 런타임에 토글하는 예제입니다.
-
-> [네이버 공식 튜토리얼 - 지도 옵션](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-map-options.example.html)
+지도 조작 옵션을 켜고 끕니다.
 
 <Example of={MapOptionsExample} />
 
 ## 설명
 
-`NaverMap`의 `draggable`, `scrollWheel`, `disableDoubleClickZoom`, `disableKineticPan`, `keyboardShortcuts` props를 controlled로 사용하여 런타임에 옵션을 토글할 수 있습니다.
+`NaverMap`의 `draggable`, `pinchZoom`, `scrollWheel`, `keyboardShortcuts`, `disableDoubleTapZoom`, `disableDoubleClickZoom`, `disableTwoFingerTapZoom`, `disableKineticPan`, `tileTransition`, `minZoom`, `maxZoom`, 컨트롤 표시 prop(`zoomControl`, `scaleControl`, `mapTypeControl` 등)에 state를 주어 실행 중에 옵션을 바꿉니다. `logoControl`은 `false`로 끌 수 없습니다(SDK가 거부합니다).

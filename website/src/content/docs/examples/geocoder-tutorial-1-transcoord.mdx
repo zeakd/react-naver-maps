@@ -1,0 +1,26 @@
+---
+title: 좌표계 변환하기
+category: tutorial-geocoder
+order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-geocoder-transcoord.example.html
+changes:
+  - official: '`naver.maps.onJSContentLoaded`로 geocoder 서브모듈을 기다린 뒤 초기화하기'
+    react: '`NavermapsProvider`의 `submodules`에 `geocoder` 지정'
+  - official: '`map.addListener`로 클릭 리스너 붙이기'
+    react: '`NaverMap`의 `onClick` prop'
+  - official: '`infoWindow.setContent`와 `infoWindow.open(map, latlng)`'
+    react: 변환 결과를 state로 관리하고 `<InfoWindow open position content />`로 표시
+  - official: 변환 값은 `console.log` 로만 찍고 정보 창에는 설명 문구 넣기
+    react: 변환된 값을 정보 창에 표시
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import GeocoderTutorial1TranscoordExample from '../../../examples/geocoder-tutorial-1-transcoord.tsx';
+
+클릭한 지점의 위경도를 UTMK, TM128, NAVER 좌표로 차례로 바꿔 정보 창에 보여 줍니다.
+
+<Example of={GeocoderTutorial1TranscoordExample} />
+
+## 설명
+
+`TransCoord`는 geocoder 서브모듈이 주는 함수 모음이라 `useNavermaps()`로 받은 `navermaps.TransCoord`를 그대로 씁니다. 클릭 좌표는 `onClick`의 `e.coord`입니다.

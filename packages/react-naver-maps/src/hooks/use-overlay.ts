@@ -1,5 +1,7 @@
 import type { Ref } from 'react';
-import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { useImperativeHandle, useRef } from 'react';
+import { useSdkInstance } from '../binding/lifetime.js';
+import { clearMapListeners } from '../sdk/listeners.js';
 
 /**
  * 네이버맵 오버레이 인스턴스를 React 생명주기에 연결한다.
@@ -22,34 +24,47 @@ import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
  * useLayoutEffect 사용" (StrictMode에서 useState 초기화가 2번 실행되어
  * 인스턴스 2개 생성 문제 방지).
  *
- * ## cleanup
+ * ## 수명
  *
- * 네이버맵 오버레이에는 destroy()가 없다.
- * setMap(null)이 유일한 공식 정리 방법이지만, 사용자가 addListener로
- * 등록한 리스너는 남아있으므로 clearInstanceListeners()도 필요하다.
+ * `lifetime.ts` 의 규칙을 따른다. React 가 트리를 숨길 때(Suspense 재중단, Activity hidden,
+ * StrictMode 재실행)는 지도에서 떼고(setMap(null)) 다시 보일 때 같은 인스턴스를 같은 지도에
+ * 붙인다. 진짜 언마운트에서만 버린다.
+ *
+ * 네이버맵 오버레이에는 destroy()가 없다. 버릴 때는 setMap(null)과, 사용자가 addListener로
+ * 등록한 리스너를 지우는 clearInstanceListeners()를 한다.
  *
  * ## factory 의존성
  *
  * factory는 마운트 시 1회만 호출된다. 의존성 변경에 의한 재생성은 지원하지 않는다.
  * 재생성이 필요한 GroundOverlay 등은 React key prop으로 제어한다.
  */
+type Attachable = {
+  getMap?: () => unknown;
+  setMap?: (map: unknown) => void;
+};
+
 export function useOverlay<T>(factory: () => T, ref?: Ref<T>): T | null {
-  const [instance, setInstance] = useState<T | null>(null);
-  const instanceRef = useRef<T | null>(null);
+  // 숨길 때 붙어 있던 지도. 다시 보일 때 그 지도에 붙인다.
+  const detachedFromRef = useRef<unknown>(null);
+  const instance = useSdkInstance<T>({
+    create: factory,
+    attach: (inst) => {
+      const map = detachedFromRef.current;
+      detachedFromRef.current = null;
+      if (map) (inst as Attachable).setMap?.(map);
+    },
+    detach: (inst) => {
+      const o = inst as Attachable;
+      detachedFromRef.current = o.getMap?.() ?? null;
+      o.setMap?.(null);
+    },
+    dispose: (inst) => {
+      clearMapListeners(inst);
+      (inst as Attachable).setMap?.(null);
+    },
+  });
 
-  useLayoutEffect(() => {
-    const inst = factory();
-    instanceRef.current = inst;
-    setInstance(inst);
-
-    return () => {
-      naver.maps?.Event?.clearInstanceListeners(inst);
-      (inst as { setMap?: (map: null) => void }).setMap?.(null);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useImperativeHandle(ref, () => instanceRef.current!);
+  useImperativeHandle(ref, () => instance!, [instance]);
 
   return instance;
 }

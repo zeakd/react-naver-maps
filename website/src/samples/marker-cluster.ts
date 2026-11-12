@@ -1,4 +1,5 @@
 /* eslint-disable */
+// @ts-nocheck 공식 marker-tools.js 의 JS 를 그대로 옮긴 코드라 타입을 달지 않는다. 쓰는 쪽 타입은 아래 export 에 둔다.
 /**
  * naver 객체를 주입 받습니다.
  * 이하 https://github.com/navermaps/marker-tools.js/blob/master/marker-clustering/src/MarkerClustering.js 코드와 동일합니다.
@@ -775,5 +776,15 @@ function makeMarkerClustering(naver) {
   return MarkerClustering;
 }
 
-export { makeMarkerClustering };
+/** 공식 MarkerClustering 의 생성자. 옵션은 원본 README 를 따른다. */
+export type MarkerClusteringClass = new (options: Record<string, unknown>) => {
+  setMap(map: naver.maps.Map | null): void;
+  setMarkers(markers: naver.maps.Marker[]): void;
+};
+
+const typed = makeMarkerClustering as (
+  naverNamespace: typeof naver,
+) => MarkerClusteringClass;
+
+export { typed as makeMarkerClustering };
 /* eslint-enable */

@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { NaverMapContext } from '../contexts/naver-map.js';
+import { NaverMapContext } from '../map/naver-map-context.js';
 
 /** 현재 NaverMap 인스턴스를 반환한다. NaverMap 내부에서 사용. */
 export function useMap(): naver.maps.Map {

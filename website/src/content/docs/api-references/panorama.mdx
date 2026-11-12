@@ -1,0 +1,90 @@
+---
+title: panorama
+category: api-references
+order: 16
+---
+
+import PropsTable from 'astro-component-docs/components/PropsTable.astro';
+
+`react-naver-maps/panorama`는 SDK의 panorama 서브모듈인 `Panorama`(거리뷰)를 컴포넌트로 제공합니다. `NaverMap`처럼 `Container` 안에 배치해 주세요.
+
+```tsx
+<NavermapsProvider ncpKeyId="..." submodules={['panorama']}>
+```
+
+## 사용법
+
+```tsx
+import { Container } from 'react-naver-maps';
+import { Panorama } from 'react-naver-maps/panorama';
+
+<Container style={{ width: '100%', height: '400px' }}>
+  <Panorama
+    position={{ lat: 37.5666, lng: 126.9784 }}
+    pov={{ pan: 0, tilt: 0, fov: 100 }}
+    onPovChanged={(pov) => setPov(pov)}
+  />
+</Container>;
+```
+
+- 영역과 DOM은 `Container`가, 거리뷰 옵션과 이벤트는 `Panorama`가 담당합니다.
+- `position`, `panoId`, `pov`, `zoom`은 지도의 카메라처럼 props가 바뀔 때만 적용합니다. 사용자가 방향을 돌리거나 길을 눌러 이동한 뒤 다시 렌더링해도 되돌리지 않습니다. 드래그나 핀치 중에는 바뀐 props의 적용을 미루고 손을 뗀 뒤 반영합니다.
+- 숨겼다 다시 보여도 같은 거리뷰를 사용합니다.
+- 서브모듈을 불러오지 않고 사용하면 불러오는 방법을 담은 에러가 발생합니다.
+
+## 거리뷰 위 마커와 정보 창
+
+`Panorama`의 자식으로 `Marker`, `InfoWindow`를 두면 거리뷰 위에 그립니다(공식 튜토리얼 "파노라마에 마커", "파노라마에 정보 창"). 거리뷰가 준비(`init`)된 뒤에 붙입니다. 다른 오버레이는 SDK가 거리뷰에 붙이지 않아 에러를 냅니다.
+
+```tsx
+<Container style={{ height: 400 }}>
+  <Panorama position={{ lat: 37.3599605, lng: 127.1058814 }}>
+    <Marker
+      position={{ lat: 37.359484, lng: 127.105333 }}
+      onClick={() => setOpen(true)}
+    />
+    <InfoWindow
+      open={open}
+      content="정자역"
+      anchor={{ lat: 37.359484, lng: 127.105333 }}
+    />
+  </Panorama>
+</Container>
+```
+
+SDK는 거리뷰 위치에서 먼 마커를 그리지 않습니다(약 1km 떨어진 마커가 보이지 않는 것을 3.10.5에서 확인). 마커 쪽을 보게 하려면 ref로 받은 인스턴스의 `getProjection().fromCoordToPov(좌표)`를 `pov`로 넘겨 주세요.
+
+## 크기
+
+거리뷰는 `Container` 크기로 시작합니다. SDK는 `Container`나 창 크기가 바뀌어도 거리뷰 크기를 바꾸지 않습니다. `size`를 바꾸거나 `useAutoResize`를 사용해 주세요.
+
+```tsx
+import { useAutoResize } from 'react-naver-maps/addons';
+
+const [pano, setPano] = useState<naver.maps.Panorama | null>(null);
+useAutoResize(pano);
+<Panorama ref={setPano} position={here} />;
+```
+
+## Props
+
+<PropsTable of="Panorama" package="react-naver-maps" />
+
+## FlightSpot
+
+`FlightSpot`은 지도 위에 항공뷰 지점 아이콘을 보여 줍니다. SDK의 `naver.maps.FlightSpot`이며 `NaverMap`의 자식으로 둡니다. 아이콘을 누르면 `onPoiClicked`로 그 지점의 파노라마 ID를 받습니다.
+
+```tsx
+import { FlightSpot } from 'react-naver-maps/panorama';
+
+<NaverMap>
+  <FlightSpot onPoiClicked={(panoId) => setPanoId(panoId)} />
+</NaverMap>;
+```
+
+- 켜고 끄는 것은 마운트로 합니다: `{on && <FlightSpot />}`.
+- 그룹 아이콘(+)을 누르면 지도가 확대되고 이벤트는 나지 않습니다.
+- `Panorama`의 `flightSpot` prop(거리뷰 안의 항공 아이콘)과는 별개입니다.
+- 서브모듈을 불러오지 않고 쓰면 불러오는 법을 담은 에러를 던집니다.
+
+<PropsTable of="FlightSpot" package="react-naver-maps" />

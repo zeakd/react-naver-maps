@@ -1,0 +1,22 @@
+---
+title: 지상 오버레이 표시하기
+category: tutorial-overlay
+order: 16
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-ground-overlay.example.html
+changes:
+  - official: '`new naver.maps.GroundOverlay(url, bounds, options)`와 `setMap(map)`'
+    react: '`NaverMap`의 children인 `<GroundOverlay url bounds opacity clickable>`'
+  - official: '`new naver.maps.LatLngBounds(LatLng, LatLng)`'
+    react: '`{ south, west, north, east }` 리터럴'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import GroundOverlayExample from '../../../examples/ground-overlay.tsx';
+
+위경도 영역에 맞춰 이미지를 지도 위에 표시합니다.
+
+<Example of={GroundOverlayExample} />
+
+## 설명
+
+`url`이나 `bounds`가 바뀌면 오버레이를 새로 만듭니다.

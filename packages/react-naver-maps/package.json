@@ -17,50 +17,84 @@
     "url": "https://github.com/zeakd/react-naver-maps"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/tsconfig.tsbuildinfo"
   ],
   "type": "module",
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/react-naver-maps.d.ts",
-      "default": "./dist/react-naver-maps.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./addons": {
+      "types": "./dist/addons/index.d.ts",
+      "default": "./dist/addons/index.js"
+    },
+    "./geocoder": {
+      "types": "./dist/geocoder/index.d.ts",
+      "default": "./dist/geocoder/index.js"
+    },
+    "./visualization": {
+      "types": "./dist/visualization/index.d.ts",
+      "default": "./dist/visualization/index.js"
+    },
+    "./drawing": {
+      "types": "./dist/drawing/index.d.ts",
+      "default": "./dist/drawing/index.js"
+    },
+    "./panorama": {
+      "types": "./dist/panorama/index.d.ts",
+      "default": "./dist/panorama/index.js"
     }
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "rm -rf dist && tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:browser": "vitest run --config vitest.browser.config.ts",
+    "test:scenarios": "playwright test --config e2e/scenarios.config.ts",
+    "compare:scenarios": "node e2e/compare.ts",
+    "compare:types": "node e2e/compare-types.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
-    "test:visual": "npx playwright test --config e2e/playwright.config.ts",
+    "test:visual": "npx playwright test --config e2e/playwright.config.ts visual.spec.ts",
+    "test:examples": "RNM_SITE=build npx playwright test --config e2e/playwright.config.ts examples.spec.ts",
     "test:visual:update": "npx playwright test --config e2e/playwright.config.ts --update-snapshots",
     "test:visual:cache": "TILE_CACHE=update npx playwright test --config e2e/playwright.config.ts --update-snapshots",
-    "test:visual:cached": "TILE_CACHE=use npx playwright test --config e2e/playwright.config.ts"
+    "test:visual:cached": "TILE_CACHE=use npx playwright test --config e2e/playwright.config.ts",
+    "verify:frameworks": "node e2e/verify-frameworks.ts",
+    "check:package": "publint && attw --pack . --profile esm-only",
+    "check:e2e": "tsc -p e2e/tsconfig.json"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
-    "@testing-library/react": "^16.0.0",
-    "@types/navermaps": "^3.7.5",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/browser": "^3.0.0",
-    "happy-dom": "^20.9.0",
-    "oxfmt": "^0.36.0",
-    "oxlint": "^1.51.0",
-    "playwright": "^1.58.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "6.0.1-rc",
-    "vite": "^7.3.1",
-    "vitest": "^3.0.0"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/navermaps": "^3.10.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "happy-dom": "^21.0.4",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "playwright": "^1.64.1",
+    "publint": "^0.3.25",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   },
   "peerDependencies": {
+    "@types/navermaps": "^3.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/navermaps": {
+      "optional": true
+    }
   }
 }

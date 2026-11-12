@@ -25,16 +25,20 @@ function MapBoundsMapContent() {
   const mapRef = useRef<naver.maps.Map>(null);
   const [bounds, setBounds] = useState<naver.maps.LatLngBounds | null>(null);
 
-  const dokdoBounds = new navermaps.LatLngBounds(
-    new navermaps.LatLng(37.2380651, 131.8562652),
-    new navermaps.LatLng(37.2444436, 131.8786475),
+  // SDK 객체는 렌더마다 만들지 않고 한 번만 만듭니다.
+  const [dokdoBounds] = useState(
+    () =>
+      new navermaps.LatLngBounds(
+        new navermaps.LatLng(37.2380651, 131.8562652),
+        new navermaps.LatLng(37.2444436, 131.8786475),
+      ),
   );
 
   return (
     <>
       <NaverMap
         ref={mapRef}
-        defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+        defaultCenter={{ lat: 37.5666805, lng: 126.9784147 }}
         defaultZoom={10}
         defaultMapTypeId={navermaps.MapTypeId.NORMAL}
         onInit={() => {

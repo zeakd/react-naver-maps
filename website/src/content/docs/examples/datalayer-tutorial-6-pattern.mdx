@@ -1,0 +1,29 @@
+---
+title: 데이터 레이어 SVG 패턴 적용하기
+category: tutorial-data
+order: 6
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-datalayer-pattern.example.html
+changes:
+  - official: 17개 파일을 `$.ajax`로 받아 개수를 세고 `addGeoJson`을 17번 부르기
+    react: '`useJsonAll`로 한꺼번에 받아 한 FeatureCollection으로 합치고 `<GeoJson>` 하나에 전달'
+  - official: '`createElementNS`로 만든 `svg`의 `innerHTML`에 패턴 넣기'
+    react: 숨긴 `<svg><defs><pattern>`을 JSX로 표시
+  - official: '`map.data.setStyle`과 `map.data.addListener`'
+    react: '`GeoJson`의 `style` prop과 `onClick`, `onMouseover`, `onMouseout` prop'
+  - official: jQuery로 만든 이름표를 `floatPane`에 붙이고 `css` · `text`로 고치기
+    react: 이름표의 글자와 위치를 state로 관리하고 지도 위의 `div`로 표시
+limits:
+  - 공식 예제의 패턴 18개는 문서에 적힌 대용량 SVG 라서 옮기지 않고, 같은 방식으로 직접 만든 패턴 6개를 씁니다.
+  - 공식 예제는 지역마다 패턴을 무작위로 고르지만, 여기서는 지역 이름으로 정해 늘 같은 패턴입니다.
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import DatalayerTutorial6PatternExample from '../../../examples/datalayer-tutorial-6-pattern.tsx';
+
+지역마다 SVG 패턴으로 채웁니다.
+
+<Example of={DatalayerTutorial6PatternExample} />
+
+## 설명
+
+스타일의 `fillColor`에 `url(#패턴id)`를 주면 SVG `<pattern>`으로 채웁니다. 패턴은 페이지에 숨겨 둔 `<svg><defs>`에 React로 그리고, `style` 함수는 컴포넌트 밖에 두어 참조가 바뀌지 않게 합니다.

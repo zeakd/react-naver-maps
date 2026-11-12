@@ -5,7 +5,6 @@ import {
   Rectangle,
   Polygon,
   Polyline,
-  useNavermaps,
 } from 'react-naver-maps';
 
 const rectBounds = {
@@ -31,13 +30,8 @@ const polylinePath = [
 ];
 
 function ShapesMapContent() {
-  const navermaps = useNavermaps();
-
   return (
-    <NaverMap
-      defaultCenter={new navermaps.LatLng(37.565, 126.98)}
-      defaultZoom={13}
-    >
+    <NaverMap defaultCenter={{ lat: 37.565, lng: 126.98 }} defaultZoom={13}>
       <Rectangle
         bounds={rectBounds}
         strokeColor="#FF0000"

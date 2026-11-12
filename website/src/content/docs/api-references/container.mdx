@@ -1,12 +1,12 @@
 ---
 title: Container
 category: api-references
-order: 12
+order: 18
 ---
 
 import PropsTable from 'astro-component-docs/components/PropsTable.astro';
 
-`Container`는 지도가 렌더링될 DOM 컨테이너입니다. `NaverMap`의 부모로 사용합니다. 내부에 `Suspense`를 포함하고 있어, 네이버맵 스크립트 로딩을 자동으로 처리합니다.
+`Container`는 지도가 렌더링될 DOM 컨테이너입니다. `NaverMap`의 부모로 사용하며, 내부의 `Suspense`가 네이버 지도 스크립트 로딩을 처리합니다.
 
 ## 사용법
 
@@ -20,13 +20,13 @@ import { Container as MapDiv, NaverMap } from 'react-naver-maps';
 
 ## render function
 
-children으로 render function을 전달하면 `navermaps` 네임스페이스를 인자로 받을 수 있습니다. 별도 컴포넌트를 분리하지 않아도 됩니다.
+children으로 render function을 전달하면 별도 컴포넌트 없이 `navermaps` 네임스페이스를 인자로 받습니다.
 
 ```tsx
 <Container style={{ width: '100%', height: '400px' }}>
   {(navermaps) => (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666, 126.9784)}
+      defaultCenter={{ lat: 37.5666, lng: 126.9784 }}
       defaultZoom={15}
     />
   )}

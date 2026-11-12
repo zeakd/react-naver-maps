@@ -41,7 +41,7 @@ function MapOptionsMapContent({
 
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
       defaultZoom={13}
       draggable={interaction}
       pinchZoom={interaction}
@@ -55,10 +55,11 @@ function MapOptionsMapContent({
       scaleControl={controls}
       logoControl={controls}
       mapDataControl={controls}
-      zoomControl={true}
+      zoomControl={controls}
       zoomControlOptions={{ position: navermaps.Position.TOP_RIGHT }}
       mapTypeControl={controls}
       minZoom={minZoom}
+      maxZoom={21}
     />
   );
 }
@@ -92,19 +93,19 @@ function MapOptionsMap() {
           style={interaction ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setInteraction((v) => !v)}
         >
-          지도 인터렉션
+          지도 조작
         </button>
         <button
           style={kineticPan ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setKineticPan((v) => !v)}
         >
-          관성 드래깅
+          관성 드래그
         </button>
         <button
           style={tileTransition ? selectedBtnStyle : normalBtnStyle}
           onClick={() => setTileTransition((v) => !v)}
         >
-          타일 fadeIn 효과
+          타일 페이드인 효과
         </button>
         <button
           style={controls ? selectedBtnStyle : normalBtnStyle}

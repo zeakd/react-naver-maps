@@ -1,0 +1,44 @@
+---
+title: 참여하기
+category: guides
+order: 20
+---
+
+버그 제보, 질문, 문서 수정은 [GitHub 이슈](https://github.com/zeakd/react-naver-maps/issues)에 남기거나 PR을 보내 주세요. 문서 페이지 아래의 "GitHub에서 이 페이지 고치기" 링크도 이용해 주세요.
+
+## 이슈를 남길 때
+
+- 라이브러리 버전, React 버전, 브라우저를 적어 주세요.
+- 문제를 재현할 수 있는 가장 작은 코드를 붙여 주세요. SDK를 직접 사용할 때도 생기는지 확인하면 원인을 좁히는 데 도움이 됩니다. SDK 자체의 동작이면 라이브러리에서 고치지 않을 수 있습니다.
+
+## 개발 환경
+
+pnpm 모노레포입니다.
+
+```
+packages/
+  react-naver-maps/        라이브러리
+  astro-component-docs/    문서 사이트의 예제·Props 표 컴포넌트
+website/                   이 문서 사이트(Astro)
+```
+
+```bash
+pnpm install
+pnpm run check                               # lint, format, 타입
+pnpm --filter react-naver-maps test          # 단위 테스트(vitest)
+pnpm --filter website dev                    # 문서 사이트
+```
+
+Node 버전은 `package.json`의 `devEngines`를 따릅니다.
+
+실제 SDK를 사용하는 검사(`test:scenarios`, `test:examples`, `verify:frameworks`)는 Maps 키의 Web 서비스 URL에 등록된 `http://localhost:4321`에서 실행합니다. 포트는 바꾸지 마세요.
+
+## 변경 기록
+
+라이브러리의 동작이 바뀌는 PR에는 changeset을 더합니다.
+
+```bash
+pnpm changeset
+```
+
+문서·예제만 바꾸는 PR에는 필요 없습니다.

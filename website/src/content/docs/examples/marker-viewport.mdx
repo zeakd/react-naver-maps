@@ -1,0 +1,26 @@
+---
+title: 보이는 지도 영역의 마커만 표시하기
+category: tutorial-marker
+order: 22
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-marker-viewport.example.html
+changes:
+  - official: 마커를 모두 만들어 두고 `idle` 리스너에서 영역 밖 마커를 `setMap(null)`, 안의 마커를 `setMap(map)`
+    react: '`onIdle`에서 영역을 state에 담고 영역 안의 마커만 렌더'
+  - official: 처음 지도 영역 안에서 `Math.random()`으로 마커 위치 선택
+    react: 미리 정한 고정 좌표 사용(다시 열어도 같은 위치)
+  - official: '`new naver.maps.Marker`에 `map`·`icon`·`zIndex` 옵션'
+    react: '`<Marker>`의 `icon`·`zIndex` prop, 크기와 좌표는 리터럴'
+additions:
+  - 지금 지도에 그린 마커 수(전체 중 몇 개)를 지도 위에 표시합니다.
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MarkerViewportExample from '../../../examples/marker-viewport.tsx';
+
+지도에 보이는 영역 안의 마커만 그리고 영역 밖 마커는 지도에서 제거합니다.
+
+<Example of={MarkerViewportExample} />
+
+## 설명
+
+`NaverMap`의 `onIdle`에서 `ref.current.getBounds()`를 state에 담고, `hasLatLng`로 걸러 영역 안의 마커만 렌더합니다. 영역을 벗어난 `Marker`는 언마운트되며 지도에서 내려가므로 `setMap(null)`을 직접 부르지 않습니다.

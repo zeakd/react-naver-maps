@@ -1,0 +1,24 @@
+---
+title: 정보 창 표시하기
+category: tutorial-infowindow
+order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-infowindow-simple.example.html
+changes:
+  - official: '`new naver.maps.InfoWindow({ content })`와 `infowindow.open(map, marker)`'
+    react: '`<InfoWindow content anchor open>`. `anchor`는 `ref`로 state에 담은 마커'
+  - official: '마커 click 리스너에서 `infowindow.getMap()`으로 확인해 `open()`, `close()` 호출'
+    react: '`<Marker onClick>`에서 `open` state 변경'
+  - official: '공식 페이지의 CSS 클래스(`iw_inner`, `thumb`)로 꾸민 내용'
+    react: '내용 HTML에 인라인 style'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import InfowindowTutorial1SimpleExample from '../../../examples/infowindow-tutorial-1-simple.tsx';
+
+서울특별시청 마커에 정보 창을 열어 두고 마커를 누르면 닫거나 엽니다.
+
+<Example of={InfowindowTutorial1SimpleExample} />
+
+## 설명
+
+`InfoWindow`의 `content`에 HTML 문자열을, `anchor`에 `Marker` 인스턴스를 전달합니다. `Marker`의 `ref`를 state에 담으면(`ref={setMarker}`) 인스턴스가 만들어진 뒤 `anchor`로 사용할 수 있습니다. 열림 여부는 `open` state로 관리합니다. SDK가 다른 정보 창을 열면서 이 창을 닫을 때는 `onClose`로 state를 갱신합니다.

@@ -1,0 +1,18 @@
+---
+title: 캔버스 타일 지도 유형
+category: tutorial-maptype
+order: 9
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-9-maptypes-canvasmaptype.example.html
+changes:
+  - official: '`PaneTypeRegistry`에 `CanvasMapType` 넣기'
+    react: '`MapTypeRegistry`에 등록'
+  - official: '`new naver.maps.Map`의 `mapTypes`, `mapTypeId` 옵션'
+    react: '`useMemo`로 한 번 만든 레지스트리를 `mapTypes`에, `defaultMapTypeId="Alphabet"`을 prop으로 전달'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial9CanvasMapTypeExample from '../../../examples/maptypes-tutorial-9-canvasmaptype.tsx';
+
+타일을 캔버스로 그려 `ImageData`로 반환하는 `CanvasMapType`을 사용합니다.
+
+<Example of={MapTypesTutorial9CanvasMapTypeExample} />

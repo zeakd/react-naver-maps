@@ -1,13 +1,523 @@
 ---
+// 홈. 왼쪽은 소개·설치·신호, 오른쪽은 실제로 도는 지도 카드(코드 보기). 아래는 특징과 예제.
 import { getCollection } from 'astro:content';
-import DocsLayout from '../layouts/DocsLayout.astro';
+import { Code } from 'astro:components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Install from '../components/Install.astro';
+import Thumb from '../components/Thumb.astro';
+import HeroCard from '../components/home/HeroCard';
+import walkSrc from '../components/home/WalkMap.tsx?raw';
+import { GITHUB, REACT_EXAMPLES } from '../nav';
+import { compact, githubStats } from '../stats';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const docs = await getCollection('docs');
-const entry = docs.find((d) => d.slug === 'guides/introduction')!;
-const { Content } = await entry.render();
+const official = docs.filter((d) => d.data.official);
+const reactExamples = docs.filter((d) => d.data.category === REACT_EXAMPLES).sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+const stats = await githubStats();
+
+// 데모 코드에서 각 동작을 맡은 줄(1부터). 코드가 바뀌어도 따라가도록 내용으로 찾는다.
+const src = walkSrc.trimEnd();
+const rows = src.split('\n');
+const find = (re: RegExp) => rows.findIndex((l) => re.test(l)) + 1;
+const selStart = find(/function select\(/);
+const selEnd = rows.findIndex((l, i) => i >= selStart && /^ {2}\}/.test(l)) + 1;
+const lines = {
+  select: [...Array.from({ length: selEnd - selStart + 1 }, (_, i) => selStart + i), find(/onClick=\{\(\) => select\(p\.id\)\}>/)],
+  toggle: [find(/<Activity mode=/), find(/className="walk-toggle"/)],
+};
+
+const features = [
+  { t: '컴포넌트로 그리는 지도', d: '마커 목록은 배열로 그리고 정보 창은 state로 관리합니다. 이벤트는 props로 넘깁니다.', c: `{places.map((p) => (\n  <Marker key={p.id} position={p}\n    onClick={() => select(p.id)} />\n))}` },
+  { t: 'SDK 옵션은 그대로', d: '새 옵션도 props로 넘깁니다. 필요하면 ref로 SDK 객체에 직접 접근합니다.', c: `<NaverMap ref={map}\n  scaleControl={false} />\n\nmap.current?.panTo(p);` },
+  { t: '숨겨도 그대로인 지도', d: 'React 19 Activity로 숨긴 지도와 마커는 다시 표시할 때 상태를 유지합니다.', c: `<Activity mode={visible\n  ? 'visible' : 'hidden'}>\n  <Marker position={p} />\n</Activity>` },
+];
+const showcase = ['marker-cluster-tutorial', 'datalayer-tutorial-2-region', 'visualization-tutorial-1-heatmap', 'polyline-route', 'custom-overlay', 'map-tutorial-7-fullsize-minimap'];
 ---
 
-<DocsLayout title={entry.data.title} category={entry.data.category} slug={entry.slug}>
-  <h1>{entry.data.title}</h1>
-  <Content />
-</DocsLayout>
+<BaseLayout title="React Naver Maps - 네이버 지도를 React 컴포넌트로" section="home">
+  <main class="home">
+    <section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-text">
+        <a class="hero-pill" href={`${base}/guides/migration-from-03/`}><b>0.4</b> React 19 · 숨겨도 같은 지도 · 서브모듈 <span>→</span></a>
+        <p class="hero-name">React Naver Maps</p>
+        <h1>네이버 지도를<br />React 컴포넌트로</h1>
+        <p class="hero-lede">네이버 지도 JavaScript API v3를 그대로 쓰면서, 지도와 마커를 state로 그립니다.</p>
+        <div class="hero-cta">
+          <a class="btn primary" href={`${base}/guides/quickstart/`}>시작하기</a>
+          <a class="btn" href={`${base}/examples/`}>예제 보기</a>
+          <a class="btn" href={GITHUB} target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <Install />
+        <div class="hero-stats">
+          {stats.stars != null && <span><b>{stats.stars}</b>stars</span>}
+          {stats.weekly != null && <span><b>{compact(stats.weekly)}</b>주간 내려받기</span>}
+          {stats.contributors != null && <span><b>{stats.contributors}</b>기여자</span>}
+          <span><b>MIT</b></span>
+        </div>
+      </div>
+      <HeroCard client:load lines={lines} lineCount={rows.length}>
+        <Code code={src} lang="tsx" themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+      </HeroCard>
+    </section>
+
+    <section class="sec">
+      <p class="eyebrow">특징</p>
+      <h2>React에서 사용하는 네이버 지도</h2>
+      <p class="sub">네이버 지도 SDK의 기능을 React 컴포넌트와 props로 사용합니다.</p>
+      <div class="features">
+        {features.map((f) => (
+          <article>
+            <h3>{f.t}</h3>
+            <p>{f.d}</p>
+            <div class="snip"><Code code={f.c} lang="tsx" themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} /></div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="sec">
+      <p class="eyebrow">예제</p>
+      <h2>공식 예제와 React 예제</h2>
+      <p class="sub">모든 예제는 페이지에서 바로 동작합니다. 코드를 복사해 쓸 때는 키를 자기 것으로 바꿔 주세요.</p>
+      <div class="ex">
+        <a class="ex-big" href={`${base}/examples/#official`}>
+          <div class="ex-grid">{showcase.map((s) => <Thumb slug={s} class="ex-thumb" />)}</div>
+          <div class="ex-text">
+            <h3>공식 예제</h3>
+            <p>네이버 공식 튜토리얼을 React 코드로 작성했습니다. 각 예제에서 공식 코드와 달라진 점을 확인할 수 있습니다.</p>
+            <span>예제 {official.length}개 보기 →</span>
+          </div>
+        </a>
+        <a class="ex-small" href={`${base}/examples/#react`}>
+          <h3>React 예제</h3>
+          <ul>{reactExamples.slice(0, 6).map((r) => <li>{r.data.title}</li>)}</ul>
+          <span>모두 보기 →</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style is:global>
+  .home {
+    overflow-x: clip;
+  }
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 48px;
+    align-items: center;
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 72px 24px 80px;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    inset: 0 -200px;
+    background-image: radial-gradient(color-mix(in srgb, var(--text) 13%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(ellipse 55% 75% at 72% 45%, #000 15%, transparent 72%);
+  }
+  .hero-glow {
+    position: absolute;
+    z-index: -1;
+    top: -60px;
+    right: -80px;
+    width: 760px;
+    height: 620px;
+    background:
+      radial-gradient(closest-side at 42% 55%, color-mix(in srgb, var(--glow-a) 34%, transparent), transparent 70%),
+      radial-gradient(closest-side at 60% 45%, color-mix(in srgb, var(--glow-b) 30%, transparent), transparent 70%);
+    filter: blur(20px);
+    opacity: 0.55;
+  }
+  :root[data-theme='dark'] .hero-glow {
+    opacity: 0.28;
+  }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 26px;
+    padding: 5px 12px 5px 6px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 13.5px;
+    color: var(--text-2);
+  }
+  .hero-pill b {
+    background: var(--brand-soft);
+    color: var(--brand-text);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font: 700 12px var(--mono);
+  }
+  .hero-pill span {
+    color: var(--text-3);
+  }
+  .hero-pill:hover {
+    border-color: var(--brand);
+  }
+  .hero-name {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 700;
+    background: linear-gradient(100deg, #21a865, #1fa3a3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero h1 {
+    margin: 0 0 18px;
+    font-size: clamp(38px, 4.6vw, 60px);
+    line-height: 1.1;
+    letter-spacing: -0.045em;
+    font-weight: 800;
+  }
+  .hero-lede {
+    margin: 0 0 28px;
+    max-width: 500px;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .hero .install {
+    margin-bottom: 22px;
+  }
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 0;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+  .hero-stats span {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .hero-stats span + span::before {
+    content: '';
+    width: 3px;
+    height: 3px;
+    margin: 0 12px;
+    border-radius: 50%;
+    background: var(--line);
+    align-self: center;
+  }
+  .hero-stats b {
+    color: var(--text);
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 1px 2px #0000000d, 0 40px 80px -40px #0d3b2a59, 0 12px 28px -18px #0d3b2a33;
+  }
+  .hero-card-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 46px;
+    padding: 0 12px 0 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .hero-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .hero-dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .hero-seg {
+    display: flex;
+    padding: 3px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+  .hero-seg button {
+    border: 0;
+    background: none;
+    padding: 4px 14px;
+    border-radius: 7px;
+    font: 600 13px var(--font);
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .hero-seg button[aria-selected='true'] {
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 1px 3px #0000001f;
+  }
+  .hero-file {
+    margin-left: auto;
+    font: 500 12.5px var(--mono);
+    color: var(--text-3);
+  }
+  .hero-card-body {
+    position: relative;
+    height: 470px;
+  }
+  .hero-map,
+  .hero-code {
+    position: absolute;
+    inset: 0;
+  }
+  .hero-map[hidden],
+  .hero-code[hidden] {
+    display: none;
+  }
+  .hero-map .walk {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-map .walk-map {
+    flex: 1;
+    height: auto !important;
+  }
+  .hero-code {
+    overflow: auto;
+    background: var(--code-bg);
+  }
+  .hero-code pre {
+    margin: 0;
+    padding: 12px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    counter-reset: ln;
+  }
+  .hero-code .line {
+    display: inline-block;
+    width: 100%;
+    padding-right: 16px;
+    transition: background 0.25s;
+  }
+  .hero-code .line::before {
+    counter-increment: ln;
+    content: counter(ln);
+    display: inline-block;
+    width: 3.2em;
+    padding-right: 1.1em;
+    text-align: right;
+    color: var(--text-3);
+    opacity: 0.55;
+  }
+  .hero-code .line.hl {
+    background: color-mix(in srgb, var(--brand) 13%, transparent);
+    box-shadow: inset 3px 0 0 var(--brand);
+  }
+  .hero-tick {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: var(--bg-soft);
+    padding: 11px 16px;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .hero-tick code {
+    font: 500 12.5px var(--mono);
+    color: var(--brand-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hero-tick em {
+    font-style: normal;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .hero-tick span {
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  .hero-tick:hover span {
+    color: var(--brand-text);
+  }
+  .sec {
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 64px 24px 24px;
+  }
+  .eyebrow {
+    margin: 0 0 10px;
+    font: 600 13px var(--mono);
+    color: var(--brand-text);
+  }
+  .sec h2 {
+    margin: 0 0 10px;
+    font-size: clamp(26px, 3vw, 34px);
+    line-height: 1.25;
+    letter-spacing: -0.035em;
+    font-weight: 780;
+  }
+  .sub {
+    margin: 0 0 28px;
+    max-width: 640px;
+    font-size: 16px;
+    color: var(--text-2);
+  }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+  }
+  .features article {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    padding: 24px 24px 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .features h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    letter-spacing: -0.025em;
+  }
+  .features p {
+    margin: 0 0 18px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+  .snip {
+    margin: 0 -24px;
+    border-top: 1px solid var(--line);
+    background: var(--code-bg);
+  }
+  .snip pre {
+    margin: 0;
+    padding: 16px 24px 18px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .ex {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+  }
+  .ex > a {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--bg);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .ex > a:hover {
+    border-color: var(--brand);
+    transform: translateY(-2px);
+  }
+  .ex-big {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    overflow: hidden;
+  }
+  .ex-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--line);
+  }
+  .ex-grid .ex-thumb {
+    aspect-ratio: 1;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .ex-text,
+  .ex-small {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .ex h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    letter-spacing: -0.025em;
+  }
+  .ex p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--text-2);
+  }
+  .ex-text > span,
+  .ex-small > span {
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--brand-text);
+  }
+  .ex-small ul {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+  .ex-small li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  @media (max-width: 960px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 36px;
+      padding: 44px 16px 48px;
+    }
+    .hero-card-body {
+      height: 400px;
+    }
+    .sec {
+      padding: 44px 16px 16px;
+    }
+    .features,
+    .ex,
+    .ex-big {
+      grid-template-columns: 1fr;
+    }
+    .features {
+      grid-template-rows: none;
+      row-gap: 16px;
+    }
+    .features article {
+      grid-row: auto;
+      grid-template-rows: auto auto 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,24 @@
+---
+title: 두 가지의 지도 유형을 함께 사용하기
+category: tutorial-maptype
+order: 5
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-5-maptypes-naver_osm.example.html
+changes:
+  - official: '`map.mapTypes.set`으로 지도의 기본 레지스트리에 `osm` 더하기'
+    react: 기본 네 유형과 `osm`을 넣은 레지스트리를 `useMemo`로 만들어 `mapTypes`에 전달
+  - official: '`idle` 리스너에서 `getMapTypeId()`, `setMapTypeId()`로 지도 유형 바꾸기'
+    react: '`mapTypeId`를 state로 관리하고 `onIdle`에서 설정. 컨트롤로 바꾼 값은 `onMapTypeIdChanged`로 state에 반영'
+  - official: '`zooming` 동안 `idle` 리스너를 떼었다가 다음 `idle`에 다시 붙이기'
+    react: '`onZoomstart`에서 ref 플래그를 설정해 다음 `idle` 한 번을 건너뛰기'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import MapTypesTutorial5NaverOsmExample from '../../../examples/maptypes-tutorial-5-naver_osm.tsx';
+
+지도 화면이 한국 경계를 벗어나면 OSM으로, 안에 들어오면 네이버 지도로 바꿉니다.
+
+<Example of={MapTypesTutorial5NaverOsmExample} />
+
+## 설명
+
+`onIdle`에서 `ref`로 받은 지도의 `getBounds()`를 한국 경계와 `LatLngBounds.hasBounds`로 비교해 `normal`과 `osm` 중 하나를 고릅니다. 경계는 레지스트리와 함께 `useMemo`로 한 번만 만듭니다.

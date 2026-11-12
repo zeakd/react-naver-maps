@@ -58,7 +58,7 @@ export function extractAllProps(pkg: PackageConfig): ComponentDoc[] {
         const propsType = getComponentPropsType(decl);
         if (!propsType) continue;
 
-        const props = extractPropsFromType(propsType);
+        const props = extractPropsFromType(propsType, decl);
         const overrides = pkg.propsOverrides?.[name] ?? {};
         const mergedProps = applyOverrides(props, overrides);
 
@@ -86,7 +86,9 @@ function getComponentPropsType(decl: any): Type | undefined {
   // or const MyComponent = forwardRef<Ref, Props>(...)
   if (Node.isVariableDeclaration(decl)) {
     const initializer = decl.getInitializer();
-    if (!initializer) return undefined;
+    // .d.ts 의 `declare const X: { (props: P): ... }` 처럼 초기값이 없으면 타입의 호출 시그니처에서
+    // 첫 매개변수 타입을 읽는다. 컴포넌트를 만드는 함수(defineOverlay 등)의 결과가 이렇게 나온다.
+    if (!initializer) return firstParamOfCallSignature(decl);
 
     // Arrow function or function expression
     if (
@@ -98,8 +100,12 @@ function getComponentPropsType(decl: any): Type | undefined {
       return params[0].getType();
     }
 
-    // Call expression: forwardRef<Ref, Props>(...)
+    // Call expression: forwardRef<Ref, Props>(...), defineOverlay<Props, Instance>(...) 등.
+    // 만들어진 컴포넌트의 호출 시그니처에서 첫 매개변수 타입을 읽는다. 타입 인자 순서는
+    // 감싸는 함수마다 달라서 기대지 않는다.
     if (Node.isCallExpression(initializer)) {
+      const fromSignature = firstParamOfCallSignature(decl);
+      if (fromSignature) return fromSignature;
       const typeArgs = initializer.getTypeArguments();
       if (typeArgs.length >= 2) {
         return typeArgs[1].getType();
@@ -123,7 +129,13 @@ function getComponentPropsType(decl: any): Type | undefined {
   return undefined;
 }
 
-function extractPropsFromType(type: Type): PropInfo[] {
+function firstParamOfCallSignature(decl: any): Type | undefined {
+  const signature = decl.getType().getCallSignatures()[0];
+  const param = signature?.getParameters()[0];
+  return param ? param.getTypeAtLocation(decl) : undefined;
+}
+
+function extractPropsFromType(type: Type, location: Node): PropInfo[] {
   const props: PropInfo[] = [];
 
   for (const prop of type.getProperties()) {
@@ -132,22 +144,46 @@ function extractPropsFromType(type: Type): PropInfo[] {
     // Skip internal React props
     if (name === 'key' || name === 'ref' || name.startsWith('__')) continue;
 
-    const valueDecl = prop.getValueDeclaration();
-    if (!valueDecl) continue;
-
-    const propType = prop.getTypeAtLocation(valueDecl);
+    // 매핑 타입(EventHandlerProps<…> 처럼 이름 목록에서 만든 prop)은 값 선언이 없다. 그때는 컴포넌트
+    // 선언 위치에서 타입을 읽는다. 건너뛰면 onClick 같은 이벤트가 표에서 빠진다.
+    // 다만 Omit<ComponentProps<'div'>, …> 처럼 의존성 타입을 다시 매핑한 prop 은 선언이 node_modules
+    // (@types/react)에 있다. 그것은 컴포넌트가 정한 prop 이 아니라 싣지 않는다(Container 의 div 속성).
+    const valueDeclaration = prop.getValueDeclaration();
+    const declarations = prop.getDeclarations();
+    if (
+      !valueDeclaration &&
+      declarations.length > 0 &&
+      declarations.every((d) => d.getSourceFile().isInNodeModules())
+    )
+      continue;
+    const at = valueDeclaration ?? location;
+    const propType = prop.getTypeAtLocation(at);
     const isOptional = prop.isOptional();
 
     props.push({
       name,
       type: simplifyType(propType.getText()),
       required: !isOptional,
-      description: getSymbolDescription(prop),
+      description: getSymbolDescription(prop) ?? eventDescription(name),
       defaultValue: undefined,
     });
   }
 
   return props;
+}
+
+/**
+ * 설명이 없는 on* prop 은 대응하는 SDK 이벤트 이름을 적는다. 라이브러리 규칙: onClick → click,
+ * onPositionChanged → position_changed(KVO 변경 이벤트).
+ */
+function eventDescription(name: string): string | undefined {
+  const m = /^on([A-Z]\w*)$/.exec(name);
+  if (!m) return undefined;
+  const base = m[1]!;
+  const event = base.endsWith('Changed')
+    ? `${base[0]!.toLowerCase()}${base.slice(1, -'Changed'.length)}_changed`
+    : base.toLowerCase();
+  return `SDK의 \`${event}\` 이벤트.`;
 }
 
 function getSymbolDescription(symbol: TsSymbol): string | undefined {

@@ -1,0 +1,28 @@
+---
+title: 그리기 도구 옵션 활용하기
+category: tutorial-drawing
+order: 2
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-drawing-options.example.html
+changes:
+  - official: "`setOptions('drawingControlOptions', ...)` · `setOptions('drawingControl', ...)` 호출"
+    react: '`drawingControlOptions`, `drawingControl` prop에 state 전달'
+  - official: jQuery로 라디오 · 체크박스의 `change`를 듣고 `prop('checked')`로 고치기
+    react: '`checked`를 state로 정하는 제어 입력'
+  - official: '`rect2.setEditable(true)`'
+    react: '`<Rectangle editable>`'
+  - official: '`new Rectangle({ map })`를 만든 뒤 `addDrawing`'
+    react: '`<Rectangle ref>`로 받아 effect에서 `addDrawing`'
+---
+
+import Example from 'astro-component-docs/components/Example.astro';
+import DrawingTutorial2OptionsExample from '../../../examples/drawing-tutorial-2-options.tsx';
+
+도구 막대의 위치·모양·아이콘과 도형별 옵션을 바꿉니다.
+
+<Example of={DrawingTutorial2OptionsExample} />
+
+## 설명
+
+도구 막대의 위치와 모양은 `drawingControlOptions`, 보일 아이콘은 `drawingControl`, 도형 기본 스타일은 `rectangleOptions` 등의 prop입니다. 라디오와 체크박스는 React state로 두고 prop으로 넘깁니다.
+
+편집을 켠 도형(`editable`)은 SDK가 영역을 제자리에서 고치므로 `defaultBounds`로 둡니다. 편집한 영역이 필요하면 `ref`로 받은 인스턴스에서 읽습니다.

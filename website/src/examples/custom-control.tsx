@@ -1,106 +1,77 @@
-import { useEffect, useState } from 'react';
 import {
   NavermapsProvider,
   Container as MapDiv,
   NaverMap,
+  CustomControl,
   useNavermaps,
   useMap,
 } from 'react-naver-maps';
 
-const locationBtnHtml = `
-<a href="#" style="
-  z-index: 100;
-  overflow: hidden;
-  display: inline-block;
-  position: absolute;
-  top: 7px;
-  left: 5px;
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(58,70,88,.45);
-  border-radius: 2px;
-  background: #fcfcfd;
-  background-clip: border-box;
-  text-align: center;
-  -webkit-background-clip: padding;
-  background-clip: padding-box;
-">
-  <span style="
-    overflow: hidden;
-    display: inline-block;
-    color: transparent !important;
-    vertical-align: top;
-    background: url(https://ssl.pstatic.net/static/maps/m/spr_trff_v6.png) 0 0;
-    background-size: 200px 200px;
-    width: 20px;
-    height: 20px;
-    margin: 7px 0 0 0;
-    background-position: -153px -31px;
-  ">NAVER 그린팩토리</span>
-</a>
-`;
+const buttonStyle = {
+  display: 'inline-block',
+  width: 34,
+  height: 34,
+  margin: 5,
+  border: '1px solid rgba(58,70,88,.45)',
+  borderRadius: 2,
+  background: '#fcfcfd',
+  backgroundClip: 'padding-box',
+  textAlign: 'center',
+  cursor: 'pointer',
+} as const;
 
-function MyCustomControl() {
+const iconStyle = {
+  display: 'inline-block',
+  width: 20,
+  height: 20,
+  margin: '7px 0 0 0',
+  background: 'url(https://ssl.pstatic.net/static/maps/m/spr_trff_v6.png) 0 0',
+  backgroundSize: '200px 200px',
+  backgroundPosition: '-153px -31px',
+} as const;
+
+const GREEN_FACTORY = { lat: 37.3595953, lng: 127.1053971 };
+// 공식 예제의 두 번째 컨트롤(map.controls[LEFT_CENTER])이 이동하는 위치입니다. 경도가 조금 다릅니다.
+const GREEN_FACTORY_EAST = { lat: 37.3595953, lng: 127.1553971 };
+
+function HomeControl() {
   const navermaps = useNavermaps();
   const map = useMap();
 
-  useEffect(() => {
-    // 방법 1: CustomControl 객체 사용
-    const customControl = new navermaps.CustomControl(locationBtnHtml, {
-      position: navermaps.Position.TOP_LEFT,
-    });
-    customControl.setMap(map);
-
-    const domElement = customControl.getElement();
-    const handleClick1 = () => {
-      map.setCenter(new navermaps.LatLng(37.3595953, 127.1053971));
-    };
-    domElement.addEventListener('click', handleClick1);
-
-    // 방법 2: map.controls 활용
-    const parent = document.createElement('div');
-    parent.innerHTML = locationBtnHtml;
-    const locationBtnEl = parent.children[0] as HTMLElement;
-    map.controls[naver.maps.Position.LEFT_CENTER].push(locationBtnEl);
-
-    const handleClick2 = () => {
-      map.setCenter(new navermaps.LatLng(37.3595953, 127.1053971));
-    };
-    locationBtnEl.addEventListener('click', handleClick2);
-
-    return () => {
-      domElement.removeEventListener('click', handleClick1);
-      locationBtnEl.removeEventListener('click', handleClick2);
-      customControl.setMap(null);
-    };
-  }, [map, navermaps]);
-
-  return null;
-}
-
-function CustomControlMapContent() {
-  useNavermaps(); // 네이버맵 스크립트 로드 대기
-  const [init, setInit] = useState(false);
-
   return (
-    <NaverMap defaultZoom={13} onInit={() => setInit(true)}>
-      {init && <MyCustomControl />}
-    </NaverMap>
-  );
-}
-
-function CustomControlMapInner() {
-  return (
-    <MapDiv style={{ width: '100%', height: '600px' }}>
-      <CustomControlMapContent />
-    </MapDiv>
+    <>
+      <CustomControl position={navermaps.Position.TOP_LEFT}>
+        <button
+          type="button"
+          aria-label="NAVER 그린팩토리로 이동"
+          style={buttonStyle}
+          onClick={() => map.setCenter(GREEN_FACTORY)}
+        >
+          <span style={iconStyle} />
+        </button>
+      </CustomControl>
+      <CustomControl position={navermaps.Position.LEFT_CENTER}>
+        <button
+          type="button"
+          aria-label="NAVER 그린팩토리 동쪽으로 이동"
+          style={buttonStyle}
+          onClick={() => map.setCenter(GREEN_FACTORY_EAST)}
+        >
+          <span style={iconStyle} />
+        </button>
+      </CustomControl>
+    </>
   );
 }
 
 export default function CustomControlExample() {
   return (
     <NavermapsProvider ncpKeyId="aluya4ff04">
-      <CustomControlMapInner />
+      <MapDiv style={{ width: '100%', height: '600px' }}>
+        <NaverMap defaultZoom={13}>
+          <HomeControl />
+        </NaverMap>
+      </MapDiv>
     </NavermapsProvider>
   );
 }

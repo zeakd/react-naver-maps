@@ -3,19 +3,16 @@ import {
   Container as MapDiv,
   NaverMap,
   Circle,
-  useNavermaps,
 } from 'react-naver-maps';
 
 function CircleMapContent() {
-  const navermaps = useNavermaps();
-
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.5666805, 126.9784147)}
+      defaultCenter={{ lat: 37.5666805, lng: 126.9784147 }}
       defaultZoom={14}
     >
       <Circle
-        center={new navermaps.LatLng(37.5666805, 126.9784147)}
+        center={{ lat: 37.5666805, lng: 126.9784147 }}
         radius={500}
         strokeColor="#5347AA"
         strokeWeight={2}

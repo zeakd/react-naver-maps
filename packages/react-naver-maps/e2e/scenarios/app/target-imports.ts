@@ -1,0 +1,33 @@
+// 시나리오 앱이 target 에서 값으로 가져오는 이름의 전부. 앱 코드는 target.js 를 직접 import 하지 않고
+// 여기서 가져온다. 비교 실행(`e2e/compare.ts` 의 imported())이 이 블록을 읽어, 배포본에 없는
+// 이름은 던지는 함수로 채운다. 새 이름이 필요하면 이 목록 한 곳에만 더한다.
+export {
+  BicycleLayer,
+  Circle,
+  Container,
+  CustomOverlay,
+  CustomControl,
+  DotMap,
+  DrawingManager,
+  FlightSpot,
+  LabelLayer,
+  Layer,
+  GeoJson,
+  Gpx,
+  Kml,
+  geocode,
+  GroundOverlay,
+  HeatMap,
+  InfoWindow,
+  loadScript,
+  Marker,
+  NaverMap,
+  NavermapsProvider,
+  Panorama,
+  Polygon,
+  Polyline,
+  reverseGeocode,
+  useAutoResize,
+  useKVO,
+  useMap,
+} from '../target.js';

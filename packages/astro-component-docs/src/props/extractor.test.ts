@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import { extractAllProps } from './extractor.js';
 import type { PackageConfig } from './types.js';
 import { resolve } from 'node:path';
@@ -68,6 +68,23 @@ describe('extractAllProps', () => {
 
   describe('Marker', () => {
     const marker = docMap.get('Marker')!;
+
+    it('매핑 타입으로 만든 이벤트 prop 도 나온다(onClick, onPositionChanged)', () => {
+      const names = marker.props.map((p) => p.name);
+      expect(names).toContain('onClick');
+      expect(names).toContain('onPositionChanged');
+      const onClick = marker.props.find((p) => p.name === 'onClick')!;
+      expect(onClick.type).toContain('PointerEvent');
+      expect(onClick.description).toContain('`click`');
+    });
+
+    it('React 가 가진 DOM 속성은 싣지 않는다(Container 의 div props)', () => {
+      const container = docMap.get('Container')!;
+      const names = container.props.map((p) => p.name);
+      expect(names).not.toContain('className');
+      expect(names).not.toContain('onCopyCapture');
+      expect(container.props.length).toBeLessThan(10);
+    });
 
     it('position prop이 있다', () => {
       const position = marker.props.find((p) => p.name === 'position');

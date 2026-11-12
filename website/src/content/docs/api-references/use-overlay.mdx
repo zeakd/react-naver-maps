@@ -1,11 +1,11 @@
 ---
 title: useOverlay
 category: api-references
-order: 15
+order: 21
 ---
 
-`useOverlay()`는 네이버맵 오버레이 인스턴스를 React 생명주기에 연결하는 훅입니다.
-바닐라로 만든 `OverlayView` 상속 객체를 React 컴포넌트에서 사용할 수 있게 합니다.
+`useOverlay()`는 네이버 지도 오버레이 인스턴스를 React 생명주기에 연결하는 훅입니다.
+일반 JavaScript로 만든 `OverlayView` 상속 객체를 React 컴포넌트에서 사용합니다.
 
 ## 사용법
 
@@ -26,7 +26,7 @@ function MyOverlay({ position }) {
 
 ## 공식 CustomOverlay 패턴 연결
 
-[네이버맵 공식 CustomOverlay 튜토리얼](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-CustomOverlay.html)대로 만든 바닐라 클래스를 React에서 사용할 수 있습니다.
+[네이버 지도 공식 CustomOverlay 튜토리얼](https://navermaps.github.io/maps.js.ncp/docs/tutorial-6-CustomOverlay.html)대로 일반 JavaScript로 만든 클래스를 React에서 사용합니다.
 
 ```tsx
 // 바닐라 클래스 (공식 패턴 그대로)
@@ -88,7 +88,9 @@ function MyOverlay({ position, onPositionChanged }) {
 
 ## 생명주기
 
-- **mount**: `factory()` 호출 → 인스턴스 생성 (`useLayoutEffect`로 paint 전 실행)
-- **unmount**: `clearInstanceListeners(instance)` + `instance.setMap(null)`
+- 마운트하면 `factory()`를 호출해 인스턴스를 만듭니다. `useLayoutEffect`로 화면을 그리기 전에 실행합니다.
+- 숨기면(Suspense가 다시 걸리거나, `<Activity mode="hidden">`으로 숨기거나, StrictMode가 다시 실행될 때) `instance.setMap(null)`로 지도에서 뗍니다. 인스턴스는 버리지 않습니다.
+- 다시 보이면 같은 인스턴스를 떼기 전 지도에 다시 붙입니다. `factory()`는 다시 부르지 않습니다.
+- 언마운트하면 `clearInstanceListeners(instance)`와 `instance.setMap(null)`을 호출합니다.
 
 재생성이 필요한 경우 React `key` prop으로 제어합니다.

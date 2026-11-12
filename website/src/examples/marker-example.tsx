@@ -3,18 +3,15 @@ import {
   Container as MapDiv,
   NaverMap,
   Marker,
-  useNavermaps,
 } from 'react-naver-maps';
 
 function MarkerMapContent() {
-  const navermaps = useNavermaps();
-
   return (
     <NaverMap
-      defaultCenter={new navermaps.LatLng(37.3595704, 127.105399)}
+      defaultCenter={{ lat: 37.3595704, lng: 127.105399 }}
       defaultZoom={15}
     >
-      <Marker position={new navermaps.LatLng(37.3595704, 127.105399)} />
+      <Marker position={{ lat: 37.3595704, lng: 127.105399 }} />
     </NaverMap>
   );
 }

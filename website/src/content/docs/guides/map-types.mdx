@@ -1,0 +1,77 @@
+---
+title: 지도 유형과 레이어
+category: guides
+order: 7
+---
+
+## 기본 지도 유형
+
+`mapTypeId`로 일반·위성·겹침·지형 지도를 고릅니다. SDK 값(`navermaps.MapTypeId.SATELLITE`)이나 그 문자열(`"satellite"`)을 사용합니다.
+
+```tsx
+<NaverMap mapTypeId="satellite" mapTypeControl />
+```
+
+## 사용자 지도 유형
+
+`mapTypes`에 `MapTypeRegistry`를 넘기면 등록한 유형만 고를 수 있습니다. 등록한 id를 `mapTypeId`로 사용합니다. 레지스트리는 참조로 비교하므로 렌더마다 교체되지 않도록 `useMemo`로 한 번 만듭니다.
+
+```tsx
+const navermaps = useNavermaps();
+const mapTypes = useMemo(
+  () =>
+    new navermaps.MapTypeRegistry({
+      normal: navermaps.NaverStyleMapTypeOptions.getNormalMap(),
+      osm: new navermaps.ImageMapType({
+        name: 'OSM',
+        minZoom: 0,
+        maxZoom: 19,
+        tileSize: new navermaps.Size(256, 256),
+        projection: navermaps.EPSG3857,
+        repeatX: true,
+        getTileUrl: (x, y, z) =>
+          `https://tile.openstreetmap.org/${z}/${x}/${y}.png`,
+      }),
+    }),
+  [navermaps],
+);
+<NaverMap mapTypes={mapTypes} mapTypeId="osm" />;
+```
+
+현재 선택한 id가 없는 레지스트리로 바꾸면 SDK가 지도를 그리지 못합니다(3.10.5 확인). `mapTypeId`를 함께 바꿔 주세요.
+
+## 레이어
+
+지도 위에 겹치는 SDK 레이어를 컴포넌트로 사용합니다. 마운트하면 켜지고 언마운트하면 꺼집니다.
+
+| 컴포넌트                                                        | SDK                                                                        |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `TrafficLayer`, `BicycleLayer`, `CadastralLayer`, `StreetLayer` | 내장 레이어                                                                |
+| `LabelLayer`                                                    | 주기(지명) 레이어. 벡터 일반 지도에 주기를 얹을 때                         |
+| `Layer`                                                         | 사용자 정의 레이어. `new naver.maps.Layer(name, MapTypeRegistry, options)` |
+
+```tsx
+{
+  showTraffic && <TrafficLayer interval={60000} />;
+}
+<Layer name="tileGrid" mapTypes={tileGrid} zIndex={1} />;
+```
+
+내장 레이어의 `zIndex`, `overlayMap` 옵션은 SDK가 사용하지 않아 prop이 없습니다.
+
+## GL과 Style Editor
+
+GL 서브모듈은 WebGL로 벡터 지도를 그립니다. `submodules={['gl']}`로 불러오고 `gl`을 켜 주세요. 공식 문서는 GL을 다른 서브모듈과 함께 사용하지 않도록 안내합니다(개발 모드에서 경고).
+
+```tsx
+<NavermapsProvider ncpKeyId="…" submodules={['gl']}>
+  <Container style={{ height: 400 }}>
+    <NaverMap gl customStyleId="Style Editor 에서 발행한 ID" />
+  </Container>
+</NavermapsProvider>
+```
+
+- 기본 줌: 공식 GL 튜토리얼은 기존 지도 16, 벡터 지도 15라고 적고 MapOptions 문서는 11이라고 적습니다. 라이브러리는 zoom을 주지 않으면 16을 넘깁니다. 벡터 지도에서 같은 범위를 보려면 zoom을 주세요.
+- `customStyleId` 지도에서는 기본 지도 유형과 내장 레이어를 쓸 수 없습니다(개발 모드에서 경고).
+- WebGL을 성능 경고 없이 쓸 수 없는 환경(GPU 없는 브라우저)에서는 SDK가 래스터로 그립니다.
+- `gl`, `customStyleId`, `useStyleMap`은 생성 때만 적용됩니다. 바꾸려면 `key`로 지도를 다시 만듭니다.

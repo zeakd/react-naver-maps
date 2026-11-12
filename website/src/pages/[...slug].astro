@@ -1,20 +1,173 @@
 ---
-import { getCollection } from 'astro:content';
+// 모든 문서 페이지. 예제 페이지는 frontmatter(official·changes·limits·additions)를 같은 자리에 그린다.
+import { existsSync, readFileSync } from 'node:fs';
+import { join, posix } from 'node:path';
+import { getCollection, render } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
+import Inline from '../components/Inline.astro';
+import { exampleCategories, REACT_EXAMPLES } from '../nav';
 
 export async function getStaticPaths() {
   const docs = await getCollection('docs');
-  return docs.map((entry) => ({
-    params: { slug: entry.slug },
-    props: { entry },
-  }));
+  return docs.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content, headings } = await render(entry);
+const d = entry.data;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const isExample = entry.id.startsWith('examples/');
+const isReact = d.category === REACT_EXAMPLES;
+const category = exampleCategories.find((c) => c.id === d.category)?.label;
+// 예제가 사이트의 보조 파일(../samples/remote-data 등)을 import 하면, 복사해 쓸 때 함께 필요한 파일로
+// GitHub 소스 링크를 보여 준다. 예제 상자의 코드는 예제 파일 하나뿐이다.
+const SOURCE = 'https://github.com/zeakd/react-naver-maps/blob/main/website/src';
+const exampleFile = /from '\.\.\/\.\.\/\.\.\/examples\/([\w-]+\.tsx)'/.exec(entry.body ?? '')?.[1];
+const helpers: { spec: string; href: string }[] = [];
+if (exampleFile) {
+  const code = readFileSync(join(process.cwd(), 'src/examples', exampleFile), 'utf8');
+  for (const [, spec] of code.matchAll(/from '(\.{1,2}\/[^']+)'/g)) {
+    const rel = posix.normalize(posix.join('examples', spec!));
+    const file = ['', '.ts', '.tsx'].map((ext) => rel + ext).find((f) => existsSync(join(process.cwd(), 'src', f)));
+    if (file && !helpers.some((h) => h.spec === spec)) helpers.push({ spec: spec!, href: `${SOURCE}/${file}` });
+  }
+}
+// 좁은 화면에서 제목이 두 줄이 될 때 한 덩어리 말이 갈라지지 않게 묶는다(줄 길이는 CSS 의 text-wrap: balance 가 맞춘다).
+const KEEP_TOGETHER = ['지도 유형', '데이터 레이어', 'The Hunters', '이벤트 핸들러', '이미지 아이콘', '요약 정보', '타일 인덱스', '지도 영역', '교통상황 레이어', 'SVG 패턴', '줌 컨트롤'];
+const titleParts = d.title.split(new RegExp(`(${KEEP_TOGETHER.join('|')})`)).filter(Boolean);
+const extra: MarkdownHeading[] = [];
+if (d.changes?.length) extra.push({ depth: 2, slug: 'changes', text: 'React로 옮기며 바꾼 점' });
+if (d.additions?.length) extra.push({ depth: 2, slug: 'additions', text: '공식 예제에 더한 것' });
 ---
 
-<DocsLayout title={entry.data.title} category={entry.data.category} slug={entry.slug}>
-  <h1>{entry.data.title}</h1>
+<DocsLayout title={d.title} slug={entry.id} headings={[...headings, ...extra]} editPath={entry.filePath ? `website/${entry.filePath}` : undefined}>
+  {isExample && (
+    <p class="ex-crumb">
+      <a href={`${base}/examples/`}>예제</a>
+      <span>/</span>
+      {isReact ? <a href={`${base}/examples/#react`}>React 예제</a> : <a href={`${base}/examples/#official`}>공식 예제</a>}
+      {category && <><span>/</span>{category}</>}
+    </p>
+  )}
+  <h1>{titleParts.map((part) => (KEEP_TOGETHER.includes(part) ? <span class="nowrap">{part}</span> : part))}</h1>
+  {d.official && (
+    <p class="ex-badges">
+      <span class="ex-badge">공식 예제 대응</span>
+      <a href={d.official} target="_blank" rel="noopener">네이버 공식 예제 보기 ↗</a>
+    </p>
+  )}
+  {isReact && <p class="ex-badges"><span class="ex-badge react">React 예제</span><span class="ex-badge-note">React 앱에서 자주 사용하는 예제</span></p>}
+
   <Content />
+
+  {helpers.length > 0 && (
+    <div class="ex-helpers">
+      <p class="ex-helpers-h">복사해 쓸 때 함께 필요한 파일</p>
+      <p>이 예제는 사이트의 보조 코드를 씁니다. 아래 파일도 같은 경로에 두거나 내용을 옮겨 주세요.</p>
+      <ul>{helpers.map((h) => <li><a href={h.href} target="_blank" rel="noopener"><code>{h.spec}</code></a></li>)}</ul>
+    </div>
+  )}
+
+  {d.changes && d.changes.length > 0 && (
+    <>
+      <h2 id="changes">React로 옮기며 바꾼 점</h2>
+      <table class="ex-changes">
+        <thead><tr><th>네이버 공식 예제</th><th>이 예제</th></tr></thead>
+        <tbody>
+          {d.changes.map((c) => <tr><td><Inline text={c.official} /></td><td><Inline text={c.react} /></td></tr>)}
+        </tbody>
+      </table>
+      {d.limits && d.limits.length > 0 && (
+        <div class="ex-limits">
+          <p class="ex-limits-h">다르게 동작하거나 옮기지 못한 점</p>
+          <ul>{d.limits.map((l) => <li><Inline text={l} /></li>)}</ul>
+        </div>
+      )}
+    </>
+  )}
+  {d.additions && d.additions.length > 0 && (
+    <>
+      <h2 id="additions">공식 예제에 더한 것</h2>
+      <ul class="ex-additions">{d.additions.map((a) => <li><Inline text={a} /></li>)}</ul>
+    </>
+  )}
 </DocsLayout>
+
+<style is:global>
+  .prose > h1 .nowrap {
+    white-space: nowrap;
+  }
+  .ex-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+    font-size: 13.5px;
+    color: var(--text-3);
+  }
+  .ex-crumb a {
+    color: var(--brand-text);
+  }
+  .ex-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: -2px 0 20px !important;
+    font-size: 14px;
+  }
+  .ex-badges a {
+    color: var(--brand-text) !important;
+    text-decoration: none !important;
+  }
+  .ex-badge {
+    background: var(--brand-soft);
+    color: var(--brand-text);
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .ex-badge.react {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .ex-badge-note {
+    color: var(--text-3);
+  }
+  .prose table.ex-changes {
+    display: table;
+  }
+  .ex-changes td {
+    width: 50%;
+  }
+  .ex-changes td:first-child {
+    color: var(--text-2);
+  }
+  .ex-changes td:last-child {
+    font-weight: 550;
+  }
+  .ex-limits {
+    margin: 0 0 16px;
+    padding: 14px 16px 6px;
+    border-radius: 10px;
+    background: var(--bg-soft);
+    font-size: 14.5px;
+  }
+  .ex-helpers {
+    margin: 0 0 20px;
+    padding: 14px 16px 6px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14.5px;
+  }
+  .ex-helpers-h {
+    margin: 0 0 4px !important;
+    font-weight: 650;
+  }
+  .ex-limits-h {
+    margin: 0 0 6px !important;
+    font-weight: 650;
+  }
+</style>

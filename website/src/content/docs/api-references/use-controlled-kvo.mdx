@@ -1,10 +1,10 @@
 ---
 title: useControlledKVO
 category: api-references
-order: 16
+order: 22
 ---
 
-`useControlledKVO()`는 React prop 값을 네이버맵 KVO 프로퍼티에 단방향으로 동기화하는 훅입니다. 내장 오버레이 컴포넌트들이 내부적으로 사용하며, 커스텀 오버레이를 만들 때도 활용할 수 있습니다.
+`useControlledKVO()`는 React prop 값을 네이버 지도 KVO 프로퍼티에 단방향으로 동기화하는 훅입니다. 내장 오버레이 컴포넌트가 내부적으로 사용하며, 사용자 정의 오버레이를 만들 때도 사용합니다.
 
 ## 시그니처
 
@@ -24,12 +24,14 @@ function useControlledKVO(
 
 ## 동작 방식
 
-1. 첫 렌더는 skip (생성자에서 이미 적용)
-2. 이후 렌더마다 `target.get(property)`와 `value`를 비교
-3. 다르면 setter 호출 (`setPosition`, `setCenter` 등)
-4. `value`가 `undefined`이면 동기화하지 않음 — uncontrolled 모드
+1. 마운트할 때는 생성자에서 이미 적용한 SDK 값을 기록하고 setter를 호출하지 않습니다.
+2. 이후 렌더마다 `value`가 마지막으로 동기화한 값과 다른지, SDK 값이 동기화 직후와 달라졌는지 확인합니다.
+3. 둘 중 하나라도 변경되었고 SDK 값이 `value`와 다르면 setter(`setPosition`, `setOptions` 등)를 호출합니다.
+4. `value`가 `undefined`이면 동기화하지 않습니다(uncontrolled 모드).
 
-비교에는 `===` 후 `.equals()` (LatLng, LatLngBounds 등)를 사용합니다.
+사용자가 지도에서 바꾼 값(끌어 놓은 마커 위치 등)은 다음 렌더에서 `value`로 되돌아갑니다. SDK가 값을 바꿔 저장하는 경우(`path`를 KVOArray로, `minZoom` 3을 6으로)에도 렌더마다 setter를 호출하지 않습니다.
+
+비교는 값으로 합니다. `equals`가 있는 SDK 값(LatLng, Point, Bounds 등)은 `equals`를, 배열은 원소마다, 객체는 키마다 비교합니다. DOM 노드와 함수는 참조로만 비교합니다. 렌더마다 새로 만든 같은 값은 바뀌지 않은 것으로 봅니다.
 
 ## 사용 예
 
@@ -50,6 +52,6 @@ function useCustomOverlay(
 
 ## 설계 참고
 
-- `useLayoutEffect`로 실행 — paint 전에 KVO를 업데이트하여 깜빡임 방지
-- KVO를 구독하지 않음 — 렌더 시점에 직접 비교하여 불필요한 리렌더 방지
-- NaverMap의 `center`/`zoom`/`bounds`에는 사용하지 않음 — 상호 의존적이어서 전용 dirty diff로 처리
+- `useLayoutEffect`로 실행해 화면을 그리기 전에 KVO를 업데이트하고 깜빡임을 방지합니다.
+- KVO를 구독하지 않고 렌더 시점에 직접 비교해 불필요한 리렌더를 방지합니다.
+- `NaverMap`의 `center`/`zoom`/`bounds`는 서로 의존하므로 이 훅 대신 별도의 dirty diff로 처리합니다.

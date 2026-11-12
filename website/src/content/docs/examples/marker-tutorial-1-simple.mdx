@@ -1,18 +1,24 @@
 ---
 title: 마커 표시하기
-category: tutorials
-order: 2
+category: tutorial-marker
+order: 1
+official: https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-marker-simple.example.html
+changes:
+  - official: '`new naver.maps.Map`의 `center`·`zoom` 옵션'
+    react: '`NaverMap`의 `defaultCenter`·`defaultZoom`'
+  - official: '`new naver.maps.Marker`에 `map`을 넘겨 지도에 올리기'
+    react: '`NaverMap`의 자식 `<Marker>`'
+  - official: '`new naver.maps.LatLng` 좌표'
+    react: '`{ lat, lng }` 리터럴'
 ---
 
 import Example from 'astro-component-docs/components/Example.astro';
 import MarkerExample from '../../../examples/marker-example.tsx';
 
-지도 위에 마커를 표시하는 기본 예제입니다.
+지도 위에 마커를 표시합니다.
 
 <Example of={MarkerExample} />
 
 ## 설명
 
-`Marker` 컴포넌트의 `position` prop에 `navermaps.LatLng` 좌표를 전달하면 해당 위치에 마커가 표시됩니다.
-
-다양한 옵션을 통해 마커의 모양, 애니메이션, 클릭 이벤트 등을 설정할 수 있습니다.
+`Marker`의 `position`에 좌표를 주면 그 위치에 마커가 표시됩니다.
